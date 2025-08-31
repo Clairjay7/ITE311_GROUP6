@@ -1,0 +1,27 @@
+DEBUG - 2025-08-31 00:45:53 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-31 00:47:13 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-31 00:47:13 --> Raw POST data: username=admin1&password=Admin%40123
+DEBUG - 2025-08-31 00:47:13 --> Login attempt - Username: admin1
+DEBUG - 2025-08-31 00:47:13 --> POST data: Array
+(
+    [username] => admin1
+    [password] => Admin@123
+)
+
+ERROR - 2025-08-31 00:47:13 --> User not found: admin1
+DEBUG - 2025-08-31 00:47:14 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-31 00:47:57 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-31 00:47:57 --> Raw POST data: username=superadmin&password=Admin%40123
+DEBUG - 2025-08-31 00:47:57 --> Login attempt - Username: superadmin
+DEBUG - 2025-08-31 00:47:57 --> POST data: Array
+(
+    [username] => superadmin
+    [password] => Admin@123
+)
+
+DEBUG - 2025-08-31 00:47:57 --> SQL Query: SELECT *
+FROM `users`
+WHERE `username` = 'superadmin'
+AND `users`.`deleted_at` IS NULL
+ LIMIT 1
+DEBUG - 2025-08-31 00:47:57 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.

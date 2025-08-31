@@ -1,0 +1,1 @@
+__ci_last_regenerate|i:1756522048;_ci_previous_url|s:41:"http://localhost/Group6/public/index.php/";_ci_old_input|a:2:{s:3:"get";a:0:{}s:4:"post";a:3:{s:4:"role";s:11:"super_admin";s:8:"username";s:10:"superadmin";s:8:"password";s:14:"SuperAdmin@123";}}__ci_vars|a:2:{s:13:"_ci_old_input";s:3:"old";s:5:"error";s:3:"old";}error|s:35:"Invalid username, password, or role";

@@ -1,0 +1,2314 @@
+DEBUG - 2025-08-30 00:00:51 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:01:48 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:01:49 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2025-08-30 00:09:40 --> mysqli_sql_exception: Duplicate entry 'superadmin' for key 'username' in C:\xampp\htdocs\Group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\Group6\system\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `us...', 0)
+#1 C:\xampp\htdocs\Group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `us...')
+#2 C:\xampp\htdocs\Group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `us...')
+#3 C:\xampp\htdocs\Group6\system\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `us...', Array, false)
+#4 C:\xampp\htdocs\Group6\system\Model.php(394): CodeIgniter\Database\BaseBuilder->insert()
+#5 C:\xampp\htdocs\Group6\system\BaseModel.php(838): CodeIgniter\Model->doInsert(Array)
+#6 C:\xampp\htdocs\Group6\system\Model.php(797): CodeIgniter\BaseModel->insert(Array, false)
+#7 C:\xampp\htdocs\Group6\system\BaseModel.php(751): CodeIgniter\Model->insert(Array, false)
+#8 C:\xampp\htdocs\Group6\app\Database\Seeds\UserSeeder.php(100): CodeIgniter\BaseModel->save(Array)
+#9 C:\xampp\htdocs\Group6\system\Database\Seeder.php(149): App\Database\Seeds\UserSeeder->run()
+#10 C:\xampp\htdocs\Group6\system\Commands\Database\Seed.php(79): CodeIgniter\Database\Seeder->call('App\\Database\\Se...')
+#11 C:\xampp\htdocs\Group6\system\CLI\Commands.php(74): CodeIgniter\Commands\Database\Seed->run(Array)
+#12 C:\xampp\htdocs\Group6\system\CLI\Console.php(47): CodeIgniter\CLI\Commands->run('db:seed', Array)
+#13 C:\xampp\htdocs\Group6\system\Boot.php(388): CodeIgniter\CLI\Console->run()
+#14 C:\xampp\htdocs\Group6\system\Boot.php(133): CodeIgniter\Boot::runCommand(Object(CodeIgniter\CLI\Console))
+#15 C:\xampp\htdocs\Group6\spark(87): CodeIgniter\Boot::bootSpark(Object(Config\Paths))
+#16 {main}
+CRITICAL - 2025-08-30 00:10:36 --> TypeError: CodeIgniter\CLI\InputOutput::input(): Return value must be of type string, bool returned
+[Method: CLI, Route: db:table/information_schema.COLUMNS]
+in SYSTEMPATH\CLI\InputOutput.php on line 46.
+ 1 SYSTEMPATH\CLI\CLI.php(260): CodeIgniter\CLI\InputOutput->input()
+ 2 SYSTEMPATH\CLI\CLI.php(298): CodeIgniter\CLI\CLI::prompt('
+Which table do you want to see?', [...], [...])
+ 3 SYSTEMPATH\Commands\Database\ShowTableInfo.php(145): CodeIgniter\CLI\CLI::promptByKey([], [...], 'required')
+ 4 SYSTEMPATH\CLI\Commands.php(74): CodeIgniter\Commands\Database\ShowTableInfo->run([...])
+ 5 SYSTEMPATH\CLI\Console.php(47): CodeIgniter\CLI\Commands->run('db:table', [...])
+ 6 SYSTEMPATH\Boot.php(388): CodeIgniter\CLI\Console->run()
+ 7 SYSTEMPATH\Boot.php(133): CodeIgniter\Boot::runCommand(Object(CodeIgniter\CLI\Console))
+ 8 ROOTPATH\spark(87): CodeIgniter\Boot::bootSpark(Object(Config\Paths))
+DEBUG - 2025-08-30 00:11:50 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:11:50 --> Login attempt - Username: labstaff1, Role: laboratory_staff
+DEBUG - 2025-08-30 00:11:50 --> User query result: Array
+(
+    [id] => 14
+    [username] => labstaff1
+    [email] => lab@hospital.com
+    [password_hash] => $2y$10$0SNXd0CHxk/Pr.Gv.z0kbuIfsQOohbwWN5e7gXjtPzgRYE7zaHFgu
+    [first_name] => Michael
+    [last_name] => Brown
+    [profile_pic] => 
+    [status] => active
+    [role] => laboratory_staff
+    [last_login] => 
+    [created_at] => 2025-08-29 20:24:53
+    [updated_at] => 2025-08-29 20:24:53
+    [deleted_at] => 
+)
+
+DEBUG - 2025-08-30 00:11:50 --> Password verification: Failed
+DEBUG - 2025-08-30 00:11:50 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:12:50 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:14:01 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:14:01 --> Login attempt - Username: superadmin, Role: super_admin
+DEBUG - 2025-08-30 00:14:01 --> User query result: Array
+(
+    [id] => 10
+    [username] => superadmin
+    [email] => superadmin@hospital.com
+    [password_hash] => $2y$10$PtzAZBjSEu0NjUEiudB2puPXFIOKknxOpRr4oM0d6LzTtaCTR1NTO
+    [first_name] => Super
+    [last_name] => Admin
+    [profile_pic] => 
+    [status] => active
+    [role] => super_admin
+    [last_login] => 
+    [created_at] => 2025-08-29 20:24:52
+    [updated_at] => 2025-08-29 20:24:52
+    [deleted_at] => 
+)
+
+DEBUG - 2025-08-30 00:14:01 --> Password verification: Failed
+DEBUG - 2025-08-30 00:14:01 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:14:07 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:14:22 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:14:22 --> Login attempt - Username: superadmin, Role: super_admin
+DEBUG - 2025-08-30 00:14:22 --> User query result: Array
+(
+    [id] => 10
+    [username] => superadmin
+    [email] => superadmin@hospital.com
+    [password_hash] => $2y$10$PtzAZBjSEu0NjUEiudB2puPXFIOKknxOpRr4oM0d6LzTtaCTR1NTO
+    [first_name] => Super
+    [last_name] => Admin
+    [profile_pic] => 
+    [status] => active
+    [role] => super_admin
+    [last_login] => 
+    [created_at] => 2025-08-29 20:24:52
+    [updated_at] => 2025-08-29 20:24:52
+    [deleted_at] => 
+)
+
+DEBUG - 2025-08-30 00:14:22 --> Password verification: Failed
+DEBUG - 2025-08-30 00:14:22 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:15:32 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:16:01 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:16:01 --> Login attempt - Username: superadmin, Role: super_admin
+DEBUG - 2025-08-30 00:16:01 --> User query result: Array
+(
+    [id] => 10
+    [username] => superadmin
+    [email] => superadmin@hospital.com
+    [password_hash] => $2y$10$PtzAZBjSEu0NjUEiudB2puPXFIOKknxOpRr4oM0d6LzTtaCTR1NTO
+    [first_name] => Super
+    [last_name] => Admin
+    [profile_pic] => 
+    [status] => active
+    [role] => super_admin
+    [last_login] => 
+    [created_at] => 2025-08-29 20:24:52
+    [updated_at] => 2025-08-29 20:24:52
+    [deleted_at] => 
+)
+
+DEBUG - 2025-08-30 00:16:01 --> Password verification: Failed
+DEBUG - 2025-08-30 00:16:01 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:16:10 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:16:14 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:16:17 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:16:34 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:16:38 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:16:44 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:16:45 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:16:57 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:16:57 --> Login attempt - Username: superadmin, Role: super_admin
+DEBUG - 2025-08-30 00:16:57 --> User query result: Array
+(
+    [id] => 10
+    [username] => superadmin
+    [email] => superadmin@hospital.com
+    [password_hash] => $2y$10$PtzAZBjSEu0NjUEiudB2puPXFIOKknxOpRr4oM0d6LzTtaCTR1NTO
+    [first_name] => Super
+    [last_name] => Admin
+    [profile_pic] => 
+    [status] => active
+    [role] => super_admin
+    [last_login] => 
+    [created_at] => 2025-08-29 20:24:52
+    [updated_at] => 2025-08-29 20:24:52
+    [deleted_at] => 
+)
+
+DEBUG - 2025-08-30 00:16:58 --> Password verification: Failed
+DEBUG - 2025-08-30 00:16:58 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:19:03 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:19:44 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:19:44 --> Login attempt - Username: superadmin, Role: super_admin
+DEBUG - 2025-08-30 00:19:44 --> User query result: Array
+(
+    [id] => 10
+    [username] => superadmin
+    [email] => superadmin@hospital.com
+    [password_hash] => $2y$10$PtzAZBjSEu0NjUEiudB2puPXFIOKknxOpRr4oM0d6LzTtaCTR1NTO
+    [first_name] => Super
+    [last_name] => Admin
+    [profile_pic] => 
+    [status] => active
+    [role] => super_admin
+    [last_login] => 
+    [created_at] => 2025-08-29 20:24:52
+    [updated_at] => 2025-08-29 20:24:52
+    [deleted_at] => 
+)
+
+DEBUG - 2025-08-30 00:19:44 --> Password verification: Failed
+DEBUG - 2025-08-30 00:19:44 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:23:00 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:23:09 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:23:09 --> Login attempt - Username: superadmin, Role: super_admin
+DEBUG - 2025-08-30 00:23:09 --> User query result: Array
+(
+    [id] => 10
+    [username] => superadmin
+    [email] => superadmin@hospital.com
+    [password_hash] => $2y$10$H9.LRrwwYjcwIAPhKWoDAeLKSDwvu9fb/80bBV2aTqbDhtGgBHPMm
+    [first_name] => Super
+    [last_name] => Admin
+    [profile_pic] => 
+    [status] => active
+    [role] => super_admin
+    [last_login] => 
+    [created_at] => 2025-08-29 20:24:52
+    [updated_at] => 2025-08-29 20:24:52
+    [deleted_at] => 
+)
+
+DEBUG - 2025-08-30 00:23:09 --> Password verification: Success
+DEBUG - 2025-08-30 00:23:09 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:23:20 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:23:20 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:23:40 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:23:40 --> Login attempt - Username: doctor1, Role: doctor
+DEBUG - 2025-08-30 00:23:40 --> User query result: Array
+(
+    [id] => 11
+    [username] => doctor1
+    [email] => doctor@hospital.com
+    [password_hash] => $2y$10$4DOJB8W/yMO1N9lf6wwafecUKWm2.MoziZGuC2TLrlnwYcmGM2HS6
+    [first_name] => John
+    [last_name] => Smith
+    [profile_pic] => 
+    [status] => active
+    [role] => doctor
+    [last_login] => 
+    [created_at] => 2025-08-29 20:24:52
+    [updated_at] => 2025-08-29 20:24:52
+    [deleted_at] => 
+)
+
+DEBUG - 2025-08-30 00:23:40 --> Password verification: Failed
+DEBUG - 2025-08-30 00:23:40 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:23:52 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:23:52 --> Login attempt - Username: superadmin, Role: super_admin
+DEBUG - 2025-08-30 00:23:52 --> User query result: Array
+(
+    [id] => 10
+    [username] => superadmin
+    [email] => superadmin@hospital.com
+    [password_hash] => $2y$10$H9.LRrwwYjcwIAPhKWoDAeLKSDwvu9fb/80bBV2aTqbDhtGgBHPMm
+    [first_name] => Super
+    [last_name] => Admin
+    [profile_pic] => 
+    [status] => active
+    [role] => super_admin
+    [last_login] => 2025-08-30 00:23:09
+    [created_at] => 2025-08-29 20:24:52
+    [updated_at] => 2025-08-30 00:23:09
+    [deleted_at] => 
+)
+
+DEBUG - 2025-08-30 00:23:52 --> Password verification: Success
+DEBUG - 2025-08-30 00:23:52 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:23:55 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:23:55 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:24:01 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:24:01 --> Login attempt - Username: superadmin, Role: super_admin
+DEBUG - 2025-08-30 00:24:01 --> User query result: Array
+(
+    [id] => 10
+    [username] => superadmin
+    [email] => superadmin@hospital.com
+    [password_hash] => $2y$10$H9.LRrwwYjcwIAPhKWoDAeLKSDwvu9fb/80bBV2aTqbDhtGgBHPMm
+    [first_name] => Super
+    [last_name] => Admin
+    [profile_pic] => 
+    [status] => active
+    [role] => super_admin
+    [last_login] => 2025-08-30 00:23:52
+    [created_at] => 2025-08-29 20:24:52
+    [updated_at] => 2025-08-30 00:23:52
+    [deleted_at] => 
+)
+
+DEBUG - 2025-08-30 00:24:01 --> Password verification: Failed
+DEBUG - 2025-08-30 00:24:01 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:26:31 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:26:31 --> Login attempt - Username: doctor1, Role: doctor
+DEBUG - 2025-08-30 00:26:31 --> User query result: Array
+(
+    [id] => 11
+    [username] => doctor1
+    [email] => doctor@hospital.com
+    [password_hash] => $2y$10$L0A4pttXQz89o0U1JF6YDuAhtEoHrmLyZYp0dR3jTk.WyOKjkCEDu
+    [first_name] => John
+    [last_name] => Smith
+    [profile_pic] => 
+    [status] => active
+    [role] => doctor
+    [last_login] => 
+    [created_at] => 2025-08-29 20:24:52
+    [updated_at] => 2025-08-29 20:24:52
+    [deleted_at] => 
+)
+
+DEBUG - 2025-08-30 00:26:31 --> Password verification: Success
+DEBUG - 2025-08-30 00:26:31 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+CRITICAL - 2025-08-30 00:26:31 --> ErrorException: Undefined variable $rolePath
+[Method: GET, Route: doctor/dashboard]
+in APPPATH\Views\doctor\doctor_dashboard.php on line 215.
+ 1 APPPATH\Views\doctor\doctor_dashboard.php(215): CodeIgniter\Debug\Exceptions->errorHandler(2, 'Undefined variable $rolePath', 'C:\\xampp\\htdocs\\Group6\\app\\Views\\doctor\\doctor_dashboard.php', 215)
+ 2 SYSTEMPATH\View\View.php(226): include('C:\\xampp\\htdocs\\Group6\\app\\Views\\doctor\\doctor_dashboard.php')
+ 3 SYSTEMPATH\View\View.php(229): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH\Common.php(1167): CodeIgniter\View\View->render('doctor/doctor_dashboard', [], true)
+ 5 APPPATH\Controllers\Doctor\Dashboard.php(16): view('doctor/doctor_dashboard', [...])
+ 6 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Doctor\Dashboard->index()
+ 7 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Doctor\Dashboard))
+ 8 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+DEBUG - 2025-08-30 00:27:40 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:28:01 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:28:04 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:28:05 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:28:37 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:28:37 --> Login attempt - Username: superadmin, Role: super_admin
+DEBUG - 2025-08-30 00:28:37 --> User query result: Array
+(
+    [id] => 10
+    [username] => superadmin
+    [email] => superadmin@hospital.com
+    [password_hash] => $2y$10$mLDk7aAKDzyDUHT4WeZoi.AinhpFZ.KmV.1TKV0eeucrHqquRcZ16
+    [first_name] => Super
+    [last_name] => Admin
+    [profile_pic] => 
+    [status] => active
+    [role] => super_admin
+    [last_login] => 2025-08-30 00:23:52
+    [created_at] => 2025-08-29 20:24:52
+    [updated_at] => 2025-08-30 00:23:52
+    [deleted_at] => 
+)
+
+DEBUG - 2025-08-30 00:28:37 --> Password verification: Success
+DEBUG - 2025-08-30 00:28:37 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:28:47 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:28:47 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:29:10 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:29:10 --> Login attempt - Username: nurse1, Role: nurse
+DEBUG - 2025-08-30 00:29:10 --> User query result: Array
+(
+    [id] => 12
+    [username] => nurse1
+    [email] => nurse@hospital.com
+    [password_hash] => $2y$10$nvuKEmJocVK2qZ0.CvDil.NurIPy3bF4qBhTxFfadNHLBeNdOyYlm
+    [first_name] => Sarah
+    [last_name] => Johnson
+    [profile_pic] => 
+    [status] => active
+    [role] => nurse
+    [last_login] => 
+    [created_at] => 2025-08-29 20:24:52
+    [updated_at] => 2025-08-29 20:24:52
+    [deleted_at] => 
+)
+
+DEBUG - 2025-08-30 00:29:10 --> Password verification: Success
+DEBUG - 2025-08-30 00:29:10 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+CRITICAL - 2025-08-30 00:29:10 --> CodeIgniter\View\Exceptions\ViewException: Invalid file: "Nurse/dashboard.php"
+[Method: GET, Route: nurse/dashboard]
+in SYSTEMPATH\Exceptions\FrameworkException.php on line 39.
+ 1 SYSTEMPATH\View\View.php(214): CodeIgniter\Exceptions\FrameworkException::forInvalidFile('Nurse/dashboard.php')
+ 2 SYSTEMPATH\Common.php(1167): CodeIgniter\View\View->render('Nurse/dashboard', [], true)
+ 3 APPPATH\Controllers\Nurse\Dashboard.php(16): view('Nurse/dashboard', [...])
+ 4 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Nurse\Dashboard->index()
+ 5 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Nurse\Dashboard))
+ 6 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 7 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 8 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 9 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+DEBUG - 2025-08-30 00:33:14 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:35:58 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:36:00 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:36:00 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:36:23 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:36:23 --> Login attempt - Username: superadmin, Role: super_admin
+DEBUG - 2025-08-30 00:36:23 --> User query result: Array
+(
+    [id] => 10
+    [username] => superadmin
+    [email] => superadmin@hospital.com
+    [password_hash] => $2y$10$mLDk7aAKDzyDUHT4WeZoi.AinhpFZ.KmV.1TKV0eeucrHqquRcZ16
+    [first_name] => Super
+    [last_name] => Admin
+    [profile_pic] => 
+    [status] => active
+    [role] => super_admin
+    [last_login] => 2025-08-30 00:28:37
+    [created_at] => 2025-08-29 20:24:52
+    [updated_at] => 2025-08-30 00:28:37
+    [deleted_at] => 
+)
+
+DEBUG - 2025-08-30 00:36:23 --> Password verification: Success
+DEBUG - 2025-08-30 00:36:23 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:36:33 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:36:33 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:36:44 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:36:44 --> Login attempt - Username: superadmin, Role: super_admin
+DEBUG - 2025-08-30 00:36:44 --> User query result: Array
+(
+    [id] => 10
+    [username] => superadmin
+    [email] => superadmin@hospital.com
+    [password_hash] => $2y$10$mLDk7aAKDzyDUHT4WeZoi.AinhpFZ.KmV.1TKV0eeucrHqquRcZ16
+    [first_name] => Super
+    [last_name] => Admin
+    [profile_pic] => 
+    [status] => active
+    [role] => super_admin
+    [last_login] => 2025-08-30 00:36:23
+    [created_at] => 2025-08-29 20:24:52
+    [updated_at] => 2025-08-30 00:36:23
+    [deleted_at] => 
+)
+
+DEBUG - 2025-08-30 00:36:44 --> Password verification: Failed
+DEBUG - 2025-08-30 00:36:44 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:37:03 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:37:03 --> Login attempt - Username: doctor1, Role: doctor
+DEBUG - 2025-08-30 00:37:03 --> User query result: Array
+(
+    [id] => 11
+    [username] => doctor1
+    [email] => doctor@hospital.com
+    [password_hash] => $2y$10$L0A4pttXQz89o0U1JF6YDuAhtEoHrmLyZYp0dR3jTk.WyOKjkCEDu
+    [first_name] => John
+    [last_name] => Smith
+    [profile_pic] => 
+    [status] => active
+    [role] => doctor
+    [last_login] => 2025-08-30 00:26:31
+    [created_at] => 2025-08-29 20:24:52
+    [updated_at] => 2025-08-30 00:26:31
+    [deleted_at] => 
+)
+
+DEBUG - 2025-08-30 00:37:03 --> Password verification: Success
+DEBUG - 2025-08-30 00:37:04 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:37:15 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:37:15 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:37:30 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:37:30 --> Login attempt - Username: nurse1, Role: nurse
+DEBUG - 2025-08-30 00:37:30 --> User query result: Array
+(
+    [id] => 12
+    [username] => nurse1
+    [email] => nurse@hospital.com
+    [password_hash] => $2y$10$nvuKEmJocVK2qZ0.CvDil.NurIPy3bF4qBhTxFfadNHLBeNdOyYlm
+    [first_name] => Sarah
+    [last_name] => Johnson
+    [profile_pic] => 
+    [status] => active
+    [role] => nurse
+    [last_login] => 2025-08-30 00:29:10
+    [created_at] => 2025-08-29 20:24:52
+    [updated_at] => 2025-08-30 00:29:10
+    [deleted_at] => 
+)
+
+DEBUG - 2025-08-30 00:37:31 --> Password verification: Success
+DEBUG - 2025-08-30 00:37:31 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:37:34 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:37:34 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:37:50 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:37:50 --> Login attempt - Username: reception1, Role: receptionist
+DEBUG - 2025-08-30 00:37:50 --> User query result: Array
+(
+    [id] => 13
+    [username] => reception1
+    [email] => reception@hospital.com
+    [password_hash] => $2y$10$QXJ/dEtsFCo9Vi/BIPnijuxPULGeiEU9I8NkzbnzuXRc1eYueKM5K
+    [first_name] => Emma
+    [last_name] => Wilson
+    [profile_pic] => 
+    [status] => active
+    [role] => receptionist
+    [last_login] => 
+    [created_at] => 2025-08-29 20:24:52
+    [updated_at] => 2025-08-29 20:24:52
+    [deleted_at] => 
+)
+
+DEBUG - 2025-08-30 00:37:50 --> Password verification: Success
+DEBUG - 2025-08-30 00:37:50 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+CRITICAL - 2025-08-30 00:37:50 --> CodeIgniter\View\Exceptions\ViewException: Invalid file: "Receptionist/dashboard.php"
+[Method: GET, Route: receptionist/dashboard]
+in SYSTEMPATH\Exceptions\FrameworkException.php on line 39.
+ 1 SYSTEMPATH\View\View.php(214): CodeIgniter\Exceptions\FrameworkException::forInvalidFile('Receptionist/dashboard.php')
+ 2 SYSTEMPATH\Common.php(1167): CodeIgniter\View\View->render('Receptionist/dashboard', [], true)
+ 3 APPPATH\Controllers\Receptionist\Dashboard.php(16): view('Receptionist/dashboard', [...])
+ 4 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Receptionist\Dashboard->index()
+ 5 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Receptionist\Dashboard))
+ 6 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 7 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 8 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 9 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+DEBUG - 2025-08-30 00:39:44 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:40:19 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:40:21 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:40:21 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:41:16 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:41:16 --> Login attempt - Username: labstaff1, Role: laboratory_staff
+DEBUG - 2025-08-30 00:41:16 --> User query result: Array
+(
+    [id] => 14
+    [username] => labstaff1
+    [email] => lab@hospital.com
+    [password_hash] => $2y$10$DVHUlVoRycTFyNiyC7i3l.CRwfQNj37Cfo6BFIdwaMW0a6hXzd2sK
+    [first_name] => Michael
+    [last_name] => Brown
+    [profile_pic] => 
+    [status] => active
+    [role] => laboratory_staff
+    [last_login] => 
+    [created_at] => 2025-08-29 20:24:53
+    [updated_at] => 2025-08-29 20:24:53
+    [deleted_at] => 
+)
+
+DEBUG - 2025-08-30 00:41:16 --> Password verification: Success
+DEBUG - 2025-08-30 00:41:16 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+CRITICAL - 2025-08-30 00:41:16 --> CodeIgniter\View\Exceptions\ViewException: Invalid file: "Laboratory/dashboard.php"
+[Method: GET, Route: laboratory/dashboard]
+in SYSTEMPATH\Exceptions\FrameworkException.php on line 39.
+ 1 SYSTEMPATH\View\View.php(214): CodeIgniter\Exceptions\FrameworkException::forInvalidFile('Laboratory/dashboard.php')
+ 2 SYSTEMPATH\Common.php(1167): CodeIgniter\View\View->render('Laboratory/dashboard', [], true)
+ 3 APPPATH\Controllers\Laboratory\Dashboard.php(16): view('Laboratory/dashboard', [...])
+ 4 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Laboratory\Dashboard->index()
+ 5 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Laboratory\Dashboard))
+ 6 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 7 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 8 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 9 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+DEBUG - 2025-08-30 00:42:36 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:42:49 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:42:49 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:43:16 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:43:16 --> Login attempt - Username: pharmacist1, Role: pharmacist
+DEBUG - 2025-08-30 00:43:17 --> User query result: Array
+(
+    [id] => 15
+    [username] => pharmacist1
+    [email] => pharmacy@hospital.com
+    [password_hash] => $2y$10$lME6sTs5b3.WP00HLy4JaOtn98T9QSSOJNOOXyvaZ58TOiCmVj3Gu
+    [first_name] => David
+    [last_name] => Lee
+    [profile_pic] => 
+    [status] => active
+    [role] => pharmacist
+    [last_login] => 
+    [created_at] => 2025-08-29 20:24:53
+    [updated_at] => 2025-08-29 20:24:53
+    [deleted_at] => 
+)
+
+DEBUG - 2025-08-30 00:43:17 --> Password verification: Success
+DEBUG - 2025-08-30 00:43:17 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+CRITICAL - 2025-08-30 00:43:17 --> CodeIgniter\View\Exceptions\ViewException: Invalid file: "Pharmacist/dashboard.php"
+[Method: GET, Route: pharmacist/dashboard]
+in SYSTEMPATH\Exceptions\FrameworkException.php on line 39.
+ 1 SYSTEMPATH\View\View.php(214): CodeIgniter\Exceptions\FrameworkException::forInvalidFile('Pharmacist/dashboard.php')
+ 2 SYSTEMPATH\Common.php(1167): CodeIgniter\View\View->render('Pharmacist/dashboard', [], true)
+ 3 APPPATH\Controllers\Pharmacist\Dashboard.php(16): view('Pharmacist/dashboard', [...])
+ 4 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Pharmacist\Dashboard->index()
+ 5 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Pharmacist\Dashboard))
+ 6 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 7 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 8 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 9 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+DEBUG - 2025-08-30 00:44:46 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:44:58 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:44:59 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:45:15 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:45:15 --> Login attempt - Username: accountant1, Role: accountant
+DEBUG - 2025-08-30 00:45:15 --> User query result: Array
+(
+    [id] => 16
+    [username] => accountant1
+    [email] => accounting@hospital.com
+    [password_hash] => $2y$10$4EhlHObuefOrRzOmQPvCVOaxJDNxXExP2OzotoA.EGEsGxztMC1XK
+    [first_name] => Jennifer
+    [last_name] => Davis
+    [profile_pic] => 
+    [status] => active
+    [role] => accountant
+    [last_login] => 
+    [created_at] => 2025-08-29 20:24:53
+    [updated_at] => 2025-08-29 20:24:53
+    [deleted_at] => 
+)
+
+DEBUG - 2025-08-30 00:45:15 --> Password verification: Success
+DEBUG - 2025-08-30 00:45:15 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+CRITICAL - 2025-08-30 00:45:15 --> CodeIgniter\View\Exceptions\ViewException: Invalid file: "Accountant/dashboard.php"
+[Method: GET, Route: accountant/dashboard]
+in SYSTEMPATH\Exceptions\FrameworkException.php on line 39.
+ 1 SYSTEMPATH\View\View.php(214): CodeIgniter\Exceptions\FrameworkException::forInvalidFile('Accountant/dashboard.php')
+ 2 SYSTEMPATH\Common.php(1167): CodeIgniter\View\View->render('Accountant/dashboard', [], true)
+ 3 APPPATH\Controllers\Accountant\Dashboard.php(16): view('Accountant/dashboard', [...])
+ 4 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Accountant\Dashboard->index()
+ 5 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Accountant\Dashboard))
+ 6 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 7 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 8 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 9 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+DEBUG - 2025-08-30 00:46:58 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+CRITICAL - 2025-08-30 00:46:58 --> ErrorException: Undefined variable $outstandingBalance
+[Method: GET, Route: accountant/dashboard]
+in APPPATH\Views\Accountant\dashboard.php on line 36.
+ 1 APPPATH\Views\Accountant\dashboard.php(36): CodeIgniter\Debug\Exceptions->errorHandler(2, 'Undefined variable $outstandingBalance', 'C:\\xampp\\htdocs\\Group6\\app\\Views\\Accountant\\dashboard.php', 36)
+ 2 SYSTEMPATH\View\View.php(226): include('C:\\xampp\\htdocs\\Group6\\app\\Views\\Accountant\\dashboard.php')
+ 3 SYSTEMPATH\View\View.php(229): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH\Common.php(1167): CodeIgniter\View\View->render('Accountant/dashboard', [], true)
+ 5 APPPATH\Controllers\Accountant\Dashboard.php(26): view('Accountant/dashboard', [...])
+ 6 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Accountant\Dashboard->index()
+ 7 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Accountant\Dashboard))
+ 8 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+DEBUG - 2025-08-30 00:47:06 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+CRITICAL - 2025-08-30 00:47:06 --> ErrorException: Undefined variable $outstandingBalance
+[Method: GET, Route: accountant/dashboard]
+in APPPATH\Views\Accountant\dashboard.php on line 36.
+ 1 APPPATH\Views\Accountant\dashboard.php(36): CodeIgniter\Debug\Exceptions->errorHandler(2, 'Undefined variable $outstandingBalance', 'C:\\xampp\\htdocs\\Group6\\app\\Views\\Accountant\\dashboard.php', 36)
+ 2 SYSTEMPATH\View\View.php(226): include('C:\\xampp\\htdocs\\Group6\\app\\Views\\Accountant\\dashboard.php')
+ 3 SYSTEMPATH\View\View.php(229): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH\Common.php(1167): CodeIgniter\View\View->render('Accountant/dashboard', [], true)
+ 5 APPPATH\Controllers\Accountant\Dashboard.php(26): view('Accountant/dashboard', [...])
+ 6 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Accountant\Dashboard->index()
+ 7 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Accountant\Dashboard))
+ 8 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+DEBUG - 2025-08-30 00:47:47 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+CRITICAL - 2025-08-30 00:47:47 --> ErrorException: Undefined variable $outstandingBalance
+[Method: GET, Route: accountant/dashboard]
+in APPPATH\Views\Accountant\dashboard.php on line 36.
+ 1 APPPATH\Views\Accountant\dashboard.php(36): CodeIgniter\Debug\Exceptions->errorHandler(2, 'Undefined variable $outstandingBalance', 'C:\\xampp\\htdocs\\Group6\\app\\Views\\Accountant\\dashboard.php', 36)
+ 2 SYSTEMPATH\View\View.php(226): include('C:\\xampp\\htdocs\\Group6\\app\\Views\\Accountant\\dashboard.php')
+ 3 SYSTEMPATH\View\View.php(229): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH\Common.php(1167): CodeIgniter\View\View->render('Accountant/dashboard', [], true)
+ 5 APPPATH\Controllers\Accountant\Dashboard.php(26): view('Accountant/dashboard', [...])
+ 6 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Accountant\Dashboard->index()
+ 7 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Accountant\Dashboard))
+ 8 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+DEBUG - 2025-08-30 00:48:02 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+CRITICAL - 2025-08-30 00:48:02 --> CodeIgniter\View\Exceptions\ViewException: Invalid file: "layouts/dashboard_layout.php"
+[Method: GET, Route: accountant/dashboard]
+in SYSTEMPATH\Exceptions\FrameworkException.php on line 39.
+ 1 SYSTEMPATH\View\View.php(214): CodeIgniter\Exceptions\FrameworkException::forInvalidFile('layouts/dashboard_layout.php')
+ 2 SYSTEMPATH\View\View.php(242): CodeIgniter\View\View->render('layouts/dashboard_layout', [], true)
+ 3 SYSTEMPATH\Common.php(1167): CodeIgniter\View\View->render('Accountant/dashboard', [], true)
+ 4 APPPATH\Controllers\Accountant\Dashboard.php(27): view('Accountant/dashboard', [...])
+ 5 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Accountant\Dashboard->index()
+ 6 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Accountant\Dashboard))
+ 7 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 8 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 9 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+10 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+DEBUG - 2025-08-30 00:48:33 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:49:05 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:49:12 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:49:14 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:49:14 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:50:00 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:50:07 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:50:36 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:51:02 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:51:02 --> Login attempt - Username: accountant1, Role: accountant
+DEBUG - 2025-08-30 00:51:02 --> User query result: Array
+(
+    [id] => 16
+    [username] => accountant1
+    [email] => accounting@hospital.com
+    [password_hash] => $2y$10$4EhlHObuefOrRzOmQPvCVOaxJDNxXExP2OzotoA.EGEsGxztMC1XK
+    [first_name] => Jennifer
+    [last_name] => Davis
+    [profile_pic] => 
+    [status] => active
+    [role] => accountant
+    [last_login] => 2025-08-30 00:45:15
+    [created_at] => 2025-08-29 20:24:53
+    [updated_at] => 2025-08-30 00:45:15
+    [deleted_at] => 
+)
+
+DEBUG - 2025-08-30 00:51:02 --> Password verification: Success
+DEBUG - 2025-08-30 00:51:03 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:51:08 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:51:08 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:53:11 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:53:11 --> Login attempt - Username: itstaff1, Role: it_staff
+DEBUG - 2025-08-30 00:53:11 --> User query result: Array
+(
+    [id] => 17
+    [username] => itstaff1
+    [email] => it@hospital.com
+    [password_hash] => $2y$10$qFHzWxgxN6OBmh4CnN5PlePlUhI9NAci4iblBpxlx7LHhJkcEwGAG
+    [first_name] => Robert
+    [last_name] => Wilson
+    [profile_pic] => 
+    [status] => active
+    [role] => it_staff
+    [last_login] => 
+    [created_at] => 2025-08-29 20:24:53
+    [updated_at] => 2025-08-29 20:24:53
+    [deleted_at] => 
+)
+
+DEBUG - 2025-08-30 00:53:11 --> Password verification: Success
+DEBUG - 2025-08-30 00:53:11 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+CRITICAL - 2025-08-30 00:53:11 --> CodeIgniter\View\Exceptions\ViewException: Invalid file: "ITStaff/dashboard.php"
+[Method: GET, Route: it/dashboard]
+in SYSTEMPATH\Exceptions\FrameworkException.php on line 39.
+ 1 SYSTEMPATH\View\View.php(214): CodeIgniter\Exceptions\FrameworkException::forInvalidFile('ITStaff/dashboard.php')
+ 2 SYSTEMPATH\Common.php(1167): CodeIgniter\View\View->render('ITStaff/dashboard', [], true)
+ 3 APPPATH\Controllers\ITStaff\Dashboard.php(16): view('ITStaff/dashboard', [...])
+ 4 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\ITStaff\Dashboard->index()
+ 5 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\ITStaff\Dashboard))
+ 6 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 7 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 8 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 9 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+DEBUG - 2025-08-30 00:54:33 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:55:03 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:55:48 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:55:48 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:56:59 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:56:59 --> Login attempt - Username: superadmin, Role: super_admin
+DEBUG - 2025-08-30 00:56:59 --> User query result: Array
+(
+    [id] => 10
+    [username] => superadmin
+    [email] => superadmin@hospital.com
+    [password_hash] => $2y$10$mLDk7aAKDzyDUHT4WeZoi.AinhpFZ.KmV.1TKV0eeucrHqquRcZ16
+    [first_name] => Super
+    [last_name] => Admin
+    [profile_pic] => 
+    [status] => active
+    [role] => super_admin
+    [last_login] => 2025-08-30 00:36:23
+    [created_at] => 2025-08-29 20:24:52
+    [updated_at] => 2025-08-30 00:36:23
+    [deleted_at] => 
+)
+
+DEBUG - 2025-08-30 00:56:59 --> Password verification: Success
+DEBUG - 2025-08-30 00:56:59 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:57:06 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:57:07 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:57:21 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:57:21 --> Login attempt - Username: doctor1, Role: doctor
+DEBUG - 2025-08-30 00:57:21 --> User query result: Array
+(
+    [id] => 11
+    [username] => doctor1
+    [email] => doctor@hospital.com
+    [password_hash] => $2y$10$L0A4pttXQz89o0U1JF6YDuAhtEoHrmLyZYp0dR3jTk.WyOKjkCEDu
+    [first_name] => John
+    [last_name] => Smith
+    [profile_pic] => 
+    [status] => active
+    [role] => doctor
+    [last_login] => 2025-08-30 00:37:03
+    [created_at] => 2025-08-29 20:24:52
+    [updated_at] => 2025-08-30 00:37:03
+    [deleted_at] => 
+)
+
+DEBUG - 2025-08-30 00:57:21 --> Password verification: Success
+DEBUG - 2025-08-30 00:57:21 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:57:29 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:57:29 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:57:43 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:57:43 --> Login attempt - Username: nurse1, Role: nurse
+DEBUG - 2025-08-30 00:57:43 --> User query result: Array
+(
+    [id] => 12
+    [username] => nurse1
+    [email] => nurse@hospital.com
+    [password_hash] => $2y$10$nvuKEmJocVK2qZ0.CvDil.NurIPy3bF4qBhTxFfadNHLBeNdOyYlm
+    [first_name] => Sarah
+    [last_name] => Johnson
+    [profile_pic] => 
+    [status] => active
+    [role] => nurse
+    [last_login] => 2025-08-30 00:37:31
+    [created_at] => 2025-08-29 20:24:52
+    [updated_at] => 2025-08-30 00:37:31
+    [deleted_at] => 
+)
+
+DEBUG - 2025-08-30 00:57:43 --> Password verification: Success
+DEBUG - 2025-08-30 00:57:44 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:57:48 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:57:48 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:58:04 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:58:04 --> Login attempt - Username: reception1, Role: receptionist
+DEBUG - 2025-08-30 00:58:04 --> User query result: Array
+(
+    [id] => 13
+    [username] => reception1
+    [email] => reception@hospital.com
+    [password_hash] => $2y$10$QXJ/dEtsFCo9Vi/BIPnijuxPULGeiEU9I8NkzbnzuXRc1eYueKM5K
+    [first_name] => Emma
+    [last_name] => Wilson
+    [profile_pic] => 
+    [status] => active
+    [role] => receptionist
+    [last_login] => 2025-08-30 00:37:50
+    [created_at] => 2025-08-29 20:24:52
+    [updated_at] => 2025-08-30 00:37:50
+    [deleted_at] => 
+)
+
+DEBUG - 2025-08-30 00:58:04 --> Password verification: Success
+DEBUG - 2025-08-30 00:58:04 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:58:07 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 00:58:07 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:00:10 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:06:24 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:06:46 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2025-08-30 01:08:36 --> mysqli_sql_exception: Duplicate entry 'superadmin' for key 'username' in C:\xampp\htdocs\Group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\Group6\system\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `us...', 0)
+#1 C:\xampp\htdocs\Group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `us...')
+#2 C:\xampp\htdocs\Group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `us...')
+#3 C:\xampp\htdocs\Group6\system\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `us...', Array, false)
+#4 C:\xampp\htdocs\Group6\system\Model.php(394): CodeIgniter\Database\BaseBuilder->insert()
+#5 C:\xampp\htdocs\Group6\system\BaseModel.php(838): CodeIgniter\Model->doInsert(Array)
+#6 C:\xampp\htdocs\Group6\system\Model.php(797): CodeIgniter\BaseModel->insert(Array, false)
+#7 C:\xampp\htdocs\Group6\system\BaseModel.php(751): CodeIgniter\Model->insert(Array, false)
+#8 C:\xampp\htdocs\Group6\app\Database\Seeds\UserSeeder.php(100): CodeIgniter\BaseModel->save(Array)
+#9 C:\xampp\htdocs\Group6\system\Database\Seeder.php(149): App\Database\Seeds\UserSeeder->run()
+#10 C:\xampp\htdocs\Group6\system\Commands\Database\Seed.php(79): CodeIgniter\Database\Seeder->call('App\\Database\\Se...')
+#11 C:\xampp\htdocs\Group6\system\CLI\Commands.php(74): CodeIgniter\Commands\Database\Seed->run(Array)
+#12 C:\xampp\htdocs\Group6\system\CLI\Console.php(47): CodeIgniter\CLI\Commands->run('db:seed', Array)
+#13 C:\xampp\htdocs\Group6\system\Boot.php(388): CodeIgniter\CLI\Console->run()
+#14 C:\xampp\htdocs\Group6\system\Boot.php(133): CodeIgniter\Boot::runCommand(Object(CodeIgniter\CLI\Console))
+#15 C:\xampp\htdocs\Group6\spark(87): CodeIgniter\Boot::bootSpark(Object(Config\Paths))
+#16 {main}
+ERROR - 2025-08-30 01:09:05 --> mysqli_sql_exception: Duplicate entry 'superadmin' for key 'username' in C:\xampp\htdocs\Group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\Group6\system\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `us...', 0)
+#1 C:\xampp\htdocs\Group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `us...')
+#2 C:\xampp\htdocs\Group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `us...')
+#3 C:\xampp\htdocs\Group6\system\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `us...', Array, false)
+#4 C:\xampp\htdocs\Group6\system\Model.php(394): CodeIgniter\Database\BaseBuilder->insert()
+#5 C:\xampp\htdocs\Group6\system\BaseModel.php(838): CodeIgniter\Model->doInsert(Array)
+#6 C:\xampp\htdocs\Group6\system\Model.php(797): CodeIgniter\BaseModel->insert(Array, false)
+#7 C:\xampp\htdocs\Group6\system\BaseModel.php(751): CodeIgniter\Model->insert(Array, false)
+#8 C:\xampp\htdocs\Group6\app\Database\Seeds\UserSeeder.php(100): CodeIgniter\BaseModel->save(Array)
+#9 C:\xampp\htdocs\Group6\system\Database\Seeder.php(149): App\Database\Seeds\UserSeeder->run()
+#10 C:\xampp\htdocs\Group6\system\Commands\Database\Seed.php(79): CodeIgniter\Database\Seeder->call('App\\Database\\Se...')
+#11 C:\xampp\htdocs\Group6\system\CLI\Commands.php(74): CodeIgniter\Commands\Database\Seed->run(Array)
+#12 C:\xampp\htdocs\Group6\system\CLI\Console.php(47): CodeIgniter\CLI\Commands->run('db:seed', Array)
+#13 C:\xampp\htdocs\Group6\system\Boot.php(388): CodeIgniter\CLI\Console->run()
+#14 C:\xampp\htdocs\Group6\system\Boot.php(133): CodeIgniter\Boot::runCommand(Object(CodeIgniter\CLI\Console))
+#15 C:\xampp\htdocs\Group6\spark(87): CodeIgniter\Boot::bootSpark(Object(Config\Paths))
+#16 {main}
+DEBUG - 2025-08-30 01:11:01 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:15:30 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:50:29 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:50:47 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:50:47 --> Login attempt - Username: superadmin, Role: super_admin
+DEBUG - 2025-08-30 01:50:47 --> User query result: Array
+(
+    [id] => 1
+    [username] => superadmin
+    [email] => superadmin@hospital.com
+    [password_hash] => $2y$10$GVMBvtBSpQhEDHdD1EKgxu824P4ikUq/ykgP1Is/L2y0ZQotsSnZm
+    [first_name] => Super
+    [last_name] => Admin
+    [profile_pic] => 
+    [status] => active
+    [role] => super_admin
+    [last_login] => 
+    [created_at] => 2025-08-30 01:15:53
+    [updated_at] => 2025-08-30 01:15:53
+    [deleted_at] => 
+)
+
+DEBUG - 2025-08-30 01:50:47 --> Password verification: Failed
+DEBUG - 2025-08-30 01:50:47 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:51:36 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:51:36 --> Login attempt - Username: superadmin, Role: super_admin
+DEBUG - 2025-08-30 01:51:37 --> User query result: Array
+(
+    [id] => 1
+    [username] => superadmin
+    [email] => superadmin@hospital.com
+    [password_hash] => $2y$10$GVMBvtBSpQhEDHdD1EKgxu824P4ikUq/ykgP1Is/L2y0ZQotsSnZm
+    [first_name] => Super
+    [last_name] => Admin
+    [profile_pic] => 
+    [status] => active
+    [role] => super_admin
+    [last_login] => 
+    [created_at] => 2025-08-30 01:15:53
+    [updated_at] => 2025-08-30 01:15:53
+    [deleted_at] => 
+)
+
+DEBUG - 2025-08-30 01:51:37 --> Password verification: Failed
+DEBUG - 2025-08-30 01:51:38 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:53:55 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:53:55 --> Login attempt - Username: superadmin, Role: doctor
+DEBUG - 2025-08-30 01:53:55 --> User query result: 
+DEBUG - 2025-08-30 01:53:55 --> Password verification: Failed
+DEBUG - 2025-08-30 01:53:55 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:58:17 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:58:43 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:58:44 --> Login attempt - Username: doctor1, Role: super_admin
+DEBUG - 2025-08-30 01:58:44 --> User query result: 
+DEBUG - 2025-08-30 01:58:44 --> Password verification: Failed
+DEBUG - 2025-08-30 01:58:44 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 02:05:29 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 02:05:29 --> Login attempt - Username: superadmin, Role: super_admin
+DEBUG - 2025-08-30 02:05:29 --> User query result: Array
+(
+    [id] => 1
+    [username] => superadmin
+    [email] => superadmin@hospital.com
+    [password_hash] => $2y$10$GVMBvtBSpQhEDHdD1EKgxu824P4ikUq/ykgP1Is/L2y0ZQotsSnZm
+    [first_name] => Super
+    [last_name] => Admin
+    [profile_pic] => 
+    [status] => active
+    [role] => super_admin
+    [last_login] => 
+    [created_at] => 2025-08-30 01:15:53
+    [updated_at] => 2025-08-30 01:15:53
+    [deleted_at] => 
+)
+
+DEBUG - 2025-08-30 02:05:29 --> Password verification: Failed
+DEBUG - 2025-08-30 02:05:30 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 02:05:57 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 02:17:51 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 02:17:51 --> Login attempt - Username: superadmin, Role: super_admin
+DEBUG - 2025-08-30 02:17:51 --> Raw password: SuperAdmin@123
+DEBUG - 2025-08-30 02:17:51 --> User query result: Array
+(
+    [id] => 1
+    [username] => superadmin
+    [email] => superadmin@hospital.com
+    [password_hash] => $2y$10$GVMBvtBSpQhEDHdD1EKgxu824P4ikUq/ykgP1Is/L2y0ZQotsSnZm
+    [first_name] => Super
+    [last_name] => Admin
+    [profile_pic] => 
+    [status] => active
+    [role] => super_admin
+    [last_login] => 
+    [created_at] => 2025-08-30 01:15:53
+    [updated_at] => 2025-08-30 01:15:53
+    [deleted_at] => 
+)
+
+DEBUG - 2025-08-30 02:17:51 --> SQL Query: SELECT *
+FROM `users`
+WHERE `username` = 'superadmin'
+AND `role` = 'super_admin'
+AND `users`.`deleted_at` IS NULL
+ LIMIT 1
+DEBUG - 2025-08-30 02:17:51 --> Stored hash: $2y$10$GVMBvtBSpQhEDHdD1EKgxu824P4ikUq/ykgP1Is/L2y0ZQotsSnZm
+DEBUG - 2025-08-30 02:17:51 --> Password verification result: Failed
+DEBUG - 2025-08-30 02:17:51 --> New hash of input password: $2y$10$1x7ygQCV/OsmJx.sYcvpFOmUMp9HFQWnaTNLbKZ4/xJWOgqMP9xqW
+DEBUG - 2025-08-30 02:17:51 --> Does new hash match stored hash? No
+DEBUG - 2025-08-30 02:17:52 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 02:33:51 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 02:33:51 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 02:33:52 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 02:33:52 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 02:33:53 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 02:33:53 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 02:33:54 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 02:33:54 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 02:33:55 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 02:33:55 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 02:34:17 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 02:34:17 --> Login attempt - Username: superadmin, Role: super_admin
+DEBUG - 2025-08-30 02:34:17 --> Raw password: SuperAdmin@123
+DEBUG - 2025-08-30 02:34:17 --> User query result: Array
+(
+    [id] => 1
+    [username] => superadmin
+    [email] => superadmin@hospital.com
+    [password_hash] => $2y$10$GVMBvtBSpQhEDHdD1EKgxu824P4ikUq/ykgP1Is/L2y0ZQotsSnZm
+    [first_name] => Super
+    [last_name] => Admin
+    [profile_pic] => 
+    [status] => active
+    [role] => super_admin
+    [last_login] => 
+    [created_at] => 2025-08-30 01:15:53
+    [updated_at] => 2025-08-30 01:15:53
+    [deleted_at] => 
+)
+
+DEBUG - 2025-08-30 02:34:17 --> SQL Query: SELECT *
+FROM `users`
+WHERE `username` = 'superadmin'
+AND `role` = 'super_admin'
+AND `users`.`deleted_at` IS NULL
+ LIMIT 1
+DEBUG - 2025-08-30 02:34:17 --> Stored hash: $2y$10$GVMBvtBSpQhEDHdD1EKgxu824P4ikUq/ykgP1Is/L2y0ZQotsSnZm
+DEBUG - 2025-08-30 02:34:17 --> Password verification result: Failed
+DEBUG - 2025-08-30 02:34:17 --> New hash of input password: $2y$10$mejL423Agl54wa4JD6T6HeKXKWI1X9rfLilOetmXim/yQ80cYcM0O
+DEBUG - 2025-08-30 02:34:17 --> Does new hash match stored hash? No
+DEBUG - 2025-08-30 02:34:17 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 02:35:08 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 02:36:48 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 02:36:48 --> Login attempt - Username: superadmin, Role: super_admin
+DEBUG - 2025-08-30 02:36:48 --> Raw password: SuperAdmin@123
+DEBUG - 2025-08-30 02:36:48 --> User query result: Array
+(
+    [id] => 1
+    [username] => superadmin
+    [email] => superadmin@hospital.com
+    [password_hash] => $2y$10$GVMBvtBSpQhEDHdD1EKgxu824P4ikUq/ykgP1Is/L2y0ZQotsSnZm
+    [first_name] => Super
+    [last_name] => Admin
+    [profile_pic] => 
+    [status] => active
+    [role] => super_admin
+    [last_login] => 
+    [created_at] => 2025-08-30 01:15:53
+    [updated_at] => 2025-08-30 01:15:53
+    [deleted_at] => 
+)
+
+DEBUG - 2025-08-30 02:36:48 --> SQL Query: SELECT *
+FROM `users`
+WHERE `username` = 'superadmin'
+AND `role` = 'super_admin'
+AND `users`.`deleted_at` IS NULL
+ LIMIT 1
+DEBUG - 2025-08-30 02:36:48 --> Stored hash: $2y$10$GVMBvtBSpQhEDHdD1EKgxu824P4ikUq/ykgP1Is/L2y0ZQotsSnZm
+DEBUG - 2025-08-30 02:36:48 --> Password verification result: Failed
+DEBUG - 2025-08-30 02:36:48 --> New hash of input password: $2y$10$r7h3eYY4bmF2P.r3gNR4gOyMgCy6sRzzB//H9aKXhV7NK7OP1Ob6W
+DEBUG - 2025-08-30 02:36:48 --> Does new hash match stored hash? No
+DEBUG - 2025-08-30 02:36:48 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 02:37:48 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 02:37:48 --> Login attempt - Username: superadmin, Role: super_admin
+DEBUG - 2025-08-30 02:37:48 --> Raw password: SuperAdmin@123
+DEBUG - 2025-08-30 02:37:48 --> User query result: Array
+(
+    [id] => 1
+    [username] => superadmin
+    [email] => superadmin@hospital.com
+    [password_hash] => $2y$10$GVMBvtBSpQhEDHdD1EKgxu824P4ikUq/ykgP1Is/L2y0ZQotsSnZm
+    [first_name] => Super
+    [last_name] => Admin
+    [profile_pic] => 
+    [status] => active
+    [role] => super_admin
+    [last_login] => 
+    [created_at] => 2025-08-30 01:15:53
+    [updated_at] => 2025-08-30 01:15:53
+    [deleted_at] => 
+)
+
+DEBUG - 2025-08-30 02:37:48 --> SQL Query: SELECT *
+FROM `users`
+WHERE `username` = 'superadmin'
+AND `role` = 'super_admin'
+AND `users`.`deleted_at` IS NULL
+ LIMIT 1
+DEBUG - 2025-08-30 02:37:48 --> Stored hash: $2y$10$GVMBvtBSpQhEDHdD1EKgxu824P4ikUq/ykgP1Is/L2y0ZQotsSnZm
+DEBUG - 2025-08-30 02:37:48 --> Password verification result: Failed
+DEBUG - 2025-08-30 02:37:48 --> New hash of input password: $2y$10$GuuSFUEcWYNfDOz9nA93Te/BsBQ4hls2MKvKKMPnMRjU.gj42kOZi
+DEBUG - 2025-08-30 02:37:48 --> Does new hash match stored hash? No
+DEBUG - 2025-08-30 02:37:48 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 02:39:33 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 02:39:53 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 02:41:28 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 02:42:07 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 02:43:26 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 02:43:26 --> Login attempt - Username: superadmin, Role: super_admin
+DEBUG - 2025-08-30 02:43:26 --> Raw password: SuperAdmin@123
+DEBUG - 2025-08-30 02:43:26 --> POST data: Array
+(
+    [role] => super_admin
+    [username] => superadmin
+    [password] => SuperAdmin@123
+)
+
+DEBUG - 2025-08-30 02:43:26 --> User found: Yes
+DEBUG - 2025-08-30 02:43:26 --> User query result: Array
+(
+    [id] => 1
+    [username] => superadmin
+    [email] => superadmin@hospital.com
+    [password_hash] => $2y$10$GVMBvtBSpQhEDHdD1EKgxu824P4ikUq/ykgP1Is/L2y0ZQotsSnZm
+    [first_name] => Super
+    [last_name] => Admin
+    [profile_pic] => 
+    [status] => active
+    [role] => super_admin
+    [last_login] => 
+    [created_at] => 2025-08-30 01:15:53
+    [updated_at] => 2025-08-30 01:15:53
+    [deleted_at] => 
+)
+
+DEBUG - 2025-08-30 02:43:26 --> SQL Query: SELECT *
+FROM `users`
+WHERE `username` = 'superadmin'
+AND `role` = 'super_admin'
+AND `users`.`deleted_at` IS NULL
+ LIMIT 1
+DEBUG - 2025-08-30 02:43:26 --> Stored hash: $2y$10$GVMBvtBSpQhEDHdD1EKgxu824P4ikUq/ykgP1Is/L2y0ZQotsSnZm
+DEBUG - 2025-08-30 02:43:27 --> Password verification result: Failed
+DEBUG - 2025-08-30 02:43:27 --> New hash of input password: $2y$10$n0/TiQj8IKvSFOClwqTIwOg0bMmeaOBA9jOWFXLbg.S4zNDxXOhwi
+DEBUG - 2025-08-30 02:43:27 --> Does new hash match stored hash? No
+DEBUG - 2025-08-30 02:43:27 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 02:47:28 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 02:49:35 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 02:49:35 --> Login attempt - Username: superadmin, Role: super_admin
+DEBUG - 2025-08-30 02:49:35 --> Raw password: SuperAdmin@123
+DEBUG - 2025-08-30 02:49:35 --> POST data: Array
+(
+    [role] => super_admin
+    [username] => superadmin
+    [password] => SuperAdmin@123
+)
+
+DEBUG - 2025-08-30 02:49:35 --> User found: Yes
+DEBUG - 2025-08-30 02:49:35 --> User query result: Array
+(
+    [id] => 1
+    [username] => superadmin
+    [email] => superadmin@hospital.com
+    [password_hash] => $2y$10$GVMBvtBSpQhEDHdD1EKgxu824P4ikUq/ykgP1Is/L2y0ZQotsSnZm
+    [first_name] => Super
+    [last_name] => Admin
+    [profile_pic] => 
+    [status] => active
+    [role] => super_admin
+    [last_login] => 
+    [created_at] => 2025-08-30 01:15:53
+    [updated_at] => 2025-08-30 01:15:53
+    [deleted_at] => 
+)
+
+DEBUG - 2025-08-30 02:49:35 --> SQL Query: SELECT *
+FROM `users`
+WHERE `username` = 'superadmin'
+AND `role` = 'super_admin'
+AND `users`.`deleted_at` IS NULL
+ LIMIT 1
+DEBUG - 2025-08-30 02:49:35 --> Stored hash: $2y$10$GVMBvtBSpQhEDHdD1EKgxu824P4ikUq/ykgP1Is/L2y0ZQotsSnZm
+DEBUG - 2025-08-30 02:49:35 --> Password verification result: Failed
+DEBUG - 2025-08-30 02:49:35 --> New hash of input password: $2y$10$APGFbTGb0WZ.TM4Y8r9Da.l1m22AIGl8ltyqAyshUKKYstomgk6c2
+DEBUG - 2025-08-30 02:49:35 --> Does new hash match stored hash? No
+DEBUG - 2025-08-30 02:49:35 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 02:50:29 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 02:50:41 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 02:51:14 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 02:51:14 --> Login attempt - Username: superadmin, Role: super_admin
+DEBUG - 2025-08-30 02:51:14 --> Raw password: SuperAdmin@123
+DEBUG - 2025-08-30 02:51:14 --> POST data: Array
+(
+    [role] => super_admin
+    [username] => superadmin
+    [password] => SuperAdmin@123
+)
+
+DEBUG - 2025-08-30 02:51:14 --> Login attempt - Username: superadmin, Role: super_admin
+DEBUG - 2025-08-30 02:51:14 --> User found: Yes
+DEBUG - 2025-08-30 02:51:14 --> SQL Query: SELECT *
+FROM `users`
+WHERE `username` = 'superadmin'
+AND `role` = 'super_admin'
+AND `users`.`deleted_at` IS NULL
+ LIMIT 1
+DEBUG - 2025-08-30 02:51:14 --> User query result: Array
+(
+    [id] => 1
+    [username] => superadmin
+    [email] => superadmin@hospital.com
+    [password_hash] => $2y$10$GVMBvtBSpQhEDHdD1EKgxu824P4ikUq/ykgP1Is/L2y0ZQotsSnZm
+    [first_name] => Super
+    [last_name] => Admin
+    [profile_pic] => 
+    [status] => active
+    [role] => super_admin
+    [last_login] => 
+    [created_at] => 2025-08-30 01:15:53
+    [updated_at] => 2025-08-30 01:15:53
+    [deleted_at] => 
+)
+
+DEBUG - 2025-08-30 02:51:14 --> All users with username superadmin: Array
+(
+    [0] => Array
+        (
+            [id] => 1
+            [username] => superadmin
+            [email] => superadmin@hospital.com
+            [password_hash] => $2y$10$GVMBvtBSpQhEDHdD1EKgxu824P4ikUq/ykgP1Is/L2y0ZQotsSnZm
+            [first_name] => Super
+            [last_name] => Admin
+            [profile_pic] => 
+            [status] => active
+            [role] => super_admin
+            [last_login] => 
+            [created_at] => 2025-08-30 01:15:53
+            [updated_at] => 2025-08-30 01:15:53
+            [deleted_at] => 
+        )
+
+)
+
+DEBUG - 2025-08-30 02:51:14 --> Stored hash: $2y$10$GVMBvtBSpQhEDHdD1EKgxu824P4ikUq/ykgP1Is/L2y0ZQotsSnZm
+DEBUG - 2025-08-30 02:51:14 --> Password verification result: Failed
+DEBUG - 2025-08-30 02:51:14 --> New hash of input password: $2y$10$C3t2cw2FsGIUKifYmggvTePFqEQ772cn4OWzGuh9qOTLxW9x7Pss2
+DEBUG - 2025-08-30 02:51:14 --> Does new hash match stored hash? No
+DEBUG - 2025-08-30 02:51:14 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 03:03:42 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 03:04:12 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 03:04:12 --> Login attempt - Username: superadmin, Role: super_admin
+DEBUG - 2025-08-30 03:04:12 --> Raw password: SuperAdmin@123
+DEBUG - 2025-08-30 03:04:12 --> POST data: Array
+(
+    [role] => super_admin
+    [username] => superadmin
+    [password] => SuperAdmin@123
+)
+
+DEBUG - 2025-08-30 03:04:12 --> Login attempt - Username: superadmin, Role: super_admin
+DEBUG - 2025-08-30 03:04:12 --> User found: Yes
+DEBUG - 2025-08-30 03:04:12 --> SQL Query: SELECT *
+FROM `users`
+WHERE `username` = 'superadmin'
+AND `role` = 'super_admin'
+AND `users`.`deleted_at` IS NULL
+ LIMIT 1
+DEBUG - 2025-08-30 03:04:12 --> User query result: Array
+(
+    [id] => 1
+    [username] => superadmin
+    [email] => superadmin@hospital.com
+    [password_hash] => $2y$10$R6TC1/DffySCQFYaFYN5DuLq6cPFGWHRWbpqHhw0mpe.Z.1YhZpry
+    [first_name] => Super
+    [last_name] => Admin
+    [profile_pic] => 
+    [status] => active
+    [role] => super_admin
+    [last_login] => 
+    [created_at] => 2025-08-30 01:15:53
+    [updated_at] => 2025-08-30 01:15:53
+    [deleted_at] => 
+)
+
+DEBUG - 2025-08-30 03:04:12 --> All users with username superadmin: Array
+(
+    [0] => Array
+        (
+            [id] => 1
+            [username] => superadmin
+            [email] => superadmin@hospital.com
+            [password_hash] => $2y$10$R6TC1/DffySCQFYaFYN5DuLq6cPFGWHRWbpqHhw0mpe.Z.1YhZpry
+            [first_name] => Super
+            [last_name] => Admin
+            [profile_pic] => 
+            [status] => active
+            [role] => super_admin
+            [last_login] => 
+            [created_at] => 2025-08-30 01:15:53
+            [updated_at] => 2025-08-30 01:15:53
+            [deleted_at] => 
+        )
+
+)
+
+DEBUG - 2025-08-30 03:04:12 --> Stored hash: $2y$10$R6TC1/DffySCQFYaFYN5DuLq6cPFGWHRWbpqHhw0mpe.Z.1YhZpry
+DEBUG - 2025-08-30 03:04:12 --> Password verification result: Success
+DEBUG - 2025-08-30 03:04:12 --> New hash of input password: $2y$10$dO425wZ2PIQZXKZAeDRXrey780zLujDlYq.niPWfVxKOq1K.IKI1m
+DEBUG - 2025-08-30 03:04:12 --> Does new hash match stored hash? No
+DEBUG - 2025-08-30 03:04:12 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 03:05:16 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 03:05:27 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+CRITICAL - 2025-08-30 03:05:27 --> ErrorException: filesize(): stat failed for C:\xampp\htdocs\Group6\writable\session/ci_session616858945031338c407ad3909937d7ff
+[Method: GET, Route: logout]
+in SYSTEMPATH\Session\Handlers\FileHandler.php on line 162.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->errorHandler(2, 'filesize(): stat failed for C:\\xampp\\htdocs\\Group6\\writable\\session/ci_session616858945031338c407ad3909937d7ff', 'C:\\xampp\\htdocs\\Group6\\system\\Session\\Handlers\\FileHandler.php', 162)
+ 2 SYSTEMPATH\Session\Handlers\FileHandler.php(162): filesize('C:\\xampp\\htdocs\\Group6\\writable\\session/ci_session616858945031338c407ad3909937d7ff')
+ 3 [internal function]: CodeIgniter\Session\Handlers\FileHandler->read('616858945031338c407ad3909937d7ff')
+ 4 SYSTEMPATH\Session\Session.php(912): session_start()
+ 5 SYSTEMPATH\Session\Session.php(243): CodeIgniter\Session\Session->startSession()
+ 6 SYSTEMPATH\Config\Services.php(715): CodeIgniter\Session\Session->start()
+ 7 SYSTEMPATH\Config\BaseService.php(312): CodeIgniter\Config\Services::session(Object(Config\Session), false)
+ 8 SYSTEMPATH\Config\BaseService.php(251): CodeIgniter\Config\BaseService::__callStatic('session', [...])
+ 9 SYSTEMPATH\Config\Services.php(668): CodeIgniter\Config\BaseService::getSharedInstance('session', null)
+10 SYSTEMPATH\Config\BaseService.php(321): CodeIgniter\Config\Services::session()
+11 SYSTEMPATH\Config\BaseService.php(202): CodeIgniter\Config\BaseService::__callStatic('session', [])
+12 SYSTEMPATH\Common.php(995): CodeIgniter\Config\BaseService::get('session')
+13 SYSTEMPATH\Common.php(968): service('session')
+14 APPPATH\Controllers\Login.php(133): session()
+15 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Login->logout()
+16 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Login))
+17 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+18 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+19 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+20 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+DEBUG - 2025-08-30 03:06:04 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 03:06:05 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 03:06:11 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:17:04 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:17:57 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:17:57 --> Login attempt - Username: superadmin, Role: super_admin
+DEBUG - 2025-08-30 01:17:57 --> Raw password: SuperAdmin@123
+DEBUG - 2025-08-30 01:17:57 --> POST data: Array
+(
+    [role] => super_admin
+    [username] => superadmin
+    [password] => SuperAdmin@123
+)
+
+DEBUG - 2025-08-30 01:17:57 --> Login attempt - Username: superadmin, Role: super_admin
+DEBUG - 2025-08-30 01:17:57 --> User found: Yes
+DEBUG - 2025-08-30 01:17:57 --> SQL Query: SELECT *
+FROM `users`
+WHERE `username` = 'superadmin'
+AND `role` = 'super_admin'
+AND `users`.`deleted_at` IS NULL
+ LIMIT 1
+DEBUG - 2025-08-30 01:17:57 --> User query result: Array
+(
+    [id] => 1
+    [username] => superadmin
+    [email] => superadmin@hospital.com
+    [password_hash] => $2y$10$xZ2U9ZYzAyFHcZYAHKpXjuw94o57dfrrXIaHZnExe3k8r2pulgDxO
+    [first_name] => Super
+    [last_name] => Admin
+    [profile_pic] => 
+    [status] => active
+    [role] => super_admin
+    [last_login] => 
+    [created_at] => 2025-08-29 20:29:01
+    [updated_at] => 2025-08-29 20:29:01
+    [deleted_at] => 
+)
+
+DEBUG - 2025-08-30 01:17:57 --> All users with username superadmin: Array
+(
+    [0] => Array
+        (
+            [id] => 1
+            [username] => superadmin
+            [email] => superadmin@hospital.com
+            [password_hash] => $2y$10$xZ2U9ZYzAyFHcZYAHKpXjuw94o57dfrrXIaHZnExe3k8r2pulgDxO
+            [first_name] => Super
+            [last_name] => Admin
+            [profile_pic] => 
+            [status] => active
+            [role] => super_admin
+            [last_login] => 
+            [created_at] => 2025-08-29 20:29:01
+            [updated_at] => 2025-08-29 20:29:01
+            [deleted_at] => 
+        )
+
+)
+
+DEBUG - 2025-08-30 01:17:57 --> Stored hash: $2y$10$xZ2U9ZYzAyFHcZYAHKpXjuw94o57dfrrXIaHZnExe3k8r2pulgDxO
+DEBUG - 2025-08-30 01:17:57 --> Password verification result: Failed
+DEBUG - 2025-08-30 01:17:57 --> New hash of input password: $2y$10$GZKwgJRsbM6Kv/PgY6cOuenrfZYUkhi/zw3bSjWlzAzF6IW.zZVXW
+DEBUG - 2025-08-30 01:17:57 --> Does new hash match stored hash? No
+DEBUG - 2025-08-30 01:17:57 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:18:28 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:18:28 --> Login attempt - Username: superadmin, Role: super_admin
+DEBUG - 2025-08-30 01:18:28 --> Raw password: SuperAdmin@123
+DEBUG - 2025-08-30 01:18:28 --> POST data: Array
+(
+    [role] => super_admin
+    [username] => superadmin
+    [password] => SuperAdmin@123
+)
+
+DEBUG - 2025-08-30 01:18:28 --> Login attempt - Username: superadmin, Role: super_admin
+DEBUG - 2025-08-30 01:18:28 --> User found: Yes
+DEBUG - 2025-08-30 01:18:28 --> SQL Query: SELECT *
+FROM `users`
+WHERE `username` = 'superadmin'
+AND `role` = 'super_admin'
+AND `users`.`deleted_at` IS NULL
+ LIMIT 1
+DEBUG - 2025-08-30 01:18:28 --> User query result: Array
+(
+    [id] => 1
+    [username] => superadmin
+    [email] => superadmin@hospital.com
+    [password_hash] => $2y$10$bfnT5JUC.e3PjDlTvtAuAu9XBiRIPneSY1Z7QbWMEmYebP/j84Wua
+    [first_name] => Super
+    [last_name] => Admin
+    [profile_pic] => 
+    [status] => active
+    [role] => super_admin
+    [last_login] => 
+    [created_at] => 2025-08-29 20:29:01
+    [updated_at] => 2025-08-29 20:29:01
+    [deleted_at] => 
+)
+
+DEBUG - 2025-08-30 01:18:28 --> All users with username superadmin: Array
+(
+    [0] => Array
+        (
+            [id] => 1
+            [username] => superadmin
+            [email] => superadmin@hospital.com
+            [password_hash] => $2y$10$bfnT5JUC.e3PjDlTvtAuAu9XBiRIPneSY1Z7QbWMEmYebP/j84Wua
+            [first_name] => Super
+            [last_name] => Admin
+            [profile_pic] => 
+            [status] => active
+            [role] => super_admin
+            [last_login] => 
+            [created_at] => 2025-08-29 20:29:01
+            [updated_at] => 2025-08-29 20:29:01
+            [deleted_at] => 
+        )
+
+)
+
+DEBUG - 2025-08-30 01:18:28 --> Stored hash: $2y$10$bfnT5JUC.e3PjDlTvtAuAu9XBiRIPneSY1Z7QbWMEmYebP/j84Wua
+DEBUG - 2025-08-30 01:18:28 --> Password verification result: Success
+DEBUG - 2025-08-30 01:18:28 --> New hash of input password: $2y$10$/oVaHmLBLzL.8gAHyQGlze/f7Mj2d1HISY5Rhl3gyobI7QLRoI8gS
+DEBUG - 2025-08-30 01:18:28 --> Does new hash match stored hash? No
+DEBUG - 2025-08-30 01:18:28 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:18:43 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:18:43 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:18:58 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:18:58 --> Login attempt - Username: doctor1, Role: doctor
+DEBUG - 2025-08-30 01:18:58 --> Raw password: Doctor@123
+DEBUG - 2025-08-30 01:18:58 --> POST data: Array
+(
+    [role] => doctor
+    [username] => doctor1
+    [password] => Doctor@123
+)
+
+DEBUG - 2025-08-30 01:18:58 --> Login attempt - Username: doctor1, Role: doctor
+DEBUG - 2025-08-30 01:18:58 --> User found: Yes
+DEBUG - 2025-08-30 01:18:58 --> SQL Query: SELECT *
+FROM `users`
+WHERE `username` = 'doctor1'
+AND `role` = 'doctor'
+AND `users`.`deleted_at` IS NULL
+ LIMIT 1
+DEBUG - 2025-08-30 01:18:58 --> User query result: Array
+(
+    [id] => 2
+    [username] => doctor1
+    [email] => doctor@hospital.com
+    [password_hash] => $2y$10$r0bGk5rWYgexRIjaPI.AF.CpMyW8L3IIKhPhs95r7UZGuuHzAtmBC
+    [first_name] => John
+    [last_name] => Smith
+    [profile_pic] => 
+    [status] => active
+    [role] => doctor
+    [last_login] => 
+    [created_at] => 2025-08-29 20:29:01
+    [updated_at] => 2025-08-29 20:29:01
+    [deleted_at] => 
+)
+
+DEBUG - 2025-08-30 01:18:58 --> All users with username doctor1: Array
+(
+    [0] => Array
+        (
+            [id] => 2
+            [username] => doctor1
+            [email] => doctor@hospital.com
+            [password_hash] => $2y$10$r0bGk5rWYgexRIjaPI.AF.CpMyW8L3IIKhPhs95r7UZGuuHzAtmBC
+            [first_name] => John
+            [last_name] => Smith
+            [profile_pic] => 
+            [status] => active
+            [role] => doctor
+            [last_login] => 
+            [created_at] => 2025-08-29 20:29:01
+            [updated_at] => 2025-08-29 20:29:01
+            [deleted_at] => 
+        )
+
+)
+
+DEBUG - 2025-08-30 01:18:58 --> Stored hash: $2y$10$r0bGk5rWYgexRIjaPI.AF.CpMyW8L3IIKhPhs95r7UZGuuHzAtmBC
+DEBUG - 2025-08-30 01:18:58 --> Password verification result: Failed
+DEBUG - 2025-08-30 01:18:58 --> New hash of input password: $2y$10$YBRDkLv54fTH5rjGynLTUeXux4vqMg1YpG6B90/j7ecQNon.LuHBy
+DEBUG - 2025-08-30 01:18:58 --> Does new hash match stored hash? No
+DEBUG - 2025-08-30 01:18:59 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:19:15 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:19:15 --> Login attempt - Username: doctor1, Role: doctor
+DEBUG - 2025-08-30 01:19:15 --> Raw password: Doctor@123
+DEBUG - 2025-08-30 01:19:15 --> POST data: Array
+(
+    [role] => doctor
+    [username] => doctor1
+    [password] => Doctor@123
+)
+
+DEBUG - 2025-08-30 01:19:15 --> Login attempt - Username: doctor1, Role: doctor
+DEBUG - 2025-08-30 01:19:15 --> User found: Yes
+DEBUG - 2025-08-30 01:19:15 --> SQL Query: SELECT *
+FROM `users`
+WHERE `username` = 'doctor1'
+AND `role` = 'doctor'
+AND `users`.`deleted_at` IS NULL
+ LIMIT 1
+DEBUG - 2025-08-30 01:19:15 --> User query result: Array
+(
+    [id] => 2
+    [username] => doctor1
+    [email] => doctor@hospital.com
+    [password_hash] => $2y$10$r0bGk5rWYgexRIjaPI.AF.CpMyW8L3IIKhPhs95r7UZGuuHzAtmBC
+    [first_name] => John
+    [last_name] => Smith
+    [profile_pic] => 
+    [status] => active
+    [role] => doctor
+    [last_login] => 
+    [created_at] => 2025-08-29 20:29:01
+    [updated_at] => 2025-08-29 20:29:01
+    [deleted_at] => 
+)
+
+DEBUG - 2025-08-30 01:19:15 --> All users with username doctor1: Array
+(
+    [0] => Array
+        (
+            [id] => 2
+            [username] => doctor1
+            [email] => doctor@hospital.com
+            [password_hash] => $2y$10$r0bGk5rWYgexRIjaPI.AF.CpMyW8L3IIKhPhs95r7UZGuuHzAtmBC
+            [first_name] => John
+            [last_name] => Smith
+            [profile_pic] => 
+            [status] => active
+            [role] => doctor
+            [last_login] => 
+            [created_at] => 2025-08-29 20:29:01
+            [updated_at] => 2025-08-29 20:29:01
+            [deleted_at] => 
+        )
+
+)
+
+DEBUG - 2025-08-30 01:19:15 --> Stored hash: $2y$10$r0bGk5rWYgexRIjaPI.AF.CpMyW8L3IIKhPhs95r7UZGuuHzAtmBC
+DEBUG - 2025-08-30 01:19:15 --> Password verification result: Failed
+DEBUG - 2025-08-30 01:19:15 --> New hash of input password: $2y$10$xyQy1JvCh.FKeT4CVjAeUeGLTh.i5RAbkbmZWEQFPpEKkoTAHTKnS
+DEBUG - 2025-08-30 01:19:15 --> Does new hash match stored hash? No
+DEBUG - 2025-08-30 01:19:15 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:19:30 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:19:53 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:19:53 --> Login attempt - Username: nurse1, Role: nurse
+DEBUG - 2025-08-30 01:19:53 --> Raw password: Nurse@123
+DEBUG - 2025-08-30 01:19:53 --> POST data: Array
+(
+    [role] => nurse
+    [username] => nurse1
+    [password] => Nurse@123
+)
+
+DEBUG - 2025-08-30 01:19:53 --> Login attempt - Username: nurse1, Role: nurse
+DEBUG - 2025-08-30 01:19:53 --> User found: Yes
+DEBUG - 2025-08-30 01:19:53 --> SQL Query: SELECT *
+FROM `users`
+WHERE `username` = 'nurse1'
+AND `role` = 'nurse'
+AND `users`.`deleted_at` IS NULL
+ LIMIT 1
+DEBUG - 2025-08-30 01:19:53 --> User query result: Array
+(
+    [id] => 3
+    [username] => nurse1
+    [email] => nurse@hospital.com
+    [password_hash] => $2y$10$xOoZ5WawmNdLz4TnjJ1G7.1pW0PysRlNao95z6AFBgA8qX2B3Vib.
+    [first_name] => Sarah
+    [last_name] => Johnson
+    [profile_pic] => 
+    [status] => active
+    [role] => nurse
+    [last_login] => 
+    [created_at] => 2025-08-29 20:29:01
+    [updated_at] => 2025-08-29 20:29:01
+    [deleted_at] => 
+)
+
+DEBUG - 2025-08-30 01:19:53 --> All users with username nurse1: Array
+(
+    [0] => Array
+        (
+            [id] => 3
+            [username] => nurse1
+            [email] => nurse@hospital.com
+            [password_hash] => $2y$10$xOoZ5WawmNdLz4TnjJ1G7.1pW0PysRlNao95z6AFBgA8qX2B3Vib.
+            [first_name] => Sarah
+            [last_name] => Johnson
+            [profile_pic] => 
+            [status] => active
+            [role] => nurse
+            [last_login] => 
+            [created_at] => 2025-08-29 20:29:01
+            [updated_at] => 2025-08-29 20:29:01
+            [deleted_at] => 
+        )
+
+)
+
+DEBUG - 2025-08-30 01:19:53 --> Stored hash: $2y$10$xOoZ5WawmNdLz4TnjJ1G7.1pW0PysRlNao95z6AFBgA8qX2B3Vib.
+DEBUG - 2025-08-30 01:19:53 --> Password verification result: Failed
+DEBUG - 2025-08-30 01:19:53 --> New hash of input password: $2y$10$io3roLcP4SR3m0SY/KeRleY0fdpmMl4DcpJLrHgxHp/Sb1jRVSa2G
+DEBUG - 2025-08-30 01:19:53 --> Does new hash match stored hash? No
+DEBUG - 2025-08-30 01:19:53 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:22:52 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:22:52 --> Login attempt - Username: superadmin, Role: super_admin
+DEBUG - 2025-08-30 01:22:52 --> Raw password: SuperAdmin@123
+DEBUG - 2025-08-30 01:22:52 --> POST data: Array
+(
+    [role] => super_admin
+    [username] => superadmin
+    [password] => SuperAdmin@123
+)
+
+DEBUG - 2025-08-30 01:22:52 --> Login attempt - Username: superadmin, Role: super_admin
+DEBUG - 2025-08-30 01:22:52 --> User found: Yes
+DEBUG - 2025-08-30 01:22:52 --> SQL Query: SELECT *
+FROM `users`
+WHERE `username` = 'superadmin'
+AND `role` = 'super_admin'
+AND `users`.`deleted_at` IS NULL
+ LIMIT 1
+DEBUG - 2025-08-30 01:22:52 --> User query result: Array
+(
+    [id] => 1
+    [username] => superadmin
+    [email] => superadmin@hospital.com
+    [password_hash] => $2y$10$lHUlu4CSXKLKIQq5CMN.uOl9jiobF0mkh2TS9ly.oDl8uArboL4bu
+    [first_name] => Super
+    [last_name] => Admin
+    [profile_pic] => 
+    [status] => active
+    [role] => super_admin
+    [last_login] => 2025-08-30 01:18:28
+    [created_at] => 2025-08-29 20:29:01
+    [updated_at] => 2025-08-30 01:18:28
+    [deleted_at] => 
+)
+
+DEBUG - 2025-08-30 01:22:52 --> All users with username superadmin: Array
+(
+    [0] => Array
+        (
+            [id] => 1
+            [username] => superadmin
+            [email] => superadmin@hospital.com
+            [password_hash] => $2y$10$lHUlu4CSXKLKIQq5CMN.uOl9jiobF0mkh2TS9ly.oDl8uArboL4bu
+            [first_name] => Super
+            [last_name] => Admin
+            [profile_pic] => 
+            [status] => active
+            [role] => super_admin
+            [last_login] => 2025-08-30 01:18:28
+            [created_at] => 2025-08-29 20:29:01
+            [updated_at] => 2025-08-30 01:18:28
+            [deleted_at] => 
+        )
+
+)
+
+DEBUG - 2025-08-30 01:22:52 --> Stored hash: $2y$10$lHUlu4CSXKLKIQq5CMN.uOl9jiobF0mkh2TS9ly.oDl8uArboL4bu
+DEBUG - 2025-08-30 01:22:52 --> Password verification result: Success
+DEBUG - 2025-08-30 01:22:52 --> New hash of input password: $2y$10$zoEFbxT5rUHxhdrGEoKXXO5O3d.D2bCvK36gtUt1DyBzD5AoNsbyC
+DEBUG - 2025-08-30 01:22:52 --> Does new hash match stored hash? No
+DEBUG - 2025-08-30 01:22:52 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:22:55 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:22:55 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:23:55 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:23:55 --> Login attempt - Username: doctor1, Role: doctor
+DEBUG - 2025-08-30 01:23:55 --> Raw password: Doctor@123
+DEBUG - 2025-08-30 01:23:55 --> POST data: Array
+(
+    [role] => doctor
+    [username] => doctor1
+    [password] => Doctor@123
+)
+
+DEBUG - 2025-08-30 01:23:55 --> Login attempt - Username: doctor1, Role: doctor
+DEBUG - 2025-08-30 01:23:55 --> User found: Yes
+DEBUG - 2025-08-30 01:23:55 --> SQL Query: SELECT *
+FROM `users`
+WHERE `username` = 'doctor1'
+AND `role` = 'doctor'
+AND `users`.`deleted_at` IS NULL
+ LIMIT 1
+DEBUG - 2025-08-30 01:23:55 --> User query result: Array
+(
+    [id] => 2
+    [username] => doctor1
+    [email] => doctor@hospital.com
+    [password_hash] => $2y$10$r0bGk5rWYgexRIjaPI.AF.CpMyW8L3IIKhPhs95r7UZGuuHzAtmBC
+    [first_name] => John
+    [last_name] => Smith
+    [profile_pic] => 
+    [status] => active
+    [role] => doctor
+    [last_login] => 
+    [created_at] => 2025-08-29 20:29:01
+    [updated_at] => 2025-08-29 20:29:01
+    [deleted_at] => 
+)
+
+DEBUG - 2025-08-30 01:23:55 --> All users with username doctor1: Array
+(
+    [0] => Array
+        (
+            [id] => 2
+            [username] => doctor1
+            [email] => doctor@hospital.com
+            [password_hash] => $2y$10$r0bGk5rWYgexRIjaPI.AF.CpMyW8L3IIKhPhs95r7UZGuuHzAtmBC
+            [first_name] => John
+            [last_name] => Smith
+            [profile_pic] => 
+            [status] => active
+            [role] => doctor
+            [last_login] => 
+            [created_at] => 2025-08-29 20:29:01
+            [updated_at] => 2025-08-29 20:29:01
+            [deleted_at] => 
+        )
+
+)
+
+DEBUG - 2025-08-30 01:23:55 --> Stored hash: $2y$10$r0bGk5rWYgexRIjaPI.AF.CpMyW8L3IIKhPhs95r7UZGuuHzAtmBC
+DEBUG - 2025-08-30 01:23:55 --> Password verification result: Failed
+DEBUG - 2025-08-30 01:23:55 --> New hash of input password: $2y$10$50JMidSfHgpobBHxuYRuo.O7T2n8c0gF1u0lnj8c6qYG/1WaCNSs6
+DEBUG - 2025-08-30 01:23:55 --> Does new hash match stored hash? No
+DEBUG - 2025-08-30 01:23:55 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:24:14 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:24:15 --> Login attempt - Username: reception1, Role: receptionist
+DEBUG - 2025-08-30 01:24:15 --> Raw password: Reception@123
+DEBUG - 2025-08-30 01:24:15 --> POST data: Array
+(
+    [role] => receptionist
+    [username] => reception1
+    [password] => Reception@123
+)
+
+DEBUG - 2025-08-30 01:24:15 --> Login attempt - Username: reception1, Role: receptionist
+DEBUG - 2025-08-30 01:24:15 --> User found: Yes
+DEBUG - 2025-08-30 01:24:15 --> SQL Query: SELECT *
+FROM `users`
+WHERE `username` = 'reception1'
+AND `role` = 'receptionist'
+AND `users`.`deleted_at` IS NULL
+ LIMIT 1
+DEBUG - 2025-08-30 01:24:15 --> User query result: Array
+(
+    [id] => 4
+    [username] => reception1
+    [email] => reception@hospital.com
+    [password_hash] => $2y$10$RRbnlrXfDYrVlVfDQTGxFuwfZS2CI1.IVG5o51VcNyr.nYPFwv1wK
+    [first_name] => Emma
+    [last_name] => Wilson
+    [profile_pic] => 
+    [status] => active
+    [role] => receptionist
+    [last_login] => 
+    [created_at] => 2025-08-29 20:29:01
+    [updated_at] => 2025-08-29 20:29:01
+    [deleted_at] => 
+)
+
+DEBUG - 2025-08-30 01:24:15 --> All users with username reception1: Array
+(
+    [0] => Array
+        (
+            [id] => 4
+            [username] => reception1
+            [email] => reception@hospital.com
+            [password_hash] => $2y$10$RRbnlrXfDYrVlVfDQTGxFuwfZS2CI1.IVG5o51VcNyr.nYPFwv1wK
+            [first_name] => Emma
+            [last_name] => Wilson
+            [profile_pic] => 
+            [status] => active
+            [role] => receptionist
+            [last_login] => 
+            [created_at] => 2025-08-29 20:29:01
+            [updated_at] => 2025-08-29 20:29:01
+            [deleted_at] => 
+        )
+
+)
+
+DEBUG - 2025-08-30 01:24:15 --> Stored hash: $2y$10$RRbnlrXfDYrVlVfDQTGxFuwfZS2CI1.IVG5o51VcNyr.nYPFwv1wK
+DEBUG - 2025-08-30 01:24:15 --> Password verification result: Failed
+DEBUG - 2025-08-30 01:24:15 --> New hash of input password: $2y$10$2J75IjkiaIu23TagA4b/oupXl0mn6VUMq4MkL2G8TMl0Nw1De2ooC
+DEBUG - 2025-08-30 01:24:15 --> Does new hash match stored hash? No
+DEBUG - 2025-08-30 01:24:15 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:24:37 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:24:37 --> Login attempt - Username: superadmin, Role: super_admin
+DEBUG - 2025-08-30 01:24:37 --> Raw password: SuperAdmin@123
+DEBUG - 2025-08-30 01:24:37 --> POST data: Array
+(
+    [role] => super_admin
+    [username] => superadmin
+    [password] => SuperAdmin@123
+)
+
+DEBUG - 2025-08-30 01:24:37 --> Login attempt - Username: superadmin, Role: super_admin
+DEBUG - 2025-08-30 01:24:37 --> User found: Yes
+DEBUG - 2025-08-30 01:24:37 --> SQL Query: SELECT *
+FROM `users`
+WHERE `username` = 'superadmin'
+AND `role` = 'super_admin'
+AND `users`.`deleted_at` IS NULL
+ LIMIT 1
+DEBUG - 2025-08-30 01:24:37 --> User query result: Array
+(
+    [id] => 1
+    [username] => superadmin
+    [email] => superadmin@hospital.com
+    [password_hash] => $2y$10$lHUlu4CSXKLKIQq5CMN.uOl9jiobF0mkh2TS9ly.oDl8uArboL4bu
+    [first_name] => Super
+    [last_name] => Admin
+    [profile_pic] => 
+    [status] => active
+    [role] => super_admin
+    [last_login] => 2025-08-30 01:22:52
+    [created_at] => 2025-08-29 20:29:01
+    [updated_at] => 2025-08-30 01:22:52
+    [deleted_at] => 
+)
+
+DEBUG - 2025-08-30 01:24:37 --> All users with username superadmin: Array
+(
+    [0] => Array
+        (
+            [id] => 1
+            [username] => superadmin
+            [email] => superadmin@hospital.com
+            [password_hash] => $2y$10$lHUlu4CSXKLKIQq5CMN.uOl9jiobF0mkh2TS9ly.oDl8uArboL4bu
+            [first_name] => Super
+            [last_name] => Admin
+            [profile_pic] => 
+            [status] => active
+            [role] => super_admin
+            [last_login] => 2025-08-30 01:22:52
+            [created_at] => 2025-08-29 20:29:01
+            [updated_at] => 2025-08-30 01:22:52
+            [deleted_at] => 
+        )
+
+)
+
+DEBUG - 2025-08-30 01:24:37 --> Stored hash: $2y$10$lHUlu4CSXKLKIQq5CMN.uOl9jiobF0mkh2TS9ly.oDl8uArboL4bu
+DEBUG - 2025-08-30 01:24:37 --> Password verification result: Success
+DEBUG - 2025-08-30 01:24:37 --> New hash of input password: $2y$10$YxBzP3E5aNAIlVWzV7qsv.RG77uMlcDUbgYl.4CYFKOaarcqYiNxu
+DEBUG - 2025-08-30 01:24:37 --> Does new hash match stored hash? No
+DEBUG - 2025-08-30 01:24:37 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:25:15 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:25:16 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:25:53 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:25:53 --> Login attempt - Username: superadmin, Role: super_admin
+DEBUG - 2025-08-30 01:25:53 --> Raw password: SuperAdmin@123
+DEBUG - 2025-08-30 01:25:53 --> POST data: Array
+(
+    [role] => super_admin
+    [username] => superadmin
+    [password] => SuperAdmin@123
+)
+
+DEBUG - 2025-08-30 01:25:53 --> Login attempt - Username: superadmin, Role: super_admin
+DEBUG - 2025-08-30 01:25:53 --> User found: Yes
+DEBUG - 2025-08-30 01:25:53 --> SQL Query: SELECT *
+FROM `users`
+WHERE `username` = 'superadmin'
+AND `role` = 'super_admin'
+AND `users`.`deleted_at` IS NULL
+ LIMIT 1
+DEBUG - 2025-08-30 01:25:53 --> User query result: Array
+(
+    [id] => 1
+    [username] => superadmin
+    [email] => superadmin@hospital.com
+    [password_hash] => $2y$10$lHUlu4CSXKLKIQq5CMN.uOl9jiobF0mkh2TS9ly.oDl8uArboL4bu
+    [first_name] => Super
+    [last_name] => Admin
+    [profile_pic] => 
+    [status] => active
+    [role] => super_admin
+    [last_login] => 2025-08-30 01:24:37
+    [created_at] => 2025-08-29 20:29:01
+    [updated_at] => 2025-08-30 01:24:37
+    [deleted_at] => 
+)
+
+DEBUG - 2025-08-30 01:25:53 --> All users with username superadmin: Array
+(
+    [0] => Array
+        (
+            [id] => 1
+            [username] => superadmin
+            [email] => superadmin@hospital.com
+            [password_hash] => $2y$10$lHUlu4CSXKLKIQq5CMN.uOl9jiobF0mkh2TS9ly.oDl8uArboL4bu
+            [first_name] => Super
+            [last_name] => Admin
+            [profile_pic] => 
+            [status] => active
+            [role] => super_admin
+            [last_login] => 2025-08-30 01:24:37
+            [created_at] => 2025-08-29 20:29:01
+            [updated_at] => 2025-08-30 01:24:37
+            [deleted_at] => 
+        )
+
+)
+
+DEBUG - 2025-08-30 01:25:53 --> Stored hash: $2y$10$lHUlu4CSXKLKIQq5CMN.uOl9jiobF0mkh2TS9ly.oDl8uArboL4bu
+DEBUG - 2025-08-30 01:25:53 --> Password verification result: Success
+DEBUG - 2025-08-30 01:25:53 --> New hash of input password: $2y$10$oyCUxVN2a1aVY0RHPIQoI.ocEaIgktpsCh2ImHe1w5fgAE22N5CPq
+DEBUG - 2025-08-30 01:25:53 --> Does new hash match stored hash? No
+DEBUG - 2025-08-30 01:25:53 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:26:05 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:26:05 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:30:03 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:30:03 --> Login attempt - Username: doctor1, Role: doctor
+DEBUG - 2025-08-30 01:30:03 --> Raw password: Doctor@123
+DEBUG - 2025-08-30 01:30:03 --> POST data: Array
+(
+    [role] => doctor
+    [username] => doctor1
+    [password] => Doctor@123
+)
+
+DEBUG - 2025-08-30 01:30:03 --> Login attempt - Username: doctor1, Role: doctor
+DEBUG - 2025-08-30 01:30:03 --> User found: Yes
+DEBUG - 2025-08-30 01:30:03 --> SQL Query: SELECT *
+FROM `users`
+WHERE `username` = 'doctor1'
+AND `role` = 'doctor'
+AND `users`.`deleted_at` IS NULL
+ LIMIT 1
+DEBUG - 2025-08-30 01:30:03 --> User query result: Array
+(
+    [id] => 2
+    [username] => doctor1
+    [email] => doctor@hospital.com
+    [password_hash] => $2y$10$r0bGk5rWYgexRIjaPI.AF.CpMyW8L3IIKhPhs95r7UZGuuHzAtmBC
+    [first_name] => John
+    [last_name] => Smith
+    [profile_pic] => 
+    [status] => active
+    [role] => doctor
+    [last_login] => 
+    [created_at] => 2025-08-29 20:29:01
+    [updated_at] => 2025-08-29 20:29:01
+    [deleted_at] => 
+)
+
+DEBUG - 2025-08-30 01:30:03 --> All users with username doctor1: Array
+(
+    [0] => Array
+        (
+            [id] => 2
+            [username] => doctor1
+            [email] => doctor@hospital.com
+            [password_hash] => $2y$10$r0bGk5rWYgexRIjaPI.AF.CpMyW8L3IIKhPhs95r7UZGuuHzAtmBC
+            [first_name] => John
+            [last_name] => Smith
+            [profile_pic] => 
+            [status] => active
+            [role] => doctor
+            [last_login] => 
+            [created_at] => 2025-08-29 20:29:01
+            [updated_at] => 2025-08-29 20:29:01
+            [deleted_at] => 
+        )
+
+)
+
+DEBUG - 2025-08-30 01:30:03 --> Stored hash: $2y$10$r0bGk5rWYgexRIjaPI.AF.CpMyW8L3IIKhPhs95r7UZGuuHzAtmBC
+DEBUG - 2025-08-30 01:30:03 --> Password verification result: Failed
+DEBUG - 2025-08-30 01:30:03 --> New hash of input password: $2y$10$FWgdmFIOltoz.Kymt6h6LOIsBm8lCNJvR/U0tMVKmH6J8WM4U03ue
+DEBUG - 2025-08-30 01:30:03 --> Does new hash match stored hash? No
+DEBUG - 2025-08-30 01:30:03 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:33:02 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:33:19 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:33:19 --> Login attempt - Username: doctor1, Role: super_admin
+DEBUG - 2025-08-30 01:33:19 --> Raw password: Doctor@123
+DEBUG - 2025-08-30 01:33:19 --> POST data: Array
+(
+    [role] => super_admin
+    [username] => doctor1
+    [password] => Doctor@123
+)
+
+DEBUG - 2025-08-30 01:33:19 --> Login attempt - Username: doctor1, Role: super_admin
+DEBUG - 2025-08-30 01:33:19 --> User found: No
+DEBUG - 2025-08-30 01:33:19 --> SQL Query: SELECT *
+FROM `users`
+WHERE `username` = 'doctor1'
+AND `role` = 'super_admin'
+AND `users`.`deleted_at` IS NULL
+ LIMIT 1
+DEBUG - 2025-08-30 01:33:19 --> User query result: 
+DEBUG - 2025-08-30 01:33:19 --> All users with username doctor1: Array
+(
+    [0] => Array
+        (
+            [id] => 2
+            [username] => doctor1
+            [email] => doctor@hospital.com
+            [password_hash] => $2y$10$r0bGk5rWYgexRIjaPI.AF.CpMyW8L3IIKhPhs95r7UZGuuHzAtmBC
+            [first_name] => John
+            [last_name] => Smith
+            [profile_pic] => 
+            [status] => active
+            [role] => doctor
+            [last_login] => 
+            [created_at] => 2025-08-29 20:29:01
+            [updated_at] => 2025-08-29 20:29:01
+            [deleted_at] => 
+        )
+
+)
+
+DEBUG - 2025-08-30 01:33:19 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:33:35 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:33:35 --> Login attempt - Username: superadmin, Role: super_admin
+DEBUG - 2025-08-30 01:33:35 --> Raw password: SuperAdmin@123
+DEBUG - 2025-08-30 01:33:35 --> POST data: Array
+(
+    [role] => super_admin
+    [username] => superadmin
+    [password] => SuperAdmin@123
+)
+
+DEBUG - 2025-08-30 01:33:35 --> Login attempt - Username: superadmin, Role: super_admin
+DEBUG - 2025-08-30 01:33:35 --> User found: Yes
+DEBUG - 2025-08-30 01:33:35 --> SQL Query: SELECT *
+FROM `users`
+WHERE `username` = 'superadmin'
+AND `role` = 'super_admin'
+AND `users`.`deleted_at` IS NULL
+ LIMIT 1
+DEBUG - 2025-08-30 01:33:35 --> User query result: Array
+(
+    [id] => 1
+    [username] => superadmin
+    [email] => superadmin@hospital.com
+    [password_hash] => $2y$10$lHUlu4CSXKLKIQq5CMN.uOl9jiobF0mkh2TS9ly.oDl8uArboL4bu
+    [first_name] => Super
+    [last_name] => Admin
+    [profile_pic] => 
+    [status] => active
+    [role] => super_admin
+    [last_login] => 2025-08-30 01:25:53
+    [created_at] => 2025-08-29 20:29:01
+    [updated_at] => 2025-08-30 01:25:53
+    [deleted_at] => 
+)
+
+DEBUG - 2025-08-30 01:33:35 --> All users with username superadmin: Array
+(
+    [0] => Array
+        (
+            [id] => 1
+            [username] => superadmin
+            [email] => superadmin@hospital.com
+            [password_hash] => $2y$10$lHUlu4CSXKLKIQq5CMN.uOl9jiobF0mkh2TS9ly.oDl8uArboL4bu
+            [first_name] => Super
+            [last_name] => Admin
+            [profile_pic] => 
+            [status] => active
+            [role] => super_admin
+            [last_login] => 2025-08-30 01:25:53
+            [created_at] => 2025-08-29 20:29:01
+            [updated_at] => 2025-08-30 01:25:53
+            [deleted_at] => 
+        )
+
+)
+
+DEBUG - 2025-08-30 01:33:35 --> Stored hash: $2y$10$lHUlu4CSXKLKIQq5CMN.uOl9jiobF0mkh2TS9ly.oDl8uArboL4bu
+DEBUG - 2025-08-30 01:33:35 --> Password verification result: Success
+DEBUG - 2025-08-30 01:33:35 --> New hash of input password: $2y$10$DlElOOpmNXF79RoD2CjkROomg9kr1cUNM7d1bLxn98T78OOm8lNjK
+DEBUG - 2025-08-30 01:33:35 --> Does new hash match stored hash? No
+DEBUG - 2025-08-30 01:33:35 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:33:39 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:33:39 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:33:55 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:33:55 --> Login attempt - Username: nurse1, Role: nurse
+DEBUG - 2025-08-30 01:33:55 --> Raw password: Nurse@123
+DEBUG - 2025-08-30 01:33:55 --> POST data: Array
+(
+    [role] => nurse
+    [username] => nurse1
+    [password] => Nurse@123
+)
+
+DEBUG - 2025-08-30 01:33:55 --> Login attempt - Username: nurse1, Role: nurse
+DEBUG - 2025-08-30 01:33:55 --> User found: Yes
+DEBUG - 2025-08-30 01:33:55 --> SQL Query: SELECT *
+FROM `users`
+WHERE `username` = 'nurse1'
+AND `role` = 'nurse'
+AND `users`.`deleted_at` IS NULL
+ LIMIT 1
+DEBUG - 2025-08-30 01:33:55 --> User query result: Array
+(
+    [id] => 3
+    [username] => nurse1
+    [email] => nurse@hospital.com
+    [password_hash] => $2y$10$xOoZ5WawmNdLz4TnjJ1G7.1pW0PysRlNao95z6AFBgA8qX2B3Vib.
+    [first_name] => Sarah
+    [last_name] => Johnson
+    [profile_pic] => 
+    [status] => active
+    [role] => nurse
+    [last_login] => 
+    [created_at] => 2025-08-29 20:29:01
+    [updated_at] => 2025-08-29 20:29:01
+    [deleted_at] => 
+)
+
+DEBUG - 2025-08-30 01:33:55 --> All users with username nurse1: Array
+(
+    [0] => Array
+        (
+            [id] => 3
+            [username] => nurse1
+            [email] => nurse@hospital.com
+            [password_hash] => $2y$10$xOoZ5WawmNdLz4TnjJ1G7.1pW0PysRlNao95z6AFBgA8qX2B3Vib.
+            [first_name] => Sarah
+            [last_name] => Johnson
+            [profile_pic] => 
+            [status] => active
+            [role] => nurse
+            [last_login] => 
+            [created_at] => 2025-08-29 20:29:01
+            [updated_at] => 2025-08-29 20:29:01
+            [deleted_at] => 
+        )
+
+)
+
+DEBUG - 2025-08-30 01:33:55 --> Stored hash: $2y$10$xOoZ5WawmNdLz4TnjJ1G7.1pW0PysRlNao95z6AFBgA8qX2B3Vib.
+DEBUG - 2025-08-30 01:33:55 --> Password verification result: Failed
+DEBUG - 2025-08-30 01:33:55 --> New hash of input password: $2y$10$DCKhb7T4WwRsa9DkAs/xnOsnq.d5jPHF5f4Fj5nZ/Spge.qISiaQu
+DEBUG - 2025-08-30 01:33:55 --> Does new hash match stored hash? No
+DEBUG - 2025-08-30 01:33:56 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:39:11 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:39:11 --> Login attempt - Username: superadmin , Role: super_admin
+DEBUG - 2025-08-30 01:39:11 --> Raw password: SuperAdmin@123
+DEBUG - 2025-08-30 01:39:11 --> POST data: Array
+(
+    [role] => super_admin
+    [username] => superadmin 
+    [password] => SuperAdmin@123
+)
+
+DEBUG - 2025-08-30 01:39:11 --> Login attempt - Username: superadmin , Role: super_admin
+DEBUG - 2025-08-30 01:39:11 --> User found: Yes
+DEBUG - 2025-08-30 01:39:11 --> SQL Query: SELECT *
+FROM `users`
+WHERE `username` = 'superadmin '
+AND `role` = 'super_admin'
+AND `users`.`deleted_at` IS NULL
+ LIMIT 1
+DEBUG - 2025-08-30 01:39:11 --> User query result: Array
+(
+    [id] => 1
+    [username] => superadmin
+    [email] => superadmin@hospital.com
+    [password_hash] => $2y$10$lHUlu4CSXKLKIQq5CMN.uOl9jiobF0mkh2TS9ly.oDl8uArboL4bu
+    [first_name] => Super
+    [last_name] => Admin
+    [profile_pic] => 
+    [status] => active
+    [role] => super_admin
+    [last_login] => 2025-08-30 01:33:35
+    [created_at] => 2025-08-29 20:29:01
+    [updated_at] => 2025-08-30 01:33:35
+    [deleted_at] => 
+)
+
+DEBUG - 2025-08-30 01:39:11 --> All users with username superadmin : Array
+(
+    [0] => Array
+        (
+            [id] => 1
+            [username] => superadmin
+            [email] => superadmin@hospital.com
+            [password_hash] => $2y$10$lHUlu4CSXKLKIQq5CMN.uOl9jiobF0mkh2TS9ly.oDl8uArboL4bu
+            [first_name] => Super
+            [last_name] => Admin
+            [profile_pic] => 
+            [status] => active
+            [role] => super_admin
+            [last_login] => 2025-08-30 01:33:35
+            [created_at] => 2025-08-29 20:29:01
+            [updated_at] => 2025-08-30 01:33:35
+            [deleted_at] => 
+        )
+
+)
+
+DEBUG - 2025-08-30 01:39:11 --> Stored hash: $2y$10$lHUlu4CSXKLKIQq5CMN.uOl9jiobF0mkh2TS9ly.oDl8uArboL4bu
+DEBUG - 2025-08-30 01:39:11 --> Password verification result: Success
+DEBUG - 2025-08-30 01:39:11 --> New hash of input password: $2y$10$mSOc63Wjxy5QRvqhVG7ZEulDTmgbVFfFHpAvanPldkTS.2wZivDP6
+DEBUG - 2025-08-30 01:39:11 --> Does new hash match stored hash? No
+DEBUG - 2025-08-30 01:39:11 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:39:14 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:39:14 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:40:53 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:40:53 --> Login attempt - Username: superadmin, Role: super_admin
+DEBUG - 2025-08-30 01:40:53 --> Raw password: SuperAdmin@123
+DEBUG - 2025-08-30 01:40:53 --> POST data: Array
+(
+    [role] => super_admin
+    [username] => superadmin
+    [password] => SuperAdmin@123
+)
+
+DEBUG - 2025-08-30 01:40:53 --> Login attempt - Username: superadmin, Role: super_admin
+DEBUG - 2025-08-30 01:40:53 --> User found: Yes
+DEBUG - 2025-08-30 01:40:53 --> SQL Query: SELECT *
+FROM `users`
+WHERE `username` = 'superadmin'
+AND `role` = 'super_admin'
+AND `users`.`deleted_at` IS NULL
+ LIMIT 1
+DEBUG - 2025-08-30 01:40:53 --> User query result: Array
+(
+    [id] => 1
+    [username] => superadmin
+    [email] => superadmin@hospital.com
+    [password_hash] => $2y$10$lHUlu4CSXKLKIQq5CMN.uOl9jiobF0mkh2TS9ly.oDl8uArboL4bu
+    [first_name] => Super
+    [last_name] => Admin
+    [profile_pic] => 
+    [status] => active
+    [role] => super_admin
+    [last_login] => 2025-08-30 01:39:11
+    [created_at] => 2025-08-29 20:29:01
+    [updated_at] => 2025-08-30 01:39:11
+    [deleted_at] => 
+)
+
+DEBUG - 2025-08-30 01:40:53 --> All users with username superadmin: Array
+(
+    [0] => Array
+        (
+            [id] => 1
+            [username] => superadmin
+            [email] => superadmin@hospital.com
+            [password_hash] => $2y$10$lHUlu4CSXKLKIQq5CMN.uOl9jiobF0mkh2TS9ly.oDl8uArboL4bu
+            [first_name] => Super
+            [last_name] => Admin
+            [profile_pic] => 
+            [status] => active
+            [role] => super_admin
+            [last_login] => 2025-08-30 01:39:11
+            [created_at] => 2025-08-29 20:29:01
+            [updated_at] => 2025-08-30 01:39:11
+            [deleted_at] => 
+        )
+
+)
+
+DEBUG - 2025-08-30 01:40:53 --> Stored hash: $2y$10$lHUlu4CSXKLKIQq5CMN.uOl9jiobF0mkh2TS9ly.oDl8uArboL4bu
+DEBUG - 2025-08-30 01:40:53 --> Password verification result: Success
+DEBUG - 2025-08-30 01:40:54 --> New hash of input password: $2y$10$A03rgQ56Mpl.U40V23aEQ.480DZv6bq9J2jSZ.2oA7LToNUMpB.Oq
+DEBUG - 2025-08-30 01:40:54 --> Does new hash match stored hash? No
+DEBUG - 2025-08-30 01:40:54 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:41:28 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 01:41:28 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 21:30:04 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 21:39:13 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 21:39:13 --> Raw POST data: username=superadmin&password=Admin%40123
+DEBUG - 2025-08-30 21:39:13 --> Login attempt - Username: superadmin
+DEBUG - 2025-08-30 21:39:13 --> POST data: Array
+(
+    [username] => superadmin
+    [password] => Admin@123
+)
+
+DEBUG - 2025-08-30 21:39:13 --> SQL Query: SELECT *
+FROM `users`
+WHERE `username` = 'superadmin'
+AND `users`.`deleted_at` IS NULL
+ LIMIT 1
+DEBUG - 2025-08-30 21:39:14 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 21:39:17 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 21:39:17 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 21:41:33 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 21:41:33 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 21:41:37 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 21:41:37 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 21:49:04 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 21:49:28 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 21:55:03 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 21:56:48 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 22:01:03 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 22:05:54 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 22:23:03 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 22:27:26 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 22:28:12 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 22:29:39 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 22:30:15 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 22:30:20 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 22:30:45 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 22:30:52 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 22:30:55 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 22:30:58 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 22:32:52 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 22:35:16 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-08-30 22:36:31 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
