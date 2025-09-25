@@ -16,7 +16,11 @@ class App extends BaseConfig
      *
      * E.g., http://example.com/
      */
+<<<<<<< HEAD
     public string $baseURL = 'http://localhost/ITE311-GROUP6/public/';
+=======
+    public string $baseURL = 'http://localhost/Group6/public/';
+>>>>>>> c95817c (Admins and doctor)
 
     /**
      * Allowed Hostnames in the Site URL other than the hostname in the baseURL.
@@ -40,7 +44,11 @@ class App extends BaseConfig
      * something else. If you have configured your web server to remove this file
      * from your site URIs, set this variable to an empty string.
      */
+<<<<<<< HEAD
     public string $indexPage = '';
+=======
+    public string $indexPage = 'index.php';
+>>>>>>> c95817c (Admins and doctor)
 
     /**
      * --------------------------------------------------------------------------
@@ -133,7 +141,11 @@ class App extends BaseConfig
      * @see https://www.php.net/manual/en/timezones.php for list of timezones
      *      supported by PHP.
      */
+<<<<<<< HEAD
     public string $appTimezone = 'Asia/Manila';
+=======
+    public string $appTimezone = 'UTC';
+>>>>>>> c95817c (Admins and doctor)
 
     /**
      * --------------------------------------------------------------------------

@@ -1,0 +1,258 @@
+DEBUG - 2025-09-25 11:02:58 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:04:04 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:04:04 --> Raw POST data: username=doctor1&password=docpass
+DEBUG - 2025-09-25 11:04:04 --> Login attempt - Username: doctor1
+DEBUG - 2025-09-25 11:04:04 --> POST data: Array
+(
+    [username] => doctor1
+    [password] => docpass
+)
+
+DEBUG - 2025-09-25 11:04:04 --> SQL Query: SELECT *
+FROM `users`
+WHERE `username` = 'doctor1'
+AND `users`.`deleted_at` IS NULL
+ LIMIT 1
+ERROR - 2025-09-25 11:04:04 --> Password verification failed for user: doctor1
+DEBUG - 2025-09-25 11:04:04 --> Input password: docpass
+DEBUG - 2025-09-25 11:04:04 --> Stored hash: $2y$10$H6gOGEZR1DTHlXXApYymyu6iANl/QxLbDSjQGhQ3r.p2j8IgmhhZ6
+DEBUG - 2025-09-25 11:04:04 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:04:13 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:04:13 --> Raw POST data: username=doctor1&password=docpass
+DEBUG - 2025-09-25 11:04:13 --> Login attempt - Username: doctor1
+DEBUG - 2025-09-25 11:04:13 --> POST data: Array
+(
+    [username] => doctor1
+    [password] => docpass
+)
+
+DEBUG - 2025-09-25 11:04:13 --> SQL Query: SELECT *
+FROM `users`
+WHERE `username` = 'doctor1'
+AND `users`.`deleted_at` IS NULL
+ LIMIT 1
+ERROR - 2025-09-25 11:04:13 --> Password verification failed for user: doctor1
+DEBUG - 2025-09-25 11:04:13 --> Input password: docpass
+DEBUG - 2025-09-25 11:04:13 --> Stored hash: $2y$10$H6gOGEZR1DTHlXXApYymyu6iANl/QxLbDSjQGhQ3r.p2j8IgmhhZ6
+DEBUG - 2025-09-25 11:04:13 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:04:25 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:04:25 --> Raw POST data: username=nurse1&password=nursepass
+DEBUG - 2025-09-25 11:04:25 --> Login attempt - Username: nurse1
+DEBUG - 2025-09-25 11:04:25 --> POST data: Array
+(
+    [username] => nurse1
+    [password] => nursepass
+)
+
+DEBUG - 2025-09-25 11:04:25 --> SQL Query: SELECT *
+FROM `users`
+WHERE `username` = 'nurse1'
+AND `users`.`deleted_at` IS NULL
+ LIMIT 1
+ERROR - 2025-09-25 11:04:25 --> Password verification failed for user: nurse1
+DEBUG - 2025-09-25 11:04:25 --> Input password: nursepass
+DEBUG - 2025-09-25 11:04:25 --> Stored hash: $2y$10$QkgrjnRTFTbzy7FKYgPjcu2LY1L4Br8J2YHDXINab139wY8VFiqo2
+DEBUG - 2025-09-25 11:04:25 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:06:32 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:06:37 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:06:37 --> Raw POST data: username=doctor1&password=docpass
+DEBUG - 2025-09-25 11:06:37 --> Login attempt - Username: doctor1
+DEBUG - 2025-09-25 11:06:37 --> POST data: Array
+(
+    [username] => doctor1
+    [password] => docpass
+)
+
+DEBUG - 2025-09-25 11:06:37 --> SQL Query: SELECT *
+FROM `users`
+WHERE `username` = 'doctor1'
+AND `users`.`deleted_at` IS NULL
+ LIMIT 1
+ERROR - 2025-09-25 11:06:37 --> Password verification failed for user: doctor1
+DEBUG - 2025-09-25 11:06:37 --> Input password: docpass
+DEBUG - 2025-09-25 11:06:37 --> Stored hash: $2y$10$JPLl0cEoYryoKVxK3gmYku28pTizUMXtSe8mAhjQZ/uLGsCc16QKC
+DEBUG - 2025-09-25 11:06:37 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:07:00 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:07:00 --> Raw POST data: username=superadmin&password=Super_admin
+DEBUG - 2025-09-25 11:07:00 --> Login attempt - Username: superadmin
+DEBUG - 2025-09-25 11:07:00 --> POST data: Array
+(
+    [username] => superadmin
+    [password] => Super_admin
+)
+
+DEBUG - 2025-09-25 11:07:00 --> SQL Query: SELECT *
+FROM `users`
+WHERE `username` = 'superadmin'
+AND `users`.`deleted_at` IS NULL
+ LIMIT 1
+ERROR - 2025-09-25 11:07:00 --> Password verification failed for user: superadmin
+DEBUG - 2025-09-25 11:07:00 --> Input password: Super_admin
+DEBUG - 2025-09-25 11:07:00 --> Stored hash: $2y$10$NPbSMyY7z2Y6N3tP4.npZO7Z/qR4zUdo131WsQFWU54E87bub4pZa
+DEBUG - 2025-09-25 11:07:00 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:07:04 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:08:14 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:08:19 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:08:19 --> Raw POST data: username=doctor1&password=docpass
+DEBUG - 2025-09-25 11:08:19 --> Login attempt - Username: doctor1
+DEBUG - 2025-09-25 11:08:19 --> POST data: Array
+(
+    [username] => doctor1
+    [password] => docpass
+)
+
+DEBUG - 2025-09-25 11:08:19 --> SQL Query: SELECT *
+FROM `users`
+WHERE `username` = 'doctor1'
+AND `users`.`deleted_at` IS NULL
+ LIMIT 1
+ERROR - 2025-09-25 11:08:19 --> Password verification failed for user: doctor1
+DEBUG - 2025-09-25 11:08:19 --> Input password: docpass
+DEBUG - 2025-09-25 11:08:19 --> Stored hash: $2y$10$JPLl0cEoYryoKVxK3gmYku28pTizUMXtSe8mAhjQZ/uLGsCc16QKC
+DEBUG - 2025-09-25 11:08:19 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:08:20 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:08:28 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:08:28 --> Raw POST data: username=doctor1&password=docpass
+DEBUG - 2025-09-25 11:08:28 --> Login attempt - Username: doctor1
+DEBUG - 2025-09-25 11:08:28 --> POST data: Array
+(
+    [username] => doctor1
+    [password] => docpass
+)
+
+DEBUG - 2025-09-25 11:08:28 --> SQL Query: SELECT *
+FROM `users`
+WHERE `username` = 'doctor1'
+AND `users`.`deleted_at` IS NULL
+ LIMIT 1
+ERROR - 2025-09-25 11:08:28 --> Password verification failed for user: doctor1
+DEBUG - 2025-09-25 11:08:28 --> Input password: docpass
+DEBUG - 2025-09-25 11:08:28 --> Stored hash: $2y$10$JPLl0cEoYryoKVxK3gmYku28pTizUMXtSe8mAhjQZ/uLGsCc16QKC
+DEBUG - 2025-09-25 11:08:28 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:08:29 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:10:02 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:10:02 --> Raw POST data: username=superadmin&password=Admin%40123
+DEBUG - 2025-09-25 11:10:02 --> Login attempt - Username: superadmin
+DEBUG - 2025-09-25 11:10:02 --> POST data: Array
+(
+    [username] => superadmin
+    [password] => Admin@123
+)
+
+DEBUG - 2025-09-25 11:10:02 --> SQL Query: SELECT *
+FROM `users`
+WHERE `username` = 'superadmin'
+AND `users`.`deleted_at` IS NULL
+ LIMIT 1
+DEBUG - 2025-09-25 11:10:02 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:10:13 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:10:13 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:14:03 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:14:03 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:14:04 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:14:04 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:14:11 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:14:11 --> Raw POST data: username=superadmin&password=Admin%40123
+DEBUG - 2025-09-25 11:14:11 --> Login attempt - Username: superadmin
+DEBUG - 2025-09-25 11:14:11 --> POST data: Array
+(
+    [username] => superadmin
+    [password] => Admin@123
+)
+
+DEBUG - 2025-09-25 11:14:11 --> SQL Query: SELECT *
+FROM `users`
+WHERE `username` = 'superadmin'
+AND `users`.`deleted_at` IS NULL
+ LIMIT 1
+DEBUG - 2025-09-25 11:14:11 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:14:53 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:14:53 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:18:04 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:28:51 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:28:51 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+CRITICAL - 2025-09-25 11:28:53 --> ErrorException: Undefined variable $totalTime
+[Method: GET, Route: /]
+in SYSTEMPATH\Debug\Toolbar\Views\toolbar.tpl.php on line 49.
+ 1 SYSTEMPATH\Debug\Toolbar\Views\toolbar.tpl.php(49): CodeIgniter\Debug\Exceptions->errorHandler(2, 'Undefined variable $totalTime', 'F:\\xammp\\htdocs\\Group6\\system\\Debug\\Toolbar\\Views\\toolbar.tpl.php', 49)
+ 2 SYSTEMPATH\Debug\Toolbar.php(533): include('F:\\xammp\\htdocs\\Group6\\system\\Debug\\Toolbar\\Views\\toolbar.tpl.php')
+ 3 SYSTEMPATH\Debug\Toolbar.php(496): CodeIgniter\Debug\Toolbar->format([...], 'html')
+ 4 APPPATH\Config\Events.php(47): CodeIgniter\Debug\Toolbar->respond()
+ 5 SYSTEMPATH\Events\Events.php(152): CodeIgniter\Events\Events::Config\{closure}()
+ 6 SYSTEMPATH\CodeIgniter.php(339): CodeIgniter\Events\Events::trigger('pre_system')
+ 7 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 8 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 9 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+DEBUG - 2025-09-25 11:29:01 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:29:01 --> Raw POST data: username=superadmin&password=Admin%401%21%40%23
+DEBUG - 2025-09-25 11:29:01 --> Login attempt - Username: superadmin
+DEBUG - 2025-09-25 11:29:01 --> POST data: Array
+(
+    [username] => superadmin
+    [password] => Admin@1!@#
+)
+
+DEBUG - 2025-09-25 11:29:01 --> SQL Query: SELECT *
+FROM `users`
+WHERE `username` = 'superadmin'
+AND `users`.`deleted_at` IS NULL
+ LIMIT 1
+ERROR - 2025-09-25 11:29:01 --> Password verification failed for user: superadmin
+DEBUG - 2025-09-25 11:29:01 --> Input password: Admin@1!@#
+DEBUG - 2025-09-25 11:29:01 --> Stored hash: $2y$10$NPbSMyY7z2Y6N3tP4.npZO7Z/qR4zUdo131WsQFWU54E87bub4pZa
+DEBUG - 2025-09-25 11:29:01 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:29:08 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:29:08 --> Raw POST data: username=superadmin&password=Admin%40123
+DEBUG - 2025-09-25 11:29:08 --> Login attempt - Username: superadmin
+DEBUG - 2025-09-25 11:29:08 --> POST data: Array
+(
+    [username] => superadmin
+    [password] => Admin@123
+)
+
+DEBUG - 2025-09-25 11:29:08 --> SQL Query: SELECT *
+FROM `users`
+WHERE `username` = 'superadmin'
+AND `users`.`deleted_at` IS NULL
+ LIMIT 1
+DEBUG - 2025-09-25 11:29:08 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:29:12 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:29:14 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:29:16 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:29:20 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:29:21 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:29:24 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:29:26 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:29:30 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:29:32 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:29:35 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:29:41 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:36:21 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:36:22 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:36:26 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:36:27 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:36:28 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:36:31 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:36:33 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:36:35 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:36:36 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:36:39 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:36:40 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:36:41 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:36:51 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:36:51 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:38:03 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-09-25 11:38:03 --> Raw POST data: username=doctor1&password=Doctor%40123
+DEBUG - 2025-09-25 11:38:03 --> Login attempt - Username: doctor1
+DEBUG - 2025-09-25 11:38:03 --> POST data: Array
+(
+    [username] => doctor1
+    [password] => Doctor@123
+)
+
+DEBUG - 2025-09-25 11:38:03 --> SQL Query: SELECT *
+FROM `users`
+WHERE `username` = 'doctor1'
+AND `users`.`deleted_at` IS NULL
+ LIMIT 1
+DEBUG - 2025-09-25 11:38:04 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.

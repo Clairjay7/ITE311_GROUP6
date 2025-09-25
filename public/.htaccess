@@ -10,7 +10,15 @@ Options -Indexes
 <IfModule mod_rewrite.c>
 	Options +FollowSymlinks
 	RewriteEngine On
+<<<<<<< HEAD
 	RewriteBase /ITE311-GROUP6/public/
+=======
+
+	# If you installed CodeIgniter in a subfolder, you will need to
+	# change the following line to match the subfolder you need.
+	# http://httpd.apache.org/docs/current/mod/mod_rewrite.html#rewritebase
+	# RewriteBase /
+>>>>>>> c95817c (Admins and doctor)
 
 	# Redirect Trailing Slashes...
 	RewriteCond %{REQUEST_FILENAME} !-d
@@ -27,7 +35,11 @@ Options -Indexes
 	# request to the front controller, index.php
 	RewriteCond %{REQUEST_FILENAME} !-f
 	RewriteCond %{REQUEST_FILENAME} !-d
+<<<<<<< HEAD
 	RewriteRule ^(.*)$ index.php/$1 [L]
+=======
+	RewriteRule ^([\s\S]*)$ index.php/$1 [L,NC,QSA]
+>>>>>>> c95817c (Admins and doctor)
 
 	# Ensure Authorization header is passed along
 	RewriteCond %{HTTP:Authorization} .

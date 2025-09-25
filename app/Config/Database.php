@@ -27,9 +27,15 @@ class Database extends Config
     public array $default = [
         'DSN'          => '',
         'hostname'     => 'localhost',
+<<<<<<< HEAD
         'username'     => '',
         'password'     => '',
         'database'     => '',
+=======
+        'username'     => 'root',
+        'password'     => '',
+        'database'     => 'hospital_management',
+>>>>>>> c95817c (Admins and doctor)
         'DBDriver'     => 'MySQLi',
         'DBPrefix'     => '',
         'pConnect'     => false,
