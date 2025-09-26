@@ -10,7 +10,7 @@ class UserModel extends Model
     protected $primaryKey = 'id';
     protected $useAutoIncrement = true;
     protected $returnType = 'array';
-    protected $useSoftDeletes = true;
+    protected $useSoftDeletes = false;
     protected $allowedFields = [
         'username', 
         'email', 
@@ -25,7 +25,7 @@ class UserModel extends Model
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
-    protected $deletedField  = 'deleted_at';
+    // protected $deletedField  = 'deleted_at'; // Not using soft deletes
 
     // Hash password before saving
     protected $beforeInsert = ['hashPassword'];
@@ -45,6 +45,14 @@ class UserModel extends Model
     public function verifyPassword(string $password, string $hashedPassword): bool
     {
         return password_verify($password, $hashedPassword);
+    }
+
+    public function getUsersWithRoles()
+    {
+        // Since we're storing role as a string in the users table, not using a separate roles table
+        return $this->select('users.*')
+                   ->where('status', 'active')
+                   ->findAll();
     }
 
     public function getUserByUsername(string $username, string $role = null)
@@ -72,15 +80,20 @@ class UserModel extends Model
     public function getUsersByRole(string $role)
     {
         return $this->where('role', $role)
-                    ->where('deleted_at', null)
-                    ->findAll();
+                   ->where('status', 'active')
+                   ->findAll();
     }
 
     public function getUserByEmail(string $email)
     {
         return $this->where('email', $email)
-                   ->where('deleted_at', null)
+                   ->where('status', 'active')
                    ->first();
+    }
+
+    public function getUserWithDetails($userId)
+    {
+        return $this->find($userId);
     }
 
     public function getUserRoles($userId)

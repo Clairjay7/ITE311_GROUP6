@@ -4,34 +4,19 @@ namespace App\Controllers;
 
 use CodeIgniter\Controller;
 use App\Models\UserModel;
-use App\Models\RoleModel;
-use App\Models\DepartmentModel;
-use App\Models\RoomModel;
-use App\Models\AuditLogModel;
-use App\Models\SystemLogModel;
 
 class SuperAdmin extends Controller
 {
     protected $userModel;
-    protected $roleModel;
-    protected $departmentModel;
-    protected $roomModel;
-    protected $auditLogModel;
-    protected $systemLogModel;
 
     public function __construct()
     {
         $this->userModel = new UserModel();
-        $this->roleModel = new RoleModel();
-        $this->departmentModel = new DepartmentModel();
-        $this->roomModel = new RoomModel();
-        $this->auditLogModel = new AuditLogModel();
-        $this->systemLogModel = new SystemLogModel();
     }
 
     protected function ensureSuperAdmin()
     {
-        if (!session()->get('isLoggedIn') || session()->get('role') !== 'super_admin') {
+        if (!session()->get('isLoggedIn') || session()->get('role') !== 'superadmin') {
             return redirect()->to('/login');
         }
         return null;
@@ -48,6 +33,17 @@ class SuperAdmin extends Controller
             'username' => session()->get('username'),
         ];
         return view($view, $base + $data);
+    }
+
+    public function dashboard()
+    {
+        $data = [
+            'totalDoctors' => $this->userModel->where('role', 'doctor')->countAllResults(),
+            'totalPatients' => 0, // You can add PatientModel later
+            'todaysAppointments' => 0, // You can add AppointmentModel later
+            'pendingBills' => 0, // You can add BillingModel later
+        ];
+        return $this->render('SuperAdmin/dashboard', $data);
     }
 
     // ============ USERS MANAGEMENT ============
@@ -230,6 +226,89 @@ class SuperAdmin extends Controller
     }
 
     // ============ AUDIT LOGS ============
+    public function patients()
+    {
+        return $this->render('SuperAdmin/patients');
+    }
+
+    public function admissions()
+    {
+        return $this->render('SuperAdmin/admissions');
+    }
+
+    public function doctors()
+    {
+        $doctors = $this->userModel->getUsersByRole('doctor');
+        return $this->render('SuperAdmin/doctors', ['doctors' => $doctors]);
+    }
+
+    public function staff()
+    {
+        $staff = $this->userModel->whereIn('role', ['nurse', 'receptionist', 'laboratory_staff', 'pharmacist', 'accountant', 'it_staff'])->findAll();
+        return $this->render('SuperAdmin/staff', ['staff' => $staff]);
+    }
+
+    public function billing()
+    {
+        return $this->render('SuperAdmin/billing');
+    }
+
+    public function roles()
+    {
+        $roles = $this->userModel->findAll();
+        return $this->render('SuperAdmin/roles', ['roles' => $roles]);
+    }
+
+    public function appointments()
+    {
+        return $this->render('SuperAdmin/appointments');
+    }
+
+    public function calendars()
+    {
+        return $this->render('SuperAdmin/calendars');
+    }
+
+    public function financeReports()
+    {
+        return $this->render('SuperAdmin/finance_reports');
+    }
+
+    public function laboratory()
+    {
+        return $this->render('SuperAdmin/laboratory');
+    }
+
+    public function pharmacy()
+    {
+        return $this->render('SuperAdmin/pharmacy');
+    }
+
+    public function occupancy()
+    {
+        return $this->render('SuperAdmin/occupancy');
+    }
+
+    public function reports()
+    {
+        return $this->render('SuperAdmin/reports');
+    }
+
+    public function analytics()
+    {
+        return $this->render('SuperAdmin/analytics');
+    }
+
+    public function settings()
+    {
+        return $this->render('SuperAdmin/settings');
+    }
+
+    public function security()
+    {
+        return $this->render('SuperAdmin/security');
+    }
+
     public function auditLogs()
     {
         $logs = $this->auditLogModel->getRecentLogs(100);
@@ -247,22 +326,17 @@ class SuperAdmin extends Controller
         return $this->response->setJSON($this->departmentModel->getActiveDepartments());
     }
 
-    public function apiRooms()
-    {
-        return $this->response->setJSON($this->roomModel->getRoomsWithDepartment());
-    }
-
     public function apiStats()
     {
         $stats = [
             'total_users' => $this->userModel->countAll(),
-            'total_departments' => $this->departmentModel->countAll(),
+            'active_users' => $this->userModel->where('status', 'active')->countAllResults(),
             'total_rooms' => $this->roomModel->countAll(),
             'available_rooms' => $this->roomModel->where('status', 'available')->countAllResults(),
-            'occupied_rooms' => $this->roomModel->where('status', 'occupied')->countAllResults()
+            'occupied_rooms' => $this->roomModel->where('status', 'occupied')->countAllResults(),
+            'total_departments' => $this->departmentModel->countAll(),
+            'recent_activity' => $this->auditLogModel->getRecentActivity(5)
         ];
         return $this->response->setJSON($stats);
     }
 }
-
-

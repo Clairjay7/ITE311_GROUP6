@@ -31,7 +31,7 @@ class UserSeeder extends Seeder
                     'password_hash' => password_hash('Admin@123', PASSWORD_DEFAULT),
                     'first_name' => 'Super',
                     'last_name' => 'Admin',
-                    'role' => 'super_admin',
+                    'role' => 'superadmin',
                     'status' => 'active',
                 ],
                 // Doctor
@@ -71,7 +71,7 @@ class UserSeeder extends Seeder
                     'password_hash' => password_hash('Labstaff@123', PASSWORD_DEFAULT),
                     'first_name' => 'Michael',
                     'last_name' => 'Brown',
-                    'role' => 'laboratory_staff',
+                    'role' => 'laboratory',
                     'status' => 'active',
                 ],
                 // Pharmacist

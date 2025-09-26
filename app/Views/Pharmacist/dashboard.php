@@ -1,87 +1,91 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Pharmacist Dashboard</title>
-    <link rel="stylesheet" href="/GROUP6/public/css/pharmacist_dashboard.css">
-</head>
-<body>
-    <div class="dashboard-container">
-        <div class="dashboard-header">
-            <h2>💊 Pharmacist Dashboard</h2>
-            <a href="<?= base_url('logout') ?>" class="logout-link">Logout</a>
-        </div>
+<?= $this->extend('templates/template') ?>
 
-        <div class="widgets-row">
-            <!-- Pending Prescription Requests -->
-            <div class="widget-card">
-                <div class="widget-title">📝 Pending Prescription Requests</div>
-                <ul>
-                    <li>
-                        Jane Smith - Amoxicillin 500mg
-                        <button class="btn btn-outline-success btn-sm">Dispense</button>
-                    </li>
-                    <li>
-                        John Doe - Paracetamol 500mg
-                        <button class="btn btn-outline-success btn-sm">Dispense</button>
-                    </li>
-                </ul>
-            </div>
-            <!-- Dispensed vs. Pending Medicines -->
-            <div class="widget-card">
-                <div class="widget-title">✅ Dispensed vs. Pending Medicines</div>
-                <ul>
-                    <li>
-                        Amoxicillin 500mg - <span class="badge bg-success">Dispensed</span>
-                    </li>
-                    <li>
-                        Paracetamol 500mg - <span class="badge bg-warning text-dark">Pending</span>
-                    </li>
-                </ul>
-            </div>
-        </div>
+<?= $this->section('content') ?>
+<h1>💊 Pharmacist Dashboard</h1>
+<p>Welcome back, <?= session()->get('username') ?? 'Pharmacist' ?>! Today is <?= date('F j, Y') ?></p>
 
-        <div class="widgets-row">
-            <!-- Inventory & Stock Management -->
-            <div class="widget-card">
-                <div class="widget-title">📦 Inventory & Stock Management</div>
-                <ul>
-                    <li>
-                        Amoxicillin 500mg - <span class="badge bg-danger">Low Stock</span>
-                    </li>
-                    <li>
-                        Paracetamol 500mg - <span class="badge bg-success">In Stock</span>
-                    </li>
-                </ul>
-            </div>
-            <!-- Expired & Reorder Alerts -->
-            <div class="widget-card">
-                <div class="widget-title">⚠️ Expired & Reorder Alerts</div>
-                <ul>
-                    <li>
-                        Ibuprofen 200mg - <span class="badge bg-danger">Expired</span>
-                        <button class="btn btn-outline-danger btn-sm">Remove</button>
-                    </li>
-                    <li>
-                        Cetirizine 10mg - <span class="badge bg-warning text-dark">Reorder Needed</span>
-                        <button class="btn btn-outline-primary btn-sm">Reorder</button>
-                    </li>
-                </ul>
-            </div>
-        </div>
+<div class="spacer"></div>
+<div class="grid grid-4">
+    <div class="card">
+        <h5>📝 Pending Prescriptions</h5>
+        <h3><?= esc($pendingPrescriptions ?? 8) ?></h3>
+    </div>
+    <div class="card">
+        <h5>✅ Dispensed Today</h5>
+        <h3><?= esc($dispensedToday ?? 24) ?></h3>
+    </div>
+    <div class="card">
+        <h5>📦 Low Stock Items</h5>
+        <h3><?= esc($lowStockItems ?? 3) ?></h3>
+    </div>
+    <div class="card">
+        <h5>⏰ Expiring Soon</h5>
+        <h3><?= esc($expiringSoon ?? 5) ?></h3>
+    </div>
+</div>
 
-        <div class="widgets-row">
-            <!-- Sales & Pharmacy Billing Reports -->
-            <div class="widget-card" style="flex:2;">
-                <div class="widget-title">📊 Sales & Pharmacy Billing Reports</div>
-                <ul>
-                    <li>Today: ₱2,500</li>
-                    <li>This Month: ₱45,000</li>
-                    <li>This Year: ₱520,000</li>
-                </ul>
-                <button class="btn btn-outline-info btn-sm" style="margin-top:10px;">Export Report</button>
-            </div>
+<h2 class="section-title">Quick Actions</h2>
+<div class="grid grid-4">
+    <div class="card">
+        <h5>💊 All Prescriptions</h5>
+        <p>View and manage all prescriptions</p>
+        <div class="actions-row">
+            <a href="<?= base_url('pharmacist/prescriptions') ?>" class="btn">View All</a>
         </div>
     </div>
-</body>
-</html>
+    <div class="card">
+        <h5>📝 Pending Prescriptions</h5>
+        <p>Prescriptions waiting to be dispensed</p>
+        <div class="actions-row">
+            <a href="<?= base_url('pharmacist/pending') ?>" class="btn">View Pending</a>
+        </div>
+    </div>
+    <div class="card">
+        <h5>✅ Dispensed</h5>
+        <p>Recently dispensed prescriptions</p>
+        <div class="actions-row">
+            <a href="<?= base_url('pharmacist/dispensed') ?>" class="btn">View Dispensed</a>
+        </div>
+    </div>
+    <div class="card">
+        <h5>📦 Inventory</h5>
+        <p>Manage drug inventory</p>
+        <div class="actions-row">
+            <a href="<?= base_url('pharmacist/inventory') ?>" class="btn">Manage</a>
+        </div>
+    </div>
+</div>
+
+<div class="spacer"></div>
+<div class="grid grid-4">
+    <div class="card">
+        <h5>⚠️ Low Stock</h5>
+        <p>Items running low on stock</p>
+        <div class="actions-row">
+            <a href="<?= base_url('pharmacist/low-stock') ?>" class="btn">Check Stock</a>
+        </div>
+    </div>
+    <div class="card">
+        <h5>⏰ Expiring Items</h5>
+        <p>Drugs expiring soon</p>
+        <div class="actions-row">
+            <a href="<?= base_url('pharmacist/expiring') ?>" class="btn">View Expiring</a>
+        </div>
+    </div>
+    <div class="card">
+        <h5>🛒 Orders</h5>
+        <p>Manage drug orders</p>
+        <div class="actions-row">
+            <a href="<?= base_url('pharmacist/orders') ?>" class="btn">Manage Orders</a>
+        </div>
+    </div>
+    <div class="card">
+        <h5>📈 Reports</h5>
+        <p>Generate pharmacy reports</p>
+        <div class="actions-row">
+            <a href="<?= base_url('pharmacist/reports') ?>" class="btn">Generate</a>
+        </div>
+    </div>
+</div>
+
+<?= $this->endSection() ?>

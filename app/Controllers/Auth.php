@@ -125,7 +125,7 @@ class Auth extends Controller
     protected function redirectToDashboard($role)
     {
         switch($role) {
-            case 'super_admin':
+            case 'superadmin':
                 return redirect()->to('/auth/super-admin-dashboard');
             case 'doctor':
                 return redirect()->to('/auth/doctor-dashboard');
@@ -133,7 +133,7 @@ class Auth extends Controller
                 return redirect()->to('/auth/nurse-dashboard');
             case 'receptionist':
                 return redirect()->to('/auth/receptionist-dashboard');
-            case 'laboratory_staff':
+            case 'laboratory':
                 return redirect()->to('/auth/laboratory-dashboard');
             case 'pharmacist':
                 return redirect()->to('/auth/pharmacist-dashboard');
@@ -152,7 +152,7 @@ class Auth extends Controller
     public function superAdminDashboard()
     {
         // Check if user is logged in and has correct role
-        if (!session()->get('isLoggedIn') || session()->get('role') !== 'super_admin') {
+        if (!session()->get('isLoggedIn') || session()->get('role') !== 'superadmin') {
             return redirect()->to('/login');
         }
 
@@ -280,7 +280,7 @@ class Auth extends Controller
     public function laboratoryDashboard()
     {
         // Check if user is logged in and has correct role
-        if (!session()->get('isLoggedIn') || session()->get('role') !== 'laboratory_staff') {
+        if (!session()->get('isLoggedIn') || session()->get('role') !== 'laboratory') {
             return redirect()->to('/login');
         }
 
@@ -325,10 +325,10 @@ class Auth extends Controller
             'title' => 'Accountant Dashboard',
             'username' => session()->get('username'),
             'role' => 'Accountant',
-            'todayRevenue' => 1500,
-            'outstandingBalance' => 25000, // Add the missing outstanding balance
-            'pendingBills' => array_fill(0, 5, ['id' => 1, 'patient' => 'John Doe', 'amount' => 5000]),
-            'insuranceClaims' => array_fill(0, 3, ['id' => 1, 'patient' => 'Jane Smith', 'amount' => 10000, 'status' => 'Pending']),
+            'pendingBills' => 15,
+            'todayRevenue' => 25000,
+            'overduePayments' => 8,
+            'monthlyRevenue' => 450000,
             'rolePath' => 'accountant',
             'user' => [
                 'full_name' => session()->get('first_name') . ' ' . session()->get('last_name'),
@@ -352,8 +352,12 @@ class Auth extends Controller
         $data = [
             'title' => 'IT Staff Dashboard',
             'username' => session()->get('username'),
-            'role' => 'IT Staff'
+            'role' => 'IT Staff',
+            'activeUsers' => 45,
+            'systemAlerts' => 3,
+            'backupStatus' => 'Completed',
+            'serverUptime' => '99.8%'
         ];
-        return view('ITStaff/dashboard', $data);
+        return view('it_staff/dashboard', $data);
     }
 }

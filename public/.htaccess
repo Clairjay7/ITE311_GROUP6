@@ -3,9 +3,8 @@
     Options -Indexes
     RewriteEngine On
 
-    # If the app is in a subfolder, set RewriteBase accordingly (optional)
-    # Adjust this if needed for your environment
-    # RewriteBase /Group6/public/
+    # Set the base URL - IMPORTANT: Uncomment and adjust this line for your setup
+    RewriteBase /Group6/public/
 
     # If the requested path doesn't directly match a file or directory
     RewriteCond %{REQUEST_FILENAME} !-f

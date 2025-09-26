@@ -50,6 +50,20 @@ class Doctor extends Controller
         return view($view, $base + $data);
     }
 
+    public function dashboard()
+    {
+        $doctorId = session()->get('user_id');
+        
+        $data = [
+            'totalPatients' => $this->medicalRecordModel->where('doctor_id', $doctorId)->countAllResults(),
+            'todaysAppointments' => $this->appointmentModel->where('doctor_id', $doctorId)->where('DATE(appointment_date)', date('Y-m-d'))->countAllResults(),
+            'pendingPrescriptions' => $this->prescriptionModel->where('doctor_id', $doctorId)->where('status', 'pending')->countAllResults(),
+            'pendingLabRequests' => $this->labRequestModel->where('doctor_id', $doctorId)->where('status', 'requested')->countAllResults(),
+        ];
+        
+        return $this->render('doctor/dashboard', $data);
+    }
+
     // ============ PATIENTS LIST ============
     public function patients()
     {
@@ -241,6 +255,43 @@ class Doctor extends Controller
         $doctorId = session()->get('user_id');
         $appointments = $this->appointmentModel->getByDoctor($doctorId);
         return $this->render('doctor/appointments', ['appointments' => $appointments]);
+    }
+
+    public function calendar()
+    {
+        return $this->render('doctor/calendar');
+    }
+
+    public function emr()
+    {
+        $doctorId = session()->get('user_id');
+        $records = $this->medicalRecordModel->getRecordsByDoctor($doctorId);
+        return $this->render('doctor/emr', ['records' => $records]);
+    }
+
+    public function labResults()
+    {
+        return $this->viewLabResults();
+    }
+
+    public function messaging()
+    {
+        return $this->render('doctor/messaging');
+    }
+
+    public function reports()
+    {
+        return $this->render('doctor/reports');
+    }
+
+    public function profile()
+    {
+        return $this->render('doctor/profile');
+    }
+
+    public function settings()
+    {
+        return $this->render('doctor/settings');
     }
 
     // ============ API ENDPOINTS ============
