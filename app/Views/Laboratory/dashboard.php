@@ -1,101 +1,186 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Laboratory Staff Dashboard</title>
-    <link rel="stylesheet" href="/GROUP6/public/css/laboratory_dashboard.css">
-</head>
-<body>
-    <div class="dashboard-container">
-        <div class="dashboard-header">
-            <h2>🧪 Laboratory Staff Dashboard</h2>
-            <a href="<?= base_url('logout') ?>" class="logout-link">Logout</a>
-        </div>
+<?= $this->extend('templates/template') ?>
 
-        <!-- Doctor Notifications -->
-        <div class="widget-card" style="background:#dbeafe;">
-            <div class="widget-title" style="color:#2563eb;">
-                🔔 Notification
-            </div>
-            <div>
-                <strong>Notification:</strong> Dr. Smith notified for John Doe's CBC result.
-            </div>
-        </div>
+<?= $this->section('content') ?>
+<h1>🧪 Laboratory Staff Dashboard</h1>
 
-        <div class="widgets-row">
-            <!-- Pending Test Requests -->
-            <div class="widget-card">
-                <div class="widget-title">⏳ Pending Test Requests</div>
-                <ul>
-                    <li>
-                        John Doe - CBC
-                        <button class="btn btn-outline-primary btn-sm">Process</button>
-                    </li>
-                    <li>
-                        Maria Garcia - Urinalysis
-                        <button class="btn btn-outline-primary btn-sm">Process</button>
-                    </li>
-                </ul>
-            </div>
-            <!-- Sample Tracking System -->
-            <div class="widget-card">
-                <div class="widget-title">🔍 Sample Tracking</div>
-                <ul>
-                    <li>
-                        John Doe - CBC: <span class="badge bg-warning text-dark">In Lab</span>
-                    </li>
-                    <li>
-                        Maria Garcia - Urinalysis: <span class="badge bg-success">Received</span>
-                    </li>
-                </ul>
-            </div>
-        </div>
+<div class="spacer"></div>
 
-        <div class="widgets-row">
-            <!-- Enter Test Results -->
-            <div class="widget-card">
-                <div class="widget-title">✏️ Enter Test Results</div>
-                <form>
-                    <select style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid #d1d5db;margin-bottom:10px;">
-                        <option selected>Select Patient</option>
-                        <option>John Doe</option>
-                        <option>Maria Garcia</option>
-                    </select>
-                    <input type="text" style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid #d1d5db;margin-bottom:10px;" placeholder="Test Type (e.g. CBC)">
-                    <textarea style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid #d1d5db;margin-bottom:10px;" rows="2" placeholder="Enter Results"></textarea>
-                    <button type="submit" class="btn btn-outline-success btn-sm">Submit Result</button>
-                </form>
-            </div>
-            <!-- Completed Reports & Uploads -->
-            <div class="widget-card">
-                <div class="widget-title">✅ Completed Reports & Uploads</div>
-                <ul>
-                    <li>
-                        John Doe - CBC <span class="badge bg-success">Completed</span>
-                        <button class="btn btn-outline-info btn-sm">Upload</button>
-                    </li>
-                    <li>
-                        Maria Garcia - Urinalysis <span class="badge bg-success">Completed</span>
-                        <button class="btn btn-outline-info btn-sm">Upload</button>
-                    </li>
-                </ul>
-            </div>
-        </div>
+<!-- Summary -->
+<div class="grid grid-4">
+    <div class="card"><h5>Pending Requests</h5><h3>6</h3></div>
+    <div class="card"><h5>Samples In Lab</h5><h3>12</h3></div>
+    <div class="card"><h5>Ongoing Tests</h5><h3>5</h3></div>
+    <div class="card"><h5>Low-Stock Items</h5><h3>2</h3></div>
+    
+</div>
 
-        <div class="widgets-row">
-            <!-- Stock & Reagent Monitoring -->
-            <div class="widget-card" style="flex:2;">
-                <div class="widget-title">🧴 Stock & Reagent Monitoring</div>
-                <ul>
-                    <li>
-                        CBC Reagent - <span class="badge bg-danger">Low Stock</span>
-                    </li>
-                    <li>
-                        Urine Strips - <span class="badge bg-success">Sufficient</span>
-                    </li>
-                </ul>
-            </div>
+<div class="spacer"></div>
+
+<!-- Test Requests Panel -->
+<div class="card">
+    <h5>⏳ Test Requests</h5>
+    <div style="overflow:auto;">
+        <table style="width:100%; border-collapse:collapse;">
+            <thead>
+                <tr>
+                    <th style="text-align:left; padding:8px; border-bottom:1px solid #e2e8f0;">Patient</th>
+                    <th style="text-align:left; padding:8px; border-bottom:1px solid #e2e8f0;">Test</th>
+                    <th style="text-align:left; padding:8px; border-bottom:1px solid #e2e8f0;">Priority</th>
+                    <th style="text-align:left; padding:8px; border-bottom:1px solid #e2e8f0;">Requested By</th>
+                    <th style="text-align:left; padding:8px; border-bottom:1px solid #e2e8f0;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="padding:8px; border-bottom:1px solid #f1f5f9;">John Doe</td>
+                    <td style="padding:8px; border-bottom:1px solid #f1f5f9;">CBC</td>
+                    <td style="padding:8px; border-bottom:1px solid #f1f5f9; color:#ef4444;">Urgent</td>
+                    <td style="padding:8px; border-bottom:1px solid #f1f5f9;">Dr. Smith</td>
+                    <td style="padding:8px; border-bottom:1px solid #f1f5f9;"><a class="btn" href="#">Process</a></td>
+                </tr>
+                <tr>
+                    <td style="padding:8px; border-bottom:1px solid #f1f5f9;">Maria Garcia</td>
+                    <td style="padding:8px; border-bottom:1px solid #f1f5f9;">Urinalysis</td>
+                    <td style="padding:8px; border-bottom:1px solid #f1f5f9; color:#f59e0b;">Normal</td>
+                    <td style="padding:8px; border-bottom:1px solid #f1f5f9;">Reception</td>
+                    <td style="padding:8px; border-bottom:1px solid #f1f5f9;"><a class="btn btn-secondary" href="#">Queue</a></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="spacer"></div>
+
+<!-- Sample Collection & Tracking -->
+<div class="card">
+    <h5>🔍 Sample Collection & Tracking</h5>
+    <div style="overflow:auto;">
+        <table style="width:100%; border-collapse:collapse;">
+            <thead>
+                <tr>
+                    <th style="text-align:left; padding:8px; border-bottom:1px solid #e2e8f0;">Sample ID</th>
+                    <th style="text-align:left; padding:8px; border-bottom:1px solid #e2e8f0;">Patient</th>
+                    <th style="text-align:left; padding:8px; border-bottom:1px solid #e2e8f0;">Test</th>
+                    <th style="text-align:left; padding:8px; border-bottom:1px solid #e2e8f0;">Status</th>
+                    <th style="text-align:left; padding:8px; border-bottom:1px solid #e2e8f0;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="padding:8px; border-bottom:1px solid #f1f5f9;">LAB-00123</td>
+                    <td style="padding:8px; border-bottom:1px solid #f1f5f9;">John Doe</td>
+                    <td style="padding:8px; border-bottom:1px solid #f1f5f9;">CBC</td>
+                    <td style="padding:8px; border-bottom:1px solid #f1f5f9; color:#f59e0b;">Processing</td>
+                    <td style="padding:8px; border-bottom:1px solid #f1f5f9;"><a class="btn btn-secondary" href="#">Update</a></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="spacer"></div>
+
+<!-- Ongoing Tests -->
+<div class="card">
+    <h5>🧪 Ongoing Tests</h5>
+    <ul style="margin:8px 0 0 16px;">
+        <li>John Doe — CBC • Analyzer 2 • ETA 15m</li>
+        <li>Jane Smith — Chemistry Panel • Analyzer 1 • ETA 30m</li>
+    </ul>
+</div>
+
+<div class="spacer"></div>
+
+<!-- Test Results Management -->
+<div class="card">
+    <h5>📄 Test Results Management</h5>
+    <div class="actions-row">
+        <a class="btn" href="#">Upload Result</a>
+        <a class="btn btn-secondary" href="#">Validate</a>
+        <a class="btn btn-secondary" href="#">Release to Doctor</a>
+    </div>
+</div>
+
+<div class="spacer"></div>
+
+<!-- Reports & History -->
+<div class="card">
+    <h5>📚 Reports & History</h5>
+    <div class="actions-row">
+        <input type="text" placeholder="Filter by patient/test/date..." style="flex:1; padding:10px; border:1px solid #e2e8f0; border-radius:8px;">
+        <a class="btn" href="#">Search</a>
+    </div>
+    <div style="overflow:auto; margin-top:8px;">
+        <table style="width:100%; border-collapse:collapse;">
+            <thead>
+                <tr>
+                    <th style="text-align:left; padding:8px; border-bottom:1px solid #e2e8f0;">Date</th>
+                    <th style="text-align:left; padding:8px; border-bottom:1px solid #e2e8f0;">Patient</th>
+                    <th style="text-align:left; padding:8px; border-bottom:1px solid #e2e8f0;">Test</th>
+                    <th style="text-align:left; padding:8px; border-bottom:1px solid #e2e8f0;">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="padding:8px; border-bottom:1px solid #f1f5f9;">2025-09-25</td>
+                    <td style="padding:8px; border-bottom:1px solid #f1f5f9;">John Doe</td>
+                    <td style="padding:8px; border-bottom:1px solid #f1f5f9;">CBC</td>
+                    <td style="padding:8px; border-bottom:1px solid #f1f5f9; color:#10b981;">Released</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="spacer"></div>
+
+<!-- Notifications & Alerts -->
+<div class="card">
+    <h5>🔔 Notifications & Alerts</h5>
+    <div class="actions-row"><span>Abnormal Result: John Doe CBC</span></div>
+    <div class="actions-row"><span>Delayed Test: Urinalysis queue over 30m</span></div>
+    <div class="actions-row"><span>System: Analyzer 1 maintenance at 18:00</span></div>
+</div>
+
+<div class="spacer"></div>
+
+<!-- Inventory & Supplies Monitoring -->
+<div class="card">
+    <h5>📦 Inventory & Supplies</h5>
+    <div class="grid grid-3">
+        <div>CBC Reagent — <span style="color:#ef4444;">Low</span></div>
+        <div>Urine Strips — <span style="color:#10b981;">OK</span></div>
+        <div>Glucose Kits — <span style="color:#f59e0b;">Warning</span></div>
+    </div>
+    <div class="actions-row">
+        <a class="btn" href="#">Create Restock Request</a>
+    </div>
+</div>
+
+<div class="spacer"></div>
+
+<!-- Shift & Task Overview -->
+<div class="card">
+    <h5>🕒 Shift & Task Overview</h5>
+    <div class="grid grid-2">
+        <div>
+            <strong>Current Shift:</strong>
+            <div>07:00 - 15:00</div>
+            <div>Section: Chemistry</div>
+        </div>
+        <div>
+            <strong>Assigned Tasks:</strong>
+            <ul style="margin:8px 0 0 16px; list-style:none; padding:0;">
+                <li><input type="checkbox"> Verify CBC batch #1052</li>
+                <li><input type="checkbox"> Calibrate Analyzer 2</li>
+                <li><input type="checkbox"> Review Urinalysis outliers</li>
+            </ul>
         </div>
     </div>
-</body>
-</html>
+    <div class="actions-row">
+        <a class="btn btn-secondary" href="#">Open Task Board</a>
+    </div>
+</div>
+
+<?= $this->endSection() ?>

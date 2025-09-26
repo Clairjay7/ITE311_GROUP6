@@ -8,24 +8,24 @@
 <div class="spacer"></div>
 <div class="grid grid-4">
     <div class="card">
-        <h5>👥 Patients Today</h5>
-        <h3>—</h3>
-        <small>Admitted/Discharged</small>
+        <h5>🩺 Total Doctors</h5>
+        <h3><?= esc($totalDoctors ?? 0) ?></h3>
+        <small>All registered doctors</small>
     </div>
     <div class="card">
-        <h5>📅 Appointments</h5>
-        <h3>—</h3>
-        <small>Today / Upcoming</small>
+        <h5>👥 Total Patients</h5>
+        <h3><?= esc($totalPatients ?? 0) ?></h3>
+        <small>All registered patients</small>
     </div>
     <div class="card">
-        <h5>🩺 Doctors On Duty</h5>
-        <h3>—</h3>
-        <small>Current Shift</small>
+        <h5>📅 Today's Appointments</h5>
+        <h3><?= esc($todaysAppointments ?? 0) ?></h3>
+        <small>Scheduled today</small>
     </div>
     <div class="card">
-        <h5>🛏️ Available Rooms</h5>
-        <h3>—</h3>
-        <small>Wards/ICU</small>
+        <h5>💵 Pending Bills</h5>
+        <h3><?= esc($pendingBills ?? 0) ?></h3>
+        <small>Awaiting payment</small>
     </div>
 </div>
 

@@ -6,23 +6,6 @@ use CodeIgniter\Router\RouteCollection;
  * @var RouteCollection $routes
  */
 $routes->get('/', 'Home::index');
-<<<<<<< HEAD
-$routes->get('login', 'Login::index');
-$routes->post('login', 'Login::login');
-$routes->get('user/dashboard', 'Login::userDashboard');
-$routes->get('test', function() {
-    return 'Test route works!';
-});
-$routes->get('doctor/dashboard', 'Login::doctorDashboard');
-$routes->get('nurse/dashboard', 'Login::nurseDashboard');
-$routes->get('receptionist/dashboard', 'Login::receptionistDashboard');
-$routes->get('laboratory/dashboard', 'Login::laboratoryDashboard');
-$routes->get('pharmacist/dashboard', 'Login::pharmacistDashboard');
-$routes->get('accountant/dashboard', 'Login::accountantDashboard');
-$routes->get('it/dashboard', 'Login::itDashboard');
-$routes->get('superadmin/dashboard', 'Login::superAdminDashboard');
-$routes->get('logout', 'Login::logout');
-=======
 
 // Authentication routes
 $routes->get('/login', 'Auth::index');
@@ -49,6 +32,21 @@ $routes->get('/laboratory/dashboard', 'Auth::laboratoryDashboard');
 $routes->get('/pharmacist/dashboard', 'Auth::pharmacistDashboard');
 $routes->get('/accountant/dashboard', 'Auth::accountantDashboard');
 $routes->get('/it/dashboard', 'Auth::itDashboard');
+
+// Admin dashboard
+$routes->get('/admin/dashboard', 'Admin::dashboard');
+
+// Nurse routes
+$routes->group('nurse', ['filter' => 'auth:nurse'], static function($routes) {
+    $routes->get('dashboard', 'Nurse::dashboard');
+    $routes->get('patients', 'Nurse::patients');
+    $routes->get('medications', 'Nurse::medications');
+    $routes->get('vitals', 'Nurse::vitals');
+    $routes->get('tasks', 'Nurse::tasks');
+    $routes->get('orders', 'Nurse::orders');
+    $routes->get('notifications', 'Nurse::notifications');
+    $routes->get('roster', 'Nurse::roster');
+});
 
 // SuperAdmin functional routes for dashboard links
 $routes->group('super-admin', ['filter' => 'auth:super_admin'], static function($routes) {
@@ -77,7 +75,6 @@ $routes->group('doctor', ['filter' => 'auth:doctor'], static function($routes) {
     $routes->get('patients', 'Doctor::patients');
     $routes->get('appointments', 'Doctor::appointments');
     $routes->get('calendar', 'Doctor::calendar');
-    $routes->get('notifications', 'Doctor::notifications');
     $routes->get('emr', 'Doctor::emr');
     $routes->get('prescriptions', 'Doctor::prescriptions');
     $routes->get('lab/requests', 'Doctor::labRequests');
@@ -87,4 +84,42 @@ $routes->group('doctor', ['filter' => 'auth:doctor'], static function($routes) {
     $routes->get('profile', 'Doctor::profile');
     $routes->get('settings', 'Doctor::settings');
 });
->>>>>>> c95817c (Admins and doctor)
+
+// Receptionist functional routes for dashboard links
+$routes->group('receptionist', ['filter' => 'auth:receptionist'], static function($routes) {
+    $routes->get('patients', 'Receptionist::patients');
+    $routes->get('appointments', 'Receptionist::appointments');
+    $routes->get('calendar', 'Receptionist::calendar');
+    $routes->get('checkins', 'Receptionist::checkins');
+    $routes->get('billing', 'Receptionist::billing');
+    $routes->get('visitors', 'Receptionist::visitors');
+    $routes->get('notifications', 'Receptionist::notifications');
+    $routes->get('settings', 'Receptionist::settings');
+
+    // API endpoints
+    // Patients
+    $routes->get('api/patients/search', 'Receptionist::patientSearch');
+    $routes->post('api/patients', 'Receptionist::patientStore');
+    $routes->post('api/patients/(:num)', 'Receptionist::patientUpdate/$1');
+    $routes->delete('api/patients/(:num)', 'Receptionist::patientDelete/$1');
+
+    // Appointments
+    $routes->post('api/appointments', 'Receptionist::appointmentStore');
+    $routes->post('api/appointments/(:num)/reschedule', 'Receptionist::appointmentReschedule/$1');
+    $routes->post('api/appointments/(:num)/cancel', 'Receptionist::appointmentCancel/$1');
+
+    // Doctor availability
+    $routes->get('api/doctors/availability', 'Receptionist::doctorAvailability');
+
+    // Check-ins
+    $routes->post('api/checkins', 'Receptionist::checkinMark');
+    $routes->post('api/checkins/(:num)/checkout', 'Receptionist::checkoutMark/$1');
+
+    // Billing
+    $routes->post('api/billing', 'Receptionist::billingStore');
+    $routes->post('api/billing/(:num)/paid', 'Receptionist::billingMarkPaid/$1');
+
+    // Visitors
+    $routes->post('api/visitors', 'Receptionist::visitorStore');
+    $routes->post('api/visitors/(:num)/checkout', 'Receptionist::visitorCheckout/$1');
+});

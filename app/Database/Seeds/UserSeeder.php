@@ -16,8 +16,11 @@ class UserSeeder extends Seeder
         $db->transStart();
         
         try {
-            // Truncate users table to start fresh
-            $db->table('users')->truncate();
+            // Safely reset users without TRUNCATE (FK-safe)
+            $db->query('SET FOREIGN_KEY_CHECKS=0');
+            $db->table('users')->where('1=1', null, false)->delete();
+            $db->query('ALTER TABLE users AUTO_INCREMENT = 1');
+            $db->query('SET FOREIGN_KEY_CHECKS=1');
             
             // Define all 8 users with their credentials
             $users = [
@@ -51,7 +54,7 @@ class UserSeeder extends Seeder
                     'role' => 'nurse',
                     'status' => 'active',
                 ],
-                // Receptionist
+                //Receptionist 
                 [
                     'username' => 'reception1',
                     'email' => 'reception@hospital.com',
@@ -103,8 +106,8 @@ class UserSeeder extends Seeder
                 ]
             ];
 
-            // Insert all users
-            $userModel->insertBatch($users);
+            // Insert all users using query builder to avoid model hooks (double-hash)
+            $db->table('users')->insertBatch($users);
             
             // Complete transaction
             $db->transComplete();

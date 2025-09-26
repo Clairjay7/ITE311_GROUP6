@@ -156,10 +156,26 @@ class Auth extends Controller
             return redirect()->to('/login');
         }
 
+        $db = \Config\Database::connect();
+        $todayStart = date('Y-m-d 00:00:00');
+        $todayEnd = date('Y-m-d 23:59:59');
+
+        $totalDoctors = (int) $db->table('doctors')->countAllResults();
+        $totalPatients = (int) $db->table('patients')->countAllResults();
+        $todaysAppointments = (int) $db->table('appointments')
+            ->where('appointment_date >=', $todayStart)
+            ->where('appointment_date <=', $todayEnd)
+            ->countAllResults();
+        $pendingBills = (int) $db->table('billing')->where('status', 'pending')->countAllResults();
+
         $data = [
             'title' => 'Super Admin Dashboard',
             'username' => session()->get('username'),
-            'role' => 'Super Admin'
+            'role' => 'Super Admin',
+            'totalDoctors' => $totalDoctors,
+            'totalPatients' => $totalPatients,
+            'todaysAppointments' => $todaysAppointments,
+            'pendingBills' => $pendingBills,
         ];
         return view('SuperAdmin/dashboard', $data);
     }
@@ -174,6 +190,32 @@ class Auth extends Controller
             return redirect()->to('/login');
         }
 
+        $db = \Config\Database::connect();
+        // Resolve the current doctor's internal id via users->doctors mapping
+        $doctor = $db->table('doctors')->where('user_id', session()->get('user_id'))->get()->getRowArray();
+        $doctorId = $doctor['id'] ?? 0;
+
+        $todayStart = date('Y-m-d 00:00:00');
+        $todayEnd = date('Y-m-d 23:59:59');
+
+        $activePatients = (int) $db->table('appointments')
+            ->select('patient_id')
+            ->where('doctor_id', $doctorId)
+            ->groupBy('patient_id')->countAllResults();
+
+        $todaysAppointments = (int) $db->table('appointments')
+            ->where('doctor_id', $doctorId)
+            ->where('appointment_date >=', $todayStart)
+            ->where('appointment_date <=', $todayEnd)
+            ->countAllResults();
+
+        $pendingReports = (int) $db->table('lab_requests')
+            ->where('doctor_id', $doctorId)
+            ->where('status !=', 'completed')
+            ->countAllResults();
+
+        $emergencyCases = 0; // placeholder until triage table exists
+
         $data = [
             'title' => 'Doctor Dashboard',
             'username' => session()->get('username'),
@@ -182,7 +224,11 @@ class Auth extends Controller
             'user' => [
                 'full_name' => session()->get('first_name') . ' ' . session()->get('last_name'),
                 'role' => 'Doctor'
-            ]
+            ],
+            'activePatients' => $activePatients,
+            'todaysAppointments' => $todaysAppointments,
+            'pendingReports' => $pendingReports,
+            'emergencyCases' => $emergencyCases,
         ];
         return view('doctor/doctor_dashboard', $data);
     }
@@ -207,7 +253,7 @@ class Auth extends Controller
                 'role' => 'Nurse'
             ]
         ];
-        return view('Nurse/dashboard', $data);
+        return view('nurse/dashboard', $data);
     }
 
     /**

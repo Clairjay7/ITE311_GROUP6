@@ -36,11 +36,3 @@ defined('SHOW_DEBUG_BACKTRACE') || define('SHOW_DEBUG_BACKTRACE', true);
  | release of the framework.
  */
 defined('CI_DEBUG') || define('CI_DEBUG', true);
-<<<<<<< HEAD
-<<<<<<< HEAD
-
-$routes->get('user/dashboard', 'Login::userDashboard');
-=======
->>>>>>> 4459e3df78c8777cadd4000b424feaf1fc6e7479
-=======
->>>>>>> c95817c (Admins and doctor)

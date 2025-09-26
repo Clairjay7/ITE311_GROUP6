@@ -6,10 +6,10 @@
 
 <div class="spacer"></div>
 <div class="grid grid-4">
-    <div class="card"><h5>👥 Active Patients</h5><h3>25</h3></div>
-    <div class="card"><h5>📅 Today's Appointments</h5><h3>8</h3></div>
-    <div class="card"><h5>📋 Pending Reports</h5><h3>12</h3></div>
-    <div class="card"><h5>🏥 Emergency Cases</h5><h3>3</h3></div>
+    <div class="card"><h5>👥 Active Patients</h5><h3><?= esc($activePatients ?? 0) ?></h3></div>
+    <div class="card"><h5>📅 Today's Appointments</h5><h3><?= esc($todaysAppointments ?? 0) ?></h3></div>
+    <div class="card"><h5>📋 Pending Reports</h5><h3><?= esc($pendingReports ?? 0) ?></h3></div>
+    <div class="card"><h5>🏥 Emergency Cases</h5><h3><?= esc($emergencyCases ?? 0) ?></h3></div>
     
 </div>
 
