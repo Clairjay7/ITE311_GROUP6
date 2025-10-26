@@ -32,6 +32,13 @@ if (version_compare(PHP_VERSION, $minPhpVersion, '<')) {
 // Path to the front controller (this file)
 define('FCPATH', __DIR__ . DIRECTORY_SEPARATOR);
 
+// Ensure the current directory is pointing to the front controller's directory
+if (getcwd() . DIRECTORY_SEPARATOR !== FCPATH) {
+    chdir(FCPATH);
+}
+
+// Ensure proper working directory for CodeIgniter
+
 /*
  *---------------------------------------------------------------
  * BOOTSTRAP THE APPLICATION
@@ -44,7 +51,7 @@ define('FCPATH', __DIR__ . DIRECTORY_SEPARATOR);
 // LOAD OUR PATHS CONFIG FILE
 // This is the line that might need to be changed, depending on your folder structure.
 require FCPATH . 'app/Config/Paths.php';
-// ^^^ Change this line if you move your application folder
+// ^^^ Changed to work from root directory instead of public folder
 
 $paths = new Paths();
 

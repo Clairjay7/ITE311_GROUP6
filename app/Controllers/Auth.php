@@ -160,13 +160,22 @@ class Auth extends Controller
         $todayStart = date('Y-m-d 00:00:00');
         $todayEnd = date('Y-m-d 23:59:59');
 
-        $totalDoctors = (int) $db->table('doctors')->countAllResults();
-        $totalPatients = (int) $db->table('patients')->countAllResults();
-        $todaysAppointments = (int) $db->table('appointments')
-            ->where('appointment_date >=', $todayStart)
-            ->where('appointment_date <=', $todayEnd)
-            ->countAllResults();
-        $pendingBills = (int) $db->table('billing')->where('status', 'pending')->countAllResults();
+        // Get actual counts from your database tables
+        $totalDoctors = $db->tableExists('doctors') ? 
+            (int) $db->table('doctors')->countAllResults() : 
+            (int) $this->userModel->where('role', 'doctor')->countAllResults();
+            
+        $totalPatients = $db->tableExists('patients') ? 
+            (int) $db->table('patients')->countAllResults() : 0;
+            
+        $todaysAppointments = $db->tableExists('appointments') ? 
+            (int) $db->table('appointments')
+                ->where('appointment_date >=', $todayStart)
+                ->where('appointment_date <=', $todayEnd)
+                ->countAllResults() : 0;
+                
+        $pendingBills = $db->tableExists('billing') ? 
+            (int) $db->table('billing')->where('status', 'pending')->countAllResults() : 0;
 
         $data = [
             'title' => 'Super Admin Dashboard',
@@ -177,7 +186,7 @@ class Auth extends Controller
             'todaysAppointments' => $todaysAppointments,
             'pendingBills' => $pendingBills,
         ];
-        return view('SuperAdmin/dashboard', $data);
+        return view('SuperAdmin/unified_dashboard', $data);
     }
 
     /**

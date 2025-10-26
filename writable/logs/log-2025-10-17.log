@@ -1,0 +1,568 @@
+DEBUG - 2025-10-17 23:41:21 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-10-17 23:41:29 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-10-17 23:41:29 --> Raw POST data: username=superadmin&password=Adminb%40123
+DEBUG - 2025-10-17 23:41:29 --> Login attempt - Username: superadmin
+DEBUG - 2025-10-17 23:41:29 --> POST data: Array
+(
+    [username] => superadmin
+    [password] => Adminb@123
+)
+
+DEBUG - 2025-10-17 23:41:30 --> SQL Query: SELECT *
+FROM `users`
+WHERE `username` = 'superadmin'
+ LIMIT 1
+ERROR - 2025-10-17 23:41:30 --> Password verification failed for user: superadmin
+DEBUG - 2025-10-17 23:41:30 --> Input password: Adminb@123
+DEBUG - 2025-10-17 23:41:30 --> Stored hash: $2y$10$tk76wUrVbrjYeIIi84J22eoevmWlsEzLmlxzc17.tpgPIEJ8AC6Bq
+DEBUG - 2025-10-17 23:41:30 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-10-17 23:41:32 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-10-17 23:41:38 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-10-17 23:41:38 --> Raw POST data: username=superadmin&password=Admin%40123
+DEBUG - 2025-10-17 23:41:38 --> Login attempt - Username: superadmin
+DEBUG - 2025-10-17 23:41:38 --> POST data: Array
+(
+    [username] => superadmin
+    [password] => Admin@123
+)
+
+DEBUG - 2025-10-17 23:41:38 --> SQL Query: SELECT *
+FROM `users`
+WHERE `username` = 'superadmin'
+ LIMIT 1
+DEBUG - 2025-10-17 23:41:39 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2025-10-17 23:41:40 --> mysqli_sql_exception: Table 'hospital_management.roles' doesn't exist in F:\xammp\htdocs\Group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\Group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\Group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\Group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\Group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\Group6\system\Model.php(286): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\Group6\system\BaseModel.php(677): CodeIgniter\Model->doFindAll(0, 0)
+#6 F:\xammp\htdocs\Group6\app\Models\RoleModel.php(67): CodeIgniter\BaseModel->findAll()
+#7 F:\xammp\htdocs\Group6\app\Controllers\SuperAdmin.php(1211): App\Models\RoleModel->getActiveRoles()
+#8 F:\xammp\htdocs\Group6\system\CodeIgniter.php(933): App\Controllers\SuperAdmin->roles()
+#9 F:\xammp\htdocs\Group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\SuperAdmin))
+#10 F:\xammp\htdocs\Group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#11 F:\xammp\htdocs\Group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#12 F:\xammp\htdocs\Group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#13 F:\xammp\htdocs\Group6\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#14 {main}
+ERROR - 2025-10-17 23:41:40 --> Failed to get roles: Table 'hospital_management.roles' doesn't exist
+DEBUG - 2025-10-17 23:41:40 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2025-10-17 23:41:41 --> Roles page error: Invalid file: "SuperAdmin/roles.php"
+CRITICAL - 2025-10-17 23:41:41 --> CodeIgniter\View\Exceptions\ViewException: Invalid file: "SuperAdmin/roles.php"
+[Method: GET, Route: super-admin/roles]
+in SYSTEMPATH\Exceptions\FrameworkException.php on line 39.
+ 1 SYSTEMPATH\View\View.php(214): CodeIgniter\Exceptions\FrameworkException::forInvalidFile('SuperAdmin/roles.php')
+ 2 SYSTEMPATH\Common.php(1167): CodeIgniter\View\View->render('SuperAdmin/roles', [], true)
+ 3 APPPATH\Controllers\SuperAdmin.php(55): view('SuperAdmin/roles', [...])
+ 4 APPPATH\Controllers\SuperAdmin.php(1221): App\Controllers\SuperAdmin->render('SuperAdmin/roles', [...])
+ 5 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\SuperAdmin->roles()
+ 6 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\SuperAdmin))
+ 7 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 8 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 9 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+10 FCPATH\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+DEBUG - 2025-10-17 23:41:44 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-10-17 23:41:45 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-10-17 23:41:45 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-10-17 23:41:46 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2025-10-17 23:41:49 --> mysqli_sql_exception: Table 'hospital_management.roles' doesn't exist in F:\xammp\htdocs\Group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\Group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\Group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\Group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\Group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\Group6\system\Model.php(286): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\Group6\system\BaseModel.php(677): CodeIgniter\Model->doFindAll(0, 0)
+#6 F:\xammp\htdocs\Group6\app\Models\RoleModel.php(67): CodeIgniter\BaseModel->findAll()
+#7 F:\xammp\htdocs\Group6\app\Controllers\SuperAdmin.php(1211): App\Models\RoleModel->getActiveRoles()
+#8 F:\xammp\htdocs\Group6\system\CodeIgniter.php(933): App\Controllers\SuperAdmin->roles()
+#9 F:\xammp\htdocs\Group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\SuperAdmin))
+#10 F:\xammp\htdocs\Group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#11 F:\xammp\htdocs\Group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#12 F:\xammp\htdocs\Group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#13 F:\xammp\htdocs\Group6\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#14 {main}
+ERROR - 2025-10-17 23:41:49 --> Failed to get roles: Table 'hospital_management.roles' doesn't exist
+DEBUG - 2025-10-17 23:41:49 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2025-10-17 23:41:49 --> Roles page error: Invalid file: "SuperAdmin/roles.php"
+CRITICAL - 2025-10-17 23:41:49 --> CodeIgniter\View\Exceptions\ViewException: Invalid file: "SuperAdmin/roles.php"
+[Method: GET, Route: super-admin/roles]
+in SYSTEMPATH\Exceptions\FrameworkException.php on line 39.
+ 1 SYSTEMPATH\View\View.php(214): CodeIgniter\Exceptions\FrameworkException::forInvalidFile('SuperAdmin/roles.php')
+ 2 SYSTEMPATH\Common.php(1167): CodeIgniter\View\View->render('SuperAdmin/roles', [], true)
+ 3 APPPATH\Controllers\SuperAdmin.php(55): view('SuperAdmin/roles', [...])
+ 4 APPPATH\Controllers\SuperAdmin.php(1221): App\Controllers\SuperAdmin->render('SuperAdmin/roles', [...])
+ 5 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\SuperAdmin->roles()
+ 6 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\SuperAdmin))
+ 7 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 8 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 9 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+10 FCPATH\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+DEBUG - 2025-10-17 23:41:59 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-10-17 23:42:00 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-10-17 23:42:02 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2025-10-17 23:42:02 --> mysqli_sql_exception: Table 'hospital_management.roles' doesn't exist in F:\xammp\htdocs\Group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\Group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\Group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\Group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\Group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\Group6\system\Model.php(286): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\Group6\system\BaseModel.php(677): CodeIgniter\Model->doFindAll(0, 0)
+#6 F:\xammp\htdocs\Group6\app\Models\RoleModel.php(67): CodeIgniter\BaseModel->findAll()
+#7 F:\xammp\htdocs\Group6\app\Controllers\SuperAdmin.php(1211): App\Models\RoleModel->getActiveRoles()
+#8 F:\xammp\htdocs\Group6\system\CodeIgniter.php(933): App\Controllers\SuperAdmin->roles()
+#9 F:\xammp\htdocs\Group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\SuperAdmin))
+#10 F:\xammp\htdocs\Group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#11 F:\xammp\htdocs\Group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#12 F:\xammp\htdocs\Group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#13 F:\xammp\htdocs\Group6\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#14 {main}
+ERROR - 2025-10-17 23:42:02 --> Failed to get roles: Table 'hospital_management.roles' doesn't exist
+DEBUG - 2025-10-17 23:42:02 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2025-10-17 23:42:02 --> Roles page error: Invalid file: "SuperAdmin/roles.php"
+CRITICAL - 2025-10-17 23:42:02 --> CodeIgniter\View\Exceptions\ViewException: Invalid file: "SuperAdmin/roles.php"
+[Method: GET, Route: super-admin/roles]
+in SYSTEMPATH\Exceptions\FrameworkException.php on line 39.
+ 1 SYSTEMPATH\View\View.php(214): CodeIgniter\Exceptions\FrameworkException::forInvalidFile('SuperAdmin/roles.php')
+ 2 SYSTEMPATH\Common.php(1167): CodeIgniter\View\View->render('SuperAdmin/roles', [], true)
+ 3 APPPATH\Controllers\SuperAdmin.php(55): view('SuperAdmin/roles', [...])
+ 4 APPPATH\Controllers\SuperAdmin.php(1221): App\Controllers\SuperAdmin->render('SuperAdmin/roles', [...])
+ 5 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\SuperAdmin->roles()
+ 6 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\SuperAdmin))
+ 7 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 8 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 9 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+10 FCPATH\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+DEBUG - 2025-10-17 23:42:03 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-10-17 23:42:04 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-10-17 23:42:06 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2025-10-17 23:42:06 --> mysqli_sql_exception: Table 'hospital_management.roles' doesn't exist in F:\xammp\htdocs\Group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\Group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\Group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\Group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\Group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\Group6\system\Model.php(286): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\Group6\system\BaseModel.php(677): CodeIgniter\Model->doFindAll(0, 0)
+#6 F:\xammp\htdocs\Group6\app\Models\RoleModel.php(67): CodeIgniter\BaseModel->findAll()
+#7 F:\xammp\htdocs\Group6\app\Controllers\SuperAdmin.php(1211): App\Models\RoleModel->getActiveRoles()
+#8 F:\xammp\htdocs\Group6\system\CodeIgniter.php(933): App\Controllers\SuperAdmin->roles()
+#9 F:\xammp\htdocs\Group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\SuperAdmin))
+#10 F:\xammp\htdocs\Group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#11 F:\xammp\htdocs\Group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#12 F:\xammp\htdocs\Group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#13 F:\xammp\htdocs\Group6\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#14 {main}
+ERROR - 2025-10-17 23:42:06 --> Failed to get roles: Table 'hospital_management.roles' doesn't exist
+DEBUG - 2025-10-17 23:42:06 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2025-10-17 23:42:06 --> Roles page error: Invalid file: "SuperAdmin/roles.php"
+CRITICAL - 2025-10-17 23:42:06 --> CodeIgniter\View\Exceptions\ViewException: Invalid file: "SuperAdmin/roles.php"
+[Method: GET, Route: super-admin/roles]
+in SYSTEMPATH\Exceptions\FrameworkException.php on line 39.
+ 1 SYSTEMPATH\View\View.php(214): CodeIgniter\Exceptions\FrameworkException::forInvalidFile('SuperAdmin/roles.php')
+ 2 SYSTEMPATH\Common.php(1167): CodeIgniter\View\View->render('SuperAdmin/roles', [], true)
+ 3 APPPATH\Controllers\SuperAdmin.php(55): view('SuperAdmin/roles', [...])
+ 4 APPPATH\Controllers\SuperAdmin.php(1221): App\Controllers\SuperAdmin->render('SuperAdmin/roles', [...])
+ 5 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\SuperAdmin->roles()
+ 6 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\SuperAdmin))
+ 7 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 8 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 9 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+10 FCPATH\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+DEBUG - 2025-10-17 23:46:09 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-10-17 23:46:18 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-10-17 23:46:18 --> Raw POST data: username=superadmin&password=Admin%40123
+DEBUG - 2025-10-17 23:46:18 --> Login attempt - Username: superadmin
+DEBUG - 2025-10-17 23:46:18 --> POST data: Array
+(
+    [username] => superadmin
+    [password] => Admin@123
+)
+
+DEBUG - 2025-10-17 23:46:18 --> SQL Query: SELECT *
+FROM `users`
+WHERE `username` = 'superadmin'
+ LIMIT 1
+DEBUG - 2025-10-17 23:46:18 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2025-10-17 23:46:19 --> mysqli_sql_exception: Table 'hospital_management.roles' doesn't exist in F:\xammp\htdocs\Group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\Group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\Group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\Group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\Group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\Group6\system\Model.php(286): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\Group6\system\BaseModel.php(677): CodeIgniter\Model->doFindAll(0, 0)
+#6 F:\xammp\htdocs\Group6\app\Models\RoleModel.php(67): CodeIgniter\BaseModel->findAll()
+#7 F:\xammp\htdocs\Group6\app\Controllers\SuperAdmin.php(1211): App\Models\RoleModel->getActiveRoles()
+#8 F:\xammp\htdocs\Group6\system\CodeIgniter.php(933): App\Controllers\SuperAdmin->roles()
+#9 F:\xammp\htdocs\Group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\SuperAdmin))
+#10 F:\xammp\htdocs\Group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#11 F:\xammp\htdocs\Group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#12 F:\xammp\htdocs\Group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#13 F:\xammp\htdocs\Group6\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#14 {main}
+ERROR - 2025-10-17 23:46:19 --> Failed to get roles: Table 'hospital_management.roles' doesn't exist
+DEBUG - 2025-10-17 23:46:19 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2025-10-17 23:46:19 --> Roles page error: Invalid file: "SuperAdmin/roles.php"
+CRITICAL - 2025-10-17 23:46:19 --> CodeIgniter\View\Exceptions\ViewException: Invalid file: "SuperAdmin/roles.php"
+[Method: GET, Route: super-admin/roles]
+in SYSTEMPATH\Exceptions\FrameworkException.php on line 39.
+ 1 SYSTEMPATH\View\View.php(214): CodeIgniter\Exceptions\FrameworkException::forInvalidFile('SuperAdmin/roles.php')
+ 2 SYSTEMPATH\Common.php(1167): CodeIgniter\View\View->render('SuperAdmin/roles', [], true)
+ 3 APPPATH\Controllers\SuperAdmin.php(55): view('SuperAdmin/roles', [...])
+ 4 APPPATH\Controllers\SuperAdmin.php(1221): App\Controllers\SuperAdmin->render('SuperAdmin/roles', [...])
+ 5 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\SuperAdmin->roles()
+ 6 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\SuperAdmin))
+ 7 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 8 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 9 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+10 FCPATH\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ERROR - 2025-10-17 23:46:26 --> mysqli_sql_exception: Table 'hospital_management.roles' doesn't exist in F:\xammp\htdocs\Group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\Group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\Group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\Group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\Group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\Group6\system\Model.php(286): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\Group6\system\BaseModel.php(677): CodeIgniter\Model->doFindAll(0, 0)
+#6 F:\xammp\htdocs\Group6\app\Models\RoleModel.php(67): CodeIgniter\BaseModel->findAll()
+#7 F:\xammp\htdocs\Group6\app\Controllers\SuperAdmin.php(1211): App\Models\RoleModel->getActiveRoles()
+#8 F:\xammp\htdocs\Group6\system\CodeIgniter.php(933): App\Controllers\SuperAdmin->roles()
+#9 F:\xammp\htdocs\Group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\SuperAdmin))
+#10 F:\xammp\htdocs\Group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#11 F:\xammp\htdocs\Group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#12 F:\xammp\htdocs\Group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#13 F:\xammp\htdocs\Group6\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#14 {main}
+ERROR - 2025-10-17 23:46:26 --> Failed to get roles: Table 'hospital_management.roles' doesn't exist
+DEBUG - 2025-10-17 23:46:26 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2025-10-17 23:46:26 --> Roles page error: Invalid file: "SuperAdmin/roles.php"
+CRITICAL - 2025-10-17 23:46:26 --> CodeIgniter\View\Exceptions\ViewException: Invalid file: "SuperAdmin/roles.php"
+[Method: GET, Route: super-admin/roles]
+in SYSTEMPATH\Exceptions\FrameworkException.php on line 39.
+ 1 SYSTEMPATH\View\View.php(214): CodeIgniter\Exceptions\FrameworkException::forInvalidFile('SuperAdmin/roles.php')
+ 2 SYSTEMPATH\Common.php(1167): CodeIgniter\View\View->render('SuperAdmin/roles', [], true)
+ 3 APPPATH\Controllers\SuperAdmin.php(55): view('SuperAdmin/roles', [...])
+ 4 APPPATH\Controllers\SuperAdmin.php(1221): App\Controllers\SuperAdmin->render('SuperAdmin/roles', [...])
+ 5 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\SuperAdmin->roles()
+ 6 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\SuperAdmin))
+ 7 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 8 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 9 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+10 FCPATH\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+DEBUG - 2025-10-17 23:46:30 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-10-17 23:46:30 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2025-10-17 23:46:32 --> mysqli_sql_exception: Table 'hospital_management.roles' doesn't exist in F:\xammp\htdocs\Group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\Group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\Group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\Group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\Group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\Group6\system\Model.php(286): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\Group6\system\BaseModel.php(677): CodeIgniter\Model->doFindAll(0, 0)
+#6 F:\xammp\htdocs\Group6\app\Models\RoleModel.php(67): CodeIgniter\BaseModel->findAll()
+#7 F:\xammp\htdocs\Group6\app\Controllers\SuperAdmin.php(1211): App\Models\RoleModel->getActiveRoles()
+#8 F:\xammp\htdocs\Group6\system\CodeIgniter.php(933): App\Controllers\SuperAdmin->roles()
+#9 F:\xammp\htdocs\Group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\SuperAdmin))
+#10 F:\xammp\htdocs\Group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#11 F:\xammp\htdocs\Group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#12 F:\xammp\htdocs\Group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#13 F:\xammp\htdocs\Group6\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#14 {main}
+ERROR - 2025-10-17 23:46:32 --> Failed to get roles: Table 'hospital_management.roles' doesn't exist
+DEBUG - 2025-10-17 23:46:32 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2025-10-17 23:46:32 --> Roles page error: Invalid file: "SuperAdmin/roles.php"
+CRITICAL - 2025-10-17 23:46:32 --> CodeIgniter\View\Exceptions\ViewException: Invalid file: "SuperAdmin/roles.php"
+[Method: GET, Route: super-admin/roles]
+in SYSTEMPATH\Exceptions\FrameworkException.php on line 39.
+ 1 SYSTEMPATH\View\View.php(214): CodeIgniter\Exceptions\FrameworkException::forInvalidFile('SuperAdmin/roles.php')
+ 2 SYSTEMPATH\Common.php(1167): CodeIgniter\View\View->render('SuperAdmin/roles', [], true)
+ 3 APPPATH\Controllers\SuperAdmin.php(55): view('SuperAdmin/roles', [...])
+ 4 APPPATH\Controllers\SuperAdmin.php(1221): App\Controllers\SuperAdmin->render('SuperAdmin/roles', [...])
+ 5 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\SuperAdmin->roles()
+ 6 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\SuperAdmin))
+ 7 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 8 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 9 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+10 FCPATH\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+DEBUG - 2025-10-17 23:46:33 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2025-10-17 23:46:35 --> mysqli_sql_exception: Table 'hospital_management.roles' doesn't exist in F:\xammp\htdocs\Group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\Group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\Group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\Group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\Group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\Group6\system\Model.php(286): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\Group6\system\BaseModel.php(677): CodeIgniter\Model->doFindAll(0, 0)
+#6 F:\xammp\htdocs\Group6\app\Models\RoleModel.php(67): CodeIgniter\BaseModel->findAll()
+#7 F:\xammp\htdocs\Group6\app\Controllers\SuperAdmin.php(1211): App\Models\RoleModel->getActiveRoles()
+#8 F:\xammp\htdocs\Group6\system\CodeIgniter.php(933): App\Controllers\SuperAdmin->roles()
+#9 F:\xammp\htdocs\Group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\SuperAdmin))
+#10 F:\xammp\htdocs\Group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#11 F:\xammp\htdocs\Group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#12 F:\xammp\htdocs\Group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#13 F:\xammp\htdocs\Group6\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#14 {main}
+ERROR - 2025-10-17 23:46:35 --> Failed to get roles: Table 'hospital_management.roles' doesn't exist
+DEBUG - 2025-10-17 23:46:35 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2025-10-17 23:46:35 --> Roles page error: Invalid file: "SuperAdmin/roles.php"
+CRITICAL - 2025-10-17 23:46:35 --> CodeIgniter\View\Exceptions\ViewException: Invalid file: "SuperAdmin/roles.php"
+[Method: GET, Route: super-admin/roles]
+in SYSTEMPATH\Exceptions\FrameworkException.php on line 39.
+ 1 SYSTEMPATH\View\View.php(214): CodeIgniter\Exceptions\FrameworkException::forInvalidFile('SuperAdmin/roles.php')
+ 2 SYSTEMPATH\Common.php(1167): CodeIgniter\View\View->render('SuperAdmin/roles', [], true)
+ 3 APPPATH\Controllers\SuperAdmin.php(55): view('SuperAdmin/roles', [...])
+ 4 APPPATH\Controllers\SuperAdmin.php(1221): App\Controllers\SuperAdmin->render('SuperAdmin/roles', [...])
+ 5 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\SuperAdmin->roles()
+ 6 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\SuperAdmin))
+ 7 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 8 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 9 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+10 FCPATH\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+DEBUG - 2025-10-17 23:46:54 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2025-10-17 23:46:54 --> mysqli_sql_exception: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near ') VALUES ('warning', 'application', 'User deleted', '{\"user_id\":\"10\"}', '...' at line 1 in F:\xammp\htdocs\Group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\Group6\system\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `sy...', 0)
+#1 F:\xammp\htdocs\Group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `sy...')
+#2 F:\xammp\htdocs\Group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `sy...')
+#3 F:\xammp\htdocs\Group6\system\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `sy...', Array, false)
+#4 F:\xammp\htdocs\Group6\system\Model.php(394): CodeIgniter\Database\BaseBuilder->insert()
+#5 F:\xammp\htdocs\Group6\system\BaseModel.php(838): CodeIgniter\Model->doInsert(Array)
+#6 F:\xammp\htdocs\Group6\system\Model.php(797): CodeIgniter\BaseModel->insert(Array, true)
+#7 F:\xammp\htdocs\Group6\app\Models\SystemLogModel.php(89): CodeIgniter\Model->insert(Array)
+#8 F:\xammp\htdocs\Group6\app\Models\SystemLogModel.php(298): App\Models\SystemLogModel->logEntry('warning', 'application', 'User deleted', Array, '1')
+#9 F:\xammp\htdocs\Group6\app\Controllers\SuperAdmin.php(222): App\Models\SystemLogModel->warning('User deleted', Array, '1')
+#10 F:\xammp\htdocs\Group6\system\CodeIgniter.php(933): App\Controllers\SuperAdmin->deleteUser('10')
+#11 F:\xammp\htdocs\Group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\SuperAdmin))
+#12 F:\xammp\htdocs\Group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#13 F:\xammp\htdocs\Group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#14 F:\xammp\htdocs\Group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#15 F:\xammp\htdocs\Group6\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#16 {main}
+ERROR - 2025-10-17 23:46:54 --> Failed to log user deletion: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near ') VALUES ('warning', 'application', 'User deleted', '{\"user_id\":\"10\"}', '...' at line 1
+DEBUG - 2025-10-17 23:46:56 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2025-10-17 23:46:56 --> mysqli_sql_exception: Table 'hospital_management.roles' doesn't exist in F:\xammp\htdocs\Group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\Group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\Group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\Group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\Group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\Group6\system\Model.php(286): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\Group6\system\BaseModel.php(677): CodeIgniter\Model->doFindAll(0, 0)
+#6 F:\xammp\htdocs\Group6\app\Models\RoleModel.php(67): CodeIgniter\BaseModel->findAll()
+#7 F:\xammp\htdocs\Group6\app\Controllers\SuperAdmin.php(1211): App\Models\RoleModel->getActiveRoles()
+#8 F:\xammp\htdocs\Group6\system\CodeIgniter.php(933): App\Controllers\SuperAdmin->roles()
+#9 F:\xammp\htdocs\Group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\SuperAdmin))
+#10 F:\xammp\htdocs\Group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#11 F:\xammp\htdocs\Group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#12 F:\xammp\htdocs\Group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#13 F:\xammp\htdocs\Group6\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#14 {main}
+ERROR - 2025-10-17 23:46:56 --> Failed to get roles: Table 'hospital_management.roles' doesn't exist
+DEBUG - 2025-10-17 23:46:56 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2025-10-17 23:46:56 --> Roles page error: Invalid file: "SuperAdmin/roles.php"
+CRITICAL - 2025-10-17 23:46:56 --> CodeIgniter\View\Exceptions\ViewException: Invalid file: "SuperAdmin/roles.php"
+[Method: GET, Route: super-admin/roles]
+in SYSTEMPATH\Exceptions\FrameworkException.php on line 39.
+ 1 SYSTEMPATH\View\View.php(214): CodeIgniter\Exceptions\FrameworkException::forInvalidFile('SuperAdmin/roles.php')
+ 2 SYSTEMPATH\Common.php(1167): CodeIgniter\View\View->render('SuperAdmin/roles', [], true)
+ 3 APPPATH\Controllers\SuperAdmin.php(55): view('SuperAdmin/roles', [...])
+ 4 APPPATH\Controllers\SuperAdmin.php(1221): App\Controllers\SuperAdmin->render('SuperAdmin/roles', [...])
+ 5 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\SuperAdmin->roles()
+ 6 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\SuperAdmin))
+ 7 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 8 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 9 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+10 FCPATH\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+DEBUG - 2025-10-17 23:47:04 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-10-17 23:47:04 --> Getting user with ID: 1
+DEBUG - 2025-10-17 23:47:04 --> User found: {"id":"1","username":"superadmin","email":"superadmin@hospital.com","password_hash":"$2y$10$tk76wUrVbrjYeIIi84J22eoevmWlsEzLmlxzc17.tpgPIEJ8AC6Bq","first_name":"Super","last_name":"Admin","role":"superadmin","phone":null,"address":null,"status":"active","last_login":"2025-10-17 23:46:18","created_at":null,"updated_at":"2025-10-17 23:46:18"}
+DEBUG - 2025-10-17 23:47:23 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-10-17 23:47:23 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-10-17 23:47:51 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-10-17 23:47:51 --> Raw POST data: username=nurse1&password=Nurse%40%2123
+DEBUG - 2025-10-17 23:47:51 --> Login attempt - Username: nurse1
+DEBUG - 2025-10-17 23:47:51 --> POST data: Array
+(
+    [username] => nurse1
+    [password] => Nurse@!23
+)
+
+DEBUG - 2025-10-17 23:47:51 --> SQL Query: SELECT *
+FROM `users`
+WHERE `username` = 'nurse1'
+ LIMIT 1
+ERROR - 2025-10-17 23:47:52 --> Password verification failed for user: nurse1
+DEBUG - 2025-10-17 23:47:52 --> Input password: Nurse@!23
+DEBUG - 2025-10-17 23:47:52 --> Stored hash: $2y$10$vOw6WjaT3O0t47vGUPX9RuOIm6OvETcoD1ygnKWANACg.v1ebqX92
+DEBUG - 2025-10-17 23:47:52 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-10-17 23:47:53 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-10-17 23:48:26 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-10-17 23:48:26 --> Raw POST data: username=nurse1&password=Nurse%40123
+DEBUG - 2025-10-17 23:48:26 --> Login attempt - Username: nurse1
+DEBUG - 2025-10-17 23:48:26 --> POST data: Array
+(
+    [username] => nurse1
+    [password] => Nurse@123
+)
+
+DEBUG - 2025-10-17 23:48:26 --> SQL Query: SELECT *
+FROM `users`
+WHERE `username` = 'nurse1'
+ LIMIT 1
+DEBUG - 2025-10-17 23:48:26 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-10-17 23:48:34 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-10-17 23:48:34 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-10-17 23:48:39 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-10-17 23:48:39 --> Raw POST data: username=superadmin&password=Admin%40123
+DEBUG - 2025-10-17 23:48:39 --> Login attempt - Username: superadmin
+DEBUG - 2025-10-17 23:48:39 --> POST data: Array
+(
+    [username] => superadmin
+    [password] => Admin@123
+)
+
+DEBUG - 2025-10-17 23:48:39 --> SQL Query: SELECT *
+FROM `users`
+WHERE `username` = 'superadmin'
+ LIMIT 1
+DEBUG - 2025-10-17 23:48:39 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2025-10-17 23:48:40 --> mysqli_sql_exception: Table 'hospital_management.roles' doesn't exist in F:\xammp\htdocs\Group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\Group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\Group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\Group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\Group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\Group6\system\Model.php(286): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\Group6\system\BaseModel.php(677): CodeIgniter\Model->doFindAll(0, 0)
+#6 F:\xammp\htdocs\Group6\app\Models\RoleModel.php(67): CodeIgniter\BaseModel->findAll()
+#7 F:\xammp\htdocs\Group6\app\Controllers\SuperAdmin.php(1211): App\Models\RoleModel->getActiveRoles()
+#8 F:\xammp\htdocs\Group6\system\CodeIgniter.php(933): App\Controllers\SuperAdmin->roles()
+#9 F:\xammp\htdocs\Group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\SuperAdmin))
+#10 F:\xammp\htdocs\Group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#11 F:\xammp\htdocs\Group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#12 F:\xammp\htdocs\Group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#13 F:\xammp\htdocs\Group6\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#14 {main}
+ERROR - 2025-10-17 23:48:40 --> Failed to get roles: Table 'hospital_management.roles' doesn't exist
+DEBUG - 2025-10-17 23:48:40 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2025-10-17 23:48:40 --> Roles page error: Invalid file: "SuperAdmin/roles.php"
+CRITICAL - 2025-10-17 23:48:40 --> CodeIgniter\View\Exceptions\ViewException: Invalid file: "SuperAdmin/roles.php"
+[Method: GET, Route: super-admin/roles]
+in SYSTEMPATH\Exceptions\FrameworkException.php on line 39.
+ 1 SYSTEMPATH\View\View.php(214): CodeIgniter\Exceptions\FrameworkException::forInvalidFile('SuperAdmin/roles.php')
+ 2 SYSTEMPATH\Common.php(1167): CodeIgniter\View\View->render('SuperAdmin/roles', [], true)
+ 3 APPPATH\Controllers\SuperAdmin.php(55): view('SuperAdmin/roles', [...])
+ 4 APPPATH\Controllers\SuperAdmin.php(1221): App\Controllers\SuperAdmin->render('SuperAdmin/roles', [...])
+ 5 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\SuperAdmin->roles()
+ 6 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\SuperAdmin))
+ 7 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 8 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 9 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+10 FCPATH\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+DEBUG - 2025-10-17 23:49:12 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2025-10-17 23:49:13 --> mysqli_sql_exception: Table 'hospital_management.roles' doesn't exist in F:\xammp\htdocs\Group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\Group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\Group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\Group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\Group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\Group6\system\Model.php(286): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\Group6\system\BaseModel.php(677): CodeIgniter\Model->doFindAll(0, 0)
+#6 F:\xammp\htdocs\Group6\app\Models\RoleModel.php(67): CodeIgniter\BaseModel->findAll()
+#7 F:\xammp\htdocs\Group6\app\Controllers\SuperAdmin.php(1211): App\Models\RoleModel->getActiveRoles()
+#8 F:\xammp\htdocs\Group6\system\CodeIgniter.php(933): App\Controllers\SuperAdmin->roles()
+#9 F:\xammp\htdocs\Group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\SuperAdmin))
+#10 F:\xammp\htdocs\Group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#11 F:\xammp\htdocs\Group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#12 F:\xammp\htdocs\Group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#13 F:\xammp\htdocs\Group6\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#14 {main}
+ERROR - 2025-10-17 23:49:13 --> Failed to get roles: Table 'hospital_management.roles' doesn't exist
+DEBUG - 2025-10-17 23:49:13 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2025-10-17 23:49:13 --> Roles page error: Invalid file: "SuperAdmin/roles.php"
+CRITICAL - 2025-10-17 23:49:13 --> CodeIgniter\View\Exceptions\ViewException: Invalid file: "SuperAdmin/roles.php"
+[Method: GET, Route: super-admin/roles]
+in SYSTEMPATH\Exceptions\FrameworkException.php on line 39.
+ 1 SYSTEMPATH\View\View.php(214): CodeIgniter\Exceptions\FrameworkException::forInvalidFile('SuperAdmin/roles.php')
+ 2 SYSTEMPATH\Common.php(1167): CodeIgniter\View\View->render('SuperAdmin/roles', [], true)
+ 3 APPPATH\Controllers\SuperAdmin.php(55): view('SuperAdmin/roles', [...])
+ 4 APPPATH\Controllers\SuperAdmin.php(1221): App\Controllers\SuperAdmin->render('SuperAdmin/roles', [...])
+ 5 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\SuperAdmin->roles()
+ 6 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\SuperAdmin))
+ 7 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 8 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 9 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+10 FCPATH\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ERROR - 2025-10-17 23:49:13 --> mysqli_sql_exception: Table 'hospital_management.roles' doesn't exist in F:\xammp\htdocs\Group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\Group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\Group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\Group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\Group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\Group6\system\Model.php(286): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\Group6\system\BaseModel.php(677): CodeIgniter\Model->doFindAll(0, 0)
+#6 F:\xammp\htdocs\Group6\app\Models\RoleModel.php(67): CodeIgniter\BaseModel->findAll()
+#7 F:\xammp\htdocs\Group6\app\Controllers\SuperAdmin.php(1211): App\Models\RoleModel->getActiveRoles()
+#8 F:\xammp\htdocs\Group6\system\CodeIgniter.php(933): App\Controllers\SuperAdmin->roles()
+#9 F:\xammp\htdocs\Group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\SuperAdmin))
+#10 F:\xammp\htdocs\Group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#11 F:\xammp\htdocs\Group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#12 F:\xammp\htdocs\Group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#13 F:\xammp\htdocs\Group6\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#14 {main}
+ERROR - 2025-10-17 23:49:13 --> Failed to get roles: Table 'hospital_management.roles' doesn't exist
+DEBUG - 2025-10-17 23:49:13 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2025-10-17 23:49:13 --> Roles page error: Invalid file: "SuperAdmin/roles.php"
+CRITICAL - 2025-10-17 23:49:13 --> CodeIgniter\View\Exceptions\ViewException: Invalid file: "SuperAdmin/roles.php"
+[Method: GET, Route: super-admin/roles]
+in SYSTEMPATH\Exceptions\FrameworkException.php on line 39.
+ 1 SYSTEMPATH\View\View.php(214): CodeIgniter\Exceptions\FrameworkException::forInvalidFile('SuperAdmin/roles.php')
+ 2 SYSTEMPATH\Common.php(1167): CodeIgniter\View\View->render('SuperAdmin/roles', [], true)
+ 3 APPPATH\Controllers\SuperAdmin.php(55): view('SuperAdmin/roles', [...])
+ 4 APPPATH\Controllers\SuperAdmin.php(1221): App\Controllers\SuperAdmin->render('SuperAdmin/roles', [...])
+ 5 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\SuperAdmin->roles()
+ 6 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\SuperAdmin))
+ 7 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 8 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 9 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+10 FCPATH\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ERROR - 2025-10-17 23:49:14 --> mysqli_sql_exception: Table 'hospital_management.roles' doesn't exist in F:\xammp\htdocs\Group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\Group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\Group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\Group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\Group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\Group6\system\Model.php(286): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\Group6\system\BaseModel.php(677): CodeIgniter\Model->doFindAll(0, 0)
+#6 F:\xammp\htdocs\Group6\app\Models\RoleModel.php(67): CodeIgniter\BaseModel->findAll()
+#7 F:\xammp\htdocs\Group6\app\Controllers\SuperAdmin.php(1211): App\Models\RoleModel->getActiveRoles()
+#8 F:\xammp\htdocs\Group6\system\CodeIgniter.php(933): App\Controllers\SuperAdmin->roles()
+#9 F:\xammp\htdocs\Group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\SuperAdmin))
+#10 F:\xammp\htdocs\Group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#11 F:\xammp\htdocs\Group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#12 F:\xammp\htdocs\Group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#13 F:\xammp\htdocs\Group6\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#14 {main}
+ERROR - 2025-10-17 23:49:14 --> Failed to get roles: Table 'hospital_management.roles' doesn't exist
+DEBUG - 2025-10-17 23:49:14 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2025-10-17 23:49:14 --> Roles page error: Invalid file: "SuperAdmin/roles.php"
+CRITICAL - 2025-10-17 23:49:14 --> CodeIgniter\View\Exceptions\ViewException: Invalid file: "SuperAdmin/roles.php"
+[Method: GET, Route: super-admin/roles]
+in SYSTEMPATH\Exceptions\FrameworkException.php on line 39.
+ 1 SYSTEMPATH\View\View.php(214): CodeIgniter\Exceptions\FrameworkException::forInvalidFile('SuperAdmin/roles.php')
+ 2 SYSTEMPATH\Common.php(1167): CodeIgniter\View\View->render('SuperAdmin/roles', [], true)
+ 3 APPPATH\Controllers\SuperAdmin.php(55): view('SuperAdmin/roles', [...])
+ 4 APPPATH\Controllers\SuperAdmin.php(1221): App\Controllers\SuperAdmin->render('SuperAdmin/roles', [...])
+ 5 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\SuperAdmin->roles()
+ 6 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\SuperAdmin))
+ 7 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 8 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 9 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+10 FCPATH\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+DEBUG - 2025-10-17 23:49:15 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2025-10-17 23:49:15 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.

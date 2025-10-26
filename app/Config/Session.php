@@ -8,6 +8,17 @@ use CodeIgniter\Session\Handlers\FileHandler;
 
 class Session extends BaseConfig
 {
+    public function __construct()
+    {
+        parent::__construct();
+        
+        // Ensure session path is absolute and writable
+        $sessionPath = FCPATH . 'writable/session';
+        if (!is_dir($sessionPath)) {
+            mkdir($sessionPath, 0755, true);
+        }
+        $this->savePath = $sessionPath;
+    }
     /**
      * --------------------------------------------------------------------------
      * Session Driver

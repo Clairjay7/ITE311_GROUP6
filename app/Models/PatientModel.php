@@ -13,9 +13,9 @@ class PatientModel extends Model
     protected $useSoftDeletes = false;
     protected $protectFields = true;
     protected $allowedFields = [
-        'patient_id', 'first_name', 'last_name', 'date_of_birth', 'gender',
-        'phone', 'email', 'address', 'emergency_contact_name', 'emergency_contact_phone',
-        'government_id', 'blood_type', 'allergies', 'status'
+        'patient_id', 'first_name', 'last_name', 'middle_name', 'date_of_birth', 'gender',
+        'contact_number', 'phone', 'email', 'address', 'emergency_contact_name', 'emergency_contact_number', 'emergency_contact_phone',
+        'government_id', 'blood_type', 'allergies', 'medical_history', 'status', 'department', 'admission_date', 'archived_at'
     ];
 
     protected bool $allowEmptyInserts = false;
@@ -35,10 +35,22 @@ class PatientModel extends Model
     protected $validationRules = [
         'first_name' => 'required|max_length[100]',
         'last_name' => 'required|max_length[100]',
-        'phone' => 'permit_empty|max_length[30]',
-        'email' => 'permit_empty|valid_email|max_length[120]',
+        'middle_name' => 'permit_empty|max_length[100]',
+        'contact_number' => 'permit_empty|max_length[20]',
+        'phone' => 'permit_empty|max_length[20]',
+        'email' => 'permit_empty|valid_email|max_length[255]',
+        'date_of_birth' => 'permit_empty|valid_date',
         'gender' => 'permit_empty|in_list[male,female,other]',
-        'status' => 'permit_empty|in_list[active,inactive,deceased]'
+        'address' => 'permit_empty',
+        'emergency_contact_name' => 'permit_empty|max_length[100]',
+        'emergency_contact_number' => 'permit_empty|max_length[20]',
+        'emergency_contact_phone' => 'permit_empty|max_length[20]',
+        'blood_type' => 'permit_empty|in_list[A+,A-,B+,B-,AB+,AB-,O+,O-]',
+        'allergies' => 'permit_empty',
+        'medical_history' => 'permit_empty',
+        'status' => 'permit_empty|in_list[active,inactive,deceased,inpatient,outpatient,archived]',
+        'department' => 'permit_empty|max_length[100]',
+        'admission_date' => 'permit_empty|valid_date'
     ];
 
     protected $validationMessages = [];
@@ -58,8 +70,16 @@ class PatientModel extends Model
 
     protected function generatePatientId(array $data)
     {
-        if (!isset($data['data']['patient_id'])) {
-            $data['data']['patient_id'] = 'P' . date('Y') . str_pad($this->countAll() + 1, 6, '0', STR_PAD_LEFT);
+        if (!isset($data['data']['patient_id']) || empty($data['data']['patient_id'])) {
+            try {
+                $count = $this->countAll();
+                $year = date('Y');
+                $nextNumber = $count + 1;
+                $data['data']['patient_id'] = 'PAT-' . $year . '-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+            } catch (\Exception $e) {
+                // Fallback if count fails
+                $data['data']['patient_id'] = 'PAT-' . date('Y') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
+            }
         }
         return $data;
     }
@@ -87,5 +107,71 @@ class PatientModel extends Model
     public function getActivePatients()
     {
         return $this->where('status', 'active')->findAll();
+    }
+
+    public function getFilteredPatients($search = null, $status = null, $department = null)
+    {
+        $builder = $this->builder();
+        
+        // Exclude archived patients by default
+        $builder->where('status !=', 'archived');
+        
+        if ($search) {
+            $builder->groupStart()
+                   ->like('first_name', $search)
+                   ->orLike('last_name', $search)
+                   ->orLike('patient_id', $search)
+                   ->orLike('contact_number', $search)
+                   ->orLike('phone', $search)
+                   ->orLike('email', $search)
+                   ->groupEnd();
+        }
+        
+        if ($status) {
+            $builder->where('status', $status);
+        }
+        
+        if ($department) {
+            $builder->where('department', $department);
+        }
+        
+        return $builder->orderBy('created_at', 'DESC')->get()->getResultArray();
+    }
+
+    public function getUniqueDepartments()
+    {
+        return $this->distinct()
+                   ->select('department')
+                   ->where('department IS NOT NULL')
+                   ->where('department !=', '')
+                   ->where('status !=', 'archived')
+                   ->findColumn('department');
+    }
+
+    public function getPatientAge($dateOfBirth)
+    {
+        if (!$dateOfBirth) return 'N/A';
+        
+        $dob = new \DateTime($dateOfBirth);
+        $now = new \DateTime();
+        $age = $now->diff($dob);
+        
+        return $age->y;
+    }
+
+    public function getPatientFullName($patient)
+    {
+        $name = trim($patient['first_name'] . ' ');
+        if (!empty($patient['middle_name'])) {
+            $name .= trim($patient['middle_name']) . ' ';
+        }
+        $name .= $patient['last_name'];
+        
+        return $name;
+    }
+
+    public function getPatientsByStatus($status)
+    {
+        return $this->where('status', $status)->findAll();
     }
 }

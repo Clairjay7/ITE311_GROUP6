@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <title>Nurse Dashboard</title>
-    <link rel="stylesheet" href="/GROUP6/public/css/nurse_dashboard.css">
+    <link rel="stylesheet" href="/GROUP6/css/nurse_dashboard.css">
 </head>
 <body>
     <div class="dashboard-container">
         <div class="dashboard-header">
             <h2>🧑‍⚕️ Nurse Dashboard</h2>
-            <a href="/GROUP6/public/logout" class="logout-link">Logout</a>
+            <a href="/GROUP6/logout" class="logout-link">Logout</a>
         </div>
 
         <!-- Emergency Alerts -->

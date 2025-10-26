@@ -13,9 +13,23 @@ class PrescriptionModel extends Model
     protected $useSoftDeletes = false;
     protected $protectFields = true;
     protected $allowedFields = [
-        'patient_id', 'doctor_id', 'medical_record_id', 'medicine_name', 'dosage',
-        'frequency', 'duration', 'instructions', 'status', 'dispensed_at',
-        'dispensed_by', 'notes'
+        'prescription_id',
+        'patient_id',
+        'doctor_id',
+        'medical_record_id',
+        'medication_name',
+        'medicine_name',
+        'dosage',
+        'frequency',
+        'duration',
+        'instructions',
+        'quantity',
+        'status',
+        'dispensed_at',
+        'dispensed_by',
+        'notes',
+        'created_at',
+        'updated_at'
     ];
 
     protected bool $allowEmptyInserts = false;
@@ -36,8 +50,10 @@ class PrescriptionModel extends Model
     protected $validationRules = [
         'patient_id' => 'required|is_natural_no_zero',
         'doctor_id' => 'required|is_natural_no_zero',
-        'medicine_name' => 'required|max_length[150]',
-        'status' => 'permit_empty|in_list[pending,dispensed,cancelled]'
+        'medication_name' => 'required_without[medicine_name]|max_length[200]',
+        'medicine_name' => 'required_without[medication_name]|max_length[150]',
+        'quantity' => 'permit_empty|integer',
+        'status' => 'permit_empty|in_list[pending,dispensed,completed,cancelled]'
     ];
 
     protected $validationMessages = [
@@ -47,8 +63,11 @@ class PrescriptionModel extends Model
         'doctor_id' => [
             'required' => 'Doctor is required'
         ],
+        'medication_name' => [
+            'required_without' => 'Medication name or medicine name is required'
+        ],
         'medicine_name' => [
-            'required' => 'Medicine name is required'
+            'required_without' => 'Medicine name or medication name is required'
         ]
     ];
 
