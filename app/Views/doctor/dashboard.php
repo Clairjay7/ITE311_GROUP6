@@ -1,91 +1,79 @@
-<?= $this->extend('templates/template') ?>
+<?= $this->extend('template/header') ?>
+
+<?= $this->section('title') ?>Doctor Dashboard<?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
-<h1>👨‍⚕️ Doctor Dashboard</h1>
-<p>Welcome back, Dr. <?= session()->get('username') ?? 'Doctor' ?>! Today is <?= date('F j, Y') ?></p>
+<style>
+    .dashboard-container { display: grid; gap: 24px; }
+    .welcome-section {
+        background: #ffffff;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        padding: 24px;
+        box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+        background-image: linear-gradient(135deg, rgba(76,175,80,0.06), rgba(46,125,50,0.06));
+    }
+    .welcome-section h2 {
+        font-family: 'Playfair Display', serif;
+        color: var(--primary-color);
+        margin: 0 0 6px;
+        font-size: 28px;
+        letter-spacing: -0.01em;
+    }
+    .welcome-section p { color: #64748b; margin: 0; }
+    .stats-container { width: 100%; }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+    .stat-card {
+        background: #ffffff; border-radius: 12px; border: 1px solid #e5e7eb; padding: 20px;
+        box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08); position: relative; overflow: hidden;
+        transition: var(--transition);
+    }
+    .stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--gradient-1), var(--gradient-2)); }
+    .stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(16, 24, 40, 0.12); }
+    .stat-title { margin: 0; font-size: 14px; color: #2e7d32; font-weight: 700; }
+    .stat-value { margin-top: 10px; font-size: 32px; font-weight: 800; color: #1f2937; }
+    @media (max-width: 600px) { .welcome-section { padding: 18px; } .stat-value { font-size: 28px; } }
+</style>
+<div class="dashboard-container">
+    <!-- Welcome Section -->
+    <div class="welcome-section">
+        <h2>Welcome back, Dr. <?= esc($name ?? 'Doctor') ?></h2>
+        <p>Here's what's happening with your patients today</p>
+    </div>
 
-<div class="spacer"></div>
-<div class="grid grid-4">
-    <div class="card">
-        <h5>👥 Total Patients</h5>
-        <h3><?= esc($totalPatients ?? 125) ?></h3>
-    </div>
-    <div class="card">
-        <h5>📅 Today's Appointments</h5>
-        <h3><?= esc($todaysAppointments ?? 8) ?></h3>
-    </div>
-    <div class="card">
-        <h5>💊 Prescriptions</h5>
-        <h3><?= esc($pendingPrescriptions ?? 15) ?></h3>
-    </div>
-    <div class="card">
-        <h5>🧪 Lab Requests</h5>
-        <h3><?= esc($pendingLabRequests ?? 6) ?></h3>
-    </div>
-</div>
-
-<h2 class="section-title">Quick Actions</h2>
-<div class="grid grid-4">
-    <div class="card">
-        <h5>👥 My Patients</h5>
-        <p>View and manage patient records</p>
-        <div class="actions-row">
-            <a href="<?= base_url('doctor/patients') ?>" class="btn">View Patients</a>
-        </div>
-    </div>
-    <div class="card">
-        <h5>📅 Appointments</h5>
-        <p>Manage today's appointments</p>
-        <div class="actions-row">
-            <a href="<?= base_url('doctor/appointments') ?>" class="btn">View Schedule</a>
-        </div>
-    </div>
-    <div class="card">
-        <h5>💊 Prescriptions</h5>
-        <p>Create and manage prescriptions</p>
-        <div class="actions-row">
-            <a href="<?= base_url('doctor/prescriptions') ?>" class="btn">Manage</a>
-        </div>
-    </div>
-    <div class="card">
-        <h5>🧪 Lab Requests</h5>
-        <p>Order laboratory tests</p>
-        <div class="actions-row">
-            <a href="<?= base_url('doctor/lab-requests') ?>" class="btn">Order Tests</a>
-        </div>
-    </div>
-</div>
-
-<div class="spacer"></div>
-<div class="grid grid-4">
-    <div class="card">
-        <h5>📋 Medical Records</h5>
-        <p>Access patient medical history</p>
-        <div class="actions-row">
-            <a href="<?= base_url('doctor/medical-records') ?>" class="btn">View Records</a>
-        </div>
-    </div>
-    <div class="card">
-        <h5>🩺 Consultations</h5>
-        <p>Conduct patient consultations</p>
-        <div class="actions-row">
-            <a href="<?= base_url('doctor/consultations') ?>" class="btn">Start Consultation</a>
-        </div>
-    </div>
-    <div class="card">
-        <h5>📊 Reports</h5>
-        <p>Generate medical reports</p>
-        <div class="actions-row">
-            <a href="<?= base_url('doctor/reports') ?>" class="btn">Generate</a>
-        </div>
-    </div>
-    <div class="card">
-        <h5>⚙️ Settings</h5>
-        <p>Configure preferences</p>
-        <div class="actions-row">
-            <a href="<?= base_url('doctor/settings') ?>" class="btn">Configure</a>
+    <!-- Stats Grid -->
+    <div class="stats-container">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-title">Today's Appointments</div>
+                <div class="stat-value"><?= $appointmentsCount ?? '0' ?></div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-title">Patients Seen</div>
+                <div class="stat-value"><?= $patientsSeenToday ?? '0' ?></div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-title">Pending Results</div>
+                <div class="stat-value"><?= $pendingLabResults ?? '0' ?></div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-title">Prescriptions</div>
+                <div class="stat-value"><?= $prescriptionsCount ?? '0' ?></div>
+            </div>
         </div>
     </div>
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize tooltips if any
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+});
+</script>
 
 <?= $this->endSection() ?>

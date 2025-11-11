@@ -6,75 +6,101 @@ use CodeIgniter\Model;
 
 class LabRequestModel extends Model
 {
-    protected $table = 'lab_requests';
+    protected $table = 'laboratory';
     protected $primaryKey = 'id';
     protected $useAutoIncrement = true;
     protected $returnType = 'array';
     protected $useSoftDeletes = false;
     protected $protectFields = true;
     protected $allowedFields = [
-        'patient_id', 'doctor_id', 'medical_record_id', 'request_number', 'test_type',
-        'test_category', 'clinical_notes', 'priority', 'status', 'accepted_by',
-        'accepted_at', 'completed_at', 'result_file', 'notes'
+        'test_id', 'doctor_id', 'test_name', 'test_type', 
+        'test_date', 'test_time', 'test_results', 'normal_range', 'status', 
+        'cost', 'notes', 'created_at', 'updated_at'
     ];
 
-    protected bool $allowEmptyInserts = false;
-    protected bool $updateOnlyChanged = true;
-
-    protected array $casts = [
-        'accepted_at' => 'datetime',
-        'completed_at' => 'datetime'
-    ];
-    protected array $castHandlers = [];
-
-    // Dates
     protected $useTimestamps = true;
     protected $dateFormat = 'datetime';
     protected $createdField = 'created_at';
     protected $updatedField = 'updated_at';
 
-    // Validation
     protected $validationRules = [
-        'patient_id' => 'required|is_natural_no_zero',
-        'doctor_id' => 'required|is_natural_no_zero',
-        'test_type' => 'required|max_length[120]',
-        'test_category' => 'required|in_list[blood,urine,imaging,biopsy,culture,other]',
-        'priority' => 'permit_empty|in_list[urgent,high,normal,low]',
-        'status' => 'permit_empty|in_list[requested,accepted,processing,completed,cancelled]'
+        'test_name' => 'required|min_length[2]|max_length[100]',
+        'test_type' => 'required|min_length[2]|max_length[100]',
+        'test_date' => 'required|valid_date'
     ];
 
     protected $validationMessages = [
-        'patient_id' => [
-            'required' => 'Patient is required'
-        ],
-        'doctor_id' => [
-            'required' => 'Doctor is required'
+        'test_name' => [
+            'required' => 'Test name is required',
+            'min_length' => 'Test name must be at least 2 characters',
+            'max_length' => 'Test name cannot exceed 100 characters'
         ],
         'test_type' => [
             'required' => 'Test type is required'
         ]
     ];
 
-    protected $skipValidation = false;
-    protected $cleanValidationRules = true;
-
-    // Callbacks
-    protected $allowCallbacks = true;
-    protected $beforeInsert = ['generateRequestNumber'];
-    protected $afterInsert = [];
-    protected $beforeUpdate = [];
-    protected $afterUpdate = [];
-    protected $beforeFind = [];
-    protected $afterFind = [];
-    protected $beforeDelete = [];
-    protected $afterDelete = [];
-
-    protected function generateRequestNumber(array $data)
+    public function __construct()
     {
-        if (!isset($data['data']['request_number'])) {
-            $data['data']['request_number'] = 'LAB' . date('Y') . str_pad($this->countAll() + 1, 6, '0', STR_PAD_LEFT);
+        parent::__construct();
+    }
+
+    /**
+     * Generate unique request ID
+     */
+    public function generateRequestId()
+    {
+        $date = date('Ymd');
+        $random = str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
+        return 'LR' . $date . $random;
+    }
+
+    /**
+     * Create new lab request
+     */
+    public function createRequest($data)
+    {
+        $data['request_id'] = $this->generateRequestId();
+        $data['status'] = 'pending';
+        $data['created_at'] = date('Y-m-d H:i:s');
+        
+        $insertId = $this->insert($data);
+        
+        if ($insertId) {
+            return $this->find($insertId);
         }
-        return $data;
+        
+        return false;
+    }
+
+    /**
+     * Get lab requests with filters
+     */
+    public function getRequests($filters = [])
+    {
+        $builder = $this->builder();
+        
+        if (isset($filters['status'])) {
+            $builder->where('status', $filters['status']);
+        }
+        
+        if (isset($filters['test_type'])) {
+            $builder->like('test_type', $filters['test_type']);
+        }
+        
+        if (isset($filters['patient_name'])) {
+            $builder->like('test_name', $filters['patient_name']); 
+        }
+        
+        if (isset($filters['date_from'])) {
+            $builder->where('test_date >=', $filters['date_from']);
+        }
+        
+        if (isset($filters['date_to'])) {
+            $builder->where('test_date <=', $filters['date_to']);
+        }
+        
+        return $builder->orderBy('created_at', 'DESC')->findAll();
     }
 
     /**
@@ -82,65 +108,10 @@ class LabRequestModel extends Model
      */
     public function getPendingRequests()
     {
-        return $this->where('status', 'requested')
-                    ->orderBy('priority', 'DESC')
-                    ->orderBy('created_at', 'ASC')
-                    ->findAll();
-    }
-
-    /**
-     * Get requests by status
-     */
-    public function getRequestsByStatus($status)
-    {
-        return $this->where('status', $status)
-                    ->orderBy('created_at', 'DESC')
-                    ->findAll();
-    }
-
-    /**
-     * Get requests with patient and doctor info
-     */
-    public function getRequestsWithDetails($status = null)
-    {
-        $builder = $this->select('lab_requests.*, 
-                                 patients.first_name as patient_first_name,
-                                 patients.last_name as patient_last_name,
-                                 patients.patient_id as patient_number,
-                                 doctors.first_name as doctor_first_name,
-                                 doctors.last_name as doctor_last_name,
-                                 accepter.first_name as accepter_first_name,
-                                 accepter.last_name as accepter_last_name')
-                        ->join('patients', 'patients.id = lab_requests.patient_id')
-                        ->join('users as doctors', 'doctors.id = lab_requests.doctor_id')
-                        ->join('users as accepter', 'accepter.id = lab_requests.accepted_by', 'left')
-                        ->orderBy('lab_requests.created_at', 'DESC');
-
-        if ($status) {
-            $builder->where('lab_requests.status', $status);
-        }
-
-        return $builder->findAll();
-    }
-
-    /**
-     * Get requests by patient
-     */
-    public function getRequestsByPatient($patientId)
-    {
-        return $this->where('patient_id', $patientId)
-                    ->orderBy('created_at', 'DESC')
-                    ->findAll();
-    }
-
-    /**
-     * Get requests by doctor
-     */
-    public function getRequestsByDoctor($doctorId)
-    {
-        return $this->where('doctor_id', $doctorId)
-                    ->orderBy('created_at', 'DESC')
-                    ->findAll();
+        return $this->where('status', 'pending')
+                   ->orderBy('priority', 'DESC')
+                   ->orderBy('test_date', 'ASC')
+                   ->findAll();
     }
 
     /**
@@ -148,111 +119,58 @@ class LabRequestModel extends Model
      */
     public function getUrgentRequests()
     {
-        return $this->select('lab_requests.*, 
-                             patients.first_name as patient_first_name,
-                             patients.last_name as patient_last_name,
-                             patients.patient_id as patient_number')
-                    ->join('patients', 'patients.id = lab_requests.patient_id')
-                    ->whereIn('priority', ['urgent', 'high'])
-                    ->whereIn('status', ['requested', 'accepted', 'processing'])
-                    ->orderBy('priority', 'DESC')
-                    ->orderBy('created_at', 'ASC')
-                    ->findAll();
+        return $this->where('priority', 'urgent')
+                   ->orWhere('priority', 'stat')
+                   ->orderBy('test_date', 'ASC')
+                   ->findAll();
     }
 
     /**
-     * Accept request
+     * Get today's requests
      */
-    public function acceptRequest($requestId, $acceptedBy)
+    public function getTodaysRequests()
     {
-        return $this->update($requestId, [
-            'status' => 'accepted',
-            'accepted_by' => $acceptedBy,
-            'accepted_at' => date('Y-m-d H:i:s')
-        ]);
+        return $this->where('test_date', date('Y-m-d'))
+                   ->orderBy('priority', 'DESC')
+                   ->findAll();
     }
 
     /**
-     * Complete request
+     * Update request status
      */
-    public function completeRequest($requestId, $resultFile = null, $notes = null)
+    public function updateStatus($id, $status)
     {
-        $updateData = [
-            'status' => 'completed',
-            'completed_at' => date('Y-m-d H:i:s')
-        ];
-
-        if ($resultFile) {
-            $updateData['result_file'] = $resultFile;
-        }
-
-        if ($notes) {
-            $updateData['notes'] = $notes;
-        }
-
-        return $this->update($requestId, $updateData);
-    }
-
-    /**
-     * Get requests by category
-     */
-    public function getRequestsByCategory($category)
-    {
-        return $this->where('test_category', $category)
-                    ->orderBy('created_at', 'DESC')
-                    ->findAll();
+        return $this->update($id, ['status' => $status, 'updated_at' => date('Y-m-d H:i:s')]);
     }
 
     /**
      * Search requests
      */
-    public function searchRequests($searchTerm)
+    public function searchRequests($query)
     {
-        return $this->select('lab_requests.*, 
-                             patients.first_name as patient_first_name,
-                             patients.last_name as patient_last_name,
-                             patients.patient_id as patient_number')
-                    ->join('patients', 'patients.id = lab_requests.patient_id')
-                    ->like('patients.first_name', $searchTerm)
-                    ->orLike('patients.last_name', $searchTerm)
-                    ->orLike('patients.patient_id', $searchTerm)
-                    ->orLike('lab_requests.request_number', $searchTerm)
-                    ->orLike('lab_requests.test_type', $searchTerm)
-                    ->orderBy('lab_requests.created_at', 'DESC')
-                    ->findAll();
+        return $this->groupStart()
+                   ->like('test_name', $query)
+                   ->orLike('request_id', $query)
+                   ->orLike('test_type', $query)
+                   ->groupEnd()
+                   ->orderBy('created_at', 'DESC')
+                   ->findAll();
     }
 
     /**
-     * Get request statistics
+     * Get statistics
      */
-    public function getRequestStats($startDate = null, $endDate = null)
+    public function getStats()
     {
-        $builder = $this->select('status, test_category, COUNT(*) as count')
-                        ->groupBy(['status', 'test_category']);
-
-        if ($startDate && $endDate) {
-            $builder->where('created_at >=', $startDate)
-                   ->where('created_at <=', $endDate);
-        }
-
-        return $builder->findAll();
-    }
-
-    /**
-     * Get overdue requests
-     */
-    public function getOverdueRequests($hours = 24)
-    {
-        $overdueTime = date('Y-m-d H:i:s', strtotime("-{$hours} hours"));
+        $stats = [];
         
-        return $this->select('lab_requests.*, 
-                             patients.first_name as patient_first_name,
-                             patients.last_name as patient_last_name,
-                             patients.patient_id as patient_number')
-                    ->join('patients', 'patients.id = lab_requests.patient_id')
-                    ->where('lab_requests.created_at <', $overdueTime)
-                    ->whereIn('lab_requests.status', ['requested', 'accepted', 'processing'])
-                    ->orderBy('lab_requests.created_at', 'ASC')
-                    ->findAll();
+        $stats['total'] = $this->countAll();
+        $stats['pending'] = $this->where('status', 'pending')->countAllResults(false);
+        $stats['completed'] = $this->where('status', 'completed')->countAllResults(false);
+        $stats['in_progress'] = $this->where('status', 'in_progress')->countAllResults(false);
+        $stats['urgent'] = $this->where('priority', 'urgent')->orWhere('priority', 'stat')->countAllResults(false);
+        $stats['today'] = $this->where('test_date', date('Y-m-d'))->countAllResults(false);
+        
+        return $stats;
     }
 }

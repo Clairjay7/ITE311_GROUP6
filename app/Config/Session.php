@@ -8,17 +8,6 @@ use CodeIgniter\Session\Handlers\FileHandler;
 
 class Session extends BaseConfig
 {
-    public function __construct()
-    {
-        parent::__construct();
-        
-        // Ensure session path is absolute and writable
-        $sessionPath = FCPATH . 'writable/session';
-        if (!is_dir($sessionPath)) {
-            mkdir($sessionPath, 0755, true);
-        }
-        $this->savePath = $sessionPath;
-    }
     /**
      * --------------------------------------------------------------------------
      * Session Driver
@@ -32,7 +21,7 @@ class Session extends BaseConfig
      *
      * @var class-string<BaseHandler>
      */
-    public string $driver = FileHandler::class;
+    public string $driver = 'CodeIgniter\Session\Handlers\FileHandler';
 
     /**
      * --------------------------------------------------------------------------
@@ -64,11 +53,10 @@ class Session extends BaseConfig
      * WARNING: Only absolute paths are supported!
      *
      * For the 'database' driver, it's a table name.
-     * Please read up the manual for the format with other session drivers.
      *
-     * IMPORTANT: You are REQUIRED to set a valid save path!
+     * @var string|array
      */
-    public string $savePath = WRITEPATH . 'session';
+    public $savePath;
 
     /**
      * --------------------------------------------------------------------------
@@ -135,4 +123,15 @@ class Session extends BaseConfig
      * seconds.
      */
     public int $lockMaxRetries = 300;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->savePath = str_replace('/', DIRECTORY_SEPARATOR, WRITEPATH . 'sessions');
+        
+        // Create the directory if it doesn't exist
+        if (!is_dir($this->savePath)) {
+            mkdir($this->savePath, 0700, true);
+        }
+    }
 }

@@ -1,60 +1,17 @@
-DEBUG - 2025-09-05 16:16:56 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2025-09-05 16:17:05 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2025-09-05 16:17:05 --> Raw POST data: username=superadmin&password=Admin%40123
-DEBUG - 2025-09-05 16:17:05 --> Login attempt - Username: superadmin
-DEBUG - 2025-09-05 16:17:05 --> POST data: Array
-(
-    [username] => superadmin
-    [password] => Admin@123
-)
-
-DEBUG - 2025-09-05 16:17:05 --> SQL Query: SELECT *
-FROM `users`
-WHERE `username` = 'superadmin'
-AND `users`.`deleted_at` IS NULL
- LIMIT 1
-DEBUG - 2025-09-05 16:17:05 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2025-09-05 16:17:14 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2025-09-05 16:17:14 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2025-09-05 16:17:25 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2025-09-05 16:17:25 --> Raw POST data: username=doctor1&password=Doctor%40123
-DEBUG - 2025-09-05 16:17:25 --> Login attempt - Username: doctor1
-DEBUG - 2025-09-05 16:17:25 --> POST data: Array
-(
-    [username] => doctor1
-    [password] => Doctor@123
-)
-
-DEBUG - 2025-09-05 16:17:25 --> SQL Query: SELECT *
-FROM `users`
-WHERE `username` = 'doctor1'
-AND `users`.`deleted_at` IS NULL
- LIMIT 1
-DEBUG - 2025-09-05 16:17:26 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2025-09-05 16:19:11 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2025-09-05 16:19:11 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2025-09-05 16:19:12 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2025-09-05 16:19:23 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2025-09-05 16:19:23 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2025-09-05 16:19:33 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2025-09-05 16:19:44 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2025-09-05 16:19:44 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2025-09-05 16:19:48 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2025-09-05 16:19:48 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2025-09-05 16:20:35 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2025-09-05 16:20:35 --> Raw POST data: username=itstaff1&password=ITstaff%40123
-DEBUG - 2025-09-05 16:20:35 --> Login attempt - Username: itstaff1
-DEBUG - 2025-09-05 16:20:35 --> POST data: Array
-(
-    [username] => itstaff1
-    [password] => ITstaff@123
-)
-
-DEBUG - 2025-09-05 16:20:35 --> SQL Query: SELECT *
-FROM `users`
-WHERE `username` = 'itstaff1'
-AND `users`.`deleted_at` IS NULL
- LIMIT 1
-DEBUG - 2025-09-05 16:20:35 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2025-09-05 16:27:48 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2025-09-05 16:27:48 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+CRITICAL - 2025-09-05 12:34:02 --> ErrorException: unlink(C:\xampp\htdocs\WebSystemITE-G9\writable\debugbar/debugbar_1757074640.641894.json): No such file or directory
+[Method: GET, Route: /]
+in SYSTEMPATH\Debug\Toolbar\Collectors\History.php on line 82.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->errorHandler(2, 'unlink(C:\\xampp\\htdocs\\WebSystemITE-G9\\writable\\debugbar/debugbar_1757074640.641894.json): No such file or directory', 'C:\\xampp\\htdocs\\WebSystemITE-G9\\system\\Debug\\Toolbar\\Collectors\\History.php', 82)
+ 2 SYSTEMPATH\Debug\Toolbar\Collectors\History.php(82): unlink('C:\\xampp\\htdocs\\WebSystemITE-G9\\writable\\debugbar/debugbar_1757074640.641894.json')
+ 3 SYSTEMPATH\Debug\Toolbar.php(519): CodeIgniter\Debug\Toolbar\Collectors\History->setFiles('1757075639.073591', 20)
+ 4 SYSTEMPATH\Debug\Toolbar.php(496): CodeIgniter\Debug\Toolbar->format([...], 'html')
+ 5 APPPATH\Config\Events.php(47): CodeIgniter\Debug\Toolbar->respond()
+ 6 SYSTEMPATH\Events\Events.php(152): CodeIgniter\Events\Events::Config\{closure}()
+ 7 SYSTEMPATH\CodeIgniter.php(339): CodeIgniter\Events\Events::trigger('pre_system')
+ 8 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 9 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+10 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2025-09-05 18:35:09 --> ErrorException: Maximum execution time of 120 seconds exceeded
+[Method: POST, Route: auth/process_login]
+in SYSTEMPATH\ThirdParty\Kint\Parser\ToStringPlugin.php on line 38.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->shutdownHandler()

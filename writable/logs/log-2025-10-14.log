@@ -1,594 +1,1098 @@
-DEBUG - 2025-10-14 23:28:31 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2025-10-14 23:28:36 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2025-10-14 23:28:36 --> Raw POST data: username=superadmin&password=Admin%40123
-DEBUG - 2025-10-14 23:28:36 --> Login attempt - Username: superadmin
-DEBUG - 2025-10-14 23:28:36 --> POST data: Array
-(
-    [username] => superadmin
-    [password] => Admin@123
-)
-
-DEBUG - 2025-10-14 23:28:38 --> SQL Query: SELECT *
-FROM `users`
-WHERE `username` = 'superadmin'
- LIMIT 1
-DEBUG - 2025-10-14 23:28:38 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-ERROR - 2025-10-14 23:28:40 --> mysqli_sql_exception: Table 'hospital_management.roles' doesn't exist in F:\xammp\htdocs\Group6\system\Database\MySQLi\Connection.php:327
+ERROR - 2025-10-14 09:07:05 --> mysqli_sql_exception: Unknown column 'date' in 'where clause' in C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php:327
 Stack trace:
-#0 F:\xammp\htdocs\Group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
-#1 F:\xammp\htdocs\Group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
-#2 F:\xammp\htdocs\Group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
-#3 F:\xammp\htdocs\Group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
-#4 F:\xammp\htdocs\Group6\system\Model.php(286): CodeIgniter\Database\BaseBuilder->get()
-#5 F:\xammp\htdocs\Group6\system\BaseModel.php(677): CodeIgniter\Model->doFindAll(0, 0)
-#6 F:\xammp\htdocs\Group6\app\Models\RoleModel.php(67): CodeIgniter\BaseModel->findAll()
-#7 F:\xammp\htdocs\Group6\app\Controllers\SuperAdmin.php(1211): App\Models\RoleModel->getActiveRoles()
-#8 F:\xammp\htdocs\Group6\system\CodeIgniter.php(933): App\Controllers\SuperAdmin->roles()
-#9 F:\xammp\htdocs\Group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\SuperAdmin))
-#10 F:\xammp\htdocs\Group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
-#11 F:\xammp\htdocs\Group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
-#12 F:\xammp\htdocs\Group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
-#13 F:\xammp\htdocs\Group6\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#0 C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT COUNT(*)...', 0)
+#1 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT COUNT(*)...')
+#2 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT COUNT(*)...')
+#3 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseBuilder.php(1733): CodeIgniter\Database\BaseConnection->query('SELECT COUNT(*)...', Array, false)
+#4 C:\xampp\htdocs\WebSystemITE-G9\system\Model.php(675): CodeIgniter\Database\BaseBuilder->countAllResults(true)
+#5 C:\xampp\htdocs\WebSystemITE-G9\app\Controllers\Dashboard.php(55): CodeIgniter\Model->countAllResults()
+#6 C:\xampp\htdocs\WebSystemITE-G9\app\Controllers\Dashboard.php(18): App\Controllers\Dashboard->buildDashboardData('admin', 'admin')
+#7 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(933): App\Controllers\Dashboard->index()
+#8 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Dashboard))
+#9 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#10 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#11 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#12 C:\xampp\htdocs\WebSystemITE-G9\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#13 {main}
+ERROR - 2025-10-14 09:07:05 --> Error loading dashboard data: Unknown column 'date' in 'where clause'
+ERROR - 2025-10-14 14:04:30 --> mysqli_sql_exception: Unknown column 'date' in 'where clause' in C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT COUNT(*)...', 0)
+#1 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT COUNT(*)...')
+#2 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT COUNT(*)...')
+#3 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseBuilder.php(1733): CodeIgniter\Database\BaseConnection->query('SELECT COUNT(*)...', Array, false)
+#4 C:\xampp\htdocs\WebSystemITE-G9\system\Model.php(675): CodeIgniter\Database\BaseBuilder->countAllResults(true)
+#5 C:\xampp\htdocs\WebSystemITE-G9\app\Controllers\Dashboard.php(55): CodeIgniter\Model->countAllResults()
+#6 C:\xampp\htdocs\WebSystemITE-G9\app\Controllers\Dashboard.php(18): App\Controllers\Dashboard->buildDashboardData('admin', 'admin')
+#7 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(933): App\Controllers\Dashboard->index()
+#8 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Dashboard))
+#9 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#10 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#11 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#12 C:\xampp\htdocs\WebSystemITE-G9\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#13 {main}
+ERROR - 2025-10-14 14:04:30 --> Error loading dashboard data: Unknown column 'date' in 'where clause'
+ERROR - 2025-10-14 14:04:50 --> mysqli_sql_exception: Unknown column 'appointment_id' in 'field list' in C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `ap...', 0)
+#1 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `ap...')
+#2 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `ap...')
+#3 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `ap...', Array, false)
+#4 C:\xampp\htdocs\WebSystemITE-G9\system\Model.php(394): CodeIgniter\Database\BaseBuilder->insert()
+#5 C:\xampp\htdocs\WebSystemITE-G9\system\BaseModel.php(838): CodeIgniter\Model->doInsert(Array)
+#6 C:\xampp\htdocs\WebSystemITE-G9\system\Model.php(797): CodeIgniter\BaseModel->insert(Array, true)
+#7 C:\xampp\htdocs\WebSystemITE-G9\app\Controllers\Appointment.php(198): CodeIgniter\Model->insert(Array)
+#8 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(933): App\Controllers\Appointment->create()
+#9 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Appointment))
+#10 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#11 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#12 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#13 C:\xampp\htdocs\WebSystemITE-G9\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
 #14 {main}
-ERROR - 2025-10-14 23:28:40 --> Failed to get roles: Table 'hospital_management.roles' doesn't exist
-DEBUG - 2025-10-14 23:28:40 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-ERROR - 2025-10-14 23:28:43 --> Roles page error: Invalid file: "SuperAdmin/roles.php"
-CRITICAL - 2025-10-14 23:28:43 --> CodeIgniter\View\Exceptions\ViewException: Invalid file: "SuperAdmin/roles.php"
-[Method: GET, Route: super-admin/roles]
-in SYSTEMPATH\Exceptions\FrameworkException.php on line 39.
- 1 SYSTEMPATH\View\View.php(214): CodeIgniter\Exceptions\FrameworkException::forInvalidFile('SuperAdmin/roles.php')
- 2 SYSTEMPATH\Common.php(1167): CodeIgniter\View\View->render('SuperAdmin/roles', [], true)
- 3 APPPATH\Controllers\SuperAdmin.php(55): view('SuperAdmin/roles', [...])
- 4 APPPATH\Controllers\SuperAdmin.php(1221): App\Controllers\SuperAdmin->render('SuperAdmin/roles', [...])
- 5 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\SuperAdmin->roles()
- 6 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\SuperAdmin))
+CRITICAL - 2025-10-14 14:04:50 --> CodeIgniter\Database\Exceptions\DatabaseException: Unknown column 'appointment_id' in 'field list'
+[Method: POST, Route: appointments/create]
+in SYSTEMPATH\Database\BaseConnection.php on line 684.
+ 1 SYSTEMPATH\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `appointments` (`patient_id`, `doctor_id`, `appointment_date`, `appointment_time`, `appointment_type`, `reason`, `status`, `created_at`, `updated_at`, `appointment_id`) VALUES (:patient_id:, :doctor_id:, :appointment_date:, :appointment_time:, :appointment_type:, :reason:, :status:, :created_at:, :updated_at:, :appointment_id:)', [...], false)
+ 2 SYSTEMPATH\Model.php(394): CodeIgniter\Database\BaseBuilder->insert()
+ 3 SYSTEMPATH\BaseModel.php(838): CodeIgniter\Model->doInsert([...])
+ 4 SYSTEMPATH\Model.php(797): CodeIgniter\BaseModel->insert([...], true)
+ 5 APPPATH\Controllers\Appointment.php(198): CodeIgniter\Model->insert([...])
+ 6 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Appointment->create()
+ 7 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Appointment))
+ 8 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2025-10-14 14:04:50 --> [Caused by] CodeIgniter\Database\Exceptions\DatabaseException: Unknown column 'appointment_id' in 'field list'
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 332.
+ 1 SYSTEMPATH\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `appointments` (`patient_id`, `doctor_id`, `appointment_date`, `appointment_time`, `appointment_type`, `reason`, `status`, `created_at`, `updated_at`, `appointment_id`) VALUES (\'1\', \'24\', \'2025-10-15\', \'14:00:00\', \'consultation\', \'test\', \'scheduled\', \'2025-10-14 14:04:50\', \'2025-10-14 14:04:50\', \'APT202510141119\')')
+ 2 SYSTEMPATH\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `appointments` (`patient_id`, `doctor_id`, `appointment_date`, `appointment_time`, `appointment_type`, `reason`, `status`, `created_at`, `updated_at`, `appointment_id`) VALUES (\'1\', \'24\', \'2025-10-15\', \'14:00:00\', \'consultation\', \'test\', \'scheduled\', \'2025-10-14 14:04:50\', \'2025-10-14 14:04:50\', \'APT202510141119\')')
+ 3 SYSTEMPATH\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `appointments` (`patient_id`, `doctor_id`, `appointment_date`, `appointment_time`, `appointment_type`, `reason`, `status`, `created_at`, `updated_at`, `appointment_id`) VALUES (:patient_id:, :doctor_id:, :appointment_date:, :appointment_time:, :appointment_type:, :reason:, :status:, :created_at:, :updated_at:, :appointment_id:)', [...], false)
+ 4 SYSTEMPATH\Model.php(394): CodeIgniter\Database\BaseBuilder->insert()
+ 5 SYSTEMPATH\BaseModel.php(838): CodeIgniter\Model->doInsert([...])
+ 6 SYSTEMPATH\Model.php(797): CodeIgniter\BaseModel->insert([...], true)
+ 7 APPPATH\Controllers\Appointment.php(198): CodeIgniter\Model->insert([...])
+ 8 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Appointment->create()
+ 9 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Appointment))
+10 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+11 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+12 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+13 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2025-10-14 14:04:50 --> [Caused by] mysqli_sql_exception: Unknown column 'appointment_id' in 'field list'
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 327.
+ 1 SYSTEMPATH\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `appointments` (`patient_id`, `doctor_id`, `appointment_date`, `appointment_time`, `appointment_type`, `reason`, `status`, `created_at`, `updated_at`, `appointment_id`) VALUES (\'1\', \'24\', \'2025-10-15\', \'14:00:00\', \'consultation\', \'test\', \'scheduled\', \'2025-10-14 14:04:50\', \'2025-10-14 14:04:50\', \'APT202510141119\')', 0)
+ 2 SYSTEMPATH\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `appointments` (`patient_id`, `doctor_id`, `appointment_date`, `appointment_time`, `appointment_type`, `reason`, `status`, `created_at`, `updated_at`, `appointment_id`) VALUES (\'1\', \'24\', \'2025-10-15\', \'14:00:00\', \'consultation\', \'test\', \'scheduled\', \'2025-10-14 14:04:50\', \'2025-10-14 14:04:50\', \'APT202510141119\')')
+ 3 SYSTEMPATH\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `appointments` (`patient_id`, `doctor_id`, `appointment_date`, `appointment_time`, `appointment_type`, `reason`, `status`, `created_at`, `updated_at`, `appointment_id`) VALUES (\'1\', \'24\', \'2025-10-15\', \'14:00:00\', \'consultation\', \'test\', \'scheduled\', \'2025-10-14 14:04:50\', \'2025-10-14 14:04:50\', \'APT202510141119\')')
+ 4 SYSTEMPATH\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `appointments` (`patient_id`, `doctor_id`, `appointment_date`, `appointment_time`, `appointment_type`, `reason`, `status`, `created_at`, `updated_at`, `appointment_id`) VALUES (:patient_id:, :doctor_id:, :appointment_date:, :appointment_time:, :appointment_type:, :reason:, :status:, :created_at:, :updated_at:, :appointment_id:)', [...], false)
+ 5 SYSTEMPATH\Model.php(394): CodeIgniter\Database\BaseBuilder->insert()
+ 6 SYSTEMPATH\BaseModel.php(838): CodeIgniter\Model->doInsert([...])
+ 7 SYSTEMPATH\Model.php(797): CodeIgniter\BaseModel->insert([...], true)
+ 8 APPPATH\Controllers\Appointment.php(198): CodeIgniter\Model->insert([...])
+ 9 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Appointment->create()
+10 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Appointment))
+11 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+12 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+13 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+14 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ERROR - 2025-10-14 14:05:51 --> mysqli_sql_exception: Unknown column 'appointment_id' in 'field list' in C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `ap...', 0)
+#1 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `ap...')
+#2 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `ap...')
+#3 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `ap...', Array, false)
+#4 C:\xampp\htdocs\WebSystemITE-G9\system\Model.php(394): CodeIgniter\Database\BaseBuilder->insert()
+#5 C:\xampp\htdocs\WebSystemITE-G9\system\BaseModel.php(838): CodeIgniter\Model->doInsert(Array)
+#6 C:\xampp\htdocs\WebSystemITE-G9\system\Model.php(797): CodeIgniter\BaseModel->insert(Array, true)
+#7 C:\xampp\htdocs\WebSystemITE-G9\app\Controllers\Appointment.php(198): CodeIgniter\Model->insert(Array)
+#8 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(933): App\Controllers\Appointment->create()
+#9 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Appointment))
+#10 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#11 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#12 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#13 C:\xampp\htdocs\WebSystemITE-G9\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#14 {main}
+CRITICAL - 2025-10-14 14:05:51 --> CodeIgniter\Database\Exceptions\DatabaseException: Unknown column 'appointment_id' in 'field list'
+[Method: POST, Route: appointments/create]
+in SYSTEMPATH\Database\BaseConnection.php on line 684.
+ 1 SYSTEMPATH\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `appointments` (`patient_id`, `doctor_id`, `appointment_date`, `appointment_time`, `appointment_type`, `reason`, `status`, `created_at`, `updated_at`, `appointment_id`) VALUES (:patient_id:, :doctor_id:, :appointment_date:, :appointment_time:, :appointment_type:, :reason:, :status:, :created_at:, :updated_at:, :appointment_id:)', [...], false)
+ 2 SYSTEMPATH\Model.php(394): CodeIgniter\Database\BaseBuilder->insert()
+ 3 SYSTEMPATH\BaseModel.php(838): CodeIgniter\Model->doInsert([...])
+ 4 SYSTEMPATH\Model.php(797): CodeIgniter\BaseModel->insert([...], true)
+ 5 APPPATH\Controllers\Appointment.php(198): CodeIgniter\Model->insert([...])
+ 6 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Appointment->create()
+ 7 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Appointment))
+ 8 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2025-10-14 14:05:51 --> [Caused by] CodeIgniter\Database\Exceptions\DatabaseException: Unknown column 'appointment_id' in 'field list'
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 332.
+ 1 SYSTEMPATH\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `appointments` (`patient_id`, `doctor_id`, `appointment_date`, `appointment_time`, `appointment_type`, `reason`, `status`, `created_at`, `updated_at`, `appointment_id`) VALUES (\'1\', \'24\', \'2025-10-15\', \'13:00:00\', \'follow_up\', \'test\', \'scheduled\', \'2025-10-14 14:05:51\', \'2025-10-14 14:05:51\', \'APT202510146812\')')
+ 2 SYSTEMPATH\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `appointments` (`patient_id`, `doctor_id`, `appointment_date`, `appointment_time`, `appointment_type`, `reason`, `status`, `created_at`, `updated_at`, `appointment_id`) VALUES (\'1\', \'24\', \'2025-10-15\', \'13:00:00\', \'follow_up\', \'test\', \'scheduled\', \'2025-10-14 14:05:51\', \'2025-10-14 14:05:51\', \'APT202510146812\')')
+ 3 SYSTEMPATH\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `appointments` (`patient_id`, `doctor_id`, `appointment_date`, `appointment_time`, `appointment_type`, `reason`, `status`, `created_at`, `updated_at`, `appointment_id`) VALUES (:patient_id:, :doctor_id:, :appointment_date:, :appointment_time:, :appointment_type:, :reason:, :status:, :created_at:, :updated_at:, :appointment_id:)', [...], false)
+ 4 SYSTEMPATH\Model.php(394): CodeIgniter\Database\BaseBuilder->insert()
+ 5 SYSTEMPATH\BaseModel.php(838): CodeIgniter\Model->doInsert([...])
+ 6 SYSTEMPATH\Model.php(797): CodeIgniter\BaseModel->insert([...], true)
+ 7 APPPATH\Controllers\Appointment.php(198): CodeIgniter\Model->insert([...])
+ 8 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Appointment->create()
+ 9 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Appointment))
+10 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+11 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+12 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+13 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2025-10-14 14:05:51 --> [Caused by] mysqli_sql_exception: Unknown column 'appointment_id' in 'field list'
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 327.
+ 1 SYSTEMPATH\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `appointments` (`patient_id`, `doctor_id`, `appointment_date`, `appointment_time`, `appointment_type`, `reason`, `status`, `created_at`, `updated_at`, `appointment_id`) VALUES (\'1\', \'24\', \'2025-10-15\', \'13:00:00\', \'follow_up\', \'test\', \'scheduled\', \'2025-10-14 14:05:51\', \'2025-10-14 14:05:51\', \'APT202510146812\')', 0)
+ 2 SYSTEMPATH\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `appointments` (`patient_id`, `doctor_id`, `appointment_date`, `appointment_time`, `appointment_type`, `reason`, `status`, `created_at`, `updated_at`, `appointment_id`) VALUES (\'1\', \'24\', \'2025-10-15\', \'13:00:00\', \'follow_up\', \'test\', \'scheduled\', \'2025-10-14 14:05:51\', \'2025-10-14 14:05:51\', \'APT202510146812\')')
+ 3 SYSTEMPATH\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `appointments` (`patient_id`, `doctor_id`, `appointment_date`, `appointment_time`, `appointment_type`, `reason`, `status`, `created_at`, `updated_at`, `appointment_id`) VALUES (\'1\', \'24\', \'2025-10-15\', \'13:00:00\', \'follow_up\', \'test\', \'scheduled\', \'2025-10-14 14:05:51\', \'2025-10-14 14:05:51\', \'APT202510146812\')')
+ 4 SYSTEMPATH\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `appointments` (`patient_id`, `doctor_id`, `appointment_date`, `appointment_time`, `appointment_type`, `reason`, `status`, `created_at`, `updated_at`, `appointment_id`) VALUES (:patient_id:, :doctor_id:, :appointment_date:, :appointment_time:, :appointment_type:, :reason:, :status:, :created_at:, :updated_at:, :appointment_id:)', [...], false)
+ 5 SYSTEMPATH\Model.php(394): CodeIgniter\Database\BaseBuilder->insert()
+ 6 SYSTEMPATH\BaseModel.php(838): CodeIgniter\Model->doInsert([...])
+ 7 SYSTEMPATH\Model.php(797): CodeIgniter\BaseModel->insert([...], true)
+ 8 APPPATH\Controllers\Appointment.php(198): CodeIgniter\Model->insert([...])
+ 9 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Appointment->create()
+10 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Appointment))
+11 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+12 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+13 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+14 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ERROR - 2025-10-14 14:16:40 --> mysqli_sql_exception: Cannot add or update a child row: a foreign key constraint fails (`hms_g9`.`appointments`, CONSTRAINT `appointments_doctor_id_foreign` FOREIGN KEY (`doctor_id`) REFERENCES `doctors` (`id`) ON DELETE CASCADE ON UPDATE CASCADE) in C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `ap...', 0)
+#1 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `ap...')
+#2 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `ap...')
+#3 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `ap...', Array, false)
+#4 C:\xampp\htdocs\WebSystemITE-G9\system\Model.php(394): CodeIgniter\Database\BaseBuilder->insert()
+#5 C:\xampp\htdocs\WebSystemITE-G9\system\BaseModel.php(838): CodeIgniter\Model->doInsert(Array)
+#6 C:\xampp\htdocs\WebSystemITE-G9\system\Model.php(797): CodeIgniter\BaseModel->insert(Array, true)
+#7 C:\xampp\htdocs\WebSystemITE-G9\app\Controllers\Appointment.php(198): CodeIgniter\Model->insert(Array)
+#8 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(933): App\Controllers\Appointment->create()
+#9 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Appointment))
+#10 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#11 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#12 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#13 C:\xampp\htdocs\WebSystemITE-G9\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#14 {main}
+CRITICAL - 2025-10-14 14:16:40 --> CodeIgniter\Database\Exceptions\DatabaseException: Cannot add or update a child row: a foreign key constraint fails (`hms_g9`.`appointments`, CONSTRAINT `appointments_doctor_id_foreign` FOREIGN KEY (`doctor_id`) REFERENCES `doctors` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+[Method: POST, Route: appointments/create]
+in SYSTEMPATH\Database\BaseConnection.php on line 684.
+ 1 SYSTEMPATH\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `appointments` (`patient_id`, `doctor_id`, `appointment_date`, `appointment_time`, `appointment_type`, `reason`, `status`, `created_at`, `updated_at`) VALUES (:patient_id:, :doctor_id:, :appointment_date:, :appointment_time:, :appointment_type:, :reason:, :status:, :created_at:, :updated_at:)', [...], false)
+ 2 SYSTEMPATH\Model.php(394): CodeIgniter\Database\BaseBuilder->insert()
+ 3 SYSTEMPATH\BaseModel.php(838): CodeIgniter\Model->doInsert([...])
+ 4 SYSTEMPATH\Model.php(797): CodeIgniter\BaseModel->insert([...], true)
+ 5 APPPATH\Controllers\Appointment.php(198): CodeIgniter\Model->insert([...])
+ 6 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Appointment->create()
+ 7 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Appointment))
+ 8 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2025-10-14 14:16:40 --> [Caused by] CodeIgniter\Database\Exceptions\DatabaseException: Cannot add or update a child row: a foreign key constraint fails (`hms_g9`.`appointments`, CONSTRAINT `appointments_doctor_id_foreign` FOREIGN KEY (`doctor_id`) REFERENCES `doctors` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 332.
+ 1 SYSTEMPATH\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `appointments` (`patient_id`, `doctor_id`, `appointment_date`, `appointment_time`, `appointment_type`, `reason`, `status`, `created_at`, `updated_at`) VALUES (\'1\', \'24\', \'2025-10-15\', \'13:00:00\', \'follow_up\', \'test\', \'scheduled\', \'2025-10-14 14:16:40\', \'2025-10-14 14:16:40\')')
+ 2 SYSTEMPATH\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `appointments` (`patient_id`, `doctor_id`, `appointment_date`, `appointment_time`, `appointment_type`, `reason`, `status`, `created_at`, `updated_at`) VALUES (\'1\', \'24\', \'2025-10-15\', \'13:00:00\', \'follow_up\', \'test\', \'scheduled\', \'2025-10-14 14:16:40\', \'2025-10-14 14:16:40\')')
+ 3 SYSTEMPATH\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `appointments` (`patient_id`, `doctor_id`, `appointment_date`, `appointment_time`, `appointment_type`, `reason`, `status`, `created_at`, `updated_at`) VALUES (:patient_id:, :doctor_id:, :appointment_date:, :appointment_time:, :appointment_type:, :reason:, :status:, :created_at:, :updated_at:)', [...], false)
+ 4 SYSTEMPATH\Model.php(394): CodeIgniter\Database\BaseBuilder->insert()
+ 5 SYSTEMPATH\BaseModel.php(838): CodeIgniter\Model->doInsert([...])
+ 6 SYSTEMPATH\Model.php(797): CodeIgniter\BaseModel->insert([...], true)
+ 7 APPPATH\Controllers\Appointment.php(198): CodeIgniter\Model->insert([...])
+ 8 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Appointment->create()
+ 9 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Appointment))
+10 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+11 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+12 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+13 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2025-10-14 14:16:40 --> [Caused by] mysqli_sql_exception: Cannot add or update a child row: a foreign key constraint fails (`hms_g9`.`appointments`, CONSTRAINT `appointments_doctor_id_foreign` FOREIGN KEY (`doctor_id`) REFERENCES `doctors` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 327.
+ 1 SYSTEMPATH\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `appointments` (`patient_id`, `doctor_id`, `appointment_date`, `appointment_time`, `appointment_type`, `reason`, `status`, `created_at`, `updated_at`) VALUES (\'1\', \'24\', \'2025-10-15\', \'13:00:00\', \'follow_up\', \'test\', \'scheduled\', \'2025-10-14 14:16:40\', \'2025-10-14 14:16:40\')', 0)
+ 2 SYSTEMPATH\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `appointments` (`patient_id`, `doctor_id`, `appointment_date`, `appointment_time`, `appointment_type`, `reason`, `status`, `created_at`, `updated_at`) VALUES (\'1\', \'24\', \'2025-10-15\', \'13:00:00\', \'follow_up\', \'test\', \'scheduled\', \'2025-10-14 14:16:40\', \'2025-10-14 14:16:40\')')
+ 3 SYSTEMPATH\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `appointments` (`patient_id`, `doctor_id`, `appointment_date`, `appointment_time`, `appointment_type`, `reason`, `status`, `created_at`, `updated_at`) VALUES (\'1\', \'24\', \'2025-10-15\', \'13:00:00\', \'follow_up\', \'test\', \'scheduled\', \'2025-10-14 14:16:40\', \'2025-10-14 14:16:40\')')
+ 4 SYSTEMPATH\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `appointments` (`patient_id`, `doctor_id`, `appointment_date`, `appointment_time`, `appointment_type`, `reason`, `status`, `created_at`, `updated_at`) VALUES (:patient_id:, :doctor_id:, :appointment_date:, :appointment_time:, :appointment_type:, :reason:, :status:, :created_at:, :updated_at:)', [...], false)
+ 5 SYSTEMPATH\Model.php(394): CodeIgniter\Database\BaseBuilder->insert()
+ 6 SYSTEMPATH\BaseModel.php(838): CodeIgniter\Model->doInsert([...])
+ 7 SYSTEMPATH\Model.php(797): CodeIgniter\BaseModel->insert([...], true)
+ 8 APPPATH\Controllers\Appointment.php(198): CodeIgniter\Model->insert([...])
+ 9 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Appointment->create()
+10 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Appointment))
+11 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+12 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+13 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+14 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ERROR - 2025-10-14 14:17:54 --> mysqli_sql_exception: Cannot add or update a child row: a foreign key constraint fails (`hms_g9`.`appointments`, CONSTRAINT `appointments_doctor_id_foreign` FOREIGN KEY (`doctor_id`) REFERENCES `doctors` (`id`) ON DELETE CASCADE ON UPDATE CASCADE) in C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `ap...', 0)
+#1 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `ap...')
+#2 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `ap...')
+#3 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `ap...', Array, false)
+#4 C:\xampp\htdocs\WebSystemITE-G9\system\Model.php(394): CodeIgniter\Database\BaseBuilder->insert()
+#5 C:\xampp\htdocs\WebSystemITE-G9\system\BaseModel.php(838): CodeIgniter\Model->doInsert(Array)
+#6 C:\xampp\htdocs\WebSystemITE-G9\system\Model.php(797): CodeIgniter\BaseModel->insert(Array, true)
+#7 C:\xampp\htdocs\WebSystemITE-G9\app\Controllers\Appointment.php(198): CodeIgniter\Model->insert(Array)
+#8 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(933): App\Controllers\Appointment->create()
+#9 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Appointment))
+#10 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#11 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#12 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#13 C:\xampp\htdocs\WebSystemITE-G9\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#14 {main}
+CRITICAL - 2025-10-14 14:17:54 --> CodeIgniter\Database\Exceptions\DatabaseException: Cannot add or update a child row: a foreign key constraint fails (`hms_g9`.`appointments`, CONSTRAINT `appointments_doctor_id_foreign` FOREIGN KEY (`doctor_id`) REFERENCES `doctors` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+[Method: POST, Route: appointments/create]
+in SYSTEMPATH\Database\BaseConnection.php on line 684.
+ 1 SYSTEMPATH\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `appointments` (`patient_id`, `doctor_id`, `appointment_date`, `appointment_time`, `appointment_type`, `reason`, `status`, `created_at`, `updated_at`) VALUES (:patient_id:, :doctor_id:, :appointment_date:, :appointment_time:, :appointment_type:, :reason:, :status:, :created_at:, :updated_at:)', [...], false)
+ 2 SYSTEMPATH\Model.php(394): CodeIgniter\Database\BaseBuilder->insert()
+ 3 SYSTEMPATH\BaseModel.php(838): CodeIgniter\Model->doInsert([...])
+ 4 SYSTEMPATH\Model.php(797): CodeIgniter\BaseModel->insert([...], true)
+ 5 APPPATH\Controllers\Appointment.php(198): CodeIgniter\Model->insert([...])
+ 6 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Appointment->create()
+ 7 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Appointment))
+ 8 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2025-10-14 14:17:54 --> [Caused by] CodeIgniter\Database\Exceptions\DatabaseException: Cannot add or update a child row: a foreign key constraint fails (`hms_g9`.`appointments`, CONSTRAINT `appointments_doctor_id_foreign` FOREIGN KEY (`doctor_id`) REFERENCES `doctors` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 332.
+ 1 SYSTEMPATH\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `appointments` (`patient_id`, `doctor_id`, `appointment_date`, `appointment_time`, `appointment_type`, `reason`, `status`, `created_at`, `updated_at`) VALUES (\'1\', \'24\', \'2025-10-15\', \'13:00:00\', \'follow_up\', \'test\', \'scheduled\', \'2025-10-14 14:17:54\', \'2025-10-14 14:17:54\')')
+ 2 SYSTEMPATH\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `appointments` (`patient_id`, `doctor_id`, `appointment_date`, `appointment_time`, `appointment_type`, `reason`, `status`, `created_at`, `updated_at`) VALUES (\'1\', \'24\', \'2025-10-15\', \'13:00:00\', \'follow_up\', \'test\', \'scheduled\', \'2025-10-14 14:17:54\', \'2025-10-14 14:17:54\')')
+ 3 SYSTEMPATH\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `appointments` (`patient_id`, `doctor_id`, `appointment_date`, `appointment_time`, `appointment_type`, `reason`, `status`, `created_at`, `updated_at`) VALUES (:patient_id:, :doctor_id:, :appointment_date:, :appointment_time:, :appointment_type:, :reason:, :status:, :created_at:, :updated_at:)', [...], false)
+ 4 SYSTEMPATH\Model.php(394): CodeIgniter\Database\BaseBuilder->insert()
+ 5 SYSTEMPATH\BaseModel.php(838): CodeIgniter\Model->doInsert([...])
+ 6 SYSTEMPATH\Model.php(797): CodeIgniter\BaseModel->insert([...], true)
+ 7 APPPATH\Controllers\Appointment.php(198): CodeIgniter\Model->insert([...])
+ 8 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Appointment->create()
+ 9 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Appointment))
+10 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+11 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+12 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+13 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2025-10-14 14:17:54 --> [Caused by] mysqli_sql_exception: Cannot add or update a child row: a foreign key constraint fails (`hms_g9`.`appointments`, CONSTRAINT `appointments_doctor_id_foreign` FOREIGN KEY (`doctor_id`) REFERENCES `doctors` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 327.
+ 1 SYSTEMPATH\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `appointments` (`patient_id`, `doctor_id`, `appointment_date`, `appointment_time`, `appointment_type`, `reason`, `status`, `created_at`, `updated_at`) VALUES (\'1\', \'24\', \'2025-10-15\', \'13:00:00\', \'follow_up\', \'test\', \'scheduled\', \'2025-10-14 14:17:54\', \'2025-10-14 14:17:54\')', 0)
+ 2 SYSTEMPATH\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `appointments` (`patient_id`, `doctor_id`, `appointment_date`, `appointment_time`, `appointment_type`, `reason`, `status`, `created_at`, `updated_at`) VALUES (\'1\', \'24\', \'2025-10-15\', \'13:00:00\', \'follow_up\', \'test\', \'scheduled\', \'2025-10-14 14:17:54\', \'2025-10-14 14:17:54\')')
+ 3 SYSTEMPATH\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `appointments` (`patient_id`, `doctor_id`, `appointment_date`, `appointment_time`, `appointment_type`, `reason`, `status`, `created_at`, `updated_at`) VALUES (\'1\', \'24\', \'2025-10-15\', \'13:00:00\', \'follow_up\', \'test\', \'scheduled\', \'2025-10-14 14:17:54\', \'2025-10-14 14:17:54\')')
+ 4 SYSTEMPATH\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `appointments` (`patient_id`, `doctor_id`, `appointment_date`, `appointment_time`, `appointment_type`, `reason`, `status`, `created_at`, `updated_at`) VALUES (:patient_id:, :doctor_id:, :appointment_date:, :appointment_time:, :appointment_type:, :reason:, :status:, :created_at:, :updated_at:)', [...], false)
+ 5 SYSTEMPATH\Model.php(394): CodeIgniter\Database\BaseBuilder->insert()
+ 6 SYSTEMPATH\BaseModel.php(838): CodeIgniter\Model->doInsert([...])
+ 7 SYSTEMPATH\Model.php(797): CodeIgniter\BaseModel->insert([...], true)
+ 8 APPPATH\Controllers\Appointment.php(198): CodeIgniter\Model->insert([...])
+ 9 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Appointment->create()
+10 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Appointment))
+11 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+12 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+13 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+14 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ERROR - 2025-10-14 14:17:57 --> mysqli_sql_exception: Cannot add or update a child row: a foreign key constraint fails (`hms_g9`.`appointments`, CONSTRAINT `appointments_doctor_id_foreign` FOREIGN KEY (`doctor_id`) REFERENCES `doctors` (`id`) ON DELETE CASCADE ON UPDATE CASCADE) in C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `ap...', 0)
+#1 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `ap...')
+#2 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `ap...')
+#3 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `ap...', Array, false)
+#4 C:\xampp\htdocs\WebSystemITE-G9\system\Model.php(394): CodeIgniter\Database\BaseBuilder->insert()
+#5 C:\xampp\htdocs\WebSystemITE-G9\system\BaseModel.php(838): CodeIgniter\Model->doInsert(Array)
+#6 C:\xampp\htdocs\WebSystemITE-G9\system\Model.php(797): CodeIgniter\BaseModel->insert(Array, true)
+#7 C:\xampp\htdocs\WebSystemITE-G9\app\Controllers\Appointment.php(198): CodeIgniter\Model->insert(Array)
+#8 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(933): App\Controllers\Appointment->create()
+#9 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Appointment))
+#10 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#11 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#12 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#13 C:\xampp\htdocs\WebSystemITE-G9\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#14 {main}
+CRITICAL - 2025-10-14 14:17:57 --> CodeIgniter\Database\Exceptions\DatabaseException: Cannot add or update a child row: a foreign key constraint fails (`hms_g9`.`appointments`, CONSTRAINT `appointments_doctor_id_foreign` FOREIGN KEY (`doctor_id`) REFERENCES `doctors` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+[Method: POST, Route: appointments/create]
+in SYSTEMPATH\Database\BaseConnection.php on line 684.
+ 1 SYSTEMPATH\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `appointments` (`patient_id`, `doctor_id`, `appointment_date`, `appointment_time`, `appointment_type`, `reason`, `status`, `created_at`, `updated_at`) VALUES (:patient_id:, :doctor_id:, :appointment_date:, :appointment_time:, :appointment_type:, :reason:, :status:, :created_at:, :updated_at:)', [...], false)
+ 2 SYSTEMPATH\Model.php(394): CodeIgniter\Database\BaseBuilder->insert()
+ 3 SYSTEMPATH\BaseModel.php(838): CodeIgniter\Model->doInsert([...])
+ 4 SYSTEMPATH\Model.php(797): CodeIgniter\BaseModel->insert([...], true)
+ 5 APPPATH\Controllers\Appointment.php(198): CodeIgniter\Model->insert([...])
+ 6 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Appointment->create()
+ 7 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Appointment))
+ 8 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2025-10-14 14:17:57 --> [Caused by] CodeIgniter\Database\Exceptions\DatabaseException: Cannot add or update a child row: a foreign key constraint fails (`hms_g9`.`appointments`, CONSTRAINT `appointments_doctor_id_foreign` FOREIGN KEY (`doctor_id`) REFERENCES `doctors` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 332.
+ 1 SYSTEMPATH\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `appointments` (`patient_id`, `doctor_id`, `appointment_date`, `appointment_time`, `appointment_type`, `reason`, `status`, `created_at`, `updated_at`) VALUES (\'1\', \'24\', \'2025-10-15\', \'13:00:00\', \'follow_up\', \'test\', \'scheduled\', \'2025-10-14 14:17:57\', \'2025-10-14 14:17:57\')')
+ 2 SYSTEMPATH\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `appointments` (`patient_id`, `doctor_id`, `appointment_date`, `appointment_time`, `appointment_type`, `reason`, `status`, `created_at`, `updated_at`) VALUES (\'1\', \'24\', \'2025-10-15\', \'13:00:00\', \'follow_up\', \'test\', \'scheduled\', \'2025-10-14 14:17:57\', \'2025-10-14 14:17:57\')')
+ 3 SYSTEMPATH\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `appointments` (`patient_id`, `doctor_id`, `appointment_date`, `appointment_time`, `appointment_type`, `reason`, `status`, `created_at`, `updated_at`) VALUES (:patient_id:, :doctor_id:, :appointment_date:, :appointment_time:, :appointment_type:, :reason:, :status:, :created_at:, :updated_at:)', [...], false)
+ 4 SYSTEMPATH\Model.php(394): CodeIgniter\Database\BaseBuilder->insert()
+ 5 SYSTEMPATH\BaseModel.php(838): CodeIgniter\Model->doInsert([...])
+ 6 SYSTEMPATH\Model.php(797): CodeIgniter\BaseModel->insert([...], true)
+ 7 APPPATH\Controllers\Appointment.php(198): CodeIgniter\Model->insert([...])
+ 8 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Appointment->create()
+ 9 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Appointment))
+10 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+11 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+12 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+13 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2025-10-14 14:17:57 --> [Caused by] mysqli_sql_exception: Cannot add or update a child row: a foreign key constraint fails (`hms_g9`.`appointments`, CONSTRAINT `appointments_doctor_id_foreign` FOREIGN KEY (`doctor_id`) REFERENCES `doctors` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 327.
+ 1 SYSTEMPATH\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `appointments` (`patient_id`, `doctor_id`, `appointment_date`, `appointment_time`, `appointment_type`, `reason`, `status`, `created_at`, `updated_at`) VALUES (\'1\', \'24\', \'2025-10-15\', \'13:00:00\', \'follow_up\', \'test\', \'scheduled\', \'2025-10-14 14:17:57\', \'2025-10-14 14:17:57\')', 0)
+ 2 SYSTEMPATH\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `appointments` (`patient_id`, `doctor_id`, `appointment_date`, `appointment_time`, `appointment_type`, `reason`, `status`, `created_at`, `updated_at`) VALUES (\'1\', \'24\', \'2025-10-15\', \'13:00:00\', \'follow_up\', \'test\', \'scheduled\', \'2025-10-14 14:17:57\', \'2025-10-14 14:17:57\')')
+ 3 SYSTEMPATH\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `appointments` (`patient_id`, `doctor_id`, `appointment_date`, `appointment_time`, `appointment_type`, `reason`, `status`, `created_at`, `updated_at`) VALUES (\'1\', \'24\', \'2025-10-15\', \'13:00:00\', \'follow_up\', \'test\', \'scheduled\', \'2025-10-14 14:17:57\', \'2025-10-14 14:17:57\')')
+ 4 SYSTEMPATH\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `appointments` (`patient_id`, `doctor_id`, `appointment_date`, `appointment_time`, `appointment_type`, `reason`, `status`, `created_at`, `updated_at`) VALUES (:patient_id:, :doctor_id:, :appointment_date:, :appointment_time:, :appointment_type:, :reason:, :status:, :created_at:, :updated_at:)', [...], false)
+ 5 SYSTEMPATH\Model.php(394): CodeIgniter\Database\BaseBuilder->insert()
+ 6 SYSTEMPATH\BaseModel.php(838): CodeIgniter\Model->doInsert([...])
+ 7 SYSTEMPATH\Model.php(797): CodeIgniter\BaseModel->insert([...], true)
+ 8 APPPATH\Controllers\Appointment.php(198): CodeIgniter\Model->insert([...])
+ 9 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Appointment->create()
+10 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Appointment))
+11 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+12 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+13 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+14 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2025-10-14 14:21:39 --> CodeIgniter\Database\Exceptions\DataException: There is no data to update.
+[Method: POST, Route: appointments/update/5]
+in SYSTEMPATH\BaseModel.php on line 1823.
+ 1 SYSTEMPATH\BaseModel.php(1823): CodeIgniter\Database\Exceptions\DataException::forEmptyDataset('update')
+ 2 SYSTEMPATH\BaseModel.php(994): CodeIgniter\BaseModel->transformDataToArray([], 'update')
+ 3 SYSTEMPATH\Model.php(860): CodeIgniter\BaseModel->update([...], [])
+ 4 APPPATH\Controllers\Appointment.php(341): CodeIgniter\Model->update('5', [])
+ 5 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Appointment->update('5')
+ 6 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Appointment))
  7 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
  8 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
  9 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
-10 FCPATH\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
-DEBUG - 2025-10-14 23:29:24 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-ERROR - 2025-10-14 23:29:30 --> mysqli_sql_exception: Table 'hospital_management.roles' doesn't exist in F:\xammp\htdocs\Group6\system\Database\MySQLi\Connection.php:327
+10 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ERROR - 2025-10-14 15:17:41 --> mysqli_sql_exception: Cannot add or update a child row: a foreign key constraint fails (`hms_g9`.`appointments`, CONSTRAINT `appointments_patient_id_foreign` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`id`) ON DELETE CASCADE ON UPDATE CASCADE) in C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php:327
 Stack trace:
-#0 F:\xammp\htdocs\Group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
-#1 F:\xammp\htdocs\Group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
-#2 F:\xammp\htdocs\Group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
-#3 F:\xammp\htdocs\Group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
-#4 F:\xammp\htdocs\Group6\system\Model.php(286): CodeIgniter\Database\BaseBuilder->get()
-#5 F:\xammp\htdocs\Group6\system\BaseModel.php(677): CodeIgniter\Model->doFindAll(0, 0)
-#6 F:\xammp\htdocs\Group6\app\Models\RoleModel.php(67): CodeIgniter\BaseModel->findAll()
-#7 F:\xammp\htdocs\Group6\app\Controllers\SuperAdmin.php(1211): App\Models\RoleModel->getActiveRoles()
-#8 F:\xammp\htdocs\Group6\system\CodeIgniter.php(933): App\Controllers\SuperAdmin->roles()
-#9 F:\xammp\htdocs\Group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\SuperAdmin))
-#10 F:\xammp\htdocs\Group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
-#11 F:\xammp\htdocs\Group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
-#12 F:\xammp\htdocs\Group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
-#13 F:\xammp\htdocs\Group6\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
-#14 {main}
-ERROR - 2025-10-14 23:29:30 --> Failed to get roles: Table 'hospital_management.roles' doesn't exist
-DEBUG - 2025-10-14 23:29:30 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-ERROR - 2025-10-14 23:29:30 --> Roles page error: Invalid file: "SuperAdmin/roles.php"
-CRITICAL - 2025-10-14 23:29:30 --> CodeIgniter\View\Exceptions\ViewException: Invalid file: "SuperAdmin/roles.php"
-[Method: GET, Route: super-admin/roles]
-in SYSTEMPATH\Exceptions\FrameworkException.php on line 39.
- 1 SYSTEMPATH\View\View.php(214): CodeIgniter\Exceptions\FrameworkException::forInvalidFile('SuperAdmin/roles.php')
- 2 SYSTEMPATH\Common.php(1167): CodeIgniter\View\View->render('SuperAdmin/roles', [], true)
- 3 APPPATH\Controllers\SuperAdmin.php(55): view('SuperAdmin/roles', [...])
- 4 APPPATH\Controllers\SuperAdmin.php(1221): App\Controllers\SuperAdmin->render('SuperAdmin/roles', [...])
- 5 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\SuperAdmin->roles()
- 6 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\SuperAdmin))
+#0 C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `ap...', 0)
+#1 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `ap...')
+#2 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `ap...')
+#3 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `ap...', Array, false)
+#4 C:\xampp\htdocs\WebSystemITE-G9\app\Database\Seeds\AppointmentSeeder.php(160): CodeIgniter\Database\BaseBuilder->insert(Array)
+#5 C:\xampp\htdocs\WebSystemITE-G9\system\Database\Seeder.php(149): App\Database\Seeds\AppointmentSeeder->run()
+#6 C:\xampp\htdocs\WebSystemITE-G9\system\Commands\Database\Seed.php(79): CodeIgniter\Database\Seeder->call('App\\Database\\Se...')
+#7 C:\xampp\htdocs\WebSystemITE-G9\system\CLI\Commands.php(74): CodeIgniter\Commands\Database\Seed->run(Array)
+#8 C:\xampp\htdocs\WebSystemITE-G9\system\CLI\Console.php(47): CodeIgniter\CLI\Commands->run('db:seed', Array)
+#9 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(388): CodeIgniter\CLI\Console->run()
+#10 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(133): CodeIgniter\Boot::runCommand(Object(CodeIgniter\CLI\Console))
+#11 C:\xampp\htdocs\WebSystemITE-G9\spark(87): CodeIgniter\Boot::bootSpark(Object(Config\Paths))
+#12 {main}
+ERROR - 2025-10-14 15:18:20 --> mysqli_sql_exception: Unknown column 'date' in 'where clause' in C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT COUNT(*)...', 0)
+#1 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT COUNT(*)...')
+#2 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT COUNT(*)...')
+#3 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseBuilder.php(1733): CodeIgniter\Database\BaseConnection->query('SELECT COUNT(*)...', Array, false)
+#4 C:\xampp\htdocs\WebSystemITE-G9\system\Model.php(675): CodeIgniter\Database\BaseBuilder->countAllResults(true)
+#5 C:\xampp\htdocs\WebSystemITE-G9\app\Controllers\Dashboard.php(55): CodeIgniter\Model->countAllResults()
+#6 C:\xampp\htdocs\WebSystemITE-G9\app\Controllers\Dashboard.php(18): App\Controllers\Dashboard->buildDashboardData('admin', 'admin')
+#7 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(933): App\Controllers\Dashboard->index()
+#8 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Dashboard))
+#9 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#10 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#11 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#12 C:\xampp\htdocs\WebSystemITE-G9\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#13 {main}
+ERROR - 2025-10-14 15:18:20 --> Error loading dashboard data: Unknown column 'date' in 'where clause'
+CRITICAL - 2025-10-14 15:19:12 --> CodeIgniter\Database\Exceptions\DataException: There is no data to update.
+[Method: POST, Route: appointments/update/3]
+in SYSTEMPATH\BaseModel.php on line 1823.
+ 1 SYSTEMPATH\BaseModel.php(1823): CodeIgniter\Database\Exceptions\DataException::forEmptyDataset('update')
+ 2 SYSTEMPATH\BaseModel.php(994): CodeIgniter\BaseModel->transformDataToArray([], 'update')
+ 3 SYSTEMPATH\Model.php(860): CodeIgniter\BaseModel->update([...], [])
+ 4 APPPATH\Controllers\Appointment.php(341): CodeIgniter\Model->update('3', [])
+ 5 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Appointment->update('3')
+ 6 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Appointment))
  7 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
  8 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
  9 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
-10 FCPATH\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
-DEBUG - 2025-10-14 23:29:32 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-ERROR - 2025-10-14 23:29:40 --> mysqli_sql_exception: Table 'hospital_management.roles' doesn't exist in F:\xammp\htdocs\Group6\system\Database\MySQLi\Connection.php:327
+10 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ERROR - 2025-10-14 15:19:38 --> mysqli_sql_exception: Table 'hms_g9.laboratory' doesn't exist in C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php:327
 Stack trace:
-#0 F:\xammp\htdocs\Group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
-#1 F:\xammp\htdocs\Group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
-#2 F:\xammp\htdocs\Group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
-#3 F:\xammp\htdocs\Group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
-#4 F:\xammp\htdocs\Group6\system\Model.php(286): CodeIgniter\Database\BaseBuilder->get()
-#5 F:\xammp\htdocs\Group6\system\BaseModel.php(677): CodeIgniter\Model->doFindAll(0, 0)
-#6 F:\xammp\htdocs\Group6\app\Models\RoleModel.php(67): CodeIgniter\BaseModel->findAll()
-#7 F:\xammp\htdocs\Group6\app\Controllers\SuperAdmin.php(1211): App\Models\RoleModel->getActiveRoles()
-#8 F:\xammp\htdocs\Group6\system\CodeIgniter.php(933): App\Controllers\SuperAdmin->roles()
-#9 F:\xammp\htdocs\Group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\SuperAdmin))
-#10 F:\xammp\htdocs\Group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
-#11 F:\xammp\htdocs\Group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
-#12 F:\xammp\htdocs\Group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
-#13 F:\xammp\htdocs\Group6\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
-#14 {main}
-ERROR - 2025-10-14 23:29:40 --> Failed to get roles: Table 'hospital_management.roles' doesn't exist
-DEBUG - 2025-10-14 23:29:40 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-ERROR - 2025-10-14 23:29:40 --> Roles page error: Invalid file: "SuperAdmin/roles.php"
-CRITICAL - 2025-10-14 23:29:40 --> CodeIgniter\View\Exceptions\ViewException: Invalid file: "SuperAdmin/roles.php"
-[Method: GET, Route: super-admin/roles]
-in SYSTEMPATH\Exceptions\FrameworkException.php on line 39.
- 1 SYSTEMPATH\View\View.php(214): CodeIgniter\Exceptions\FrameworkException::forInvalidFile('SuperAdmin/roles.php')
- 2 SYSTEMPATH\Common.php(1167): CodeIgniter\View\View->render('SuperAdmin/roles', [], true)
- 3 APPPATH\Controllers\SuperAdmin.php(55): view('SuperAdmin/roles', [...])
- 4 APPPATH\Controllers\SuperAdmin.php(1221): App\Controllers\SuperAdmin->render('SuperAdmin/roles', [...])
- 5 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\SuperAdmin->roles()
- 6 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\SuperAdmin))
- 7 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
- 8 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
- 9 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
-10 FCPATH\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
-DEBUG - 2025-10-14 23:29:55 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2025-10-14 23:29:55 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2025-10-14 23:30:02 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2025-10-14 23:30:02 --> Raw POST data: username=superadmin&password=Admin%40123
-DEBUG - 2025-10-14 23:30:02 --> Login attempt - Username: superadmin
-DEBUG - 2025-10-14 23:30:02 --> POST data: Array
-(
-    [username] => superadmin
-    [password] => Admin@123
-)
-
-DEBUG - 2025-10-14 23:30:02 --> SQL Query: SELECT *
-FROM `users`
-WHERE `username` = 'superadmin'
- LIMIT 1
-DEBUG - 2025-10-14 23:30:02 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-ERROR - 2025-10-14 23:30:02 --> mysqli_sql_exception: Table 'hospital_management.roles' doesn't exist in F:\xammp\htdocs\Group6\system\Database\MySQLi\Connection.php:327
+#0 C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT `id`, `t...', 0)
+#1 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `id`, `t...')
+#2 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `id`, `t...')
+#3 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `id`, `t...', Array, false)
+#4 C:\xampp\htdocs\WebSystemITE-G9\app\Controllers\Laboratory.php(274): CodeIgniter\Database\BaseBuilder->get()
+#5 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(933): App\Controllers\Laboratory->getTestResultsData()
+#6 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Laboratory))
+#7 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 C:\xampp\htdocs\WebSystemITE-G9\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-10-14 15:19:38 --> Failed to get test results data: Table 'hms_g9.laboratory' doesn't exist
+ERROR - 2025-10-14 15:20:02 --> mysqli_sql_exception: Table 'hms_g9.laboratory' doesn't exist in C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php:327
 Stack trace:
-#0 F:\xammp\htdocs\Group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
-#1 F:\xammp\htdocs\Group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
-#2 F:\xammp\htdocs\Group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
-#3 F:\xammp\htdocs\Group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
-#4 F:\xammp\htdocs\Group6\system\Model.php(286): CodeIgniter\Database\BaseBuilder->get()
-#5 F:\xammp\htdocs\Group6\system\BaseModel.php(677): CodeIgniter\Model->doFindAll(0, 0)
-#6 F:\xammp\htdocs\Group6\app\Models\RoleModel.php(67): CodeIgniter\BaseModel->findAll()
-#7 F:\xammp\htdocs\Group6\app\Controllers\SuperAdmin.php(1211): App\Models\RoleModel->getActiveRoles()
-#8 F:\xammp\htdocs\Group6\system\CodeIgniter.php(933): App\Controllers\SuperAdmin->roles()
-#9 F:\xammp\htdocs\Group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\SuperAdmin))
-#10 F:\xammp\htdocs\Group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
-#11 F:\xammp\htdocs\Group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
-#12 F:\xammp\htdocs\Group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
-#13 F:\xammp\htdocs\Group6\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
-#14 {main}
-ERROR - 2025-10-14 23:30:02 --> Failed to get roles: Table 'hospital_management.roles' doesn't exist
-DEBUG - 2025-10-14 23:30:02 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-ERROR - 2025-10-14 23:30:02 --> Roles page error: Invalid file: "SuperAdmin/roles.php"
-CRITICAL - 2025-10-14 23:30:02 --> CodeIgniter\View\Exceptions\ViewException: Invalid file: "SuperAdmin/roles.php"
-[Method: GET, Route: super-admin/roles]
-in SYSTEMPATH\Exceptions\FrameworkException.php on line 39.
- 1 SYSTEMPATH\View\View.php(214): CodeIgniter\Exceptions\FrameworkException::forInvalidFile('SuperAdmin/roles.php')
- 2 SYSTEMPATH\Common.php(1167): CodeIgniter\View\View->render('SuperAdmin/roles', [], true)
- 3 APPPATH\Controllers\SuperAdmin.php(55): view('SuperAdmin/roles', [...])
- 4 APPPATH\Controllers\SuperAdmin.php(1221): App\Controllers\SuperAdmin->render('SuperAdmin/roles', [...])
- 5 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\SuperAdmin->roles()
- 6 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\SuperAdmin))
- 7 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
- 8 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
- 9 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
-10 FCPATH\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
-DEBUG - 2025-10-14 23:30:10 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2025-10-14 23:30:10 --> Updating user ID: 10 with data: {"first_name":"Super","last_name":"Admin","email":"admin@hospital.com","username":"admin","phone":"N\/A","address":"","role":"superadmin","status":"active"}
-ERROR - 2025-10-14 23:30:11 --> mysqli_sql_exception: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near ') VALUES ('info', 'application', 'User updated', '{\"user_id\":\"10\",\"user_...' at line 1 in F:\xammp\htdocs\Group6\system\Database\MySQLi\Connection.php:327
+#0 C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `la...', 0)
+#1 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `la...')
+#2 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `la...')
+#3 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `la...', Array, false)
+#4 C:\xampp\htdocs\WebSystemITE-G9\app\Controllers\Laboratory.php(139): CodeIgniter\Database\BaseBuilder->insert(Array)
+#5 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(933): App\Controllers\Laboratory->submitRequest()
+#6 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Laboratory))
+#7 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 C:\xampp\htdocs\WebSystemITE-G9\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-10-14 15:20:02 --> Lab request creation failed: Table 'hms_g9.laboratory' doesn't exist
+ERROR - 2025-10-14 15:20:20 --> mysqli_sql_exception: Table 'hms_g9.laboratory' doesn't exist in C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php:327
 Stack trace:
-#0 F:\xammp\htdocs\Group6\system\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `sy...', 0)
-#1 F:\xammp\htdocs\Group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `sy...')
-#2 F:\xammp\htdocs\Group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `sy...')
-#3 F:\xammp\htdocs\Group6\system\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `sy...', Array, false)
-#4 F:\xammp\htdocs\Group6\system\Model.php(394): CodeIgniter\Database\BaseBuilder->insert()
-#5 F:\xammp\htdocs\Group6\system\BaseModel.php(838): CodeIgniter\Model->doInsert(Array)
-#6 F:\xammp\htdocs\Group6\system\Model.php(797): CodeIgniter\BaseModel->insert(Array, true)
-#7 F:\xammp\htdocs\Group6\app\Models\SystemLogModel.php(89): CodeIgniter\Model->insert(Array)
-#8 F:\xammp\htdocs\Group6\app\Models\SystemLogModel.php(306): App\Models\SystemLogModel->logEntry('info', 'application', 'User updated', Array, '1')
-#9 F:\xammp\htdocs\Group6\app\Controllers\SuperAdmin.php(189): App\Models\SystemLogModel->info('User updated', Array, '1')
-#10 F:\xammp\htdocs\Group6\system\CodeIgniter.php(933): App\Controllers\SuperAdmin->editUser('10')
-#11 F:\xammp\htdocs\Group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\SuperAdmin))
-#12 F:\xammp\htdocs\Group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
-#13 F:\xammp\htdocs\Group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
-#14 F:\xammp\htdocs\Group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
-#15 F:\xammp\htdocs\Group6\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
-#16 {main}
-ERROR - 2025-10-14 23:30:11 --> Failed to log user update: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near ') VALUES ('info', 'application', 'User updated', '{\"user_id\":\"10\",\"user_...' at line 1
-DEBUG - 2025-10-14 23:30:45 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2025-10-14 23:30:45 --> Getting user with ID: 2
-DEBUG - 2025-10-14 23:30:45 --> User found: {"id":"2","username":"doctor1","email":"doctor@hospital.com","password_hash":"$2y$10$.UV2\/aa3g3rFnwmRhJDIrOnm5CChUgxjgRf07stJ6HeWNZzwcG6RW","first_name":"John","last_name":"Smith","role":"doctor","phone":null,"address":null,"status":"active","last_login":"2025-10-04 05:37:01","created_at":null,"updated_at":"2025-10-04 05:37:01"}
-DEBUG - 2025-10-14 23:30:50 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2025-10-14 23:30:50 --> Getting user with ID: 1
-DEBUG - 2025-10-14 23:30:50 --> User found: {"id":"1","username":"superadmin","email":"superadmin@hospital.com","password_hash":"$2y$10$tk76wUrVbrjYeIIi84J22eoevmWlsEzLmlxzc17.tpgPIEJ8AC6Bq","first_name":"Super","last_name":"Admin","role":"superadmin","phone":null,"address":null,"status":"active","last_login":"2025-10-14 23:30:02","created_at":null,"updated_at":"2025-10-14 23:30:02"}
-DEBUG - 2025-10-14 23:30:56 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2025-10-14 23:30:56 --> Getting user with ID: 1
-DEBUG - 2025-10-14 23:30:56 --> User found: {"id":"1","username":"superadmin","email":"superadmin@hospital.com","password_hash":"$2y$10$tk76wUrVbrjYeIIi84J22eoevmWlsEzLmlxzc17.tpgPIEJ8AC6Bq","first_name":"Super","last_name":"Admin","role":"superadmin","phone":null,"address":null,"status":"active","last_login":"2025-10-14 23:30:02","created_at":null,"updated_at":"2025-10-14 23:30:02"}
-DEBUG - 2025-10-14 23:36:45 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-ERROR - 2025-10-14 23:36:45 --> mysqli_sql_exception: Table 'hospital_management.roles' doesn't exist in F:\xammp\htdocs\Group6\system\Database\MySQLi\Connection.php:327
+#0 C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT `id`, `t...', 0)
+#1 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `id`, `t...')
+#2 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `id`, `t...')
+#3 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `id`, `t...', Array, false)
+#4 C:\xampp\htdocs\WebSystemITE-G9\app\Controllers\Laboratory.php(274): CodeIgniter\Database\BaseBuilder->get()
+#5 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(933): App\Controllers\Laboratory->getTestResultsData()
+#6 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Laboratory))
+#7 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 C:\xampp\htdocs\WebSystemITE-G9\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-10-14 15:20:20 --> Failed to get test results data: Table 'hms_g9.laboratory' doesn't exist
+ERROR - 2025-10-14 15:23:09 --> mysqli_sql_exception: Duplicate entry 'admin' for key 'username' in C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php:327
 Stack trace:
-#0 F:\xammp\htdocs\Group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
-#1 F:\xammp\htdocs\Group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
-#2 F:\xammp\htdocs\Group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
-#3 F:\xammp\htdocs\Group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
-#4 F:\xammp\htdocs\Group6\system\Model.php(286): CodeIgniter\Database\BaseBuilder->get()
-#5 F:\xammp\htdocs\Group6\system\BaseModel.php(677): CodeIgniter\Model->doFindAll(0, 0)
-#6 F:\xammp\htdocs\Group6\app\Models\RoleModel.php(67): CodeIgniter\BaseModel->findAll()
-#7 F:\xammp\htdocs\Group6\app\Controllers\SuperAdmin.php(1211): App\Models\RoleModel->getActiveRoles()
-#8 F:\xammp\htdocs\Group6\system\CodeIgniter.php(933): App\Controllers\SuperAdmin->roles()
-#9 F:\xammp\htdocs\Group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\SuperAdmin))
-#10 F:\xammp\htdocs\Group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
-#11 F:\xammp\htdocs\Group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
-#12 F:\xammp\htdocs\Group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
-#13 F:\xammp\htdocs\Group6\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
-#14 {main}
-ERROR - 2025-10-14 23:36:45 --> Failed to get roles: Table 'hospital_management.roles' doesn't exist
-DEBUG - 2025-10-14 23:36:45 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-ERROR - 2025-10-14 23:36:45 --> Roles page error: Invalid file: "SuperAdmin/roles.php"
-CRITICAL - 2025-10-14 23:36:45 --> CodeIgniter\View\Exceptions\ViewException: Invalid file: "SuperAdmin/roles.php"
-[Method: GET, Route: super-admin/roles]
-in SYSTEMPATH\Exceptions\FrameworkException.php on line 39.
- 1 SYSTEMPATH\View\View.php(214): CodeIgniter\Exceptions\FrameworkException::forInvalidFile('SuperAdmin/roles.php')
- 2 SYSTEMPATH\Common.php(1167): CodeIgniter\View\View->render('SuperAdmin/roles', [], true)
- 3 APPPATH\Controllers\SuperAdmin.php(55): view('SuperAdmin/roles', [...])
- 4 APPPATH\Controllers\SuperAdmin.php(1221): App\Controllers\SuperAdmin->render('SuperAdmin/roles', [...])
- 5 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\SuperAdmin->roles()
- 6 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\SuperAdmin))
- 7 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
- 8 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
- 9 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
-10 FCPATH\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
-ERROR - 2025-10-14 23:37:24 --> mysqli_sql_exception: Table 'hospital_management.roles' doesn't exist in F:\xammp\htdocs\Group6\system\Database\MySQLi\Connection.php:327
-Stack trace:
-#0 F:\xammp\htdocs\Group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
-#1 F:\xammp\htdocs\Group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
-#2 F:\xammp\htdocs\Group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
-#3 F:\xammp\htdocs\Group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
-#4 F:\xammp\htdocs\Group6\system\Model.php(286): CodeIgniter\Database\BaseBuilder->get()
-#5 F:\xammp\htdocs\Group6\system\BaseModel.php(677): CodeIgniter\Model->doFindAll(0, 0)
-#6 F:\xammp\htdocs\Group6\app\Models\RoleModel.php(67): CodeIgniter\BaseModel->findAll()
-#7 F:\xammp\htdocs\Group6\app\Controllers\SuperAdmin.php(1211): App\Models\RoleModel->getActiveRoles()
-#8 F:\xammp\htdocs\Group6\system\CodeIgniter.php(933): App\Controllers\SuperAdmin->roles()
-#9 F:\xammp\htdocs\Group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\SuperAdmin))
-#10 F:\xammp\htdocs\Group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
-#11 F:\xammp\htdocs\Group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
-#12 F:\xammp\htdocs\Group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
-#13 F:\xammp\htdocs\Group6\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
-#14 {main}
-ERROR - 2025-10-14 23:37:24 --> Failed to get roles: Table 'hospital_management.roles' doesn't exist
-DEBUG - 2025-10-14 23:37:24 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-ERROR - 2025-10-14 23:37:24 --> Roles page error: Invalid file: "SuperAdmin/roles.php"
-CRITICAL - 2025-10-14 23:37:24 --> CodeIgniter\View\Exceptions\ViewException: Invalid file: "SuperAdmin/roles.php"
-[Method: GET, Route: super-admin/roles]
-in SYSTEMPATH\Exceptions\FrameworkException.php on line 39.
- 1 SYSTEMPATH\View\View.php(214): CodeIgniter\Exceptions\FrameworkException::forInvalidFile('SuperAdmin/roles.php')
- 2 SYSTEMPATH\Common.php(1167): CodeIgniter\View\View->render('SuperAdmin/roles', [], true)
- 3 APPPATH\Controllers\SuperAdmin.php(55): view('SuperAdmin/roles', [...])
- 4 APPPATH\Controllers\SuperAdmin.php(1221): App\Controllers\SuperAdmin->render('SuperAdmin/roles', [...])
- 5 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\SuperAdmin->roles()
- 6 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\SuperAdmin))
- 7 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
- 8 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
- 9 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
-10 FCPATH\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
-ERROR - 2025-10-14 23:37:28 --> mysqli_sql_exception: Table 'hospital_management.roles' doesn't exist in F:\xammp\htdocs\Group6\system\Database\MySQLi\Connection.php:327
-Stack trace:
-#0 F:\xammp\htdocs\Group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
-#1 F:\xammp\htdocs\Group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
-#2 F:\xammp\htdocs\Group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
-#3 F:\xammp\htdocs\Group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
-#4 F:\xammp\htdocs\Group6\system\Model.php(286): CodeIgniter\Database\BaseBuilder->get()
-#5 F:\xammp\htdocs\Group6\system\BaseModel.php(677): CodeIgniter\Model->doFindAll(0, 0)
-#6 F:\xammp\htdocs\Group6\app\Models\RoleModel.php(67): CodeIgniter\BaseModel->findAll()
-#7 F:\xammp\htdocs\Group6\app\Controllers\SuperAdmin.php(1211): App\Models\RoleModel->getActiveRoles()
-#8 F:\xammp\htdocs\Group6\system\CodeIgniter.php(933): App\Controllers\SuperAdmin->roles()
-#9 F:\xammp\htdocs\Group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\SuperAdmin))
-#10 F:\xammp\htdocs\Group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
-#11 F:\xammp\htdocs\Group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
-#12 F:\xammp\htdocs\Group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
-#13 F:\xammp\htdocs\Group6\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
-#14 {main}
-ERROR - 2025-10-14 23:37:28 --> Failed to get roles: Table 'hospital_management.roles' doesn't exist
-DEBUG - 2025-10-14 23:37:28 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-ERROR - 2025-10-14 23:37:28 --> Roles page error: Invalid file: "SuperAdmin/roles.php"
-CRITICAL - 2025-10-14 23:37:28 --> CodeIgniter\View\Exceptions\ViewException: Invalid file: "SuperAdmin/roles.php"
-[Method: GET, Route: super-admin/roles]
-in SYSTEMPATH\Exceptions\FrameworkException.php on line 39.
- 1 SYSTEMPATH\View\View.php(214): CodeIgniter\Exceptions\FrameworkException::forInvalidFile('SuperAdmin/roles.php')
- 2 SYSTEMPATH\Common.php(1167): CodeIgniter\View\View->render('SuperAdmin/roles', [], true)
- 3 APPPATH\Controllers\SuperAdmin.php(55): view('SuperAdmin/roles', [...])
- 4 APPPATH\Controllers\SuperAdmin.php(1221): App\Controllers\SuperAdmin->render('SuperAdmin/roles', [...])
- 5 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\SuperAdmin->roles()
- 6 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\SuperAdmin))
- 7 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
- 8 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
- 9 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
-10 FCPATH\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
-DEBUG - 2025-10-14 23:57:11 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-ERROR - 2025-10-14 23:57:13 --> mysqli_sql_exception: Table 'hospital_management.roles' doesn't exist in F:\xammp\htdocs\Group6\system\Database\MySQLi\Connection.php:327
-Stack trace:
-#0 F:\xammp\htdocs\Group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
-#1 F:\xammp\htdocs\Group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
-#2 F:\xammp\htdocs\Group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
-#3 F:\xammp\htdocs\Group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
-#4 F:\xammp\htdocs\Group6\system\Model.php(286): CodeIgniter\Database\BaseBuilder->get()
-#5 F:\xammp\htdocs\Group6\system\BaseModel.php(677): CodeIgniter\Model->doFindAll(0, 0)
-#6 F:\xammp\htdocs\Group6\app\Models\RoleModel.php(67): CodeIgniter\BaseModel->findAll()
-#7 F:\xammp\htdocs\Group6\app\Controllers\SuperAdmin.php(1211): App\Models\RoleModel->getActiveRoles()
-#8 F:\xammp\htdocs\Group6\system\CodeIgniter.php(933): App\Controllers\SuperAdmin->roles()
-#9 F:\xammp\htdocs\Group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\SuperAdmin))
-#10 F:\xammp\htdocs\Group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
-#11 F:\xammp\htdocs\Group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
-#12 F:\xammp\htdocs\Group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
-#13 F:\xammp\htdocs\Group6\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
-#14 {main}
-ERROR - 2025-10-14 23:57:13 --> Failed to get roles: Table 'hospital_management.roles' doesn't exist
-DEBUG - 2025-10-14 23:57:13 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-ERROR - 2025-10-14 23:57:13 --> Roles page error: Invalid file: "SuperAdmin/roles.php"
-CRITICAL - 2025-10-14 23:57:13 --> CodeIgniter\View\Exceptions\ViewException: Invalid file: "SuperAdmin/roles.php"
-[Method: GET, Route: super-admin/roles]
-in SYSTEMPATH\Exceptions\FrameworkException.php on line 39.
- 1 SYSTEMPATH\View\View.php(214): CodeIgniter\Exceptions\FrameworkException::forInvalidFile('SuperAdmin/roles.php')
- 2 SYSTEMPATH\Common.php(1167): CodeIgniter\View\View->render('SuperAdmin/roles', [], true)
- 3 APPPATH\Controllers\SuperAdmin.php(55): view('SuperAdmin/roles', [...])
- 4 APPPATH\Controllers\SuperAdmin.php(1221): App\Controllers\SuperAdmin->render('SuperAdmin/roles', [...])
- 5 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\SuperAdmin->roles()
- 6 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\SuperAdmin))
- 7 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
- 8 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
- 9 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
-10 FCPATH\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
-DEBUG - 2025-10-14 23:57:15 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-CRITICAL - 2025-10-14 23:57:15 --> Error: Call to undefined method CodeIgniter\Database\MySQLi\Builder::findAll()
-[Method: GET, Route: medical-services/api/services]
-in APPPATH\Models\MedicalServiceModel.php on line 88.
- 1 APPPATH\Controllers\MedicalServices.php(251): App\Models\MedicalServiceModel->getAllServices(null, null)
- 2 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\MedicalServices->apiServices()
- 3 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\MedicalServices))
+#0 C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `us...', 0)
+#1 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `us...')
+#2 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `us...')
+#3 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseBuilder.php(1841): CodeIgniter\Database\BaseConnection->query('INSERT INTO `us...', NULL, false)
+#4 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseBuilder.php(2230): CodeIgniter\Database\BaseBuilder->batchExecute('_insertBatch', 100)
+#5 C:\xampp\htdocs\WebSystemITE-G9\app\Database\Seeds\UserSeeder.php(95): CodeIgniter\Database\BaseBuilder->insertBatch(Array)
+#6 C:\xampp\htdocs\WebSystemITE-G9\system\Database\Seeder.php(149): App\Database\Seeds\UserSeeder->run()
+#7 C:\xampp\htdocs\WebSystemITE-G9\system\Commands\Database\Seed.php(79): CodeIgniter\Database\Seeder->call('App\\Database\\Se...')
+#8 C:\xampp\htdocs\WebSystemITE-G9\system\CLI\Commands.php(74): CodeIgniter\Commands\Database\Seed->run(Array)
+#9 C:\xampp\htdocs\WebSystemITE-G9\system\CLI\Console.php(47): CodeIgniter\CLI\Commands->run('db:seed', Array)
+#10 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(388): CodeIgniter\CLI\Console->run()
+#11 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(133): CodeIgniter\Boot::runCommand(Object(CodeIgniter\CLI\Console))
+#12 C:\xampp\htdocs\WebSystemITE-G9\spark(87): CodeIgniter\Boot::bootSpark(Object(Config\Paths))
+#13 {main}
+CRITICAL - 2025-10-14 15:23:41 --> CodeIgniter\Exceptions\BadMethodCallException: Call to undefined method App\Models\BillingModel::getList
+[Method: GET, Route: billing]
+in SYSTEMPATH\Model.php on line 927.
+ 1 APPPATH\Controllers\Billing.php(53): CodeIgniter\Model->__call('getList', [...])
+ 2 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Billing->index()
+ 3 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Billing))
  4 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
  5 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
  6 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
- 7 FCPATH\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
-DEBUG - 2025-10-14 23:57:22 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-CRITICAL - 2025-10-14 23:57:22 --> Error: Call to undefined method CodeIgniter\Database\MySQLi\Builder::findAll()
-[Method: GET, Route: medical-services]
-in APPPATH\Models\MedicalServiceModel.php on line 88.
- 1 APPPATH\Controllers\MedicalServices.php(48): App\Models\MedicalServiceModel->getAllServices()
- 2 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\MedicalServices->index()
- 3 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\MedicalServices))
+ 7 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2025-10-14 15:24:09 --> CodeIgniter\Exceptions\BadMethodCallException: Call to undefined method App\Models\BillingModel::getList
+[Method: GET, Route: billing]
+in SYSTEMPATH\Model.php on line 927.
+ 1 APPPATH\Controllers\Billing.php(53): CodeIgniter\Model->__call('getList', [...])
+ 2 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Billing->index()
+ 3 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Billing))
  4 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
  5 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
  6 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
- 7 FCPATH\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
-DEBUG - 2025-10-14 23:57:28 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-ERROR - 2025-10-14 23:57:28 --> mysqli_sql_exception: Table 'hospital_management.roles' doesn't exist in F:\xammp\htdocs\Group6\system\Database\MySQLi\Connection.php:327
+ 7 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ERROR - 2025-10-14 15:27:02 --> mysqli_sql_exception: Table 'hms_g9.services' doesn't exist in C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php:327
 Stack trace:
-#0 F:\xammp\htdocs\Group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
-#1 F:\xammp\htdocs\Group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
-#2 F:\xammp\htdocs\Group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
-#3 F:\xammp\htdocs\Group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
-#4 F:\xammp\htdocs\Group6\system\Model.php(286): CodeIgniter\Database\BaseBuilder->get()
-#5 F:\xammp\htdocs\Group6\system\BaseModel.php(677): CodeIgniter\Model->doFindAll(0, 0)
-#6 F:\xammp\htdocs\Group6\app\Models\RoleModel.php(67): CodeIgniter\BaseModel->findAll()
-#7 F:\xammp\htdocs\Group6\app\Controllers\SuperAdmin.php(1211): App\Models\RoleModel->getActiveRoles()
-#8 F:\xammp\htdocs\Group6\system\CodeIgniter.php(933): App\Controllers\SuperAdmin->roles()
-#9 F:\xammp\htdocs\Group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\SuperAdmin))
-#10 F:\xammp\htdocs\Group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
-#11 F:\xammp\htdocs\Group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
-#12 F:\xammp\htdocs\Group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
-#13 F:\xammp\htdocs\Group6\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
-#14 {main}
-ERROR - 2025-10-14 23:57:28 --> Failed to get roles: Table 'hospital_management.roles' doesn't exist
-DEBUG - 2025-10-14 23:57:28 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-ERROR - 2025-10-14 23:57:28 --> Roles page error: Invalid file: "SuperAdmin/roles.php"
-CRITICAL - 2025-10-14 23:57:28 --> CodeIgniter\View\Exceptions\ViewException: Invalid file: "SuperAdmin/roles.php"
-[Method: GET, Route: super-admin/roles]
-in SYSTEMPATH\Exceptions\FrameworkException.php on line 39.
- 1 SYSTEMPATH\View\View.php(214): CodeIgniter\Exceptions\FrameworkException::forInvalidFile('SuperAdmin/roles.php')
- 2 SYSTEMPATH\Common.php(1167): CodeIgniter\View\View->render('SuperAdmin/roles', [], true)
- 3 APPPATH\Controllers\SuperAdmin.php(55): view('SuperAdmin/roles', [...])
- 4 APPPATH\Controllers\SuperAdmin.php(1221): App\Controllers\SuperAdmin->render('SuperAdmin/roles', [...])
- 5 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\SuperAdmin->roles()
- 6 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\SuperAdmin))
- 7 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
- 8 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
- 9 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
-10 FCPATH\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
-DEBUG - 2025-10-14 23:57:30 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-CRITICAL - 2025-10-14 23:57:30 --> Error: Call to undefined method CodeIgniter\Database\MySQLi\Builder::findAll()
-[Method: GET, Route: medical-services/api/services]
-in APPPATH\Models\MedicalServiceModel.php on line 88.
- 1 APPPATH\Controllers\MedicalServices.php(251): App\Models\MedicalServiceModel->getAllServices(null, null)
- 2 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\MedicalServices->apiServices()
- 3 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\MedicalServices))
- 4 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
- 5 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
- 6 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
- 7 FCPATH\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
-DEBUG - 2025-10-14 23:57:31 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-CRITICAL - 2025-10-14 23:57:31 --> Error: Call to undefined method CodeIgniter\Database\MySQLi\Builder::findAll()
-[Method: GET, Route: medical-services]
-in APPPATH\Models\MedicalServiceModel.php on line 88.
- 1 APPPATH\Controllers\MedicalServices.php(48): App\Models\MedicalServiceModel->getAllServices()
- 2 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\MedicalServices->index()
- 3 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\MedicalServices))
- 4 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
- 5 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
- 6 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
- 7 FCPATH\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
-DEBUG - 2025-10-14 23:57:32 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-ERROR - 2025-10-14 23:57:33 --> mysqli_sql_exception: Table 'hospital_management.roles' doesn't exist in F:\xammp\htdocs\Group6\system\Database\MySQLi\Connection.php:327
+#0 C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php(327): mysqli->query('SHOW COLUMNS FR...', 0)
+#1 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SHOW COLUMNS FR...')
+#2 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SHOW COLUMNS FR...')
+#3 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(1606): CodeIgniter\Database\BaseConnection->query('SHOW COLUMNS FR...')
+#4 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(20): CodeIgniter\Database\BaseConnection->getFieldNames('services')
+#5 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(65): App\Models\BillingModel->tableHas('services')
+#6 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(77): App\Models\BillingModel->withRelations()
+#7 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(94): App\Models\BillingModel->search(NULL)
+#8 C:\xampp\htdocs\WebSystemITE-G9\app\Controllers\Billing.php(53): App\Models\BillingModel->getList(NULL)
+#9 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(933): App\Controllers\Billing->index()
+#10 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Billing))
+#11 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#12 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#13 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#14 C:\xampp\htdocs\WebSystemITE-G9\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#15 {main}
+ERROR - 2025-10-14 15:29:23 --> mysqli_sql_exception: Table 'hms_g9.services' doesn't exist in C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php:327
 Stack trace:
-#0 F:\xammp\htdocs\Group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
-#1 F:\xammp\htdocs\Group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
-#2 F:\xammp\htdocs\Group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
-#3 F:\xammp\htdocs\Group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
-#4 F:\xammp\htdocs\Group6\system\Model.php(286): CodeIgniter\Database\BaseBuilder->get()
-#5 F:\xammp\htdocs\Group6\system\BaseModel.php(677): CodeIgniter\Model->doFindAll(0, 0)
-#6 F:\xammp\htdocs\Group6\app\Models\RoleModel.php(67): CodeIgniter\BaseModel->findAll()
-#7 F:\xammp\htdocs\Group6\app\Controllers\SuperAdmin.php(1211): App\Models\RoleModel->getActiveRoles()
-#8 F:\xammp\htdocs\Group6\system\CodeIgniter.php(933): App\Controllers\SuperAdmin->roles()
-#9 F:\xammp\htdocs\Group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\SuperAdmin))
-#10 F:\xammp\htdocs\Group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
-#11 F:\xammp\htdocs\Group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
-#12 F:\xammp\htdocs\Group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
-#13 F:\xammp\htdocs\Group6\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
-#14 {main}
-ERROR - 2025-10-14 23:57:33 --> Failed to get roles: Table 'hospital_management.roles' doesn't exist
-DEBUG - 2025-10-14 23:57:33 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-ERROR - 2025-10-14 23:57:33 --> Roles page error: Invalid file: "SuperAdmin/roles.php"
-CRITICAL - 2025-10-14 23:57:33 --> CodeIgniter\View\Exceptions\ViewException: Invalid file: "SuperAdmin/roles.php"
-[Method: GET, Route: super-admin/roles]
-in SYSTEMPATH\Exceptions\FrameworkException.php on line 39.
- 1 SYSTEMPATH\View\View.php(214): CodeIgniter\Exceptions\FrameworkException::forInvalidFile('SuperAdmin/roles.php')
- 2 SYSTEMPATH\Common.php(1167): CodeIgniter\View\View->render('SuperAdmin/roles', [], true)
- 3 APPPATH\Controllers\SuperAdmin.php(55): view('SuperAdmin/roles', [...])
- 4 APPPATH\Controllers\SuperAdmin.php(1221): App\Controllers\SuperAdmin->render('SuperAdmin/roles', [...])
- 5 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\SuperAdmin->roles()
- 6 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\SuperAdmin))
- 7 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
- 8 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
- 9 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
-10 FCPATH\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
-DEBUG - 2025-10-14 23:57:34 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-CRITICAL - 2025-10-14 23:57:34 --> Error: Call to undefined method CodeIgniter\Database\MySQLi\Builder::findAll()
-[Method: GET, Route: medical-services/api/services]
-in APPPATH\Models\MedicalServiceModel.php on line 88.
- 1 APPPATH\Controllers\MedicalServices.php(251): App\Models\MedicalServiceModel->getAllServices(null, null)
- 2 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\MedicalServices->apiServices()
- 3 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\MedicalServices))
- 4 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
- 5 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
- 6 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
- 7 FCPATH\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
-DEBUG - 2025-10-14 23:57:35 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-CRITICAL - 2025-10-14 23:57:35 --> CodeIgniter\View\Exceptions\ViewException: Invalid file: "SuperAdmin/pharmacy.php"
-[Method: GET, Route: super-admin/pharmacy]
-in SYSTEMPATH\Exceptions\FrameworkException.php on line 39.
- 1 SYSTEMPATH\View\View.php(214): CodeIgniter\Exceptions\FrameworkException::forInvalidFile('SuperAdmin/pharmacy.php')
- 2 SYSTEMPATH\Common.php(1167): CodeIgniter\View\View->render('SuperAdmin/pharmacy', [], true)
- 3 APPPATH\Controllers\SuperAdmin.php(55): view('SuperAdmin/pharmacy', [...])
- 4 APPPATH\Controllers\SuperAdmin.php(1952): App\Controllers\SuperAdmin->render('SuperAdmin/pharmacy')
- 5 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\SuperAdmin->pharmacy()
- 6 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\SuperAdmin))
- 7 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
- 8 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
- 9 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
-10 FCPATH\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
-DEBUG - 2025-10-14 23:57:38 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-ERROR - 2025-10-14 23:57:38 --> mysqli_sql_exception: Table 'hospital_management.roles' doesn't exist in F:\xammp\htdocs\Group6\system\Database\MySQLi\Connection.php:327
+#0 C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php(327): mysqli->query('SHOW COLUMNS FR...', 0)
+#1 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SHOW COLUMNS FR...')
+#2 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SHOW COLUMNS FR...')
+#3 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(1606): CodeIgniter\Database\BaseConnection->query('SHOW COLUMNS FR...')
+#4 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(20): CodeIgniter\Database\BaseConnection->getFieldNames('services')
+#5 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(65): App\Models\BillingModel->tableHas('services')
+#6 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(77): App\Models\BillingModel->withRelations()
+#7 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(94): App\Models\BillingModel->search(NULL)
+#8 C:\xampp\htdocs\WebSystemITE-G9\app\Controllers\Billing.php(53): App\Models\BillingModel->getList(NULL)
+#9 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(933): App\Controllers\Billing->index()
+#10 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Billing))
+#11 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#12 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#13 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#14 C:\xampp\htdocs\WebSystemITE-G9\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#15 {main}
+ERROR - 2025-10-14 15:29:27 --> mysqli_sql_exception: Table 'hms_g9.services' doesn't exist in C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php:327
 Stack trace:
-#0 F:\xammp\htdocs\Group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
-#1 F:\xammp\htdocs\Group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
-#2 F:\xammp\htdocs\Group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
-#3 F:\xammp\htdocs\Group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
-#4 F:\xammp\htdocs\Group6\system\Model.php(286): CodeIgniter\Database\BaseBuilder->get()
-#5 F:\xammp\htdocs\Group6\system\BaseModel.php(677): CodeIgniter\Model->doFindAll(0, 0)
-#6 F:\xammp\htdocs\Group6\app\Models\RoleModel.php(67): CodeIgniter\BaseModel->findAll()
-#7 F:\xammp\htdocs\Group6\app\Controllers\SuperAdmin.php(1211): App\Models\RoleModel->getActiveRoles()
-#8 F:\xammp\htdocs\Group6\system\CodeIgniter.php(933): App\Controllers\SuperAdmin->roles()
-#9 F:\xammp\htdocs\Group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\SuperAdmin))
-#10 F:\xammp\htdocs\Group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
-#11 F:\xammp\htdocs\Group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
-#12 F:\xammp\htdocs\Group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
-#13 F:\xammp\htdocs\Group6\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#0 C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php(327): mysqli->query('SHOW COLUMNS FR...', 0)
+#1 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SHOW COLUMNS FR...')
+#2 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SHOW COLUMNS FR...')
+#3 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(1606): CodeIgniter\Database\BaseConnection->query('SHOW COLUMNS FR...')
+#4 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(20): CodeIgniter\Database\BaseConnection->getFieldNames('services')
+#5 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(65): App\Models\BillingModel->tableHas('services')
+#6 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(102): App\Models\BillingModel->withRelations()
+#7 C:\xampp\htdocs\WebSystemITE-G9\app\Controllers\Billing.php(147): App\Models\BillingModel->findWithRelations(1)
+#8 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(933): App\Controllers\Billing->show('1')
+#9 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Billing))
+#10 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#11 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#12 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#13 C:\xampp\htdocs\WebSystemITE-G9\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
 #14 {main}
-ERROR - 2025-10-14 23:57:38 --> Failed to get roles: Table 'hospital_management.roles' doesn't exist
-DEBUG - 2025-10-14 23:57:38 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-ERROR - 2025-10-14 23:57:38 --> Roles page error: Invalid file: "SuperAdmin/roles.php"
-CRITICAL - 2025-10-14 23:57:38 --> CodeIgniter\View\Exceptions\ViewException: Invalid file: "SuperAdmin/roles.php"
-[Method: GET, Route: super-admin/roles]
-in SYSTEMPATH\Exceptions\FrameworkException.php on line 39.
- 1 SYSTEMPATH\View\View.php(214): CodeIgniter\Exceptions\FrameworkException::forInvalidFile('SuperAdmin/roles.php')
- 2 SYSTEMPATH\Common.php(1167): CodeIgniter\View\View->render('SuperAdmin/roles', [], true)
- 3 APPPATH\Controllers\SuperAdmin.php(55): view('SuperAdmin/roles', [...])
- 4 APPPATH\Controllers\SuperAdmin.php(1221): App\Controllers\SuperAdmin->render('SuperAdmin/roles', [...])
- 5 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\SuperAdmin->roles()
- 6 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\SuperAdmin))
- 7 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
- 8 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
- 9 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
-10 FCPATH\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
-DEBUG - 2025-10-14 23:57:40 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-CRITICAL - 2025-10-14 23:57:40 --> Error: Call to undefined method CodeIgniter\Database\MySQLi\Builder::findAll()
-[Method: GET, Route: medical-services/api/services]
-in APPPATH\Models\MedicalServiceModel.php on line 88.
- 1 APPPATH\Controllers\MedicalServices.php(251): App\Models\MedicalServiceModel->getAllServices(null, null)
- 2 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\MedicalServices->apiServices()
- 3 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\MedicalServices))
- 4 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
- 5 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
- 6 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
- 7 FCPATH\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
-DEBUG - 2025-10-14 23:57:41 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-CRITICAL - 2025-10-14 23:57:41 --> CodeIgniter\View\Exceptions\ViewException: Invalid file: "SuperAdmin/laboratory.php"
-[Method: GET, Route: super-admin/laboratory]
-in SYSTEMPATH\Exceptions\FrameworkException.php on line 39.
- 1 SYSTEMPATH\View\View.php(214): CodeIgniter\Exceptions\FrameworkException::forInvalidFile('SuperAdmin/laboratory.php')
- 2 SYSTEMPATH\Common.php(1167): CodeIgniter\View\View->render('SuperAdmin/laboratory', [], true)
- 3 APPPATH\Controllers\SuperAdmin.php(55): view('SuperAdmin/laboratory', [...])
- 4 APPPATH\Controllers\SuperAdmin.php(1947): App\Controllers\SuperAdmin->render('SuperAdmin/laboratory')
- 5 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\SuperAdmin->laboratory()
- 6 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\SuperAdmin))
- 7 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
- 8 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
- 9 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
-10 FCPATH\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
-DEBUG - 2025-10-14 23:57:43 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-ERROR - 2025-10-14 23:57:43 --> mysqli_sql_exception: Table 'hospital_management.roles' doesn't exist in F:\xammp\htdocs\Group6\system\Database\MySQLi\Connection.php:327
+ERROR - 2025-10-14 15:29:30 --> mysqli_sql_exception: Table 'hms_g9.services' doesn't exist in C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php:327
 Stack trace:
-#0 F:\xammp\htdocs\Group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
-#1 F:\xammp\htdocs\Group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
-#2 F:\xammp\htdocs\Group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
-#3 F:\xammp\htdocs\Group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
-#4 F:\xammp\htdocs\Group6\system\Model.php(286): CodeIgniter\Database\BaseBuilder->get()
-#5 F:\xammp\htdocs\Group6\system\BaseModel.php(677): CodeIgniter\Model->doFindAll(0, 0)
-#6 F:\xammp\htdocs\Group6\app\Models\RoleModel.php(67): CodeIgniter\BaseModel->findAll()
-#7 F:\xammp\htdocs\Group6\app\Controllers\SuperAdmin.php(1211): App\Models\RoleModel->getActiveRoles()
-#8 F:\xammp\htdocs\Group6\system\CodeIgniter.php(933): App\Controllers\SuperAdmin->roles()
-#9 F:\xammp\htdocs\Group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\SuperAdmin))
-#10 F:\xammp\htdocs\Group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
-#11 F:\xammp\htdocs\Group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
-#12 F:\xammp\htdocs\Group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
-#13 F:\xammp\htdocs\Group6\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#0 C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php(327): mysqli->query('SHOW COLUMNS FR...', 0)
+#1 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SHOW COLUMNS FR...')
+#2 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SHOW COLUMNS FR...')
+#3 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(1606): CodeIgniter\Database\BaseConnection->query('SHOW COLUMNS FR...')
+#4 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(20): CodeIgniter\Database\BaseConnection->getFieldNames('services')
+#5 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(65): App\Models\BillingModel->tableHas('services')
+#6 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(77): App\Models\BillingModel->withRelations()
+#7 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(94): App\Models\BillingModel->search(NULL)
+#8 C:\xampp\htdocs\WebSystemITE-G9\app\Controllers\Billing.php(53): App\Models\BillingModel->getList(NULL)
+#9 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(933): App\Controllers\Billing->index()
+#10 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Billing))
+#11 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#12 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#13 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#14 C:\xampp\htdocs\WebSystemITE-G9\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#15 {main}
+ERROR - 2025-10-14 15:29:31 --> mysqli_sql_exception: Table 'hms_g9.services' doesn't exist in C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php(327): mysqli->query('SHOW COLUMNS FR...', 0)
+#1 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SHOW COLUMNS FR...')
+#2 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SHOW COLUMNS FR...')
+#3 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(1606): CodeIgniter\Database\BaseConnection->query('SHOW COLUMNS FR...')
+#4 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(20): CodeIgniter\Database\BaseConnection->getFieldNames('services')
+#5 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(65): App\Models\BillingModel->tableHas('services')
+#6 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(102): App\Models\BillingModel->withRelations()
+#7 C:\xampp\htdocs\WebSystemITE-G9\app\Controllers\Billing.php(218): App\Models\BillingModel->findWithRelations(1)
+#8 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(933): App\Controllers\Billing->edit('1')
+#9 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Billing))
+#10 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#11 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#12 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#13 C:\xampp\htdocs\WebSystemITE-G9\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
 #14 {main}
-ERROR - 2025-10-14 23:57:43 --> Failed to get roles: Table 'hospital_management.roles' doesn't exist
-DEBUG - 2025-10-14 23:57:43 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-ERROR - 2025-10-14 23:57:43 --> Roles page error: Invalid file: "SuperAdmin/roles.php"
-CRITICAL - 2025-10-14 23:57:43 --> CodeIgniter\View\Exceptions\ViewException: Invalid file: "SuperAdmin/roles.php"
-[Method: GET, Route: super-admin/roles]
-in SYSTEMPATH\Exceptions\FrameworkException.php on line 39.
- 1 SYSTEMPATH\View\View.php(214): CodeIgniter\Exceptions\FrameworkException::forInvalidFile('SuperAdmin/roles.php')
- 2 SYSTEMPATH\Common.php(1167): CodeIgniter\View\View->render('SuperAdmin/roles', [], true)
- 3 APPPATH\Controllers\SuperAdmin.php(55): view('SuperAdmin/roles', [...])
- 4 APPPATH\Controllers\SuperAdmin.php(1221): App\Controllers\SuperAdmin->render('SuperAdmin/roles', [...])
- 5 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\SuperAdmin->roles()
- 6 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\SuperAdmin))
+ERROR - 2025-10-14 15:29:37 --> mysqli_sql_exception: Table 'hms_g9.services' doesn't exist in C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php(327): mysqli->query('SHOW COLUMNS FR...', 0)
+#1 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SHOW COLUMNS FR...')
+#2 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SHOW COLUMNS FR...')
+#3 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(1606): CodeIgniter\Database\BaseConnection->query('SHOW COLUMNS FR...')
+#4 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(20): CodeIgniter\Database\BaseConnection->getFieldNames('services')
+#5 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(65): App\Models\BillingModel->tableHas('services')
+#6 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(102): App\Models\BillingModel->withRelations()
+#7 C:\xampp\htdocs\WebSystemITE-G9\app\Controllers\Billing.php(147): App\Models\BillingModel->findWithRelations(1)
+#8 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(933): App\Controllers\Billing->show('1')
+#9 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Billing))
+#10 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#11 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#12 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#13 C:\xampp\htdocs\WebSystemITE-G9\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#14 {main}
+ERROR - 2025-10-14 15:29:48 --> mysqli_sql_exception: Table 'hms_g9.services' doesn't exist in C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php(327): mysqli->query('SHOW COLUMNS FR...', 0)
+#1 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SHOW COLUMNS FR...')
+#2 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SHOW COLUMNS FR...')
+#3 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(1606): CodeIgniter\Database\BaseConnection->query('SHOW COLUMNS FR...')
+#4 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(20): CodeIgniter\Database\BaseConnection->getFieldNames('services')
+#5 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(65): App\Models\BillingModel->tableHas('services')
+#6 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(77): App\Models\BillingModel->withRelations()
+#7 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(94): App\Models\BillingModel->search(NULL)
+#8 C:\xampp\htdocs\WebSystemITE-G9\app\Controllers\Billing.php(53): App\Models\BillingModel->getList(NULL)
+#9 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(933): App\Controllers\Billing->index()
+#10 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Billing))
+#11 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#12 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#13 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#14 C:\xampp\htdocs\WebSystemITE-G9\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#15 {main}
+ERROR - 2025-10-14 15:29:49 --> mysqli_sql_exception: Table 'hms_g9.services' doesn't exist in C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php(327): mysqli->query('SHOW COLUMNS FR...', 0)
+#1 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SHOW COLUMNS FR...')
+#2 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SHOW COLUMNS FR...')
+#3 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(1606): CodeIgniter\Database\BaseConnection->query('SHOW COLUMNS FR...')
+#4 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(20): CodeIgniter\Database\BaseConnection->getFieldNames('services')
+#5 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(65): App\Models\BillingModel->tableHas('services')
+#6 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(102): App\Models\BillingModel->withRelations()
+#7 C:\xampp\htdocs\WebSystemITE-G9\app\Controllers\Billing.php(147): App\Models\BillingModel->findWithRelations(1)
+#8 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(933): App\Controllers\Billing->show('1')
+#9 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Billing))
+#10 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#11 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#12 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#13 C:\xampp\htdocs\WebSystemITE-G9\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#14 {main}
+ERROR - 2025-10-14 15:30:11 --> mysqli_sql_exception: Table 'hms_g9.services' doesn't exist in C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php(327): mysqli->query('SHOW COLUMNS FR...', 0)
+#1 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SHOW COLUMNS FR...')
+#2 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SHOW COLUMNS FR...')
+#3 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(1606): CodeIgniter\Database\BaseConnection->query('SHOW COLUMNS FR...')
+#4 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(20): CodeIgniter\Database\BaseConnection->getFieldNames('services')
+#5 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(65): App\Models\BillingModel->tableHas('services')
+#6 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(77): App\Models\BillingModel->withRelations()
+#7 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(94): App\Models\BillingModel->search(NULL)
+#8 C:\xampp\htdocs\WebSystemITE-G9\app\Controllers\Billing.php(53): App\Models\BillingModel->getList(NULL)
+#9 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(933): App\Controllers\Billing->index()
+#10 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Billing))
+#11 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#12 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#13 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#14 C:\xampp\htdocs\WebSystemITE-G9\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#15 {main}
+ERROR - 2025-10-14 15:30:33 --> mysqli_sql_exception: Table 'hms_g9.services' doesn't exist in C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php(327): mysqli->query('SHOW COLUMNS FR...', 0)
+#1 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SHOW COLUMNS FR...')
+#2 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SHOW COLUMNS FR...')
+#3 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(1606): CodeIgniter\Database\BaseConnection->query('SHOW COLUMNS FR...')
+#4 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(20): CodeIgniter\Database\BaseConnection->getFieldNames('services')
+#5 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(65): App\Models\BillingModel->tableHas('services')
+#6 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(102): App\Models\BillingModel->withRelations()
+#7 C:\xampp\htdocs\WebSystemITE-G9\app\Controllers\Billing.php(147): App\Models\BillingModel->findWithRelations(2)
+#8 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(933): App\Controllers\Billing->show('2')
+#9 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Billing))
+#10 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#11 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#12 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#13 C:\xampp\htdocs\WebSystemITE-G9\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#14 {main}
+ERROR - 2025-10-14 15:30:38 --> mysqli_sql_exception: Table 'hms_g9.services' doesn't exist in C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php(327): mysqli->query('SHOW COLUMNS FR...', 0)
+#1 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SHOW COLUMNS FR...')
+#2 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SHOW COLUMNS FR...')
+#3 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(1606): CodeIgniter\Database\BaseConnection->query('SHOW COLUMNS FR...')
+#4 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(20): CodeIgniter\Database\BaseConnection->getFieldNames('services')
+#5 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(65): App\Models\BillingModel->tableHas('services')
+#6 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(77): App\Models\BillingModel->withRelations()
+#7 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(94): App\Models\BillingModel->search(NULL)
+#8 C:\xampp\htdocs\WebSystemITE-G9\app\Controllers\Billing.php(53): App\Models\BillingModel->getList(NULL)
+#9 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(933): App\Controllers\Billing->index()
+#10 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Billing))
+#11 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#12 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#13 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#14 C:\xampp\htdocs\WebSystemITE-G9\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#15 {main}
+ERROR - 2025-10-14 15:30:44 --> mysqli_sql_exception: Table 'hms_g9.services' doesn't exist in C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php(327): mysqli->query('SHOW COLUMNS FR...', 0)
+#1 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SHOW COLUMNS FR...')
+#2 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SHOW COLUMNS FR...')
+#3 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(1606): CodeIgniter\Database\BaseConnection->query('SHOW COLUMNS FR...')
+#4 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(20): CodeIgniter\Database\BaseConnection->getFieldNames('services')
+#5 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(65): App\Models\BillingModel->tableHas('services')
+#6 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(77): App\Models\BillingModel->withRelations()
+#7 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(94): App\Models\BillingModel->search(NULL)
+#8 C:\xampp\htdocs\WebSystemITE-G9\app\Controllers\Billing.php(53): App\Models\BillingModel->getList(NULL)
+#9 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(933): App\Controllers\Billing->index()
+#10 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Billing))
+#11 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#12 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#13 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#14 C:\xampp\htdocs\WebSystemITE-G9\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#15 {main}
+ERROR - 2025-10-14 15:30:46 --> mysqli_sql_exception: Table 'hms_g9.services' doesn't exist in C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php(327): mysqli->query('SHOW COLUMNS FR...', 0)
+#1 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SHOW COLUMNS FR...')
+#2 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SHOW COLUMNS FR...')
+#3 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(1606): CodeIgniter\Database\BaseConnection->query('SHOW COLUMNS FR...')
+#4 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(20): CodeIgniter\Database\BaseConnection->getFieldNames('services')
+#5 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(65): App\Models\BillingModel->tableHas('services')
+#6 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(102): App\Models\BillingModel->withRelations()
+#7 C:\xampp\htdocs\WebSystemITE-G9\app\Controllers\Billing.php(147): App\Models\BillingModel->findWithRelations(1)
+#8 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(933): App\Controllers\Billing->show('1')
+#9 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Billing))
+#10 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#11 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#12 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#13 C:\xampp\htdocs\WebSystemITE-G9\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#14 {main}
+ERROR - 2025-10-14 15:30:49 --> mysqli_sql_exception: Table 'hms_g9.services' doesn't exist in C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php(327): mysqli->query('SHOW COLUMNS FR...', 0)
+#1 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SHOW COLUMNS FR...')
+#2 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SHOW COLUMNS FR...')
+#3 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(1606): CodeIgniter\Database\BaseConnection->query('SHOW COLUMNS FR...')
+#4 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(20): CodeIgniter\Database\BaseConnection->getFieldNames('services')
+#5 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(65): App\Models\BillingModel->tableHas('services')
+#6 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(77): App\Models\BillingModel->withRelations()
+#7 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(94): App\Models\BillingModel->search(NULL)
+#8 C:\xampp\htdocs\WebSystemITE-G9\app\Controllers\Billing.php(53): App\Models\BillingModel->getList(NULL)
+#9 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(933): App\Controllers\Billing->index()
+#10 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Billing))
+#11 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#12 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#13 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#14 C:\xampp\htdocs\WebSystemITE-G9\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#15 {main}
+ERROR - 2025-10-14 15:30:51 --> mysqli_sql_exception: Table 'hms_g9.services' doesn't exist in C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php(327): mysqli->query('SHOW COLUMNS FR...', 0)
+#1 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SHOW COLUMNS FR...')
+#2 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SHOW COLUMNS FR...')
+#3 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(1606): CodeIgniter\Database\BaseConnection->query('SHOW COLUMNS FR...')
+#4 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(20): CodeIgniter\Database\BaseConnection->getFieldNames('services')
+#5 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(65): App\Models\BillingModel->tableHas('services')
+#6 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(102): App\Models\BillingModel->withRelations()
+#7 C:\xampp\htdocs\WebSystemITE-G9\app\Controllers\Billing.php(147): App\Models\BillingModel->findWithRelations(2)
+#8 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(933): App\Controllers\Billing->show('2')
+#9 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Billing))
+#10 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#11 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#12 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#13 C:\xampp\htdocs\WebSystemITE-G9\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#14 {main}
+ERROR - 2025-10-14 15:30:53 --> mysqli_sql_exception: Table 'hms_g9.services' doesn't exist in C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php(327): mysqli->query('SHOW COLUMNS FR...', 0)
+#1 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SHOW COLUMNS FR...')
+#2 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SHOW COLUMNS FR...')
+#3 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(1606): CodeIgniter\Database\BaseConnection->query('SHOW COLUMNS FR...')
+#4 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(20): CodeIgniter\Database\BaseConnection->getFieldNames('services')
+#5 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(65): App\Models\BillingModel->tableHas('services')
+#6 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(77): App\Models\BillingModel->withRelations()
+#7 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(94): App\Models\BillingModel->search(NULL)
+#8 C:\xampp\htdocs\WebSystemITE-G9\app\Controllers\Billing.php(53): App\Models\BillingModel->getList(NULL)
+#9 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(933): App\Controllers\Billing->index()
+#10 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Billing))
+#11 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#12 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#13 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#14 C:\xampp\htdocs\WebSystemITE-G9\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#15 {main}
+ERROR - 2025-10-14 15:31:05 --> mysqli_sql_exception: Table 'hms_g9.services' doesn't exist in C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php(327): mysqli->query('SHOW COLUMNS FR...', 0)
+#1 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SHOW COLUMNS FR...')
+#2 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SHOW COLUMNS FR...')
+#3 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(1606): CodeIgniter\Database\BaseConnection->query('SHOW COLUMNS FR...')
+#4 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(20): CodeIgniter\Database\BaseConnection->getFieldNames('services')
+#5 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(65): App\Models\BillingModel->tableHas('services')
+#6 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(77): App\Models\BillingModel->withRelations()
+#7 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(94): App\Models\BillingModel->search(NULL)
+#8 C:\xampp\htdocs\WebSystemITE-G9\app\Controllers\Billing.php(53): App\Models\BillingModel->getList(NULL)
+#9 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(933): App\Controllers\Billing->index()
+#10 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Billing))
+#11 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#12 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#13 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#14 C:\xampp\htdocs\WebSystemITE-G9\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#15 {main}
+ERROR - 2025-10-14 15:34:03 --> mysqli_sql_exception: Table 'hms_g9.services' doesn't exist in C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php(327): mysqli->query('SHOW COLUMNS FR...', 0)
+#1 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SHOW COLUMNS FR...')
+#2 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SHOW COLUMNS FR...')
+#3 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(1606): CodeIgniter\Database\BaseConnection->query('SHOW COLUMNS FR...')
+#4 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(20): CodeIgniter\Database\BaseConnection->getFieldNames('services')
+#5 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(65): App\Models\BillingModel->tableHas('services')
+#6 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(77): App\Models\BillingModel->withRelations()
+#7 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(94): App\Models\BillingModel->search(NULL)
+#8 C:\xampp\htdocs\WebSystemITE-G9\app\Controllers\Billing.php(53): App\Models\BillingModel->getList(NULL)
+#9 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(933): App\Controllers\Billing->index()
+#10 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Billing))
+#11 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#12 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#13 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#14 C:\xampp\htdocs\WebSystemITE-G9\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#15 {main}
+ERROR - 2025-10-14 15:34:08 --> mysqli_sql_exception: Unknown column 'date' in 'where clause' in C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT COUNT(*)...', 0)
+#1 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT COUNT(*)...')
+#2 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT COUNT(*)...')
+#3 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseBuilder.php(1733): CodeIgniter\Database\BaseConnection->query('SELECT COUNT(*)...', Array, false)
+#4 C:\xampp\htdocs\WebSystemITE-G9\system\Model.php(675): CodeIgniter\Database\BaseBuilder->countAllResults(true)
+#5 C:\xampp\htdocs\WebSystemITE-G9\app\Controllers\Dashboard.php(55): CodeIgniter\Model->countAllResults()
+#6 C:\xampp\htdocs\WebSystemITE-G9\app\Controllers\Dashboard.php(18): App\Controllers\Dashboard->buildDashboardData('admin', 'admin')
+#7 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(933): App\Controllers\Dashboard->index()
+#8 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Dashboard))
+#9 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#10 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#11 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#12 C:\xampp\htdocs\WebSystemITE-G9\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#13 {main}
+ERROR - 2025-10-14 15:34:08 --> Error loading dashboard data: Unknown column 'date' in 'where clause'
+ERROR - 2025-10-14 15:34:11 --> mysqli_sql_exception: Table 'hms_g9.services' doesn't exist in C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php(327): mysqli->query('SHOW COLUMNS FR...', 0)
+#1 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SHOW COLUMNS FR...')
+#2 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SHOW COLUMNS FR...')
+#3 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(1606): CodeIgniter\Database\BaseConnection->query('SHOW COLUMNS FR...')
+#4 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(20): CodeIgniter\Database\BaseConnection->getFieldNames('services')
+#5 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(65): App\Models\BillingModel->tableHas('services')
+#6 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(77): App\Models\BillingModel->withRelations()
+#7 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(94): App\Models\BillingModel->search(NULL)
+#8 C:\xampp\htdocs\WebSystemITE-G9\app\Controllers\Billing.php(53): App\Models\BillingModel->getList(NULL)
+#9 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(933): App\Controllers\Billing->index()
+#10 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Billing))
+#11 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#12 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#13 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#14 C:\xampp\htdocs\WebSystemITE-G9\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#15 {main}
+ERROR - 2025-10-14 15:34:15 --> mysqli_sql_exception: Table 'hms_g9.laboratory' doesn't exist in C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT `id`, `t...', 0)
+#1 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `id`, `t...')
+#2 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `id`, `t...')
+#3 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `id`, `t...', Array, false)
+#4 C:\xampp\htdocs\WebSystemITE-G9\app\Controllers\Laboratory.php(274): CodeIgniter\Database\BaseBuilder->get()
+#5 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(933): App\Controllers\Laboratory->getTestResultsData()
+#6 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Laboratory))
+#7 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 C:\xampp\htdocs\WebSystemITE-G9\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-10-14 15:34:15 --> Failed to get test results data: Table 'hms_g9.laboratory' doesn't exist
+ERROR - 2025-10-14 15:34:19 --> mysqli_sql_exception: Table 'hms_g9.services' doesn't exist in C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php(327): mysqli->query('SHOW COLUMNS FR...', 0)
+#1 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SHOW COLUMNS FR...')
+#2 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SHOW COLUMNS FR...')
+#3 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(1606): CodeIgniter\Database\BaseConnection->query('SHOW COLUMNS FR...')
+#4 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(20): CodeIgniter\Database\BaseConnection->getFieldNames('services')
+#5 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(65): App\Models\BillingModel->tableHas('services')
+#6 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(77): App\Models\BillingModel->withRelations()
+#7 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(94): App\Models\BillingModel->search(NULL)
+#8 C:\xampp\htdocs\WebSystemITE-G9\app\Controllers\Billing.php(53): App\Models\BillingModel->getList(NULL)
+#9 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(933): App\Controllers\Billing->index()
+#10 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Billing))
+#11 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#12 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#13 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#14 C:\xampp\htdocs\WebSystemITE-G9\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#15 {main}
+ERROR - 2025-10-14 15:34:22 --> mysqli_sql_exception: Table 'hms_g9.services' doesn't exist in C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php(327): mysqli->query('SHOW COLUMNS FR...', 0)
+#1 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SHOW COLUMNS FR...')
+#2 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SHOW COLUMNS FR...')
+#3 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(1606): CodeIgniter\Database\BaseConnection->query('SHOW COLUMNS FR...')
+#4 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(20): CodeIgniter\Database\BaseConnection->getFieldNames('services')
+#5 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(65): App\Models\BillingModel->tableHas('services')
+#6 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(102): App\Models\BillingModel->withRelations()
+#7 C:\xampp\htdocs\WebSystemITE-G9\app\Controllers\Billing.php(218): App\Models\BillingModel->findWithRelations(2)
+#8 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(933): App\Controllers\Billing->edit('2')
+#9 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Billing))
+#10 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#11 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#12 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#13 C:\xampp\htdocs\WebSystemITE-G9\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#14 {main}
+ERROR - 2025-10-14 15:34:25 --> mysqli_sql_exception: Table 'hms_g9.services' doesn't exist in C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php(327): mysqli->query('SHOW COLUMNS FR...', 0)
+#1 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SHOW COLUMNS FR...')
+#2 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SHOW COLUMNS FR...')
+#3 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(1606): CodeIgniter\Database\BaseConnection->query('SHOW COLUMNS FR...')
+#4 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(20): CodeIgniter\Database\BaseConnection->getFieldNames('services')
+#5 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(65): App\Models\BillingModel->tableHas('services')
+#6 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(102): App\Models\BillingModel->withRelations()
+#7 C:\xampp\htdocs\WebSystemITE-G9\app\Controllers\Billing.php(218): App\Models\BillingModel->findWithRelations(2)
+#8 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(933): App\Controllers\Billing->edit('2')
+#9 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Billing))
+#10 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#11 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#12 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#13 C:\xampp\htdocs\WebSystemITE-G9\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#14 {main}
+CRITICAL - 2025-10-14 15:34:45 --> CodeIgniter\Database\Exceptions\DataException: There is no data to update.
+[Method: POST, Route: appointments/update/3]
+in SYSTEMPATH\BaseModel.php on line 1823.
+ 1 SYSTEMPATH\BaseModel.php(1823): CodeIgniter\Database\Exceptions\DataException::forEmptyDataset('update')
+ 2 SYSTEMPATH\BaseModel.php(994): CodeIgniter\BaseModel->transformDataToArray([], 'update')
+ 3 SYSTEMPATH\Model.php(860): CodeIgniter\BaseModel->update([...], [])
+ 4 APPPATH\Controllers\Appointment.php(341): CodeIgniter\Model->update('3', [])
+ 5 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Appointment->update('3')
+ 6 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Appointment))
  7 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
  8 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
  9 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
-10 FCPATH\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
-DEBUG - 2025-10-14 23:57:45 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-CRITICAL - 2025-10-14 23:57:45 --> Error: Call to undefined method CodeIgniter\Database\MySQLi\Builder::findAll()
-[Method: GET, Route: medical-services/api/services]
-in APPPATH\Models\MedicalServiceModel.php on line 88.
- 1 APPPATH\Controllers\MedicalServices.php(251): App\Models\MedicalServiceModel->getAllServices(null, null)
- 2 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\MedicalServices->apiServices()
- 3 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\MedicalServices))
- 4 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
- 5 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
- 6 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
- 7 FCPATH\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
-DEBUG - 2025-10-14 23:57:50 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-CRITICAL - 2025-10-14 23:57:50 --> Error: Call to undefined method CodeIgniter\Database\MySQLi\Builder::findAll()
-[Method: GET, Route: medical-services/api/services]
-in APPPATH\Models\MedicalServiceModel.php on line 88.
- 1 APPPATH\Controllers\MedicalServices.php(251): App\Models\MedicalServiceModel->getAllServices(null, null)
- 2 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\MedicalServices->apiServices()
- 3 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\MedicalServices))
- 4 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
- 5 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
- 6 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
- 7 FCPATH\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
-DEBUG - 2025-10-14 23:57:52 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-CRITICAL - 2025-10-14 23:57:52 --> Error: Call to undefined method CodeIgniter\Database\MySQLi\Builder::findAll()
-[Method: GET, Route: medical-services]
-in APPPATH\Models\MedicalServiceModel.php on line 88.
- 1 APPPATH\Controllers\MedicalServices.php(48): App\Models\MedicalServiceModel->getAllServices()
- 2 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\MedicalServices->index()
- 3 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\MedicalServices))
- 4 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
- 5 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
- 6 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
- 7 FCPATH\index.php(61): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
-DEBUG - 2025-10-14 23:59:54 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+10 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ERROR - 2025-10-14 15:34:50 --> mysqli_sql_exception: Unknown column 'date' in 'where clause' in C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT COUNT(*)...', 0)
+#1 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT COUNT(*)...')
+#2 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT COUNT(*)...')
+#3 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseBuilder.php(1733): CodeIgniter\Database\BaseConnection->query('SELECT COUNT(*)...', Array, false)
+#4 C:\xampp\htdocs\WebSystemITE-G9\system\Model.php(675): CodeIgniter\Database\BaseBuilder->countAllResults(true)
+#5 C:\xampp\htdocs\WebSystemITE-G9\app\Controllers\Dashboard.php(55): CodeIgniter\Model->countAllResults()
+#6 C:\xampp\htdocs\WebSystemITE-G9\app\Controllers\Dashboard.php(18): App\Controllers\Dashboard->buildDashboardData('admin', 'admin')
+#7 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(933): App\Controllers\Dashboard->index()
+#8 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Dashboard))
+#9 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#10 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#11 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#12 C:\xampp\htdocs\WebSystemITE-G9\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#13 {main}
+ERROR - 2025-10-14 15:34:50 --> Error loading dashboard data: Unknown column 'date' in 'where clause'
+ERROR - 2025-10-14 15:43:59 --> mysqli_sql_exception: Unknown column 'date' in 'where clause' in C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT COUNT(*)...', 0)
+#1 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT COUNT(*)...')
+#2 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT COUNT(*)...')
+#3 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseBuilder.php(1733): CodeIgniter\Database\BaseConnection->query('SELECT COUNT(*)...', Array, false)
+#4 C:\xampp\htdocs\WebSystemITE-G9\system\Model.php(675): CodeIgniter\Database\BaseBuilder->countAllResults(true)
+#5 C:\xampp\htdocs\WebSystemITE-G9\app\Controllers\Dashboard.php(55): CodeIgniter\Model->countAllResults()
+#6 C:\xampp\htdocs\WebSystemITE-G9\app\Controllers\Dashboard.php(18): App\Controllers\Dashboard->buildDashboardData('admin', 'admin')
+#7 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(933): App\Controllers\Dashboard->index()
+#8 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Dashboard))
+#9 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#10 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#11 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#12 C:\xampp\htdocs\WebSystemITE-G9\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#13 {main}
+ERROR - 2025-10-14 15:43:59 --> Error loading dashboard data: Unknown column 'date' in 'where clause'
+ERROR - 2025-10-14 15:44:05 --> mysqli_sql_exception: Unknown column 'date' in 'where clause' in C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT COUNT(*)...', 0)
+#1 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT COUNT(*)...')
+#2 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT COUNT(*)...')
+#3 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseBuilder.php(1733): CodeIgniter\Database\BaseConnection->query('SELECT COUNT(*)...', Array, false)
+#4 C:\xampp\htdocs\WebSystemITE-G9\system\Model.php(675): CodeIgniter\Database\BaseBuilder->countAllResults(true)
+#5 C:\xampp\htdocs\WebSystemITE-G9\app\Controllers\Dashboard.php(55): CodeIgniter\Model->countAllResults()
+#6 C:\xampp\htdocs\WebSystemITE-G9\app\Controllers\Dashboard.php(18): App\Controllers\Dashboard->buildDashboardData('admin', 'admin')
+#7 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(933): App\Controllers\Dashboard->index()
+#8 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Dashboard))
+#9 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#10 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#11 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#12 C:\xampp\htdocs\WebSystemITE-G9\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#13 {main}
+ERROR - 2025-10-14 15:44:05 --> Error loading dashboard data: Unknown column 'date' in 'where clause'
+ERROR - 2025-10-14 15:44:13 --> mysqli_sql_exception: Table 'hms_g9.services' doesn't exist in C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php(327): mysqli->query('SHOW COLUMNS FR...', 0)
+#1 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SHOW COLUMNS FR...')
+#2 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SHOW COLUMNS FR...')
+#3 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(1606): CodeIgniter\Database\BaseConnection->query('SHOW COLUMNS FR...')
+#4 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(20): CodeIgniter\Database\BaseConnection->getFieldNames('services')
+#5 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(65): App\Models\BillingModel->tableHas('services')
+#6 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(77): App\Models\BillingModel->withRelations()
+#7 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(94): App\Models\BillingModel->search(NULL)
+#8 C:\xampp\htdocs\WebSystemITE-G9\app\Controllers\Billing.php(53): App\Models\BillingModel->getList(NULL)
+#9 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(933): App\Controllers\Billing->index()
+#10 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Billing))
+#11 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#12 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#13 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#14 C:\xampp\htdocs\WebSystemITE-G9\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#15 {main}
+ERROR - 2025-10-14 15:44:45 --> mysqli_sql_exception: Unknown column 'date' in 'where clause' in C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT COUNT(*)...', 0)
+#1 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT COUNT(*)...')
+#2 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT COUNT(*)...')
+#3 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseBuilder.php(1733): CodeIgniter\Database\BaseConnection->query('SELECT COUNT(*)...', Array, false)
+#4 C:\xampp\htdocs\WebSystemITE-G9\system\Model.php(675): CodeIgniter\Database\BaseBuilder->countAllResults(true)
+#5 C:\xampp\htdocs\WebSystemITE-G9\app\Controllers\Dashboard.php(55): CodeIgniter\Model->countAllResults()
+#6 C:\xampp\htdocs\WebSystemITE-G9\app\Controllers\Dashboard.php(18): App\Controllers\Dashboard->buildDashboardData('admin', 'admin')
+#7 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(933): App\Controllers\Dashboard->index()
+#8 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Dashboard))
+#9 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#10 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#11 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#12 C:\xampp\htdocs\WebSystemITE-G9\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#13 {main}
+ERROR - 2025-10-14 15:44:45 --> Error loading dashboard data: Unknown column 'date' in 'where clause'
+ERROR - 2025-10-14 15:46:12 --> mysqli_sql_exception: Unknown column 'date' in 'where clause' in C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT COUNT(*)...', 0)
+#1 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT COUNT(*)...')
+#2 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT COUNT(*)...')
+#3 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseBuilder.php(1733): CodeIgniter\Database\BaseConnection->query('SELECT COUNT(*)...', Array, false)
+#4 C:\xampp\htdocs\WebSystemITE-G9\system\Model.php(675): CodeIgniter\Database\BaseBuilder->countAllResults(true)
+#5 C:\xampp\htdocs\WebSystemITE-G9\app\Controllers\Dashboard.php(55): CodeIgniter\Model->countAllResults()
+#6 C:\xampp\htdocs\WebSystemITE-G9\app\Controllers\Dashboard.php(18): App\Controllers\Dashboard->buildDashboardData('admin', 'admin')
+#7 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(933): App\Controllers\Dashboard->index()
+#8 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Dashboard))
+#9 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#10 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#11 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#12 C:\xampp\htdocs\WebSystemITE-G9\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#13 {main}
+ERROR - 2025-10-14 15:46:12 --> Error loading dashboard data: Unknown column 'date' in 'where clause'
+ERROR - 2025-10-14 15:46:55 --> mysqli_sql_exception: Unknown column 'date' in 'where clause' in C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT COUNT(*)...', 0)
+#1 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT COUNT(*)...')
+#2 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT COUNT(*)...')
+#3 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseBuilder.php(1733): CodeIgniter\Database\BaseConnection->query('SELECT COUNT(*)...', Array, false)
+#4 C:\xampp\htdocs\WebSystemITE-G9\system\Model.php(675): CodeIgniter\Database\BaseBuilder->countAllResults(true)
+#5 C:\xampp\htdocs\WebSystemITE-G9\app\Controllers\Dashboard.php(55): CodeIgniter\Model->countAllResults()
+#6 C:\xampp\htdocs\WebSystemITE-G9\app\Controllers\Dashboard.php(18): App\Controllers\Dashboard->buildDashboardData('admin', 'admin')
+#7 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(933): App\Controllers\Dashboard->index()
+#8 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Dashboard))
+#9 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#10 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#11 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#12 C:\xampp\htdocs\WebSystemITE-G9\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#13 {main}
+ERROR - 2025-10-14 15:46:55 --> Error loading dashboard data: Unknown column 'date' in 'where clause'
+ERROR - 2025-10-14 15:48:32 --> mysqli_sql_exception: Table 'hms_g9.prescriptions' doesn't exist in C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT COUNT(*)...', 0)
+#1 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT COUNT(*)...')
+#2 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT COUNT(*)...')
+#3 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT COUNT(*)...', Array, false)
+#4 C:\xampp\htdocs\WebSystemITE-G9\app\Controllers\Dashboard.php(133): CodeIgniter\Database\BaseBuilder->get()
+#5 C:\xampp\htdocs\WebSystemITE-G9\app\Controllers\Dashboard.php(18): App\Controllers\Dashboard->buildDashboardData('admin', 'admin')
+#6 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(933): App\Controllers\Dashboard->index()
+#7 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Dashboard))
+#8 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#9 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#10 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#11 C:\xampp\htdocs\WebSystemITE-G9\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#12 {main}
+ERROR - 2025-10-14 15:48:32 --> Error loading dashboard data: Table 'hms_g9.prescriptions' doesn't exist
+ERROR - 2025-10-14 15:48:41 --> mysqli_sql_exception: Table 'hms_g9.services' doesn't exist in C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php(327): mysqli->query('SHOW COLUMNS FR...', 0)
+#1 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SHOW COLUMNS FR...')
+#2 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SHOW COLUMNS FR...')
+#3 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(1606): CodeIgniter\Database\BaseConnection->query('SHOW COLUMNS FR...')
+#4 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(20): CodeIgniter\Database\BaseConnection->getFieldNames('services')
+#5 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(65): App\Models\BillingModel->tableHas('services')
+#6 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(77): App\Models\BillingModel->withRelations()
+#7 C:\xampp\htdocs\WebSystemITE-G9\app\Models\BillingModel.php(94): App\Models\BillingModel->search(NULL)
+#8 C:\xampp\htdocs\WebSystemITE-G9\app\Controllers\Billing.php(53): App\Models\BillingModel->getList(NULL)
+#9 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(933): App\Controllers\Billing->index()
+#10 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Billing))
+#11 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#12 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#13 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#14 C:\xampp\htdocs\WebSystemITE-G9\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#15 {main}
+ERROR - 2025-10-14 15:48:46 --> mysqli_sql_exception: Table 'hms_g9.prescriptions' doesn't exist in C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\WebSystemITE-G9\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT COUNT(*)...', 0)
+#1 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT COUNT(*)...')
+#2 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT COUNT(*)...')
+#3 C:\xampp\htdocs\WebSystemITE-G9\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT COUNT(*)...', Array, false)
+#4 C:\xampp\htdocs\WebSystemITE-G9\app\Controllers\Dashboard.php(133): CodeIgniter\Database\BaseBuilder->get()
+#5 C:\xampp\htdocs\WebSystemITE-G9\app\Controllers\Dashboard.php(18): App\Controllers\Dashboard->buildDashboardData('admin', 'admin')
+#6 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(933): App\Controllers\Dashboard->index()
+#7 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Dashboard))
+#8 C:\xampp\htdocs\WebSystemITE-G9\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#9 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#10 C:\xampp\htdocs\WebSystemITE-G9\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#11 C:\xampp\htdocs\WebSystemITE-G9\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#12 {main}
+ERROR - 2025-10-14 15:48:46 --> Error loading dashboard data: Table 'hms_g9.prescriptions' doesn't exist
+CRITICAL - 2025-10-14 15:56:11 --> CodeIgniter\Database\Exceptions\DataException: There is no data to update.
+[Method: POST, Route: appointments/update/3]
+in SYSTEMPATH\BaseModel.php on line 1823.
+ 1 SYSTEMPATH\BaseModel.php(1823): CodeIgniter\Database\Exceptions\DataException::forEmptyDataset('update')
+ 2 SYSTEMPATH\BaseModel.php(994): CodeIgniter\BaseModel->transformDataToArray([], 'update')
+ 3 SYSTEMPATH\Model.php(860): CodeIgniter\BaseModel->update([...], [])
+ 4 APPPATH\Controllers\Appointment.php(341): CodeIgniter\Model->update('3', [])
+ 5 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Appointment->update('3')
+ 6 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Appointment))
+ 7 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 8 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 9 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+10 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))

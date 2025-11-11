@@ -2,38 +2,30 @@
 
 namespace App\Filters;
 
-use CodeIgniter\Filters\FilterInterface;
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
-use CodeIgniter\HTTP\ResponseTrait;
+use CodeIgniter\Filters\FilterInterface;
 
 class AuthFilter implements FilterInterface
 {
-    use ResponseTrait;
-
     public function before(RequestInterface $request, $arguments = null)
     {
-        $session = session();
-        
-        // Check if user is logged in
-        if (!$session->has('isLoggedIn')) {
-            return redirect()->to('/login');
+        if (!session()->get('isLoggedIn')) {
+            return redirect()->to('/login')->with('error', 'Please log in to continue.');
         }
-        
-        // Optional: Check user role if arguments are provided
-        if (!empty($arguments)) {
-            $userRole = $session->get('role');
-            if (!in_array($userRole, $arguments)) {
-                return redirect()->to('/unauthorized');
+
+        if ($arguments) {
+            $allowedRoles = is_array($arguments) ? $arguments : explode(',', $arguments);
+            $userRole = session()->get('role');
+            
+            if (!in_array($userRole, $allowedRoles)) {
+                return redirect()->to('/login')->with('error', 'Access denied.');
             }
         }
-        
-        return $request;
     }
 
     public function after(RequestInterface $request, ResponseInterface $response, $arguments = null)
     {
-        // No action needed after the request
-        return $response;
+        // Do nothing
     }
 }

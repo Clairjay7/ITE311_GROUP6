@@ -1,4 +1,6 @@
-<?= $this->extend('templates/template') ?>
+<?= $this->extend('template/header') ?>
+
+<?= $this->section('title') ?>Admin Dashboard<?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
 <style>
@@ -12,17 +14,27 @@
         gap: 16px;
     }
     .stat-card {
-        background: white;
+        background: #ffffff;
         border-radius: 12px;
         border: 1px solid #e5e7eb;
         padding: 20px;
         box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+        position: relative;
+        overflow: hidden;
+        transition: all 0.25s ease;
     }
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0; height: 4px;
+        background: linear-gradient(90deg, #2e7d32, #43a047);
+    }
+    .stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(16, 24, 40, 0.12); }
     .stat-card h4 {
         margin: 0;
         font-size: 14px;
-        color: #64748b;
-        font-weight: 500;
+        color: #2e7d32;
+        font-weight: 600;
     }
     .stat-card .value {
         margin-top: 12px;
@@ -31,7 +43,7 @@
         color: #1f2937;
     }
     .recent-activity {
-        background: white;
+        background: #ffffff;
         border-radius: 12px;
         border: 1px solid #e5e7eb;
         padding: 20px;
@@ -39,8 +51,9 @@
     }
     .recent-activity h3 {
         margin: 0 0 16px;
-        font-size: 18px;
-        color: #1f2937;
+        font-size: 20px;
+        color: #2e7d32;
+        font-family: 'Playfair Display', serif;
     }
     .activity-table {
         width: 100%;
@@ -54,9 +67,9 @@
         text-align: left;
     }
     .activity-table th {
-        background: #f8fafc;
-        color: #475569;
-        font-weight: 600;
+        background: #e8f5e9;
+        color: #2e7d32;
+        font-weight: 700;
     }
     .status-badge {
         display: inline-block;

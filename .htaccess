@@ -1,31 +1,19 @@
-# Clean .htaccess for CodeIgniter 4 under Apache
+# Disable directory browsing
+Options All -Indexes
+
 <IfModule mod_rewrite.c>
-    Options -Indexes
     RewriteEngine On
-
-    # Set the base URL - IMPORTANT: Updated for root directory
-    RewriteBase /Group6/
-
-    # If the requested path doesn't directly match a file or directory
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
-
-    # Route everything to index.php
-    RewriteRule ^(.*)$ index.php/$1 [L]
-
-    # Ensure Authorization header is passed along
-    RewriteCond %{HTTP:Authorization} .
-    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+    
+    # Redirect to public directory
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ public/$1 [L]
+    
+    # Redirect root to public
+    RewriteRule ^$ public/ [L]
 </IfModule>
 
-# Fallback for servers without mod_rewrite
-<IfModule !mod_rewrite.c>
-    <IfModule mod_alias.c>
-        RedirectMatch 302 ^/$ /index.php/
-    </IfModule>
-    ErrorDocument 404 index.php
-</IfModule>
-
-# Disable directory browsing and server signature
-Options -Indexes
-ServerSignature Off
+# Deny access to .env file
+<Files ".env">
+    Order allow,deny
+    Deny from all
+</Files>

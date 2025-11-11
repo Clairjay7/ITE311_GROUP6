@@ -2,46 +2,27 @@
 
 namespace App\Controllers;
 
-use CodeIgniter\Controller;
-
-class Admin extends Controller
+class Admin extends BaseController
 {
-    public function dashboard()
+    public function index()
     {
-        $db = \Config\Database::connect();
+        // Use unified dashboard for admins
+        return redirect()->to('/dashboard');
+    }
 
-        $totalDoctors = (int) $db->table('doctors')->countAllResults();
-        $totalPatients = (int) $db->table('patients')->countAllResults();
-        $todaysAppointments = (int) $db->table('appointments')
-            ->where('DATE(appointment_date) = CURDATE()', null, false)
-            ->countAllResults();
-        $pendingBills = (int) $db->table('billing')->where('status', 'pending')->countAllResults();
-
-        $recentActivity = $db->table('appointments a')
-            ->select(
-                "a.id, a.appointment_date, a.status, " .
-                "p.first_name as patient_first_name, p.last_name as patient_last_name, " .
-                "COALESCE(CONCAT(u.first_name, ' ', u.last_name), u.username, 'Unknown Doctor') as doctor_name"
-            )
-            ->join('patients p', 'p.id = a.patient_id', 'left')
-            ->join('doctors d', 'd.id = a.doctor_id', 'left')
-            ->join('users u', 'u.id = d.user_id', 'left')
-            ->orderBy('a.appointment_date', 'DESC')
-            ->limit(5)
-            ->get()
-            ->getResultArray();
-
+    public function manageUsers()
+    {
         $data = [
-            'title' => 'Admin Dashboard',
-            'totalDoctors' => $totalDoctors,
-            'totalPatients' => $totalPatients,
-            'todaysAppointments' => $todaysAppointments,
-            'pendingBills' => $pendingBills,
-            'recentActivity' => $recentActivity,
+            'title' => 'User Management',
         ];
+        return view('Roles/admin/Administration/ManageUser', $data);
+    }
 
-        return view('admin/dashboard', $data);
+    public function roleManagement()
+    {
+        $data = [
+            'title' => 'Role Management',
+        ];
+        return view('Roles/admin/Administration/RoleManagement', $data);
     }
 }
-
-
