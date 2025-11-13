@@ -1,0 +1,194 @@
+/* Two-column form layout on desktop */
+@media (min-width: 992px) {
+  .register-page .row.g-3,
+  .register-page .row.mb-3 {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 16px;
+    row-gap: 10px;
+  }
+  .register-page .row.g-3 > [class*="col-12"],
+  .register-page .row.mb-3 > [class*="col-12"] {
+    grid-column: 1 / -1; /* span both columns for full-width blocks */
+  }
+}
+/* Register Patient Page Styles (scoped) */
+:root {
+  --primary-color: #2e7d32;
+  --primary-light: #4caf50;
+  --primary-dark: #1b5e20;
+  --text-color: #333;
+  --text-muted: #6b7280;
+  --surface: #ffffff;
+  --bg: #f8fafc;
+  --ring: rgba(46, 125, 50, 0.35);
+  --shadow: 0 4px 16px rgba(0,0,0,0.06);
+}
+
+.register-page {
+  color: var(--text-color);
+}
+
+.register-page.container {
+  max-width: 1280px;
+}
+
+.register-page .page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.register-page .page-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.register-page .card {
+  border: 0;
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.register-page .card-body {
+  padding: 16px 16px;
+}
+
+/* Form */
+.register-page .form-label {
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 4px;
+  font-size: 0.98rem;
+}
+
+.register-page .form-control,
+.register-page .form-select,
+.register-page textarea {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 12px 14px;
+  min-height: 48px;
+  font-size: 1rem;
+  line-height: 1.4;
+  background: #fff;
+  color: #111827;
+  transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+}
+
+.register-page .form-control:focus,
+.register-page .form-select:focus,
+.register-page textarea:focus {
+  outline: none;
+  border-color: var(--primary-light);
+  box-shadow: 0 0 0 4px var(--ring);
+}
+
+.register-page .invalid-feedback {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.875rem;
+}
+
+/* Buttons */
+.register-page .btn {
+  border-radius: 10px;
+  padding: 12px 18px;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: transform .08s ease, filter .2s ease, box-shadow .2s ease;
+}
+
+.register-page .btn:active {
+  transform: translateY(1px);
+}
+
+.register-page .btn-primary {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  box-shadow: 0 8px 18px rgba(46, 125, 50, 0.25);
+}
+
+.register-page .btn-primary:hover {
+  filter: brightness(1.05);
+}
+
+.register-page .btn-outline-secondary {
+  color: #374151;
+  border-color: #d1d5db;
+  background: #fff;
+}
+
+.register-page .btn-outline-secondary:hover {
+  background: #f9fafb;
+}
+
+/* Grid gaps */
+.register-page .row.g-3 > [class^="col-"],
+.register-page .row.g-3 > [class*=" col-"] {
+  margin-top: 0;
+}
+
+.register-page .row.g-3 {
+  row-gap: 10px;
+}
+
+/* Inpatient fields reveal animation */
+.register-page .inpatient-only {
+  animation: fadeIn .25s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Alerts */
+.register-page .alert {
+  border: 0;
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+}
+
+/* Section title */
+.register-page .section-title {
+  font-weight: 700;
+  font-size: 1rem;
+  color: #0f172a;
+  margin: 10px 0 8px;
+  padding: 6px 10px;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+}
+
+.register-page .section-title + .row.mb-3,
+.register-page .section-title + .row.g-3.mb-3 {
+  margin-top: 8px;
+  margin-bottom: 14px;
+}
+
+/* Buttons group inside form */
+.register-page .card form .d-flex.gap-2 {
+  gap: 10px;
+}
+
+/* Better textarea sizing */
+.register-page textarea.form-control {
+  min-height: 80px;
+}
+
+/* Responsive header */
+@media (max-width: 576px) {
+  .register-page .page-header {
+    align-items: stretch;
+  }
+  .register-page .page-header .btn {
+    width: 100%;
+  }
+}

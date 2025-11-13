@@ -1,12 +1,15 @@
 <?= $this->extend('template/header') ?>
 <?= $this->section('title') ?>Patient Details<?= $this->endSection() ?>
+<?= $this->section('styles') ?>
+<link rel="stylesheet" href="<?= base_url('css/patient-view.css?v=20251113') ?>">
+<?= $this->endSection() ?>
 <?= $this->section('content') ?>
-<div class="container py-4">
+<div class="patient-view container py-4">
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h3 class="mb-0">Patient Details</h3>
     <div>
-      <a class="btn btn-outline-secondary" href="/receptionist/patients">Back</a>
-      <a class="btn btn-primary" href="/receptionist/patients/edit/<?= esc($patient['patient_id']) ?>">Edit</a>
+      <a class="btn btn-outline-secondary" href="<?= site_url('receptionist/patients') ?>">Back</a>
+      <a class="btn btn-primary" href="<?= site_url('receptionist/patients/edit/'.esc($patient['patient_id'])) ?>">Edit</a>
     </div>
   </div>
 

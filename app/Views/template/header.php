@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="<?= base_url('css/dashboard.css?v=20251111') ?>">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <?= $this->renderSection('styles') ?>
 </head>
 <body>
     <!-- Sidebar will be included here -->
@@ -22,10 +23,12 @@
         const mainContent = document.querySelector('.main-content');
         const toggleBtn = document.querySelector('.toggle-btn');
 
-        toggleBtn.addEventListener('click', () => {
-            sidebar.classList.toggle('closed');
-            mainContent.classList.toggle('zoomed');
-        });
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', () => {
+                sidebar && sidebar.classList.toggle('closed');
+                mainContent && mainContent.classList.toggle('zoomed');
+            });
+        }
 
         // Submenu toggle function
         function toggleSubmenu(element) {
