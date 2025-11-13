@@ -167,10 +167,15 @@ $routes->group('receptionist/appointments', ['namespace' => 'App\\Views', 'filte
     $routes->view('staff-schedule', 'Roles/Reception/appointments/StaffSchedule');
 });
 
-$routes->group('receptionist/patients', ['namespace' => 'App\\Views', 'filter' => 'auth:receptionist,admin'], function($routes) {
-    $routes->view('register', 'Roles/Reception/patients/register');
-    $routes->view('inpatient', 'Roles/Reception/patients/Inpatient');
-    $routes->view('view', 'Roles/Reception/patients/view');
+$routes->group('receptionist/patients', ['namespace' => 'App\\Controllers\\Receptionist', 'filter' => 'auth:receptionist,admin'], function($routes) {
+    $routes->get('/', 'Patients::index');
+    $routes->get('list', 'Patients::index');
+    $routes->get('create', 'Patients::create');
+    $routes->post('store', 'Patients::store');
+    $routes->get('show/(:num)', 'Patients::show/$1');
+    $routes->get('edit/(:num)', 'Patients::edit/$1');
+    $routes->post('update/(:num)', 'Patients::update/$1');
+    $routes->post('delete/(:num)', 'Patients::delete/$1');
 });
 
 // Nurse Routes (directly to views)

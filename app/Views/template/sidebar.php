@@ -182,9 +182,8 @@
                     <span class="arrow">›</span>
                 </a>
                 <ul class="submenu">
-                    <li><a href="<?= site_url('receptionist/patients/register') ?>"><span class="text">Out-Patient Entry</span></a></li>
-                    <li><a href="<?= site_url('receptionist/patients/inpatient') ?>"><span class="text">In-Patient Entry</span></a></li>
-                    <li><a href="<?= site_url('receptionist/patients/view') ?>"><span class="text">Patient Records</span></a></li>
+                    <li><a href="<?= site_url('receptionist/patients/create') ?>"><span class="text">Register Patient</span></a></li>
+<li><a href="<?= site_url('receptionist/patients') ?>"><span class="text">Patient Records</span></a></li>
                 </ul>
             </li>
 

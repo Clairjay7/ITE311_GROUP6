@@ -1,0 +1,76 @@
+<?php
+ helper('form');
+ $type = $filterType ?? '';
+ $query = $query ?? '';
+?>
+<?= $this->extend('template/header') ?>
+<?= $this->section('title') ?>Patient Records<?= $this->endSection() ?>
+<?= $this->section('content') ?>
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="mb-0">Patient Records</h3>
+    <a class="btn btn-primary" href="/receptionist/patients/create">Register Patient</a>
+  </div>
+
+  <?php if (session()->getFlashdata('success')): ?>
+    <div class="alert alert-success"><?= esc(session()->getFlashdata('success')) ?></div>
+  <?php endif; ?>
+  <?php if (session()->getFlashdata('error')): ?>
+    <div class="alert alert-danger"><?= esc(session()->getFlashdata('error')) ?></div>
+  <?php endif; ?>
+
+  <form method="get" class="row g-2 mb-3">
+    <div class="col-12 col-md-3">
+      <select class="form-select" name="type">
+        <option value="">All Types</option>
+        <option value="In-Patient" <?= $type==='In-Patient'?'selected':''; ?>>In-Patient</option>
+        <option value="Out-Patient" <?= $type==='Out-Patient'?'selected':''; ?>>Out-Patient</option>
+      </select>
+    </div>
+    <div class="col-12 col-md-6">
+      <input type="text" class="form-control" name="q" placeholder="Search by name, ID, or doctor" value="<?= esc($query) ?>" />
+    </div>
+    <div class="col-12 col-md-3 d-grid">
+      <button class="btn btn-secondary" type="submit">Filter</button>
+    </div>
+  </form>
+
+  <div class="table-responsive">
+    <table class="table table-striped table-hover align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>ID</th>
+          <th>Full Name</th>
+          <th>Type</th>
+          <th>Doctor</th>
+          <th>Department</th>
+          <th>Contact</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php if (!empty($patients)): foreach($patients as $p): ?>
+          <tr>
+            <td><?= esc($p['patient_id']) ?></td>
+            <td><?= esc($p['full_name']) ?></td>
+            <td><span class="badge <?= $p['type']==='In-Patient'?'bg-info':'bg-success' ?>"><?= esc($p['type']) ?></span></td>
+            <td><?= esc($p['doctor_name'] ?? '-') ?></td>
+            <td><?= esc($p['department_name'] ?? '-') ?></td>
+            <td><?= esc($p['contact'] ?? '-') ?></td>
+            <td>
+              <a class="btn btn-sm btn-outline-primary" href="/receptionist/patients/show/<?= $p['patient_id'] ?>">View</a>
+              <a class="btn btn-sm btn-outline-secondary" href="/receptionist/patients/edit/<?= $p['patient_id'] ?>">Edit</a>
+              <form action="/receptionist/patients/delete/<?= $p['patient_id'] ?>" method="post" class="d-inline" onsubmit="return confirm('Delete this record?');">
+                <?= csrf_field() ?>
+                <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+              </form>
+            </td>
+          </tr>
+        <?php endforeach; else: ?>
+          <tr><td colspan="7" class="text-center text-muted py-4">No records found.</td></tr>
+        <?php endif; ?>
+      </tbody>
+    </table>
+  </div>
+</div>
+<?= $this->endSection() ?>
