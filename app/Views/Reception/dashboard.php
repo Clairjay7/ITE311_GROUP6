@@ -14,26 +14,42 @@
 <div class="dashboard-summary">
     <div class="mini-card">
         <div class="mini-title">Today's Appointments</div>
-        <div class="mini-value">24</div>
+        <div id="appointments_today" class="mini-value">--</div>
         <div class="mini-subtext">+3 from yesterday</div>
     </div>
     
     <div class="mini-card">
         <div class="mini-title">Waiting Patients</div>
-        <div class="mini-value">8</div>
+        <div id="waiting_patients" class="mini-value">--</div>
         <div class="mini-subtext">In queue</div>
     </div>
 
     <div class="mini-card">
         <div class="mini-title">New Registrations</div>
-        <div class="mini-value">5</div>
+        <div id="new_registrations" class="mini-value">--</div>
         <div class="mini-subtext">Today</div>
     </div>
-
-    <div class="mini-card">
-        <div class="mini-title">Pending Payments</div>
-        <div class="mini-value">₱12,500</div>
-        <div class="mini-subtext">3 invoices</div>
-    </div>
 </div>
+
+<script>
+const endpoint = '<?= site_url('receptionist/dashboard/stats') ?>';
+async function refreshDashboard(){
+  try{
+    const res = await fetch(endpoint, { headers: { 'Accept': 'application/json' } });
+    if(!res.ok) throw new Error('Network');
+    const data = await res.json();
+    const setText = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
+    setText('appointments_today', data.appointments_today ?? '--');
+    setText('waiting_patients', data.waiting_patients ?? '--');
+    setText('new_registrations', data.new_registrations ?? '--');
+    const amt = typeof data.pending_payments_amount === 'number' ? new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(data.pending_payments_amount) : '₱--';
+    setText('pending_payments_amount', amt);
+    setText('pending_invoices', (data.pending_invoices ?? '--') + ' invoices');
+  }catch(e){ /* silent fail */ }
+}
+window.addEventListener('DOMContentLoaded', () => {
+  refreshDashboard();
+  setInterval(refreshDashboard, 15000);
+});
+</script>
 <?= $this->endSection() ?>

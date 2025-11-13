@@ -139,6 +139,11 @@
 }
 
 /* Inpatient fields reveal animation */
+.register-page a.btn,
+.register-page a.btn:hover,
+.register-page a.btn:focus{
+  text-decoration: none;
+}
 .register-page .inpatient-only {
   animation: fadeIn .25s ease;
 }

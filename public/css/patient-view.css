@@ -8,7 +8,7 @@
   --pv-shadow: 0 4px 16px rgba(0,0,0,0.06);
 }
 
-.patient-view.container { max-width: 1100px; }
+.patient-view.container { max-width: 100%; }
 
 .patient-view .page-header {
   display: flex; align-items: center; justify-content: space-between;
@@ -21,16 +21,55 @@
 .patient-view .card-body { padding: 18px; }
 
 .patient-view .text-muted { color: var(--pv-muted) !important; font-weight: 600; font-size: .88rem; }
-.patient-view .fw-semibold { color: var(--pv-text); }
+.patient-view .fw-semibold { color: var(--pv-text); font-weight: 600; letter-spacing: .2px; }
 
 /* Grid tightening */
 .patient-view .row.g-3 { row-gap: 10px; }
 
+/* Sections spacing */
+.patient-view .section-title { font-weight: 700; font-size: 1rem; color: var(--pv-text); margin: 14px 0 10px; padding: 8px 12px; background: var(--pv-bg); border: 1px solid var(--pv-border); border-radius: 10px; }
+
+/* Field blocks: label over value */
+.patient-view .text-muted + .fw-semibold { margin-top: 2px; display: block; line-height: 1.35; }
+
+/* Subtle separators between logical rows (desktop only) */
+@media (min-width: 768px){
+  .patient-view .row.mb-3:not(:last-of-type){
+    padding-bottom: 6px;
+    border-bottom: 1px dashed #eef2f7;
+  }
+}
+
 /* Badge polish */
 .patient-view .badge { padding: .45rem .6rem; font-weight: 600; border-radius: 10px; }
+.patient-view .badge.bg-info{background:#0ea5e9}
+.patient-view .badge.bg-success{background:#22c55e}
 
 /* Buttons */
 .patient-view .btn { border-radius: 10px; font-weight: 600; padding: 10px 14px; }
+.patient-view .btn-outline-secondary{border-color:#475569;color:#475569}
+.patient-view .btn-outline-secondary:hover{background:#475569;color:#fff}
+.patient-view .btn.btn-primary{background:#2563eb;border-color:#2563eb}
+.patient-view .btn.btn-primary:hover{filter:brightness(.95)}
+/* Bottom action bar (container for Back/Edit) */
+.patient-view .action-bar{display:flex;justify-content:center;align-items:center;gap:12px;padding:12px 16px;border:1px solid var(--pv-border);border-radius:12px;background:#f9fafb;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.patient-view .action-bar .btn{height:42px}
+.patient-view .action-bar a{text-decoration:none}
+@media (min-width: 992px){
+  .patient-view .action-bar{position:sticky;bottom:10px}
+}
+/* Header buttons alignment and spacing */
+.patient-view .page-header .btn{height:40px}
+.patient-view .page-header .btn + .btn{margin-left:8px}
 
-/* Section blocks (optional future sections) */
-.patient-view .section-title { font-weight: 700; font-size: 1rem; color: var(--pv-text); margin: 10px 0 8px; padding: 6px 10px; background: var(--pv-bg); border: 1px solid var(--pv-border); border-radius: 10px; }
+/* Fine-tune text sizing on small screens */
+@media (max-width: 576px){
+  .patient-view .page-title{font-size:1.15rem}
+  .patient-view .card-body{padding:14px}
+}
+
+/* Force compact two-column layout on desktop for field blocks */
+@media (min-width: 992px){
+  .patient-view .row.g-3 > .col-12{flex:0 0 100%;max-width:100%}
+  .patient-view .row.g-3 > [class^="col-"]:not(.col-12){flex:0 0 50%;max-width:50%}
+}

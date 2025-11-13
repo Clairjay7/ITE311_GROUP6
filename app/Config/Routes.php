@@ -160,10 +160,13 @@ $routes->get('admin/inventory/medicine', 'Medicine::index', ['filter' => 'auth:p
 
 // Receptionist Routes (directly to views)
 $routes->view('receptionist/dashboard', 'Roles/Reception/dashboard', ['filter' => 'auth:receptionist,admin']);
+// Realtime dashboard stats endpoint
+$routes->get('receptionist/dashboard/stats', 'Receptionist\DashboardStats::stats', ['filter' => 'auth:receptionist,admin']);
 
 $routes->group('receptionist/appointments', ['namespace' => 'App\\Views', 'filter' => 'auth:receptionist,admin'], function($routes) {
-    $routes->view('list', 'Roles/Reception/appointments/Appointmentlist');
-    $routes->view('book', 'Roles/Reception/appointments/Bookappointment');
+    $routes->view('list', 'Reception/appointments/list');
+    $routes->view('book', 'Reception/appointments/book');
+    // keep staff-schedule to legacy if not migrated yet
     $routes->view('staff-schedule', 'Roles/Reception/appointments/StaffSchedule');
 });
 

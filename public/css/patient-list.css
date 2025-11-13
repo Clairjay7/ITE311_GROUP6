@@ -1,0 +1,99 @@
+/* Patient Records List (scoped) */
+:root{
+  --pl-text:#0f172a;--pl-muted:#64748b;--pl-surface:#fff;--pl-bg:#f8fafc;--pl-border:#e5e7eb;--pl-shadow:0 4px 16px rgba(0,0,0,.06);--pl-primary:#2e7d32
+}
+.patient-list.container{max-width:1200px}
+.patient-list .page-header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.patient-list .page-title{font-size:1.35rem;font-weight:700;letter-spacing:.2px}
+.patient-list .btn{border-radius:10px;font-weight:600;padding:10px 14px}
+
+/* Carded table */
+.patient-list .table-wrap{background:var(--pl-surface);border-radius:14px;box-shadow:var(--pl-shadow);border:1px solid var(--pl-border); transition: box-shadow .2s ease, transform .1s ease}
+.patient-list .table-wrap:hover{box-shadow:0 10px 28px rgba(15,23,42,.12)}
+.patient-list .table{margin-bottom:0}
+.patient-list .table thead th{color:#0f172a;font-weight:700;border-bottom:1px solid var(--pl-border);background:#f9fafb; position:sticky; top:0; z-index:1; text-transform:uppercase; font-size:.78rem; letter-spacing:.04em}
+.patient-list .table thead th:first-child{border-top-left-radius:14px}
+.patient-list .table thead th:last-child{border-top-right-radius:14px}
+.patient-list .table tbody td{vertical-align:middle}
+.patient-list .table th, .patient-list .table td{padding:.8rem 1rem}
+/* Column widths (fixed for consistent spacing) */
+.patient-list .table thead th:nth-child(1),
+.patient-list .table tbody td:nth-child(1){width:7%}
+.patient-list .table thead th:nth-child(2),
+.patient-list .table tbody td:nth-child(2){width:26%}
+.patient-list .table thead th:nth-child(3),
+.patient-list .table tbody td:nth-child(3){width:12%; text-align:center}
+.patient-list .table thead th:nth-child(4),
+.patient-list .table tbody td:nth-child(4){width:17%}
+.patient-list .table thead th:nth-child(5),
+.patient-list .table tbody td:nth-child(5){width:16%}
+.patient-list .table thead th:nth-child(6),
+.patient-list .table tbody td:nth-child(6){width:12%; text-align:center}
+.patient-list .table thead th:nth-child(7),
+.patient-list .table tbody td:nth-child(7){width:10%; white-space:nowrap}
+
+/* Prevent wrapping and add ellipsis for long text in selected columns */
+.patient-list .table tbody td:nth-child(2),
+.patient-list .table tbody td:nth-child(4),
+.patient-list .table tbody td:nth-child(5){overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+
+/* Row polish */
+.patient-list .table-hover tbody tr{transition:background-color .2s ease, transform .05s ease}
+.patient-list .table-hover tbody tr:hover{background:#f6faff}
+.patient-list .toolbar{display:flex;gap:10px;flex-wrap:wrap; align-items:center}
+.patient-list .toolbar .form-select,
+.patient-list .toolbar .form-control{
+  border-radius:12px;
+  padding:.55rem .85rem;
+  height:44px;
+  border:1px solid var(--pl-border);
+  background:#ffffff;
+  box-shadow:inset 0 1px 0 rgba(0,0,0,.02);
+  transition:border-color .2s ease, box-shadow .2s ease;
+}
+.patient-list .toolbar .form-control::placeholder{color:#94a3b8}
+.patient-list .toolbar .form-control:hover,
+.patient-list .toolbar .form-select:hover{border-color:#d1d5db}
+.patient-list .toolbar .form-control:focus,
+.patient-list .toolbar .form-select:focus{box-shadow:0 0 0 .25rem rgba(37,99,235,.12);border-color:#93c5fd}
+
+/* Make filter button match input height and feel */
+.patient-list .toolbar .btn{height:44px; border-radius:12px; font-weight:700}
+.patient-list .toolbar .btn.btn-secondary{background:#111827;color:#fff;border-color:#111827; box-shadow:0 2px 6px rgba(0,0,0,.08)}
+.patient-list .toolbar .btn.btn-secondary:hover{filter:brightness(.97)}
+.patient-list .toolbar .btn.btn-secondary:active{transform:translateY(1px)}
+
+/* Improve spacing on small screens */
+@media (max-width:768px){
+  .patient-list .toolbar{gap:8px}
+}
+
+/* Buttons in table */
+.patient-list .table .btn-sm{border-radius:8px; padding:.35rem .6rem; font-weight:600}
+.patient-list .table a.btn,.patient-list .table a.btn:hover,.patient-list .table a.btn:focus{ text-decoration:none }
+.patient-list .table .btn-outline-primary{border-color:#2563eb;color:#2563eb}
+.patient-list .table .btn-outline-primary:hover{background:#2563eb;color:#fff}
+.patient-list .table .btn-outline-secondary{border-color:#475569;color:#475569}
+.patient-list .table .btn-outline-secondary:hover{background:#475569;color:#fff}
+.patient-list .table .btn-outline-danger{border-color:#ef4444;color:#ef4444}
+.patient-list .table .btn-outline-danger:hover{background:#ef4444;color:#fff}
+.patient-list .table tbody td:last-child{white-space:nowrap}
+.patient-list .table tbody td:last-child .btn{margin-right:6px}
+
+/* Badges */
+.patient-list .badge{border-radius:9999px}
+.patient-list .badge{white-space:nowrap}
+.patient-list .badge.bg-info{background:#0ea5e9}
+.patient-list .badge.bg-success{background:#22c55e}
+
+/* Toolbar inputs focus */
+.patient-list .toolbar .form-control:focus,
+.patient-list .toolbar .form-select:focus{box-shadow:0 0 0 .2rem rgba(37,99,235,.15);border-color:#93c5fd}
+.patient-list .toolbar a.btn,.patient-list .toolbar a.btn:hover,.patient-list .toolbar a.btn:focus{ text-decoration:none }
+
+/* Responsive paddings */
+@media (max-width: 576px){
+  .patient-list .page-title{font-size:1.15rem}
+  .patient-list .btn{padding:8px 12px}
+  .patient-list .table-wrap{border-radius:10px}
+}

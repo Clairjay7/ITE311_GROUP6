@@ -1,0 +1,44 @@
+/* Appointments (Reception) scoped styles */
+:root{--ap-text:#0f172a;--ap-muted:#64748b;--ap-surface:#fff;--ap-bg:#f8fafc;--ap-border:#e5e7eb;--ap-shadow:0 4px 16px rgba(0,0,0,.06);--ap-primary:#2563eb;--ap-success:#16a34a;--ap-warn:#f59e0b;--ap-danger:#ef4444}
+
+.appointments-page.container{max-width:1200px}
+.appointments-page .page-header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.appointments-page .page-title{font-size:1.35rem;font-weight:800;letter-spacing:.2px;color:var(--ap-text)}
+.appointments-page .btn{border-radius:10px;font-weight:700;padding:10px 14px}
+.appointments-page a.btn,.appointments-page a.btn:hover,.appointments-page a.btn:focus{text-decoration:none}
+
+/* Card */
+.appointments-page .card{border:1px solid var(--ap-border);border-radius:14px;background:var(--ap-surface);box-shadow:var(--ap-shadow)}
+.appointments-page .card-body{padding:18px}
+
+/* Toolbar & form controls */
+.appointments-page .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.appointments-page .toolbar .form-control,.appointments-page .toolbar .form-select{border-radius:12px;height:44px;border:1px solid var(--ap-border);padding:.55rem .85rem;background:#fff;box-shadow:inset 0 1px 0 rgba(0,0,0,.02)}
+.appointments-page .toolbar .form-control:focus,.appointments-page .toolbar .form-select:focus{box-shadow:0 0 0 .25rem rgba(37,99,235,.12);border-color:#93c5fd}
+.appointments-page .toolbar .btn{height:44px;border-radius:12px}
+
+/* Table */
+.appointments-page .table-wrap{background:var(--ap-surface);border-radius:14px;box-shadow:var(--ap-shadow);border:1px solid var(--ap-border)}
+.appointments-page .table{margin-bottom:0;table-layout:fixed;width:100%}
+.appointments-page .table thead th{position:sticky;top:0;z-index:1;background:#f9fafb;border-bottom:1px solid var(--ap-border);text-transform:uppercase;font-size:.78rem;letter-spacing:.04em}
+.appointments-page .table th,.appointments-page .table td{padding:.8rem 1rem;vertical-align:middle}
+.appointments-page .table-hover tbody tr{transition:background-color .2s ease}
+.appointments-page .table-hover tbody tr:hover{background:#f6faff}
+.appointments-page .table .btn-sm{border-radius:8px;padding:.35rem .6rem;font-weight:600}
+.appointments-page .table a.btn,.appointments-page .table a.btn:hover,.appointments-page .table a.btn:focus{text-decoration:none}
+
+/* Badges */
+.appointments-page .badge{border-radius:9999px;padding:.4rem .6rem;font-weight:700}
+.appointments-page .badge.status-scheduled{background:#e0edff;color:#1d4ed8}
+.appointments-page .badge.status-completed{background:#dcfce7;color:#166534}
+.appointments-page .badge.status-canceled{background:#fee2e2;color:#b91c1c}
+.appointments-page .badge.status-no-show{background:#fef3c7;color:#92400e}
+
+/* Form grid tightening for book page */
+.appointments-page .row.g-3{row-gap:10px}
+
+/* Responsive tweaks */
+@media (max-width:576px){
+  .appointments-page .page-title{font-size:1.15rem}
+  .appointments-page .card-body{padding:14px}
+}
