@@ -1,7 +1,7 @@
 <?= $this->extend('template/header') ?>
 <?= $this->section('title') ?>Appointment Tracker<?= $this->endSection() ?>
 <?= $this->section('styles') ?>
-<link rel="stylesheet" href="<?= base_url('css/appointments.css?v=20251113') ?>">
+<link rel="stylesheet" href="<?= base_url('css/appointments.css?v=20251114') ?>">
 <?= $this->endSection() ?>
 <?= $this->section('content') ?>
 <div class="appointments-page container py-4">
