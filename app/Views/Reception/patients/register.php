@@ -243,22 +243,13 @@ $errors = session('errors') ?? [];
             <label class="form-label">Room Number</label>
             <input type="text" name="room_number" class="form-control" value="<?= set_value('room_number') ?>">
           </div>
-        </div>
-
-        <!-- F. Signatures -->
-        <h5 class="section-title mb-2">F. Signatures</h5>
-        <div class="row g-3 mb-2">
-          <div class="col-md-6">
-            <label class="form-label">Patient’s Signature (reference)</label>
-            <input type="text" name="signature_patient" class="form-control" value="<?= set_value('signature_patient') ?>" placeholder="File path or reference">
+          <div class="col-md-4 inpatient-only" style="display:none;">
+            <label class="form-label">Ward</label>
+            <input type="text" name="ward" class="form-control" value="<?= set_value('ward') ?>">
           </div>
-          <div class="col-md-3">
-            <label class="form-label">Date Signed</label>
-            <input type="date" name="date_signed" class="form-control" value="<?= set_value('date_signed') ?>">
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Staff / Receptionist Signature (reference)</label>
-            <input type="text" name="signature_staff" class="form-control" value="<?= set_value('signature_staff') ?>" placeholder="File path or reference">
+          <div class="col-md-4 inpatient-only" style="display:none;">
+            <label class="form-label">Private Room</label>
+            <input type="text" name="private_room" class="form-control" value="<?= set_value('private_room') ?>">
           </div>
         </div>
 

@@ -181,6 +181,11 @@ $routes->group('receptionist/patients', ['namespace' => 'App\\Controllers\\Recep
     $routes->post('delete/(:num)', 'Patients::delete/$1');
 });
 
+// Receptionist In-Patients
+$routes->group('receptionist/inpatients', ['namespace' => 'App\\Controllers\\Receptionist', 'filter' => 'auth:receptionist,admin'], function($routes) {
+    $routes->get('rooms', 'Inpatients::rooms');
+});
+
 // Nurse Routes (directly to views)
 $routes->group('nurse/appointments', ['namespace' => 'App\\Views', 'filter' => 'auth:nurse,admin'], function($routes) {
     $routes->view('list', 'Roles/nurse/appointments/Appointmentlist');

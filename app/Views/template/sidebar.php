@@ -197,6 +197,12 @@
                     <li><a href="<?= site_url('receptionist/appointments/list') ?>"><span class="text">Appointment Tracker</span></a></li>
                 </ul>
             </li>
+
+            <li class="nav-item">
+                <a href="<?= site_url('receptionist/inpatients/rooms') ?>">
+                    <span class="text">In-Patient Rooms</span>
+                </a>
+            </li>
         <?php endif; ?>
 
         <!-- PATIENT -->
