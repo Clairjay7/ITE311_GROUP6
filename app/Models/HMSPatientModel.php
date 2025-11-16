@@ -17,7 +17,7 @@ class HMSPatientModel extends Model
         'full_name', 'gender', 'age', 'contact', 'address', 'type', 'doctor_id', 'department_id', 'purpose', 'admission_date', 'room_number',
         'created_at', 'updated_at',
         // New personal info
-        'patient_reg_no', 'first_name', 'middle_name', 'last_name', 'date_of_birth', 'civil_status',
+        'patient_reg_no', 'first_name', 'middle_name', 'last_name', 'extension_name', 'date_of_birth', 'civil_status',
         'address_street', 'address_barangay', 'address_city', 'address_province', 'email', 'nationality', 'religion',
         // Emergency contact
         'emergency_name', 'emergency_relationship', 'emergency_contact', 'emergency_address',
@@ -37,6 +37,7 @@ class HMSPatientModel extends Model
         'first_name' => 'permit_empty|min_length[2]|max_length[60]',
         'middle_name' => 'permit_empty|max_length[60]',
         'last_name' => 'permit_empty|min_length[2]|max_length[60]',
+        'extension_name' => 'permit_empty|max_length[20]',
         'email' => 'permit_empty|valid_email|max_length[120]',
         'gender' => 'permit_empty|in_list[male,female,other,Male,Female,Other]',
         'civil_status' => 'permit_empty|in_list[Single,Married,Widowed,Divorced,Separated,Annulled,Other]',

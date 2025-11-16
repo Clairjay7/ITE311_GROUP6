@@ -163,11 +163,15 @@ $routes->view('receptionist/dashboard', 'Roles/Reception/dashboard', ['filter' =
 // Realtime dashboard stats endpoint
 $routes->get('receptionist/dashboard/stats', 'Receptionist\DashboardStats::stats', ['filter' => 'auth:receptionist,admin']);
 
-$routes->group('receptionist/appointments', ['namespace' => 'App\\Views', 'filter' => 'auth:receptionist,admin'], function($routes) {
+$routes->group('receptionist/appointments', ['namespace' => 'App\\Controllers', 'filter' => 'auth:receptionist,admin'], function($routes) {
+    // List view can still use the plain view if it doesn't need controller data
     $routes->view('list', 'Reception/appointments/list');
-    $routes->view('book', 'Reception/appointments/book');
+
+    // Use Appointment::book so patients and doctors from DB are passed to the view
+    $routes->get('book', 'Appointment::book');
+
     // keep staff-schedule to legacy if not migrated yet
-    $routes->view('staff-schedule', 'Roles/Reception/appointments/StaffSchedule');
+    $routes->view('staff-schedule', '\\Roles/Reception/appointments/StaffSchedule');
 });
 
 $routes->group('receptionist/patients', ['namespace' => 'App\\Controllers\\Receptionist', 'filter' => 'auth:receptionist,admin'], function($routes) {
@@ -181,9 +185,8 @@ $routes->group('receptionist/patients', ['namespace' => 'App\\Controllers\\Recep
     $routes->post('delete/(:num)', 'Patients::delete/$1');
 });
 
-// Receptionist In-Patients
-$routes->group('receptionist/inpatients', ['namespace' => 'App\\Controllers\\Receptionist', 'filter' => 'auth:receptionist,admin'], function($routes) {
-    $routes->get('rooms', 'Inpatients::rooms');
+$routes->group('receptionist/rooms', ['namespace' => 'App\\Controllers\\Receptionist', 'filter' => 'auth:receptionist,admin'], function($routes) {
+    $routes->get('ward/(:segment)', 'Rooms::ward/$1');
 });
 
 // Nurse Routes (directly to views)

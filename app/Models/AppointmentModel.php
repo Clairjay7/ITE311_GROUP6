@@ -76,10 +76,11 @@ class AppointmentModel extends Model
         $builder->select('a.*, 
                          p.first_name as patient_first_name, 
                          p.last_name as patient_last_name, 
-                         p.phone as patient_phone, 
-                         u.username as doctor_name, 
-                         u.email as doctor_email');
-        $builder->join('patients p', 'a.patient_id = p.id', 'left');
+                         p.contact as patient_phone, 
+                         d.department_name as department_name,
+                         u.username as doctor_name');
+        $builder->join('patients p', 'a.patient_id = p.patient_id', 'left');
+        $builder->join('departments d', 'p.department_id = d.id', 'left');
         $builder->join('users u', 'a.doctor_id = u.id', 'left');
         $builder->join('roles r', 'u.role_id = r.id', 'left');
         $builder->where('r.name', 'doctor');
@@ -102,9 +103,10 @@ class AppointmentModel extends Model
         $builder->select('a.*, 
                          p.first_name as patient_first_name, 
                          p.last_name as patient_last_name, 
-                         u.username as doctor_name, 
-                         u.email as doctor_email');
-        $builder->join('patients p', 'a.patient_id = p.id', 'left');
+                         d.department_name as department_name,
+                         u.username as doctor_name');
+        $builder->join('patients p', 'a.patient_id = p.patient_id', 'left');
+        $builder->join('departments d', 'p.department_id = d.id', 'left');
         $builder->join('users u', 'a.doctor_id = u.id', 'left');
         $builder->join('roles r', 'u.role_id = r.id', 'left');
         $builder->where('r.name', 'doctor');
@@ -125,8 +127,8 @@ class AppointmentModel extends Model
         $builder->select('a.*, 
                          p.first_name as patient_first_name, 
                          p.last_name as patient_last_name, 
-                         p.phone as patient_phone');
-        $builder->join('patients p', 'a.patient_id = p.id', 'left');
+                         p.contact as patient_phone');
+        $builder->join('patients p', 'a.patient_id = p.patient_id', 'left');
         $builder->where('a.doctor_id', $doctorId);
         
         if ($date) {

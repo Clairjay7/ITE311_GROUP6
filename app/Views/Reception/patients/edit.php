@@ -168,7 +168,15 @@ $errors = session('errors') ?? [];
         <div class="row g-3 mb-3">
           <div class="col-md-4">
             <label class="form-label">Health Insurance Provider</label>
-            <input type="text" name="insurance_provider" class="form-control" value="<?= set_value('insurance_provider', $patient['insurance_provider'] ?? '') ?>">
+            <?php $ip = set_value('insurance_provider', $patient['insurance_provider'] ?? ''); ?>
+            <select name="insurance_provider" class="form-select">
+              <option value="">Select</option>
+              <option value="PhilHealth" <?= $ip==='PhilHealth'?'selected':''; ?>>PhilHealth</option>
+              <option value="Maxicare" <?= $ip==='Maxicare'?'selected':''; ?>>Maxicare</option>
+              <option value="Medicard" <?= $ip==='Medicard'?'selected':''; ?>>Medicard</option>
+              <option value="Intellicare" <?= $ip==='Intellicare'?'selected':''; ?>>Intellicare</option>
+              <option value="Other" <?= $ip==='Other'?'selected':''; ?>>Other</option>
+            </select>
           </div>
           <div class="col-md-4">
             <label class="form-label">Insurance Number / Policy ID</label>
@@ -177,10 +185,6 @@ $errors = session('errors') ?? [];
           <div class="col-md-4">
             <label class="form-label">PhilHealth Number</label>
             <input type="text" name="philhealth_number" class="form-control" value="<?= set_value('philhealth_number', $patient['philhealth_number'] ?? '') ?>">
-          </div>
-          <div class="col-12">
-            <label class="form-label">Billing Address</label>
-            <textarea name="billing_address" class="form-control" rows="2"><?= set_value('billing_address', $patient['billing_address'] ?? '') ?></textarea>
           </div>
           <div class="col-md-3">
             <label class="form-label">Payment Type</label>
@@ -243,23 +247,6 @@ $errors = session('errors') ?? [];
           <div class="col-md-4 inpatient-only" style="display:none;">
             <label class="form-label">Room Number</label>
             <input type="text" name="room_number" class="form-control" value="<?= set_value('room_number', $patient['room_number'] ?? '') ?>">
-          </div>
-        </div>
-
-        <!-- F. Signatures -->
-        <h5 class="section-title mb-2">F. Signatures</h5>
-        <div class="row g-3 mb-2">
-          <div class="col-md-6">
-            <label class="form-label">Patient’s Signature (reference)</label>
-            <input type="text" name="signature_patient" class="form-control" value="<?= set_value('signature_patient', $patient['signature_patient'] ?? '') ?>">
-          </div>
-          <div class="col-md-3">
-            <label class="form-label">Date Signed</label>
-            <input type="date" name="date_signed" class="form-control" value="<?= set_value('date_signed', $patient['date_signed'] ?? '') ?>">
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Staff / Receptionist Signature (reference)</label>
-            <input type="text" name="signature_staff" class="form-control" value="<?= set_value('signature_staff', $patient['signature_staff'] ?? '') ?>">
           </div>
         </div>
 

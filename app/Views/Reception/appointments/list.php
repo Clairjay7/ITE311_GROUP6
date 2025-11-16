@@ -28,20 +28,39 @@
         <table class="table table-striped table-hover align-middle mb-0">
           <thead class="table-light">
             <tr>
-              <th>#</th>
-              <th>Patient</th>
-              <th>Department</th>
-              <th>Doctor</th>
-              <th>Date</th>
-              <th>Time</th>
-              <th>Status</th>
-              <th>Actions</th>
+              <th style="text-align:center; width:60px;">No#</th>
+              <th style="text-align:center; width:120px;">Patient</th>
+              <th style="text-align:center; width:140px;">Department</th>
+              <th style="text-align:center;">Doctor</th>
+              <th style="text-align:center;">Date</th>
+              <th style="text-align:center;">Time</th>
+              <th style="text-align:center;">Status</th>
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td colspan="8" class="text-center text-muted py-4">No data source wired yet.</td>
-            </tr>
+            <?php if (!empty($appointments ?? [])): ?>
+              <?php $i = 1; foreach ($appointments as $apt): ?>
+                <tr>
+                  <td style="text-align:center;"><?= $i++ ?></td>
+                  <td style="text-align:center;">
+                    <?= esc(trim(($apt['patient_first_name'] ?? '') . ' ' . ($apt['patient_last_name'] ?? ''))) ?: 'N/A' ?>
+                  </td>
+                  <td style="text-align:center;">
+                    <?= esc($apt['appointment_type'] ?? 'N/A') ?>
+                  </td>
+                  <td style="text-align:center;">
+                    <?= esc($apt['doctor_name'] ?? 'N/A') ?>
+                  </td>
+                  <td style="text-align:center;"><?= esc($apt['appointment_date'] ?? '') ?></td>
+                  <td style="text-align:center;"><?= esc(substr($apt['appointment_time'] ?? '', 0, 5)) ?></td>
+                  <td style="text-align:center;" class="text-capitalize"><?= esc($apt['status'] ?? 'scheduled') ?></td>
+                </tr>
+              <?php endforeach; ?>
+            <?php else: ?>
+              <tr>
+                <td colspan="7" class="text-center text-muted py-4">No appointments found.</td>
+              </tr>
+            <?php endif; ?>
           </tbody>
         </table>
       </div>

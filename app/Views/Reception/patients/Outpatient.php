@@ -1,17 +1,18 @@
 <?php
 helper('form');
 $errors = session('errors') ?? [];
-$initialType = $initialType ?? 'Out-Patient';
+// For this view we always default to Out-Patient
+$initialType = 'Out-Patient';
 ?>
 <?= $this->extend('template/header') ?>
-<?= $this->section('title') ?>Register Patient<?= $this->endSection() ?>
+<?= $this->section('title') ?>Register Out-Patient<?= $this->endSection() ?>
 <?= $this->section('styles') ?>
 <link rel="stylesheet" href="<?= base_url('css/patient-register.css?v=20251113') ?>">
 <?= $this->endSection() ?>
 <?= $this->section('content') ?>
 <div class="register-page container py-4">
   <div class="page-header mb-3 d-flex justify-content-between align-items-center">
-    <h3 class="page-title mb-0">Register In-Patient</h3>
+    <h3 class="page-title mb-0">Register Out-Patient</h3>
     <a href="<?= site_url('receptionist/patients') ?>" class="btn btn-outline-secondary">Back to Records</a>
   </div>
 
@@ -246,10 +247,10 @@ $initialType = $initialType ?? 'Out-Patient';
             <label class="form-label">Registered By</label>
             <input type="text" name="registered_by" class="form-control" value="<?= set_value('registered_by') ?>" placeholder="Staff name or ID">
           </div>
-          <input type="hidden" name="type" value="In-Patient">
           <div class="col-md-3">
             <label class="form-label">Type</label>
-            <input type="text" class="form-control" value="In-Patient" readonly>
+            <input type="text" class="form-control" value="Out-Patient" disabled>
+            <input type="hidden" name="type" value="Out-Patient">
           </div>
           <div class="col-md-3">
             <label class="form-label">Doctor Assigned</label>
@@ -272,14 +273,6 @@ $initialType = $initialType ?? 'Out-Patient';
           <div class="col-12">
             <label class="form-label">Purpose of Visit</label>
             <textarea name="purpose" class="form-control" rows="2"><?= set_value('purpose') ?></textarea>
-          </div>
-          <div class="col-md-4">
-            <label class="form-label">Admission Date</label>
-            <input type="date" name="admission_date" class="form-control" value="<?= set_value('admission_date') ?>">
-          </div>
-          <div class="col-md-4">
-            <label class="form-label">Room Number</label>
-            <input type="text" name="room_number" class="form-control" value="<?= set_value('room_number') ?>">
           </div>
         </div>
 
@@ -341,12 +334,10 @@ window.addEventListener('DOMContentLoaded', function () {
   fetch(PSGC_BASE + '/provinces')
     .then(r => r.json())
     .then(data => {
-      // API returns an array of provinces with name and code
       populateSelect(provinceSelect, data, 'Select Province');
       attachSearch(provinceSearch, provinceSelect);
     })
     .catch(() => {
-      // If API fails, keep basic placeholder
       clearOptions(provinceSelect, 'Unable to load provinces');
     });
 

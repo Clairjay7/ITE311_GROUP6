@@ -7,6 +7,11 @@
 <div class="patient-view container py-4">
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h3 class="mb-0">Patient Details</h3>
+    <?php if (!empty($patient['type'])): ?>
+      <span class="badge <?= ($patient['type'] ?? '')==='In-Patient'?'bg-info':'bg-success' ?>">
+        <?= esc($patient['type']) ?>
+      </span>
+    <?php endif; ?>
   </div>
 
   <div class="card shadow-sm">
@@ -129,10 +134,6 @@
           <div class="text-muted">PhilHealth Number</div>
           <div class="fw-semibold"><?= esc($patient['philhealth_number'] ?? '-') ?></div>
         </div>
-        <div class="col-12">
-          <div class="text-muted">Billing Address</div>
-          <div class="fw-semibold"><?= nl2br(esc($patient['billing_address'] ?? '-')) ?></div>
-        </div>
         <div class="col-md-3">
           <div class="text-muted">Payment Type</div>
           <div class="fw-semibold"><?= esc($patient['payment_type'] ?? '-') ?></div>
@@ -178,22 +179,6 @@
         <?php endif; ?>
       </div>
 
-      <!-- F. Signatures -->
-      <h6 class="section-title mb-2">F. Signatures</h6>
-      <div class="row g-3 mb-2">
-        <div class="col-md-4">
-          <div class="text-muted">Patient’s Signature (ref)</div>
-          <div class="fw-semibold"><?= esc($patient['signature_patient'] ?? '-') ?></div>
-        </div>
-        <div class="col-md-3">
-          <div class="text-muted">Date Signed</div>
-          <div class="fw-semibold"><?= esc($patient['date_signed'] ?? '-') ?></div>
-        </div>
-        <div class="col-md-4">
-          <div class="text-muted">Staff Signature (ref)</div>
-          <div class="fw-semibold"><?= esc($patient['signature_staff'] ?? '-') ?></div>
-        </div>
-      </div>
     </div>
   </div>
   <div class="action-bar text-center mt-3">

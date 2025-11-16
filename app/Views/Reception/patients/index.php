@@ -38,7 +38,22 @@
     </div>
   </form>
 
-  <div class="table-wrap table-responsive">
+  <?php
+    $inPatients = [];
+    $outPatients = [];
+    if (!empty($patients)) {
+      foreach ($patients as $p) {
+        if (($p['type'] ?? '') === 'In-Patient') {
+          $inPatients[] = $p;
+        } elseif (($p['type'] ?? '') === 'Out-Patient') {
+          $outPatients[] = $p;
+        }
+      }
+    }
+  ?>
+
+  <div class="table-wrap table-responsive mb-4">
+    <h5 class="mb-3">In-Patients</h5>
     <table class="table table-striped table-hover align-middle">
       <thead class="table-light">
         <tr>
@@ -52,7 +67,7 @@
         </tr>
       </thead>
       <tbody>
-        <?php if (!empty($patients)): foreach($patients as $p): ?>
+        <?php if (!empty($inPatients)): foreach($inPatients as $p): ?>
           <tr>
             <td><?= esc($p['patient_id']) ?></td>
             <td><?= esc($p['full_name']) ?></td>
@@ -70,7 +85,46 @@
             </td>
           </tr>
         <?php endforeach; else: ?>
-          <tr><td colspan="7" class="text-center text-muted py-4 empty">No records found.</td></tr>
+          <tr><td colspan="7" class="text-center text-muted py-4 empty">No in-patient records found.</td></tr>
+        <?php endif; ?>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="table-wrap table-responsive">
+    <h5 class="mb-3">Out-Patients</h5>
+    <table class="table table-striped table-hover align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>ID</th>
+          <th>Full Name</th>
+          <th>Type</th>
+          <th>Doctor</th>
+          <th>Department</th>
+          <th>Contact</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php if (!empty($outPatients)): foreach($outPatients as $p): ?>
+          <tr>
+            <td><?= esc($p['patient_id']) ?></td>
+            <td><?= esc($p['full_name']) ?></td>
+            <td><span class="badge <?= $p['type']==='In-Patient'?'bg-info':'bg-success' ?>"><?= esc($p['type']) ?></span></td>
+            <td><?= esc($p['doctor_name'] ?? '-') ?></td>
+            <td><?= esc($p['department_name'] ?? '-') ?></td>
+            <td><?= esc($p['contact'] ?? '-') ?></td>
+            <td>
+              <a class="btn btn-sm btn-outline-primary" href="<?= site_url('receptionist/patients/show/'.$p['patient_id']) ?>">View</a>
+              <a class="btn btn-sm btn-outline-secondary" href="<?= site_url('receptionist/patients/edit/'.$p['patient_id']) ?>">Edit</a>
+              <form action="<?= site_url('receptionist/patients/delete/'.$p['patient_id']) ?>" method="post" class="d-inline" onsubmit="return confirm('Delete this record?');">
+                <?= csrf_field() ?>
+                <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+              </form>
+            </td>
+          </tr>
+        <?php endforeach; else: ?>
+          <tr><td colspan="7" class="text-center text-muted py-4 empty">No out-patient records found.</td></tr>
         <?php endif; ?>
       </tbody>
     </table>

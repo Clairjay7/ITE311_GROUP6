@@ -54,11 +54,21 @@ class Patients extends BaseController
 
     public function create()
     {
-        return view('Reception/patients/register', [
+        $prefType = $this->request->getGet('type'); // In-Patient | Out-Patient from link
+        if (!in_array($prefType, ['In-Patient', 'Out-Patient'], true)) {
+            $prefType = 'Out-Patient';
+        }
+
+        $viewName = $prefType === 'Out-Patient'
+            ? 'Reception/patients/Outpatient'
+            : 'Reception/patients/register';
+
+        return view($viewName, [
             'title' => 'Register Patient',
             'departments' => $this->departmentModel->findAll(),
             'doctors' => $this->doctorModel->findAll(),
-            'validation' => \Config\Services::validation()
+            'validation' => \Config\Services::validation(),
+            'initialType' => $prefType,
         ]);
     }
 
@@ -81,7 +91,16 @@ class Patients extends BaseController
         $first = trim((string)$this->request->getPost('first_name'));
         $middle = trim((string)$this->request->getPost('middle_name'));
         $last = trim((string)$this->request->getPost('last_name'));
-        $fullName = trim($first . ' ' . ($middle !== '' ? $middle . ' ' : '') . $last);
+        $ext = trim((string)$this->request->getPost('extension_name'));
+        $nameParts = [$first];
+        if ($middle !== '') {
+            $nameParts[] = $middle;
+        }
+        $nameParts[] = $last;
+        if ($ext !== '') {
+            $nameParts[] = $ext;
+        }
+        $fullName = trim(implode(' ', array_filter($nameParts)));
 
         $dob = $this->request->getPost('date_of_birth');
         $age = $this->request->getPost('age');
@@ -121,6 +140,7 @@ class Patients extends BaseController
             'first_name' => $first,
             'middle_name' => $middle ?: null,
             'last_name' => $last,
+            'extension_name' => $ext !== '' ? $ext : null,
             'full_name' => $fullName,
             'gender' => $this->request->getPost('gender'),
             'civil_status' => $this->request->getPost('civil_status') ?: null,
@@ -215,7 +235,16 @@ class Patients extends BaseController
         $first  = trim((string)$this->request->getPost('first_name'));
         $middle = trim((string)$this->request->getPost('middle_name'));
         $last   = trim((string)$this->request->getPost('last_name'));
-        $fullName = trim($first . ' ' . ($middle !== '' ? $middle . ' ' : '') . $last);
+        $ext    = trim((string)$this->request->getPost('extension_name'));
+        $nameParts = [$first];
+        if ($middle !== '') {
+            $nameParts[] = $middle;
+        }
+        $nameParts[] = $last;
+        if ($ext !== '') {
+            $nameParts[] = $ext;
+        }
+        $fullName = trim(implode(' ', array_filter($nameParts)));
 
         $dob = $this->request->getPost('date_of_birth');
         $age = $this->request->getPost('age');

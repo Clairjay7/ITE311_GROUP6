@@ -182,8 +182,9 @@
                     <span class="arrow">›</span>
                 </a>
                 <ul class="submenu">
-                    <li><a href="<?= site_url('receptionist/patients/create') ?>"><span class="text">Register Patient</span></a></li>
-<li><a href="<?= site_url('receptionist/patients') ?>"><span class="text">Patient Records</span></a></li>
+                    <li><a href="<?= site_url('receptionist/patients/create?type=In-Patient') ?>"><span class="text">Register In-Patient</span></a></li>
+                    <li><a href="<?= site_url('receptionist/patients/create?type=Out-Patient') ?>"><span class="text">Register Out-Patient</span></a></li>
+                    <li><a href="<?= site_url('receptionist/patients') ?>"><span class="text">Patient Records</span></a></li>
                 </ul>
             </li>
 
@@ -193,15 +194,21 @@
                     <span class="arrow">›</span>
                 </a>
                 <ul class="submenu">
-                    <li><a href="<?= site_url('receptionist/appointments/book') ?>"><span class="text">New Appointment</span></a></li>
-                    <li><a href="<?= site_url('receptionist/appointments/list') ?>"><span class="text">Appointment Tracker</span></a></li>
+                    <li><a href="<?= site_url('appointments/book') ?>"><span class="text">New Appointment</span></a></li>
+                    <li><a href="<?= site_url('appointments/list') ?>"><span class="text">Appointment Tracker</span></a></li>
                 </ul>
             </li>
 
-            <li class="nav-item">
-                <a href="<?= site_url('receptionist/inpatients/rooms') ?>">
-                    <span class="text">In-Patient Rooms</span>
+            <li class="nav-item expandable">
+                <a href="#" onclick="toggleSubmenu(this)">
+                    <span class="text">Room Management</span>
+                    <span class="arrow">›</span>
                 </a>
+                <ul class="submenu">
+                    <li><a href="<?= site_url('receptionist/rooms/ward/pedia') ?>"><span class="text">Pedia Ward</span></a></li>
+                    <li><a href="<?= site_url('receptionist/rooms/ward/male') ?>"><span class="text">Male Ward</span></a></li>
+                    <li><a href="<?= site_url('receptionist/rooms/ward/female') ?>"><span class="text">Female Ward</span></a></li>
+                </ul>
             </li>
         <?php endif; ?>
 
