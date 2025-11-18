@@ -230,15 +230,6 @@ $initialType = $initialType ?? 'Out-Patient';
               <option value="">Select</option>
               <option <?= set_select('payment_type','Cash') ?>>Cash</option>
               <option <?= set_select('payment_type','Insurance') ?>>Insurance</option>
-              <option <?= set_select('payment_type','Credit') ?>>Credit</option>
-            </select>
-          </div>
-        </div>
-
-        <!-- E. Registration Details -->
-        <h5 class="section-title mb-2">E. Registration Details</h5>
-        <div class="row g-3 mb-3">
-          <div class="col-md-3">
             <label class="form-label">Date of Registration</label>
             <input type="date" name="registration_date" class="form-control" value="<?= set_value('registration_date', date('Y-m-d')) ?>">
           </div>
@@ -278,8 +269,21 @@ $initialType = $initialType ?? 'Out-Patient';
             <input type="date" name="admission_date" class="form-control" value="<?= set_value('admission_date') ?>">
           </div>
           <div class="col-md-4">
+            <label class="form-label">Ward</label>
+            <select name="ward" id="wardSelect" class="form-select">
+              <option value="">-- Select Ward --</option>
+              <?php foreach (($availableRoomsByWard ?? []) as $wardName => $rooms): ?>
+                <?php if (!empty($rooms)): ?>
+                  <option value="<?= esc($wardName) ?>" <?= set_select('ward', $wardName) ?>><?= esc($wardName) ?></option>
+                <?php endif; ?>
+              <?php endforeach; ?>
+            </select>
+          </div>
+          <div class="col-md-4">
             <label class="form-label">Room Number</label>
-            <input type="text" name="room_number" class="form-control" value="<?= set_value('room_number') ?>">
+            <select name="room_number" id="roomSelect" class="form-select">
+              <option value="">-- Select Room --</option>
+            </select>
           </div>
         </div>
 
@@ -300,6 +304,9 @@ window.addEventListener('DOMContentLoaded', function () {
   const provinceSearch = document.getElementById('provinceSearch');
   const citySearch = document.getElementById('citySearch');
   const barangaySearch = document.getElementById('barangaySearch');
+
+  const wardSelect = document.getElementById('wardSelect');
+  const roomSelect = document.getElementById('roomSelect');
 
   if (!provinceSelect || !citySelect || !barangaySelect) {
     return;
@@ -384,6 +391,32 @@ window.addEventListener('DOMContentLoaded', function () {
         clearOptions(barangaySelect, 'Unable to load barangays');
       });
   });
+
+  // Ward/Room dropdown handling for In-Patient registration
+  if (wardSelect && roomSelect) {
+    const roomsByWard = <?= json_encode($availableRoomsByWard ?? []) ?>;
+
+    function populateRoomsForWard(wardName) {
+      roomSelect.innerHTML = '';
+      const placeholder = document.createElement('option');
+      placeholder.value = '';
+      placeholder.textContent = '-- Select Room --';
+      roomSelect.appendChild(placeholder);
+
+      const rooms = roomsByWard[wardName] || [];
+      rooms.forEach(function (room) {
+        const opt = document.createElement('option');
+        opt.value = room.room_number;
+        opt.textContent = room.room_number;
+        roomSelect.appendChild(opt);
+      });
+    }
+
+    wardSelect.addEventListener('change', function () {
+      const wardName = this.value;
+      populateRoomsForWard(wardName);
+    });
+  }
 });
 </script>
 <?= $this->endSection() ?>

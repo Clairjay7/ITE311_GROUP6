@@ -1,0 +1,46 @@
+/* Room List (scoped) */
+:root{
+  --rl-text:#0f172a;--rl-muted:#64748b;--rl-surface:#fff;--rl-bg:#f8fafc;--rl-border:#e5e7eb;--rl-shadow:0 4px 16px rgba(0,0,0,.06);--rl-primary:#2e7d32
+}
+.room-list.container{max-width:1200px;margin-top:24px;margin-bottom:32px}
+.room-list .page-header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.room-list .page-title{font-size:1.35rem;font-weight:700;letter-spacing:.2px}
+.room-list .btn{border-radius:10px;font-weight:600;padding:10px 14px}
+
+/* Carded table */
+.room-list .table-wrap{background:var(--rl-surface);border-radius:14px;box-shadow:var(--rl-shadow);border:1px solid var(--rl-border);padding:18px 20px; transition: box-shadow .2s ease, transform .1s ease}
+.room-list .table-wrap:hover{box-shadow:0 10px 28px rgba(15,23,42,.12)}
+.room-list .table{margin-bottom:0}
+.room-list .table thead th{color:#0f172a;font-weight:700;border-bottom:1px solid var(--rl-border);background:#f9fafb; position:sticky; top:0; z-index:1; text-transform:uppercase; font-size:.78rem; letter-spacing:.04em}
+.room-list .table thead th:first-child{border-top-left-radius:14px}
+.room-list .table thead th:last-child{border-top-right-radius:14px}
+.room-list .table tbody td{vertical-align:middle}
+.room-list .table th, .room-list .table td{padding:.9rem 1.1rem}
+
+/* Column widths & alignment */
+.room-list .table thead th:nth-child(1),
+.room-list .table tbody td:nth-child(1){width:15%}
+.room-list .table thead th:nth-child(2),
+.room-list .table tbody td:nth-child(2){width:20%}
+.room-list .table thead th:nth-child(3),
+.room-list .table tbody td:nth-child(3){width:35%}
+.room-list .table thead th:nth-child(4),
+.room-list .table tbody td:nth-child(4){width:30%;text-align:right;white-space:nowrap}
+
+/* Row polish */
+.room-list .table-hover tbody tr{transition:background-color .2s ease, transform .05s ease}
+.room-list .table-hover tbody tr:hover{background:#f6faff}
+
+/* Buttons in table */
+.room-list .table .btn-sm{border-radius:8px; padding:.35rem .6rem; font-weight:600}
+.room-list .table a.btn,.room-list .table a.btn:hover,.room-list .table a.btn:focus{ text-decoration:none }
+
+/* Badges */
+.room-list .badge{border-radius:9999px;white-space:nowrap}
+
+/* Responsive tweaks */
+@media (max-width: 576px){
+  .room-list .page-title{font-size:1.15rem}
+  .room-list .btn{padding:8px 12px}
+  .room-list .table-wrap{border-radius:10px}
+}

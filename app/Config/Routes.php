@@ -187,6 +187,9 @@ $routes->group('receptionist/patients', ['namespace' => 'App\\Controllers\\Recep
 
 $routes->group('receptionist/rooms', ['namespace' => 'App\\Controllers\\Receptionist', 'filter' => 'auth:receptionist,admin'], function($routes) {
     $routes->get('ward/(:segment)', 'Rooms::ward/$1');
+    $routes->get('assign/(:num)', 'Rooms::assignForm/$1');
+    $routes->post('assign/(:num)', 'Rooms::assignStore/$1');
+    $routes->post('vacate/(:num)', 'Rooms::vacate/$1');
 });
 
 // Nurse Routes (directly to views)

@@ -6,12 +6,14 @@ use App\Controllers\BaseController;
 use App\Models\HMSPatientModel;
 use App\Models\DepartmentModel;
 use App\Models\DoctorDirectoryModel;
+use App\Models\RoomModel;
 
 class Patients extends BaseController
 {
     protected $patientModel;
     protected $departmentModel;
     protected $doctorModel;
+    protected $roomModel;
 
     public function __construct()
     {
@@ -19,6 +21,7 @@ class Patients extends BaseController
         $this->patientModel = new HMSPatientModel();
         $this->departmentModel = new DepartmentModel();
         $this->doctorModel = new DoctorDirectoryModel();
+        $this->roomModel = new RoomModel();
     }
 
     public function index()
@@ -59,6 +62,14 @@ class Patients extends BaseController
             $prefType = 'Out-Patient';
         }
 
+        $availableRoomsByWard = [];
+        if ($prefType === 'In-Patient') {
+            $wardNames = ['Pedia Ward', 'Male Ward', 'Female Ward'];
+            foreach ($wardNames as $wardName) {
+                $availableRoomsByWard[$wardName] = $this->roomModel->getAvailableByWard($wardName);
+            }
+        }
+
         $viewName = $prefType === 'Out-Patient'
             ? 'Reception/patients/Outpatient'
             : 'Reception/patients/register';
@@ -69,6 +80,7 @@ class Patients extends BaseController
             'doctors' => $this->doctorModel->findAll(),
             'validation' => \Config\Services::validation(),
             'initialType' => $prefType,
+            'availableRoomsByWard' => $availableRoomsByWard,
         ]);
     }
 
@@ -183,6 +195,26 @@ class Patients extends BaseController
         ];
 
         $this->patientModel->save($data);
+
+        $patientId = $this->patientModel->getInsertID();
+        $type = $this->request->getPost('type');
+        if ($patientId && $type === 'In-Patient') {
+            $ward = trim((string)$this->request->getPost('ward'));
+            $roomNumber = trim((string)$this->request->getPost('room_number'));
+            if ($ward !== '' && $roomNumber !== '') {
+                $room = $this->roomModel
+                    ->where('ward', $ward)
+                    ->where('room_number', $roomNumber)
+                    ->first();
+                if ($room && ($room['status'] ?? '') !== 'Occupied') {
+                    $this->roomModel->update((int)$room['id'], [
+                        'current_patient_id' => $patientId,
+                        'status' => 'Occupied',
+                    ]);
+                }
+            }
+        }
+
         return redirect()->to('/receptionist/patients')->with('success', 'Patient registered successfully.');
     }
 

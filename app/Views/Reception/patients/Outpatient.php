@@ -148,27 +148,6 @@ $initialType = 'Out-Patient';
           </div>
         </div>
 
-        <!-- B. Emergency Contact / Guardian Information -->
-        <h5 class="section-title mb-2">B. Emergency Contact / Guardian Information</h5>
-        <div class="row g-3 mb-3">
-          <div class="col-md-6">
-            <label class="form-label">Name of Emergency Contact / Guardian</label>
-            <input type="text" name="emergency_name" class="form-control" value="<?= set_value('emergency_name') ?>">
-          </div>
-          <div class="col-md-3">
-            <label class="form-label">Relationship</label>
-            <input type="text" name="emergency_relationship" class="form-control" value="<?= set_value('emergency_relationship') ?>">
-          </div>
-          <div class="col-md-3">
-            <label class="form-label">Contact Number</label>
-            <input type="text" name="emergency_contact" class="form-control" value="<?= set_value('emergency_contact') ?>">
-          </div>
-          <div class="col-12">
-            <label class="form-label">Address</label>
-            <input type="text" name="emergency_address" class="form-control" value="<?= set_value('emergency_address') ?>">
-          </div>
-        </div>
-
         <!-- C. Medical Information -->
         <h5 class="section-title mb-2">C. Medical Information</h5>
         <div class="row g-3 mb-3">
