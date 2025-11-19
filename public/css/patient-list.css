@@ -2,7 +2,7 @@
 :root{
   --pl-text:#0f172a;--pl-muted:#64748b;--pl-surface:#fff;--pl-bg:#f8fafc;--pl-border:#e5e7eb;--pl-shadow:0 4px 16px rgba(0,0,0,.06);--pl-primary:#2e7d32
 }
-.patient-list.container{max-width:1200px}
+.patient-list.container{width:100%;max-width:none}
 .patient-list .page-header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px}
 .patient-list .page-title{font-size:1.35rem;font-weight:700;letter-spacing:.2px}
 .patient-list .btn{border-radius:10px;font-weight:600;padding:10px 14px}
@@ -10,27 +10,27 @@
 /* Carded table */
 .patient-list .table-wrap{background:var(--pl-surface);border-radius:14px;box-shadow:var(--pl-shadow);border:1px solid var(--pl-border); transition: box-shadow .2s ease, transform .1s ease}
 .patient-list .table-wrap:hover{box-shadow:0 10px 28px rgba(15,23,42,.12)}
-.patient-list .table{margin-bottom:0}
-.patient-list .table thead th{color:#0f172a;font-weight:700;border-bottom:1px solid var(--pl-border);background:#f9fafb; position:sticky; top:0; z-index:1; text-transform:uppercase; font-size:.78rem; letter-spacing:.04em}
+.patient-list .table{margin-bottom:0;width:100%}
+.patient-list .table thead th{color:#0f172a;font-weight:700;border-bottom:1px solid var(--pl-border);background:#f9fafb; position:sticky; top:0; z-index:1; text-transform:uppercase; font-size:.75rem; letter-spacing:.08em; padding-top:1rem; padding-bottom:1rem}
 .patient-list .table thead th:first-child{border-top-left-radius:14px}
 .patient-list .table thead th:last-child{border-top-right-radius:14px}
 .patient-list .table tbody td{vertical-align:middle}
-.patient-list .table th, .patient-list .table td{padding:.8rem 1rem}
+.patient-list .table th, .patient-list .table td{padding:.8rem 1.5rem; text-align:left}
 /* Column widths (fixed for consistent spacing) */
 .patient-list .table thead th:nth-child(1),
-.patient-list .table tbody td:nth-child(1){width:7%}
+.patient-list .table tbody td:nth-child(1){width:5%; text-align:center}
 .patient-list .table thead th:nth-child(2),
-.patient-list .table tbody td:nth-child(2){width:26%}
+.patient-list .table tbody td:nth-child(2){width:30%}
 .patient-list .table thead th:nth-child(3),
-.patient-list .table tbody td:nth-child(3){width:12%; text-align:center}
+.patient-list .table tbody td:nth-child(3){width:8%; text-align:center}
 .patient-list .table thead th:nth-child(4),
-.patient-list .table tbody td:nth-child(4){width:17%}
+.patient-list .table tbody td:nth-child(4){width:22%}
 .patient-list .table thead th:nth-child(5),
-.patient-list .table tbody td:nth-child(5){width:16%}
+.patient-list .table tbody td:nth-child(5){width:18%}
 .patient-list .table thead th:nth-child(6),
-.patient-list .table tbody td:nth-child(6){width:12%; text-align:center}
+.patient-list .table tbody td:nth-child(6){width:9%; text-align:center}
 .patient-list .table thead th:nth-child(7),
-.patient-list .table tbody td:nth-child(7){width:10%; white-space:nowrap}
+.patient-list .table tbody td:nth-child(7){width:8%; white-space:nowrap; text-align:center}
 
 /* Prevent wrapping and add ellipsis for long text in selected columns */
 .patient-list .table tbody td:nth-child(2),

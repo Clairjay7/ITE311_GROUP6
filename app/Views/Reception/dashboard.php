@@ -29,6 +29,18 @@
         <div id="new_registrations" class="mini-value">--</div>
         <div class="mini-subtext">Today</div>
     </div>
+
+    <div class="mini-card">
+        <div class="mini-title">Total In-Patients</div>
+        <div id="total_inpatients" class="mini-value">--</div>
+        <div class="mini-subtext">Overall registered</div>
+    </div>
+
+    <div class="mini-card">
+        <div class="mini-title">Total Out-Patients</div>
+        <div id="total_outpatients" class="mini-value">--</div>
+        <div class="mini-subtext">Overall registered</div>
+    </div>
 </div>
 
 <script>
@@ -42,6 +54,9 @@ async function refreshDashboard(){
     setText('appointments_today', data.appointments_today ?? '--');
     setText('waiting_patients', data.waiting_patients ?? '--');
     setText('new_registrations', data.new_registrations ?? '--');
+    setText('total_inpatients', data.total_inpatients ?? '--');
+    setText('total_outpatients', data.total_outpatients ?? '--');
+
     const amt = typeof data.pending_payments_amount === 'number' ? new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(data.pending_payments_amount) : '₱--';
     setText('pending_payments_amount', amt);
     setText('pending_invoices', (data.pending_invoices ?? '--') + ' invoices');

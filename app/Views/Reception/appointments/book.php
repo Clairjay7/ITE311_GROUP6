@@ -7,7 +7,6 @@
 <div class="appointments-page container py-4">
   <div class="page-header d-flex justify-content-between align-items-center mb-3">
     <h3 class="page-title mb-0">New Appointment</h3>
-    <a class="btn btn-outline-secondary" href="<?= site_url('receptionist/appointments/list') ?>">Back to Tracker</a>
   </div>
 
   <?php if (session()->getFlashdata('error')): ?>

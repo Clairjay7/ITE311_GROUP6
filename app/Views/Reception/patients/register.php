@@ -80,51 +80,30 @@ $initialType = $initialType ?? 'Out-Patient';
               <option <?= set_select('civil_status','Other') ?>>Other</option>
             </select>
           </div>
-          <div class="col-md-12">
-            <label class="form-label">Street</label>
-            <input type="text" name="address_street" class="form-control" value="<?= set_value('address_street') ?>">
-          </div>
         </div>
 
         <div class="row g-3 mb-3">
           <div class="col-md-4">
             <label class="form-label">Province</label>
-            <div class="row g-2">
-              <div class="col-6">
-                <input type="text" class="form-control" id="provinceSearch" placeholder="Search province...">
-              </div>
-              <div class="col-6">
-                <select name="address_province" id="province" class="form-select">
-                  <option value="">Select Province</option>
-                </select>
-              </div>
-            </div>
+            <select name="address_province" id="province" class="form-select">
+              <option value="">Select Province</option>
+            </select>
           </div>
           <div class="col-md-4">
             <label class="form-label">City / Municipality</label>
-            <div class="row g-2">
-              <div class="col-6">
-                <input type="text" class="form-control" id="citySearch" placeholder="Search city / municipality...">
-              </div>
-              <div class="col-6">
-                <select name="address_city" id="city" class="form-select">
-                  <option value="">Select City / Municipality</option>
-                </select>
-              </div>
-            </div>
+            <select name="address_city" id="city" class="form-select">
+              <option value="">Select City / Municipality</option>
+            </select>
           </div>
           <div class="col-md-4">
             <label class="form-label">Barangay</label>
-            <div class="row g-2">
-              <div class="col-6">
-                <input type="text" class="form-control" id="barangaySearch" placeholder="Search barangay...">
-              </div>
-              <div class="col-6">
-                <select name="address_barangay" id="barangay" class="form-select">
-                  <option value="">Select Barangay</option>
-                </select>
-              </div>
-            </div>
+            <select name="address_barangay" id="barangay" class="form-select">
+              <option value="">Select Barangay</option>
+            </select>
+          </div>
+          <div class="col-md-12">
+            <label class="form-label">Street</label>
+            <input type="text" name="address_street" class="form-control" value="<?= set_value('address_street') ?>">
           </div>
         </div>
 
@@ -301,10 +280,6 @@ window.addEventListener('DOMContentLoaded', function () {
   const citySelect = document.getElementById('city');
   const barangaySelect = document.getElementById('barangay');
 
-  const provinceSearch = document.getElementById('provinceSearch');
-  const citySearch = document.getElementById('citySearch');
-  const barangaySearch = document.getElementById('barangaySearch');
-
   const wardSelect = document.getElementById('wardSelect');
   const roomSelect = document.getElementById('roomSelect');
 
@@ -333,24 +308,12 @@ window.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  function attachSearch(searchInput, select) {
-    if (!searchInput) return;
-    searchInput.addEventListener('input', function () {
-      const term = this.value.toLowerCase();
-      Array.from(select.options).forEach((opt, idx) => {
-        if (idx === 0) return; // keep placeholder
-        opt.hidden = term && !opt.textContent.toLowerCase().includes(term);
-      });
-    });
-  }
-
   // Load provinces
   fetch(PSGC_BASE + '/provinces')
     .then(r => r.json())
     .then(data => {
       // API returns an array of provinces with name and code
       populateSelect(provinceSelect, data, 'Select Province');
-      attachSearch(provinceSearch, provinceSelect);
     })
     .catch(() => {
       // If API fails, keep basic placeholder
@@ -368,7 +331,6 @@ window.addEventListener('DOMContentLoaded', function () {
       .then(r => r.json())
       .then(data => {
         populateSelect(citySelect, data, 'Select City / Municipality');
-        attachSearch(citySearch, citySelect);
       })
       .catch(() => {
         clearOptions(citySelect, 'Unable to load cities');
@@ -385,7 +347,6 @@ window.addEventListener('DOMContentLoaded', function () {
       .then(r => r.json())
       .then(data => {
         populateSelect(barangaySelect, data, 'Select Barangay');
-        attachSearch(barangaySearch, barangaySelect);
       })
       .catch(() => {
         clearOptions(barangaySelect, 'Unable to load barangays');

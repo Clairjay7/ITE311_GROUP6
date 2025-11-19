@@ -20,10 +20,10 @@ class Dashboard extends BaseController
             'admin'        => 'admin',
             'doctor'       => 'doctor',
             'nurse'        => 'nurse',
-            'accounting'   => 'Accountant',
+            'finance'      => 'Accountant',
             'lab_staff'    => 'labstaff',
             'itstaff'      => 'itstaff',
-            'pharmacist'   => 'pharmacy',
+            'pharmacy'     => 'pharmacy',
             'receptionist' => 'Reception',
         ];
 
@@ -79,10 +79,10 @@ class Dashboard extends BaseController
                 'admin' => 'Administrator',
                 'doctor' => 'Doctor',
                 'nurse' => 'Nurse',
-                'accounting' => 'Accounting',
+                'finance' => 'Finance',
                 'lab_staff' => 'Laboratory Staff',
                 'itstaff' => 'IT Staff',
-                'pharmacist' => 'Pharmacist',
+                'pharmacy' => 'Pharmacy',
                 'receptionist' => 'Receptionist'
             ],
             // Lab staff specific data
@@ -144,7 +144,7 @@ class Dashboard extends BaseController
             }
 
             // Billing totals (normalized schema)
-            if (in_array($userRole, ['admin', 'accounting'])) {
+            if (in_array($userRole, ['admin', 'finance'])) {
                 // Today's paid revenue
                 $data['todayRevenue'] = (float) ($billingModel->builder()
                     ->selectSum('final_amount', 'sum')
@@ -180,7 +180,7 @@ class Dashboard extends BaseController
             }
 
             // Prescriptions pending
-            if ($prescriptionModel && in_array($userRole, ['admin', 'pharmacist'])) {
+            if ($prescriptionModel && in_array($userRole, ['admin', 'pharmacy'])) {
                 $data['prescriptionsCount'] = (int) $prescriptionModel->builder()
                     ->select('COUNT(*) AS c')
                     ->where('status', 'pending')

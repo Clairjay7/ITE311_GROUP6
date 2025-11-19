@@ -112,6 +112,29 @@ body {
     padding: 15px 10px;
 }
 
+.nav-section-title {
+    padding: 10px 18px 4px 18px;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: rgba(255, 255, 255, 0.65);
+    opacity: 0.85;
+    margin-top: 10px;
+    margin-bottom: 4px;
+    position: relative;
+}
+
+.nav-section-title::before {
+    content: '';
+    position: absolute;
+    left: 18px;
+    bottom: 0;
+    width: 28px;
+    height: 2px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.4));
+}
+
 .nav-item {
     margin: 3px 0;
     position: relative;
@@ -131,6 +154,13 @@ body {
     position: relative;
     overflow: hidden;
     backdrop-filter: blur(5px);
+}
+
+.sidebar-icon {
+    margin-right: 10px;
+    font-size: 1rem;
+    width: 18px;
+    text-align: center;
 }
 
 /* Hover Effect */

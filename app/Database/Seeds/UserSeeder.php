@@ -66,7 +66,7 @@ class UserSeeder extends Seeder
                 'username'   => 'acct.dept',
                 'email'      => 'accounting@group6.edu.ph',
                 'password'   => password_hash('123123', PASSWORD_DEFAULT),
-                'role_id'    => $roleMap['accounting'],
+                'role_id'    => $roleMap['finance'],
                 'status'     => 'active',
                 'created_at' => $now,
                 'updated_at' => $now,
@@ -96,7 +96,7 @@ class UserSeeder extends Seeder
                 'username'   => 'pharm.staff',
                 'email'      => 'pharmacy@group6.edu.ph',
                 'password'   => password_hash('123123', PASSWORD_DEFAULT),
-                'role_id'    => $roleMap['pharmacist'],
+                'role_id'    => $roleMap['pharmacy'],
                 'status'     => 'active',
                 'created_at' => $now,
                 'updated_at' => $now,
@@ -118,10 +118,10 @@ class UserSeeder extends Seeder
             'nurse',
             'receptionist',
             'patient',
-            'accounting',
+            'finance',
             'itstaff',
             'lab_staff',
-            'pharmacist'
+            'pharmacy'
         ];
         $existingRoles = $this->db->table('roles')->select('name')->get()->getResultArray();
         $existingRoles = array_column($existingRoles, 'name');

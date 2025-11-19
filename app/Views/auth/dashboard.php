@@ -20,10 +20,10 @@ switch ($role) {
     case 'receptionist':
         echo view('Reception/dashboard', ['name' => $name]);
         break;
-    case 'accounting':
+    case 'finance':
         echo view('Accountant/dashboard', ['name' => $name]);
         break;
-    case 'pharmacist':
+    case 'pharmacy':
         echo view('Pharmacy/dashboard', ['name' => $name]);
         break;
     case 'labstaff':

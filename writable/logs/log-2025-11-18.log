@@ -1,0 +1,181 @@
+ERROR - 2025-11-18 23:01:12 --> mysqli_sql_exception: Table 'hospital_management.patients' doesn't exist in C:\xampp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT COUNT(*)...', 0)
+#1 C:\xampp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT COUNT(*)...')
+#2 C:\xampp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT COUNT(*)...')
+#3 C:\xampp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT COUNT(*)...', Array, false)
+#4 C:\xampp\htdocs\group6\app\Controllers\Receptionist\DashboardStats.php(25): CodeIgniter\Database\BaseBuilder->get()
+#5 C:\xampp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Receptionist\DashboardStats->stats()
+#6 C:\xampp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Receptionist\DashboardStats))
+#7 C:\xampp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 C:\xampp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 C:\xampp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 C:\xampp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-11-18 23:01:22 --> mysqli_sql_exception: Table 'hospital_management.patients' doesn't exist in C:\xampp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT COUNT(*)...', 0)
+#1 C:\xampp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT COUNT(*)...')
+#2 C:\xampp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT COUNT(*)...')
+#3 C:\xampp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT COUNT(*)...', Array, false)
+#4 C:\xampp\htdocs\group6\app\Controllers\Receptionist\DashboardStats.php(25): CodeIgniter\Database\BaseBuilder->get()
+#5 C:\xampp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Receptionist\DashboardStats->stats()
+#6 C:\xampp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Receptionist\DashboardStats))
+#7 C:\xampp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 C:\xampp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 C:\xampp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 C:\xampp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-11-18 23:06:18 --> mysqli_sql_exception: Duplicate entry 'sys.admin' for key 'username' in C:\xampp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `us...', 0)
+#1 C:\xampp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `us...')
+#2 C:\xampp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `us...')
+#3 C:\xampp\htdocs\group6\system\Database\BaseBuilder.php(1841): CodeIgniter\Database\BaseConnection->query('INSERT INTO `us...', NULL, false)
+#4 C:\xampp\htdocs\group6\system\Database\BaseBuilder.php(2230): CodeIgniter\Database\BaseBuilder->batchExecute('_insertBatch', 100)
+#5 C:\xampp\htdocs\group6\app\Database\Seeds\UserSeeder.php(107): CodeIgniter\Database\BaseBuilder->insertBatch(Array)
+#6 C:\xampp\htdocs\group6\system\Database\Seeder.php(149): App\Database\Seeds\UserSeeder->run()
+#7 C:\xampp\htdocs\group6\system\Commands\Database\Seed.php(79): CodeIgniter\Database\Seeder->call('App\\Database\\Se...')
+#8 C:\xampp\htdocs\group6\system\CLI\Commands.php(74): CodeIgniter\Commands\Database\Seed->run(Array)
+#9 C:\xampp\htdocs\group6\system\CLI\Console.php(47): CodeIgniter\CLI\Commands->run('db:seed', Array)
+#10 C:\xampp\htdocs\group6\system\Boot.php(388): CodeIgniter\CLI\Console->run()
+#11 C:\xampp\htdocs\group6\system\Boot.php(133): CodeIgniter\Boot::runCommand(Object(CodeIgniter\CLI\Console))
+#12 C:\xampp\htdocs\group6\spark(87): CodeIgniter\Boot::bootSpark(Object(Config\Paths))
+#13 {main}
+CRITICAL - 2025-11-18 23:11:04 --> Error: Class "App\Models\DepartmentModel" not found
+[Method: GET, Route: receptionist/patients/create]
+in APPPATH\Controllers\Receptionist\Patients.php on line 22.
+ 1 SYSTEMPATH\CodeIgniter.php(903): App\Controllers\Receptionist\Patients->__construct()
+ 2 SYSTEMPATH\CodeIgniter.php(498): CodeIgniter\CodeIgniter->createController()
+ 3 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 4 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 5 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 6 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2025-11-18 23:12:18 --> Error: Class "App\Models\AppointmentModel" not found
+[Method: GET, Route: appointments/book]
+in APPPATH\Controllers\Appointment.php on line 22.
+ 1 SYSTEMPATH\CodeIgniter.php(903): App\Controllers\Appointment->__construct()
+ 2 SYSTEMPATH\CodeIgniter.php(498): CodeIgniter\CodeIgniter->createController()
+ 3 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 4 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 5 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 6 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2025-11-18 23:13:04 --> Error: Class "App\Models\DoctorScheduleModel" not found
+[Method: GET, Route: appointments/book]
+in APPPATH\Controllers\Appointment.php on line 25.
+ 1 SYSTEMPATH\CodeIgniter.php(903): App\Controllers\Appointment->__construct()
+ 2 SYSTEMPATH\CodeIgniter.php(498): CodeIgniter\CodeIgniter->createController()
+ 3 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 4 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 5 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 6 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ERROR - 2025-11-18 23:33:35 --> mysqli_sql_exception: Unknown column 'appointments.department_id' in 'on clause' in C:\xampp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT `appoint...', 0)
+#1 C:\xampp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `appoint...')
+#2 C:\xampp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `appoint...')
+#3 C:\xampp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `appoint...', Array, false)
+#4 C:\xampp\htdocs\group6\app\Models\AppointmentModel.php(63): CodeIgniter\Database\BaseBuilder->get()
+#5 C:\xampp\htdocs\group6\app\Controllers\Appointment.php(49): App\Models\AppointmentModel->getAppointmentsByDateRange('2025-11-18', '2025-11-18')
+#6 C:\xampp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Appointment->index()
+#7 C:\xampp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Appointment))
+#8 C:\xampp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#9 C:\xampp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#10 C:\xampp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#11 C:\xampp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#12 {main}
+CRITICAL - 2025-11-18 23:33:35 --> CodeIgniter\Database\Exceptions\DatabaseException: Unknown column 'appointments.department_id' in 'on clause'
+[Method: GET, Route: appointments/list]
+in SYSTEMPATH\Database\BaseConnection.php on line 684.
+ 1 SYSTEMPATH\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `appointments`.*, `p`.`full_name` AS `patient_name`, `u`.`username` AS `doctor_name`, `d`.`department_name`
+FROM `appointments`
+LEFT JOIN `patients` `p` ON `p`.`patient_id` = `appointments`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `appointments`.`doctor_id`
+LEFT JOIN `departments` `d` ON `d`.`id` = `appointments`.`department_id`
+WHERE `appointment_date` >= :appointment_date:
+AND `appointment_date` <= :appointment_date.1:
+ORDER BY `appointment_date` ASC, `appointment_time` ASC', [...], false)
+ 2 APPPATH\Models\AppointmentModel.php(63): CodeIgniter\Database\BaseBuilder->get()
+ 3 APPPATH\Controllers\Appointment.php(49): App\Models\AppointmentModel->getAppointmentsByDateRange('2025-11-18', '2025-11-18')
+ 4 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Appointment->index()
+ 5 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Appointment))
+ 6 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 7 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 8 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 9 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2025-11-18 23:33:35 --> [Caused by] CodeIgniter\Database\Exceptions\DatabaseException: Unknown column 'appointments.department_id' in 'on clause'
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 332.
+ 1 SYSTEMPATH\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `appointments`.*, `p`.`full_name` AS `patient_name`, `u`.`username` AS `doctor_name`, `d`.`department_name`
+FROM `appointments`
+LEFT JOIN `patients` `p` ON `p`.`patient_id` = `appointments`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `appointments`.`doctor_id`
+LEFT JOIN `departments` `d` ON `d`.`id` = `appointments`.`department_id`
+WHERE `appointment_date` >= \'2025-11-18\'
+AND `appointment_date` <= \'2025-11-18\'
+ORDER BY `appointment_date` ASC, `appointment_time` ASC')
+ 2 SYSTEMPATH\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `appointments`.*, `p`.`full_name` AS `patient_name`, `u`.`username` AS `doctor_name`, `d`.`department_name`
+FROM `appointments`
+LEFT JOIN `patients` `p` ON `p`.`patient_id` = `appointments`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `appointments`.`doctor_id`
+LEFT JOIN `departments` `d` ON `d`.`id` = `appointments`.`department_id`
+WHERE `appointment_date` >= \'2025-11-18\'
+AND `appointment_date` <= \'2025-11-18\'
+ORDER BY `appointment_date` ASC, `appointment_time` ASC')
+ 3 SYSTEMPATH\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `appointments`.*, `p`.`full_name` AS `patient_name`, `u`.`username` AS `doctor_name`, `d`.`department_name`
+FROM `appointments`
+LEFT JOIN `patients` `p` ON `p`.`patient_id` = `appointments`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `appointments`.`doctor_id`
+LEFT JOIN `departments` `d` ON `d`.`id` = `appointments`.`department_id`
+WHERE `appointment_date` >= :appointment_date:
+AND `appointment_date` <= :appointment_date.1:
+ORDER BY `appointment_date` ASC, `appointment_time` ASC', [...], false)
+ 4 APPPATH\Models\AppointmentModel.php(63): CodeIgniter\Database\BaseBuilder->get()
+ 5 APPPATH\Controllers\Appointment.php(49): App\Models\AppointmentModel->getAppointmentsByDateRange('2025-11-18', '2025-11-18')
+ 6 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Appointment->index()
+ 7 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Appointment))
+ 8 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2025-11-18 23:33:35 --> [Caused by] mysqli_sql_exception: Unknown column 'appointments.department_id' in 'on clause'
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 327.
+ 1 SYSTEMPATH\Database\MySQLi\Connection.php(327): mysqli->query('SELECT `appointments`.*, `p`.`full_name` AS `patient_name`, `u`.`username` AS `doctor_name`, `d`.`department_name`
+FROM `appointments`
+LEFT JOIN `patients` `p` ON `p`.`patient_id` = `appointments`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `appointments`.`doctor_id`
+LEFT JOIN `departments` `d` ON `d`.`id` = `appointments`.`department_id`
+WHERE `appointment_date` >= \'2025-11-18\'
+AND `appointment_date` <= \'2025-11-18\'
+ORDER BY `appointment_date` ASC, `appointment_time` ASC', 0)
+ 2 SYSTEMPATH\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `appointments`.*, `p`.`full_name` AS `patient_name`, `u`.`username` AS `doctor_name`, `d`.`department_name`
+FROM `appointments`
+LEFT JOIN `patients` `p` ON `p`.`patient_id` = `appointments`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `appointments`.`doctor_id`
+LEFT JOIN `departments` `d` ON `d`.`id` = `appointments`.`department_id`
+WHERE `appointment_date` >= \'2025-11-18\'
+AND `appointment_date` <= \'2025-11-18\'
+ORDER BY `appointment_date` ASC, `appointment_time` ASC')
+ 3 SYSTEMPATH\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `appointments`.*, `p`.`full_name` AS `patient_name`, `u`.`username` AS `doctor_name`, `d`.`department_name`
+FROM `appointments`
+LEFT JOIN `patients` `p` ON `p`.`patient_id` = `appointments`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `appointments`.`doctor_id`
+LEFT JOIN `departments` `d` ON `d`.`id` = `appointments`.`department_id`
+WHERE `appointment_date` >= \'2025-11-18\'
+AND `appointment_date` <= \'2025-11-18\'
+ORDER BY `appointment_date` ASC, `appointment_time` ASC')
+ 4 SYSTEMPATH\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `appointments`.*, `p`.`full_name` AS `patient_name`, `u`.`username` AS `doctor_name`, `d`.`department_name`
+FROM `appointments`
+LEFT JOIN `patients` `p` ON `p`.`patient_id` = `appointments`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `appointments`.`doctor_id`
+LEFT JOIN `departments` `d` ON `d`.`id` = `appointments`.`department_id`
+WHERE `appointment_date` >= :appointment_date:
+AND `appointment_date` <= :appointment_date.1:
+ORDER BY `appointment_date` ASC, `appointment_time` ASC', [...], false)
+ 5 APPPATH\Models\AppointmentModel.php(63): CodeIgniter\Database\BaseBuilder->get()
+ 6 APPPATH\Controllers\Appointment.php(49): App\Models\AppointmentModel->getAppointmentsByDateRange('2025-11-18', '2025-11-18')
+ 7 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Appointment->index()
+ 8 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Appointment))
+ 9 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+10 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+11 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+12 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))

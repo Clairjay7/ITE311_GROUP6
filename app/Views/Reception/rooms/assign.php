@@ -4,8 +4,11 @@
 ?>
 <?= $this->extend('template/header') ?>
 <?= $this->section('title') ?>Assign Patient to Room<?= $this->endSection() ?>
+<?= $this->section('styles') ?>
+<link rel="stylesheet" href="<?= base_url('css/patient-register.css?v=20251119') ?>">
+<?= $this->endSection() ?>
 <?= $this->section('content') ?>
-<div class="container py-4">
+<div class="register-page container py-4">
   <div class="page-header mb-3 d-flex justify-content-between align-items-center">
     <h3 class="page-title mb-0">Assign Patient to Room <?= esc($room['room_number'] ?? '') ?></h3>
     <a href="<?= site_url('receptionist/rooms/ward/' . ($room['ward'] === 'Pedia Ward' ? 'pedia' : ($room['ward'] === 'Male Ward' ? 'male' : 'female'))) ?>" class="btn btn-outline-secondary">Back to Ward</a>

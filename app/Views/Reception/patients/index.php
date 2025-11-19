@@ -6,13 +6,12 @@
 <?= $this->extend('template/header') ?>
 <?= $this->section('title') ?>Patient Records<?= $this->endSection() ?>
 <?= $this->section('styles') ?>
-<link rel="stylesheet" href="<?= base_url('css/patient-list.css?v=20251113') ?>">
+<link rel="stylesheet" href="<?= base_url('css/patient-list.css?v=20251119') ?>">
 <?= $this->endSection() ?>
 <?= $this->section('content') ?>
 <div class="patient-list container py-4">
   <div class="page-header d-flex justify-content-between align-items-center mb-3">
     <h3 class="page-title mb-0">Patient Records</h3>
-    <a class="btn btn-primary" href="<?= site_url('receptionist/patients/create') ?>">Register Patient</a>
   </div>
 
   <?php if (session()->getFlashdata('success')): ?>
@@ -50,84 +49,90 @@
         }
       }
     }
+
+    $showInPatients  = ($type === '' || $type === 'In-Patient');
+    $showOutPatients = ($type === '' || $type === 'Out-Patient');
   ?>
-
-  <div class="table-wrap table-responsive mb-4">
-    <h5 class="mb-3">In-Patients</h5>
-    <table class="table table-striped table-hover align-middle">
-      <thead class="table-light">
-        <tr>
-          <th>ID</th>
-          <th>Full Name</th>
-          <th>Type</th>
-          <th>Doctor</th>
-          <th>Department</th>
-          <th>Contact</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <?php if (!empty($inPatients)): foreach($inPatients as $p): ?>
+  <?php if ($showInPatients): ?>
+    <div class="table-wrap table-responsive mb-4">
+      <h5 class="mb-3">In-Patients</h5>
+      <table class="table table-striped table-hover align-middle">
+        <thead class="table-light">
           <tr>
-            <td><?= esc($p['patient_id']) ?></td>
-            <td><?= esc($p['full_name']) ?></td>
-            <td><span class="badge <?= $p['type']==='In-Patient'?'bg-info':'bg-success' ?>"><?= esc($p['type']) ?></span></td>
-            <td><?= esc($p['doctor_name'] ?? '-') ?></td>
-            <td><?= esc($p['department_name'] ?? '-') ?></td>
-            <td><?= esc($p['contact'] ?? '-') ?></td>
-            <td>
-              <a class="btn btn-sm btn-outline-primary" href="<?= site_url('receptionist/patients/show/'.$p['patient_id']) ?>">View</a>
-              <a class="btn btn-sm btn-outline-secondary" href="<?= site_url('receptionist/patients/edit/'.$p['patient_id']) ?>">Edit</a>
-              <form action="<?= site_url('receptionist/patients/delete/'.$p['patient_id']) ?>" method="post" class="d-inline" onsubmit="return confirm('Delete this record?');">
-                <?= csrf_field() ?>
-                <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
-              </form>
-            </td>
+            <th>ID</th>
+            <th>Full Name</th>
+            <th>Type</th>
+            <th>Doctor</th>
+            <th>Department</th>
+            <th>Contact</th>
+            <th>Actions</th>
           </tr>
-        <?php endforeach; else: ?>
-          <tr><td colspan="7" class="text-center text-muted py-4 empty">No in-patient records found.</td></tr>
-        <?php endif; ?>
-      </tbody>
-    </table>
-  </div>
+        </thead>
+        <tbody>
+          <?php if (!empty($inPatients)): foreach($inPatients as $p): ?>
+            <tr>
+              <td><?= esc($p['patient_id']) ?></td>
+              <td><?= esc($p['full_name']) ?></td>
+              <td><span class="badge <?= $p['type']==='In-Patient'?'bg-info':'bg-success' ?>"><?= esc($p['type']) ?></span></td>
+              <td><?= esc($p['doctor_name'] ?? '-') ?></td>
+              <td><?= esc($p['department_name'] ?? '-') ?></td>
+              <td><?= esc($p['contact'] ?? '-') ?></td>
+              <td>
+                <a class="btn btn-sm btn-outline-primary" href="<?= site_url('receptionist/patients/show/'.$p['patient_id']) ?>">View</a>
+                <a class="btn btn-sm btn-outline-secondary" href="<?= site_url('receptionist/patients/edit/'.$p['patient_id']) ?>">Edit</a>
+                <form action="<?= site_url('receptionist/patients/delete/'.$p['patient_id']) ?>" method="post" class="d-inline" onsubmit="return confirm('Delete this record?');">
+                  <?= csrf_field() ?>
+                  <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+                </form>
+              </td>
+            </tr>
+          <?php endforeach; else: ?>
+            <tr><td colspan="7" class="text-center text-muted py-4 empty">No in-patient records found.</td></tr>
+          <?php endif; ?>
+        </tbody>
+      </table>
+    </div>
+  <?php endif; ?>
 
-  <div class="table-wrap table-responsive">
-    <h5 class="mb-3">Out-Patients</h5>
-    <table class="table table-striped table-hover align-middle">
-      <thead class="table-light">
-        <tr>
-          <th>ID</th>
-          <th>Full Name</th>
-          <th>Type</th>
-          <th>Doctor</th>
-          <th>Department</th>
-          <th>Contact</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <?php if (!empty($outPatients)): foreach($outPatients as $p): ?>
+  <?php if ($showOutPatients): ?>
+    <div class="table-wrap table-responsive">
+      <h5 class="mb-3">Out-Patients</h5>
+      <table class="table table-striped table-hover align-middle">
+        <thead class="table-light">
           <tr>
-            <td><?= esc($p['patient_id']) ?></td>
-            <td><?= esc($p['full_name']) ?></td>
-            <td><span class="badge <?= $p['type']==='In-Patient'?'bg-info':'bg-success' ?>"><?= esc($p['type']) ?></span></td>
-            <td><?= esc($p['doctor_name'] ?? '-') ?></td>
-            <td><?= esc($p['department_name'] ?? '-') ?></td>
-            <td><?= esc($p['contact'] ?? '-') ?></td>
-            <td>
-              <a class="btn btn-sm btn-outline-primary" href="<?= site_url('receptionist/patients/show/'.$p['patient_id']) ?>">View</a>
-              <a class="btn btn-sm btn-outline-secondary" href="<?= site_url('receptionist/patients/edit/'.$p['patient_id']) ?>">Edit</a>
-              <form action="<?= site_url('receptionist/patients/delete/'.$p['patient_id']) ?>" method="post" class="d-inline" onsubmit="return confirm('Delete this record?');">
-                <?= csrf_field() ?>
-                <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
-              </form>
-            </td>
+            <th>ID</th>
+            <th>Full Name</th>
+            <th>Type</th>
+            <th>Doctor</th>
+            <th>Department</th>
+            <th>Contact</th>
+            <th>Actions</th>
           </tr>
-        <?php endforeach; else: ?>
-          <tr><td colspan="7" class="text-center text-muted py-4 empty">No out-patient records found.</td></tr>
-        <?php endif; ?>
-      </tbody>
-    </table>
-  </div>
+        </thead>
+        <tbody>
+          <?php if (!empty($outPatients)): foreach($outPatients as $p): ?>
+            <tr>
+              <td><?= esc($p['patient_id']) ?></td>
+              <td><?= esc($p['full_name']) ?></td>
+              <td><span class="badge <?= $p['type']==='In-Patient'?'bg-info':'bg-success' ?>"><?= esc($p['type']) ?></span></td>
+              <td><?= esc($p['doctor_name'] ?? '-') ?></td>
+              <td><?= esc($p['department_name'] ?? '-') ?></td>
+              <td><?= esc($p['contact'] ?? '-') ?></td>
+              <td>
+                <a class="btn btn-sm btn-outline-primary" href="<?= site_url('receptionist/patients/show/'.$p['patient_id']) ?>">View</a>
+                <a class="btn btn-sm btn-outline-secondary" href="<?= site_url('receptionist/patients/edit/'.$p['patient_id']) ?>">Edit</a>
+                <form action="<?= site_url('receptionist/patients/delete/'.$p['patient_id']) ?>" method="post" class="d-inline" onsubmit="return confirm('Delete this record?');">
+                  <?= csrf_field() ?>
+                  <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+                </form>
+              </td>
+            </tr>
+          <?php endforeach; else: ?>
+            <tr><td colspan="7" class="text-center text-muted py-4 empty">No out-patient records found.</td></tr>
+          <?php endif; ?>
+        </tbody>
+      </table>
+    </div>
+  <?php endif; ?>
 </div>
 <?= $this->endSection() ?>

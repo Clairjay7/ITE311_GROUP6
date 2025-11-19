@@ -7,7 +7,6 @@
 <div class="appointments-page container py-4">
   <div class="page-header d-flex justify-content-between align-items-center mb-3">
     <h3 class="page-title mb-0">Appointment Tracker</h3>
-    <a class="btn btn-primary" href="<?= site_url('receptionist/appointments/book') ?>">New Appointment</a>
   </div>
 
   <div class="card shadow-sm">

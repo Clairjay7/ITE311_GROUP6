@@ -10,17 +10,21 @@
 
         <!-- ADMIN -->
         <?php if ($role === 'admin'): ?>
+            <li class="nav-section-title">Admin Panel</li>
             <li class="nav-item">
                 <a href="<?= base_url('admin/dashboard') ?>">
-                    <span class="text">Dashboard</span>
+                    <i class="fa-solid fa-gauge sidebar-icon"></i>
+                    <span class="">Dashboard</span>
                 </a>
             </li>
 
             <!-- Patient Records -->
             <li class="nav-item expandable">
-                <a href="#" onclick="toggleSubmenu(this)">
+                <a href="#">
+                    <i class="fa-solid fa-hospital-user sidebar-icon"></i>
                     <span class="text">Patient Records</span>
-                    <span class="arrow">›</span>
+                </a>
+                <span class="arrow">›</span>
                 </a>
                 <ul class="submenu">
                     <li><a href="<?= base_url('admin/patients/register') ?>"><span class="text">New Out-Patient Entry</span></a></li>
@@ -31,9 +35,11 @@
 
             <!-- Scheduling -->
             <li class="nav-item expandable">
-                <a href="#" onclick="toggleSubmenu(this)">
+                <a href="#">
+                    <i class="fa-regular fa-calendar-check sidebar-icon"></i>
                     <span class="text">Scheduling</span>
-                    <span class="arrow">›</span>
+                </a>
+                <span class="arrow">›</span>
                 </a>
                 <ul class="submenu">
                     <li><a href="<?= base_url('appointments/book') ?>"><span class="text">Create Appointment</span></a></li>
@@ -44,9 +50,11 @@
 
             <!-- Billing -->
             <li class="nav-item expandable">
-                <a href="#" onclick="toggleSubmenu(this)">
+                <a href="#">
+                    <i class="fa-solid fa-file-invoice-dollar sidebar-icon"></i>
                     <span class="text">Billing Services</span>
-                    <span class="arrow">›</span>
+                </a>
+                <span class="arrow">›</span>
                 </a>
                 <ul class="submenu">
                     <li><a href="<?= base_url('billing') ?>"><span class="text">Billing Overview</span></a></li>
@@ -56,9 +64,11 @@
 
             <!-- Laboratory -->
             <li class="nav-item expandable">
-                <a href="#" onclick="toggleSubmenu(this)">
+                <a href="#">
+                    <i class="fa-solid fa-vials sidebar-icon"></i>
                     <span class="text">Lab Services</span>
-                    <span class="arrow">›</span>
+                </a>
+                <span class="arrow">›</span>
                 </a>
                 <ul class="submenu">
                     <li><a href="<?= base_url('laboratory/request') ?>"><span class="text">Request Laboratory Test</span></a></li>
@@ -68,9 +78,11 @@
 
             <!-- Pharmacy -->
             <li class="nav-item expandable">
-                <a href="#" onclick="toggleSubmenu(this)">
+                <a href="#">
+                    <i class="fa-solid fa-pills sidebar-icon"></i>
                     <span class="text">Pharmacy Desk</span>
-                    <span class="arrow">›</span>
+                </a>
+                <span class="arrow">›</span>
                 </a>
                 <ul class="submenu">
                     <li><a href="<?= base_url('admin/InventoryMan/PrescriptionDispencing') ?>"><span class="text">Prescription Processing</span></a></li>
@@ -81,15 +93,18 @@
             <!-- Inventory -->
             <li class="nav-item">
                 <a href="<?= site_url('admin/inventory/medicine') ?>">
+                    <i class="fa-solid fa-boxes-stacked sidebar-icon"></i>
                     <span class="text">Stock Monitoring</span>
                 </a>
             </li>
 
             <!-- System Controls -->
             <li class="nav-item expandable">
-                <a href="#" onclick="toggleSubmenu(this)">
+                <a href="#">
+                    <i class="fa-solid fa-gear sidebar-icon"></i>
                     <span class="text">System Controls</span>
-                    <span class="arrow">›</span>
+                </a>
+                <span class="arrow">›</span>
                 </a>
                 <ul class="submenu">
                     <li><a href="<?= base_url('admin/Administration/ManageUser') ?>"><span class="text">User Accounts</span></a></li>
@@ -100,8 +115,10 @@
 
         <!-- DOCTOR -->
         <?php if ($role === 'doctor'): ?>
+            <li class="nav-section-title">Doctor Panel</li>
             <li class="nav-item">
                 <a href="<?= site_url('doctor/dashboard') ?>">
+                    <i class=""></i>
                     <span class="text">Dashboard</span>
                 </a>
             </li>
@@ -130,8 +147,10 @@
 
         <!-- NURSE -->
         <?php if ($role === 'nurse'): ?>
+            <li class="nav-section-title">Nurse Panel</li>
             <li class="nav-item">
                 <a href="<?= site_url('nurse/dashboard') ?>">
+                    <i class="fa-solid fa-user-nurse sidebar-icon"></i>
                     <span class="text">Dashboard</span>
                 </a>
             </li>
@@ -170,8 +189,10 @@
 
         <!-- RECEPTIONIST -->
         <?php if ($role === 'receptionist'): ?>
+            <li class="nav-section-title">Reception Desk</li>
             <li class="nav-item">
                 <a href="<?= site_url('receptionist/dashboard') ?>">
+                    <i class=""></i>
                     <span class="text">Dashboard</span>
                 </a>
             </li>
@@ -214,8 +235,10 @@
 
         <!-- PATIENT -->
         <?php if ($role === 'patient'): ?>
+            <li class="nav-section-title">Patient Portal</li>
             <li class="nav-item">
                 <a href="<?= site_url('patient/dashboard') ?>">
+                    <i class="fa-solid fa-user sidebar-icon"></i>
                     <span class="text">Dashboard</span>
                 </a>
             </li>
@@ -239,10 +262,12 @@
             </li>
         <?php endif; ?>
 
-        <!-- ACCOUNTING -->
-        <?php if ($role === 'accounting'): ?>
+        <!-- FINANCE -->
+        <?php if ($role === 'finance'): ?>
+            <li class="nav-section-title">Finance Panel</li>
             <li class="nav-item">
                 <a href="<?= site_url('accounting/dashboard') ?>">
+                    <i class="fa-solid fa-peso-sign sidebar-icon"></i>
                     <span class="text">Dashboard</span>
                 </a>
             </li>
@@ -268,8 +293,10 @@
 
         <!-- IT STAFF -->
         <?php if ($role === 'itstaff'): ?>
+            <li class="nav-section-title">IT Administration</li>
             <li class="nav-item">
                 <a href="<?= site_url('it/dashboard') ?>">
+                    <i class="fa-solid fa-computer sidebar-icon"></i>
                     <span class="text">Dashboard</span>
                 </a>
             </li>
@@ -300,8 +327,10 @@
 
         <!-- LAB STAFF -->
         <?php if ($role === 'lab_staff'): ?>
+            <li class="nav-section-title">Laboratory Panel</li>
             <li class="nav-item">
                 <a href="<?= site_url('lab/dashboard') ?>">
+                    <i class="fa-solid fa-microscope sidebar-icon"></i>
                     <span class="text">Dashboard</span>
                 </a>
             </li>
@@ -325,10 +354,12 @@
             </li>
         <?php endif; ?>
 
-        <!-- PHARMACIST -->
-        <?php if ($role === 'pharmacist'): ?>
+        <!-- PHARMACY -->
+        <?php if ($role === 'pharmacy'): ?>
+            <li class="nav-section-title">Pharmacy Panel</li>
             <li class="nav-item">
                 <a href="<?= site_url('pharmacy/dashboard') ?>">
+                    <i class="fa-solid fa-briefcase-medical sidebar-icon"></i>
                     <span class="text">Dashboard</span>
                 </a>
             </li>

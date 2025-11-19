@@ -5,7 +5,7 @@
 <?= $this->extend('template/header') ?>
 <?= $this->section('title') ?><?= esc($wardName) ?> - Rooms<?= $this->endSection() ?>
 <?= $this->section('styles') ?>
-<link rel="stylesheet" href="<?= base_url('css/room-list.css?v=20251117') ?>">
+<link rel="stylesheet" href="<?= base_url('css/room-list.css?v=20251119') ?>">
 <?= $this->endSection() ?>
 <?= $this->section('content') ?>
 <div class="room-list container py-4">
@@ -61,7 +61,7 @@
                       <button type="submit" class="btn btn-sm btn-outline-warning" onclick="return confirm('Mark this room as available?');">Vacate Room</button>
                     </form>
                   <?php else: ?>
-                    <a href="<?= site_url('receptionist/rooms/assign/' . $room['id']) ?>" class="btn btn-sm btn-primary">Assign Patient</a>
+                    <a href="<?= site_url('receptionist/rooms/assign/' . $room['id']) ?>" class="room-link-action">Assign Patient</a>
                   <?php endif; ?>
                 </td>
               </tr>
