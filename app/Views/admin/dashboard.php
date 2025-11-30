@@ -125,8 +125,8 @@
                             <tr>
                                 <td>#<?= esc($activity['id']) ?></td>
                                 <td><?= esc($activity['patient_first_name'] . ' ' . $activity['patient_last_name']) ?></td>
-                                <td><?= esc($activity['doctor_name']) ?></td>
-                                <td><?= esc(date('M d, Y h:i A', strtotime($activity['appointment_date']))) ?></td>
+                                <td><?= esc($activity['doctor'] ?? 'N/A') ?></td>
+                                <td><?= esc(date('M d, Y', strtotime($activity['date'])) . ' ' . date('h:i A', strtotime($activity['time']))) ?></td>
                                 <td>
                                     <span class="status-badge status-<?= esc(strtolower($activity['status'])) ?>">
                                         <?= esc(ucfirst($activity['status'])) ?>

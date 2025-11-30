@@ -19,97 +19,59 @@
             </li>
 
             <!-- Patient Records -->
-            <li class="nav-item expandable">
-                <a href="#">
+            <li class="nav-item">
+                <a href="<?= base_url('admin/patients') ?>">
                     <i class="fa-solid fa-hospital-user sidebar-icon"></i>
                     <span class="text">Patient Records</span>
                 </a>
-                <span class="arrow">›</span>
-                </a>
-                <ul class="submenu">
-                    <li><a href="<?= base_url('admin/patients/register') ?>"><span class="text">New Out-Patient Entry</span></a></li>
-                    <li><a href="<?= base_url('admin/patients/inpatient') ?>"><span class="text">New In-Patient Entry</span></a></li>
-                    <li><a href="<?= base_url('patients/view') ?>"><span class="text">Patient Directory</span></a></li>
-                </ul>
             </li>
 
             <!-- Scheduling -->
-            <li class="nav-item expandable">
-                <a href="#">
+            <li class="nav-item">
+                <a href="<?= base_url('admin/schedule') ?>">
                     <i class="fa-regular fa-calendar-check sidebar-icon"></i>
                     <span class="text">Scheduling</span>
                 </a>
-                <span class="arrow">›</span>
-                </a>
-                <ul class="submenu">
-                    <li><a href="<?= base_url('appointments/book') ?>"><span class="text">Create Appointment</span></a></li>
-                    <li><a href="<?= site_url('appointments/list') ?>"><span class="text">Appointment Overview</span></a></li>
-                    <li><a href="<?= site_url('doctor/schedule') ?>"><span class="text">Staff Timetable</span></a></li>
-                </ul>
             </li>
 
             <!-- Billing -->
-            <li class="nav-item expandable">
-                <a href="#">
+            <li class="nav-item">
+                <a href="<?= base_url('admin/billing') ?>">
                     <i class="fa-solid fa-file-invoice-dollar sidebar-icon"></i>
                     <span class="text">Billing Services</span>
                 </a>
-                <span class="arrow">›</span>
-                </a>
-                <ul class="submenu">
-                    <li><a href="<?= base_url('billing') ?>"><span class="text">Billing Overview</span></a></li>
-                    <li><a href="<?= base_url('billing/process') ?>"><span class="text">Process Billing</span></a></li>
-                </ul>
             </li>
 
             <!-- Laboratory -->
-            <li class="nav-item expandable">
-                <a href="#">
+            <li class="nav-item">
+                <a href="<?= base_url('admin/lab') ?>">
                     <i class="fa-solid fa-vials sidebar-icon"></i>
                     <span class="text">Lab Services</span>
                 </a>
-                <span class="arrow">›</span>
-                </a>
-                <ul class="submenu">
-                    <li><a href="<?= base_url('laboratory/request') ?>"><span class="text">Request Laboratory Test</span></a></li>
-                    <li><a href="<?= base_url('laboratory/testresult') ?>"><span class="text">Laboratory Results</span></a></li>
-                </ul>
             </li>
 
             <!-- Pharmacy -->
-            <li class="nav-item expandable">
-                <a href="#">
+            <li class="nav-item">
+                <a href="<?= base_url('admin/pharmacy') ?>">
                     <i class="fa-solid fa-pills sidebar-icon"></i>
                     <span class="text">Pharmacy Desk</span>
                 </a>
-                <span class="arrow">›</span>
-                </a>
-                <ul class="submenu">
-                    <li><a href="<?= base_url('admin/InventoryMan/PrescriptionDispencing') ?>"><span class="text">Prescription Processing</span></a></li>
-                    <li><a href="<?= site_url('admin/pharmacy/transactions') ?>"><span class="text">Pharmacy Transactions</span></a></li>
-                </ul>
             </li>
 
             <!-- Inventory -->
             <li class="nav-item">
-                <a href="<?= site_url('admin/inventory/medicine') ?>">
+                <a href="<?= base_url('admin/stock') ?>">
                     <i class="fa-solid fa-boxes-stacked sidebar-icon"></i>
                     <span class="text">Stock Monitoring</span>
                 </a>
             </li>
 
             <!-- System Controls -->
-            <li class="nav-item expandable">
-                <a href="#">
+            <li class="nav-item">
+                <a href="<?= base_url('admin/system') ?>">
                     <i class="fa-solid fa-gear sidebar-icon"></i>
                     <span class="text">System Controls</span>
                 </a>
-                <span class="arrow">›</span>
-                </a>
-                <ul class="submenu">
-                    <li><a href="<?= base_url('admin/Administration/ManageUser') ?>"><span class="text">User Accounts</span></a></li>
-                    <li><a href="<?= base_url('admin/Administration/RoleManagement') ?>"><span class="text">Access Roles</span></a></li>
-                </ul>
             </li>
         <?php endif; ?>
 

@@ -43,10 +43,86 @@ $routes->get('labstaff/dashboard', 'Dashboard::index', ['filter' => 'auth:labsta
 $routes->get('pharmacy/dashboard', 'Dashboard::index', ['filter' => 'auth:pharmacy,admin']);
 
 // Para sa backward compatibility: lumang URL ng admin dashboard (iba sa unified dashboard)
-$routes->get('/admin/dashboard', 'Admin::index', ['filter' => 'auth:admin']);
+$routes->get('/admin/dashboard', 'Admin\DashboardController::index', ['filter' => 'auth:admin']);
 
 // Mga admin management page (hindi mga dashboard)
 $routes->get('admin/Administration/ManageUser', 'Admin::manageUsers', ['filter' => 'auth:admin']);
+
+// New Admin Module Routes
+$routes->group('admin', ['namespace' => 'App\\Controllers\\Admin', 'filter' => 'auth:admin'], function($routes) {
+    // Dashboard
+    $routes->get('dashboard', 'DashboardController::index');
+    
+    // Patients
+    $routes->group('patients', function($routes) {
+        $routes->get('/', 'PatientController::index');
+        $routes->get('create', 'PatientController::create');
+        $routes->post('store', 'PatientController::store');
+        $routes->get('edit/(:num)', 'PatientController::edit/$1');
+        $routes->post('update/(:num)', 'PatientController::update/$1');
+        $routes->get('delete/(:num)', 'PatientController::delete/$1');
+    });
+    
+    // Scheduling
+    $routes->group('schedule', function($routes) {
+        $routes->get('/', 'ScheduleController::index');
+        $routes->get('create', 'ScheduleController::create');
+        $routes->post('store', 'ScheduleController::store');
+        $routes->get('edit/(:num)', 'ScheduleController::edit/$1');
+        $routes->post('update/(:num)', 'ScheduleController::update/$1');
+        $routes->get('delete/(:num)', 'ScheduleController::delete/$1');
+    });
+    
+    // Billing
+    $routes->group('billing', function($routes) {
+        $routes->get('/', 'BillingController::index');
+        $routes->get('create', 'BillingController::create');
+        $routes->post('store', 'BillingController::store');
+        $routes->get('edit/(:num)', 'BillingController::edit/$1');
+        $routes->post('update/(:num)', 'BillingController::update/$1');
+        $routes->get('delete/(:num)', 'BillingController::delete/$1');
+    });
+    
+    // Lab Services
+    $routes->group('lab', function($routes) {
+        $routes->get('/', 'LabController::index');
+        $routes->get('create', 'LabController::create');
+        $routes->post('store', 'LabController::store');
+        $routes->get('edit/(:num)', 'LabController::edit/$1');
+        $routes->post('update/(:num)', 'LabController::update/$1');
+        $routes->get('delete/(:num)', 'LabController::delete/$1');
+    });
+    
+    // Pharmacy
+    $routes->group('pharmacy', function($routes) {
+        $routes->get('/', 'PharmacyController::index');
+        $routes->get('create', 'PharmacyController::create');
+        $routes->post('store', 'PharmacyController::store');
+        $routes->get('edit/(:num)', 'PharmacyController::edit/$1');
+        $routes->post('update/(:num)', 'PharmacyController::update/$1');
+        $routes->get('delete/(:num)', 'PharmacyController::delete/$1');
+    });
+    
+    // Stock Monitoring
+    $routes->group('stock', function($routes) {
+        $routes->get('/', 'StockController::index');
+        $routes->get('create', 'StockController::create');
+        $routes->post('store', 'StockController::store');
+        $routes->get('edit/(:num)', 'StockController::edit/$1');
+        $routes->post('update/(:num)', 'StockController::update/$1');
+        $routes->get('delete/(:num)', 'StockController::delete/$1');
+    });
+    
+    // System Controls
+    $routes->group('system', function($routes) {
+        $routes->get('/', 'SystemController::index');
+        $routes->get('create', 'SystemController::create');
+        $routes->post('store', 'SystemController::store');
+        $routes->get('edit/(:num)', 'SystemController::edit/$1');
+        $routes->post('update/(:num)', 'SystemController::update/$1');
+        $routes->get('delete/(:num)', 'SystemController::delete/$1');
+    });
+});
 
 // Mga ruta para sa schedule ng doctor
 $routes->get('/doctor/schedule', 'Doctor\Doctor::schedule', ['filter' => 'auth:admin,doctor']);

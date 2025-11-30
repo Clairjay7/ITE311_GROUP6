@@ -61,22 +61,22 @@
         <div class="stats-grid">
             <div class="stat-card urgent">
                 <div class="stat-title">Critical Patients</div>
-                <div class="stat-value">3</div>
+                <div class="stat-value"><?= $criticalPatients ?? '0' ?></div>
             </div>
             
             <div class="stat-card">
                 <div class="stat-title">Patients Under Care</div>
-                <div class="stat-value">24</div>
+                <div class="stat-value"><?= $patientsUnderCare ?? '0' ?></div>
             </div>
             
             <div class="stat-card">
                 <div class="stat-title">Medications Due</div>
-                <div class="stat-value">8</div>
+                <div class="stat-value"><?= $medicationsDue ?? '0' ?></div>
             </div>
             
             <div class="stat-card">
                 <div class="stat-title">Vitals Pending</div>
-                <div class="stat-value">12</div>
+                <div class="stat-value"><?= $vitalsPending ?? '0' ?></div>
             </div>
         </div>
     </div>

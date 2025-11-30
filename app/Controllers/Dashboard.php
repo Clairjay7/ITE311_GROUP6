@@ -58,6 +58,7 @@ class Dashboard extends BaseController
         $data = [
             'userRole' => $userRole,
             'username' => $username,
+            'name' => $username,
             'appointmentsCount' => 0,
             'patientsCount' => 0,
             'totalDoctors' => 0,
@@ -88,46 +89,55 @@ class Dashboard extends BaseController
             // Lab staff specific data
             'pendingTests' => [],
             'completedToday' => 0,
-            'monthlyTests' => 0
+            'monthlyTests' => 0,
+            // Doctor specific
+            'patientsSeenToday' => 0,
+            'pendingLabResults' => 0,
+            // Nurse specific
+            'criticalPatients' => 0,
+            'patientsUnderCare' => 0,
+            'medicationsDue' => 0,
+            'vitalsPending' => 0,
+            // Pharmacy specific
+            'prescriptionsToday' => 0,
+            'pendingFulfillment' => 0,
+            'lowStockItems' => 0,
+            'totalInventory' => 0,
+            'criticalItems' => 0,
+            'expiringSoon' => 0,
+            'outOfStock' => 0,
+            'categoriesCount' => 0,
+            // IT Staff specific
+            'systemUptime' => '99.8%',
+            'activeUsers' => 0,
+            'systemAlerts' => 0,
+            'pendingTasks' => 0,
         ];
 
-        // If user is lab staff, load lab-specific data
-        if ($userRole === 'lab_staff') {
-            // In a real application, you would fetch these from your database
-            // For example:
-            // $labTestModel = new \App\Models\LabTestModel();
-            // $data['pendingTests'] = $labTestModel->where('status', 'pending')->findAll();
-            // $data['completedToday'] = $labTestModel->where('status', 'completed')
-            //     ->where('DATE(completed_at)', $today)
-            //     ->countAllResults();
-            // $data['monthlyTests'] = $labTestModel->where('created_at >=', $monthStart)
-            //     ->where('created_at <=', $monthEnd)
-            //     ->countAllResults();
-            
-            // For now, we'll set some dummy data
-            $data['pendingTests'] = [];
-            $data['completedToday'] = 0;
-            $data['monthlyTests'] = 0;
-        }
-
-        return $data;
-
-        // Optional models (may not exist in all setups)
-        $prescriptionModel = class_exists('App\\Models\\PrescriptionModel') ? new \App\Models\PrescriptionModel() : null;
-        $labRequestModel = class_exists('App\\Models\\LabRequestModel') ? new \App\Models\LabRequestModel() : null;
+        // Initialize models
+        $appointmentModel = new \App\Models\AppointmentModel();
+        $patientModel = new \App\Models\HMSPatientModel();
+        $billingModel = new \App\Models\BillingModel();
+        $labServiceModel = new \App\Models\LabServiceModel();
+        $pharmacyModel = new \App\Models\PharmacyModel();
+        $stockModel = new \App\Models\StockModel();
+        $scheduleModel = new \App\Models\ScheduleModel();
+        $db = \Config\Database::connect();
 
         try {
             // Appointments & Patients
             if (in_array($userRole, ['admin', 'receptionist', 'nurse', 'doctor'])) {
                 // Today's appointments (exclude cancelled/no_show)
-                $data['appointmentsCount'] = $appointmentModel
-                    ->where('appointment_date', $today)
-                    ->whereNotIn('status', ['cancelled','no_show'])
-                    ->countAllResults();
+                if ($db->tableExists('appointments')) {
+                    $data['appointmentsCount'] = $appointmentModel
+                        ->where('appointment_date', $today)
+                        ->whereNotIn('status', ['cancelled','no_show'])
+                        ->countAllResults();
+                }
 
-                $data['patientsCount'] = $patientModel->countAllResults();
-                // New patients today
-                if ($patientModel->db->fieldExists('created_at', 'patients')) {
+                if ($db->tableExists('patients')) {
+                    $data['patientsCount'] = $patientModel->countAllResults();
+                    // New patients today
                     $data['newPatientsToday'] = $patientModel->builder()
                         ->select('COUNT(*) AS c')
                         ->where('DATE(created_at)', $today)
@@ -137,68 +147,247 @@ class Dashboard extends BaseController
 
             // Active cases: confirmed or in_progress today
             if (in_array($userRole, ['admin', 'doctor', 'nurse'])) {
-                $data['activeCases'] = $appointmentModel
-                    ->where('appointment_date', $today)
-                    ->whereIn('status', ['confirmed','in_progress'])
-                    ->countAllResults();
-            }
-
-            // Billing totals (normalized schema)
-            if (in_array($userRole, ['admin', 'finance'])) {
-                // Today's paid revenue
-                $data['todayRevenue'] = (float) ($billingModel->builder()
-                    ->selectSum('final_amount', 'sum')
-                    ->where('payment_status', 'paid')
-                    ->where('bill_date', $today)
-                    ->get()->getRow('sum') ?? 0);
-
-                // Monthly and outstanding via helper
-                if (method_exists($billingModel, 'getTotals')) {
-                    $totals = $billingModel->getTotals();
-                    $data['paidThisMonth'] = (float) ($totals['paidThisMonth'] ?? 0);
-                    $data['outstanding'] = (float) ($totals['outstanding'] ?? 0);
-                    $data['pendingBills'] = (int) ($totals['pendingCount'] ?? 0);
-                } else {
-                    // Fallback if helper not available
-                    $data['paidThisMonth'] = (float) ($billingModel->builder()
-                        ->selectSum('final_amount', 'sum')
-                        ->where('payment_status', 'paid')
-                        ->where('bill_date >=', $monthStart)
-                        ->where('bill_date <=', $monthEnd)
-                        ->get()->getRow('sum') ?? 0);
-
-                    $data['outstanding'] = (float) ($billingModel->builder()
-                        ->selectSum('final_amount', 'sum')
-                        ->where('payment_status', 'pending')
-                        ->get()->getRow('sum') ?? 0);
-
-                    $data['pendingBills'] = (int) ($billingModel->builder()
-                        ->select('COUNT(*) AS c')
-                        ->where('payment_status', 'pending')
-                        ->get()->getRow('c') ?? 0);
+                if ($db->tableExists('appointments')) {
+                    $data['activeCases'] = $appointmentModel
+                        ->where('appointment_date', $today)
+                        ->whereIn('status', ['confirmed','in_progress'])
+                        ->countAllResults();
                 }
             }
 
-            // Prescriptions pending
-            if ($prescriptionModel && in_array($userRole, ['admin', 'pharmacy'])) {
-                $data['prescriptionsCount'] = (int) $prescriptionModel->builder()
-                    ->select('COUNT(*) AS c')
-                    ->where('status', 'pending')
-                    ->get()->getRow('c');
+            // Doctor Dashboard - Specific data
+            if ($userRole === 'doctor') {
+                $doctorId = session()->get('user_id');
+                
+                // Today's appointments for this doctor
+                if ($db->tableExists('appointments') && $doctorId) {
+                    $data['appointmentsCount'] = $appointmentModel
+                        ->where('doctor_id', $doctorId)
+                        ->where('appointment_date', $today)
+                        ->whereNotIn('status', ['cancelled','no_show'])
+                        ->countAllResults();
+                    
+                    // Patients seen today (completed appointments)
+                    $data['patientsSeenToday'] = $appointmentModel
+                        ->where('doctor_id', $doctorId)
+                        ->where('appointment_date', $today)
+                        ->where('status', 'completed')
+                        ->countAllResults();
+                }
+                
+                // Pending lab results
+                if ($db->tableExists('lab_services')) {
+                    $data['pendingLabResults'] = $labServiceModel->builder()
+                        ->where('(result IS NULL OR result = "")')
+                        ->countAllResults();
+                }
+                
+                // Prescriptions count (if prescriptions table exists)
+                if ($db->tableExists('prescriptions')) {
+                    $data['prescriptionsCount'] = $db->table('prescriptions')
+                        ->where('status', 'pending')
+                        ->countAllResults();
+                }
             }
 
-            // Laboratory pending stats
-            if ($labRequestModel && in_array($userRole, ['admin', 'labstaff'])) {
-                $pending = (int) $labRequestModel->builder()
-                    ->select('COUNT(*) AS c')
-                    ->where('status', 'pending')
-                    ->get()->getRow('c');
-                $data['labTestsCount'] = $pending; // backward compat
-                $data['labStats'] = ['pending' => $pending];
+            // Nurse Dashboard - Specific data
+            if ($userRole === 'nurse') {
+                // Critical patients (patients with critical status or in ICU)
+                if ($db->tableExists('patients')) {
+                    $data['criticalPatients'] = $patientModel->builder()
+                        ->where('status', 'critical')
+                        ->orLike('room_number', 'ICU')
+                        ->countAllResults();
+                    
+                    // Patients under care (inpatients)
+                    $data['patientsUnderCare'] = $patientModel->builder()
+                        ->where('type', 'In-Patient')
+                        ->countAllResults();
+                }
+                
+                // Medications due (if medications table exists)
+                if ($db->tableExists('medications')) {
+                    $data['medicationsDue'] = $db->table('medications')
+                        ->where('due_date <=', $today)
+                        ->where('status', 'pending')
+                        ->countAllResults();
+                } else {
+                    $data['medicationsDue'] = 0;
+                }
+                
+                // Vitals pending (if vitals table exists)
+                if ($db->tableExists('vitals')) {
+                    $data['vitalsPending'] = $db->table('vitals')
+                        ->where('DATE(created_at)', $today)
+                        ->where('status', 'pending')
+                        ->countAllResults();
+                } else {
+                    $data['vitalsPending'] = 0;
+                }
+            }
+
+            // Accountant/Finance Dashboard - Billing data
+            if (in_array($userRole, ['admin', 'finance'])) {
+                if ($db->tableExists('billing')) {
+                    // Today's revenue (paid bills)
+                    $todayRevenue = $billingModel->builder()
+                        ->selectSum('amount', 'sum')
+                        ->where('status', 'paid')
+                        ->where('DATE(created_at)', $today)
+                        ->get()->getRow('sum');
+                    $data['todayRevenue'] = (float) ($todayRevenue ?? 0);
+
+                    // Pending bills
+                    $pendingBillsData = $billingModel->where('status', 'pending')->findAll();
+                    $data['pendingBills'] = is_array($pendingBillsData) ? count($pendingBillsData) : (int)$pendingBillsData;
+                    
+                    // Outstanding balance (sum of pending bills)
+                    $outstanding = $billingModel->builder()
+                        ->selectSum('amount', 'sum')
+                        ->where('status', 'pending')
+                        ->get()->getRow('sum');
+                    $data['outstandingBalance'] = (float) ($outstanding ?? 0);
+                    
+                    // Paid this month
+                    $paidThisMonth = $billingModel->builder()
+                        ->selectSum('amount', 'sum')
+                        ->where('status', 'paid')
+                        ->where('created_at >=', $monthStart)
+                        ->where('created_at <=', $monthEnd)
+                        ->get()->getRow('sum');
+                    $data['paidThisMonth'] = (float) ($paidThisMonth ?? 0);
+                }
+                
+                // Insurance claims (if insurance_claims table exists)
+                if ($db->tableExists('insurance_claims')) {
+                    $insuranceClaims = $db->table('insurance_claims')
+                        ->where('status', 'pending')
+                        ->findAll();
+                    $data['insuranceClaims'] = is_array($insuranceClaims) ? count($insuranceClaims) : 0;
+                } else {
+                    $data['insuranceClaims'] = 0;
+                }
+            }
+
+            // Pharmacy Dashboard - Specific data
+            if ($userRole === 'pharmacy') {
+                // Prescriptions today
+                if ($db->tableExists('prescriptions')) {
+                    $data['prescriptionsToday'] = $db->table('prescriptions')
+                        ->where('DATE(created_at)', $today)
+                        ->countAllResults();
+                    
+                    // Pending fulfillment
+                    $data['pendingFulfillment'] = $db->table('prescriptions')
+                        ->where('status', 'pending')
+                        ->countAllResults();
+                } else {
+                    $data['prescriptionsToday'] = 0;
+                    $data['pendingFulfillment'] = 0;
+                }
+                
+                // Pharmacy inventory stats
+                if ($db->tableExists('pharmacy')) {
+                    $data['totalInventory'] = $pharmacyModel->countAllResults();
+                    
+                    // Low stock items (quantity <= threshold, but we'll use a simple check)
+                    $allItems = $pharmacyModel->findAll();
+                    $lowStock = 0;
+                    foreach ($allItems as $item) {
+                        if (isset($item['quantity']) && $item['quantity'] < 10) {
+                            $lowStock++;
+                        }
+                    }
+                    $data['lowStockItems'] = $lowStock;
+                    
+                    // Critical items (quantity = 0)
+                    $data['criticalItems'] = $pharmacyModel->builder()
+                        ->where('quantity', 0)
+                        ->countAllResults();
+                    
+                    // Out of stock
+                    $data['outOfStock'] = $data['criticalItems'];
+                    
+                    // Categories count
+                    $categories = $pharmacyModel->builder()
+                        ->select('DISTINCT category')
+                        ->get()->getResultArray();
+                    $data['categoriesCount'] = count($categories);
+                    
+                    // Expiring soon (if expiry_date field exists)
+                    if ($db->fieldExists('expiry_date', 'pharmacy')) {
+                        $futureDate = date('Y-m-d', strtotime('+30 days'));
+                        $data['expiringSoon'] = $pharmacyModel->builder()
+                            ->where('expiry_date >=', $today)
+                            ->where('expiry_date <=', $futureDate)
+                            ->countAllResults();
+                    } else {
+                        $data['expiringSoon'] = 0;
+                    }
+                }
+            }
+
+            // Lab Staff Dashboard - Specific data
+            if ($userRole === 'lab_staff' || $userRole === 'labstaff') {
+                if ($db->tableExists('lab_services')) {
+                    // Pending tests (tests without results)
+                    $pendingTests = $labServiceModel->builder()
+                        ->groupStart()
+                        ->where('result IS NULL')
+                        ->orWhere('result', '')
+                        ->groupEnd()
+                        ->get()->getResultArray();
+                    $data['pendingTests'] = is_array($pendingTests) ? $pendingTests : [];
+                    
+                    // Completed today (tests with results created today)
+                    $data['completedToday'] = $labServiceModel->builder()
+                        ->where('DATE(created_at)', $today)
+                        ->groupStart()
+                        ->where('result IS NOT NULL')
+                        ->where('result !=', '')
+                        ->groupEnd()
+                        ->countAllResults();
+                    
+                    // Monthly tests
+                    $data['monthlyTests'] = $labServiceModel->builder()
+                        ->where('created_at >=', $monthStart)
+                        ->where('created_at <=', $monthEnd)
+                        ->countAllResults();
+                }
+            }
+
+            // IT Staff Dashboard - System stats
+            if ($userRole === 'itstaff') {
+                // Active users (users logged in today or recently)
+                if ($db->tableExists('users')) {
+                    $data['activeUsers'] = $db->table('users')
+                        ->where('last_login >=', date('Y-m-d H:i:s', strtotime('-24 hours')))
+                        ->countAllResults();
+                }
+                
+                // System alerts (if system_alerts table exists)
+                if ($db->tableExists('system_alerts')) {
+                    $data['systemAlerts'] = $db->table('system_alerts')
+                        ->where('status', 'active')
+                        ->countAllResults();
+                } else {
+                    $data['systemAlerts'] = 0;
+                }
+                
+                // Pending tasks (if tasks table exists)
+                if ($db->tableExists('tasks')) {
+                    $data['pendingTasks'] = $db->table('tasks')
+                        ->where('status', 'pending')
+                        ->countAllResults();
+                } else {
+                    $data['pendingTasks'] = 0;
+                }
+                
+                // System uptime (calculated or from config)
+                $data['systemUptime'] = '99.8%'; // Can be calculated from logs if needed
             }
 
             // User counts by role (for Users Total)
-            $db = \Config\Database::connect();
             if ($db->tableExists('users') && $db->tableExists('roles')) {
                 $rows = $db->table('users u')
                     ->select('r.name AS role, COUNT(u.id) AS cnt')

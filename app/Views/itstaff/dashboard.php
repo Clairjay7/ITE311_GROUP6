@@ -29,22 +29,22 @@
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="stat-title">System Uptime</div>
-                <div class="stat-value">99.8%</div>
+                <div class="stat-value"><?= $systemUptime ?? '99.8%' ?></div>
             </div>
             
             <div class="stat-card">
                 <div class="stat-title">Active Users</div>
-                <div class="stat-value">156</div>
+                <div class="stat-value"><?= $activeUsers ?? '0' ?></div>
             </div>
             
             <div class="stat-card">
                 <div class="stat-title">System Alerts</div>
-                <div class="stat-value">3</div>
+                <div class="stat-value"><?= $systemAlerts ?? '0' ?></div>
             </div>
             
             <div class="stat-card">
                 <div class="stat-title">Pending Tasks</div>
-                <div class="stat-value">5</div>
+                <div class="stat-value"><?= $pendingTasks ?? '0' ?></div>
             </div>
         </div>
     </div>
