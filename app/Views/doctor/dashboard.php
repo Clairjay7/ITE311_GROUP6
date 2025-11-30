@@ -63,9 +63,53 @@
                 <div class="stat-title">Prescriptions</div>
                 <div class="stat-value"><?= $prescriptionsCount ?? '0' ?></div>
             </div>
+            
+            <div class="stat-card">
+                <div class="stat-title">My Assigned Patients</div>
+                <div class="stat-value"><?= $assignedPatientsCount ?? '0' ?></div>
+            </div>
         </div>
     </div>
+
+    <!-- Assigned Patients List -->
+    <?php if (!empty($assignedPatients ?? [])): ?>
+        <div class="patients-section">
+            <h3 style="color: #2e7d32; margin-bottom: 16px;">My Assigned Patients</h3>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Birthdate</th>
+                            <th>Gender</th>
+                            <th>Contact</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($assignedPatients as $patient): ?>
+                            <tr>
+                                <td>#<?= esc($patient['id']) ?></td>
+                                <td><?= esc($patient['firstname'] . ' ' . $patient['lastname']) ?></td>
+                                <td><?= esc($patient['birthdate']) ?></td>
+                                <td><?= esc(ucfirst($patient['gender'])) ?></td>
+                                <td><?= esc($patient['contact'] ?? 'N/A') ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    <?php endif; ?>
 </div>
+
+<style>
+.patients-section { margin-top: 24px; }
+.table-container { background: white; border-radius: 8px; overflow: hidden; }
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table th { background: #e8f5e9; padding: 12px; text-align: left; font-weight: 600; color: #2e7d32; }
+.data-table td { padding: 12px; border-bottom: 1px solid #e5e7eb; }
+</style>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize tooltips if any

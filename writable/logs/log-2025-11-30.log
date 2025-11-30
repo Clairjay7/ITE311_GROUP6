@@ -392,3 +392,334 @@ ORDER BY `created_at` DESC', [], false)
 11 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
 12 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
 13 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ERROR - 2025-11-30 04:56:44 --> mysqli_sql_exception: Table 'patients' already exists in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('CREATE TABLE `p...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('CREATE TABLE `p...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('CREATE TABLE `p...')
+#3 F:\xammp\htdocs\group6\system\Database\Forge.php(570): CodeIgniter\Database\BaseConnection->query('CREATE TABLE `p...')
+#4 F:\xammp\htdocs\group6\app\Database\Migrations\2024-01-01-000016_CreatePatientsTable.php(61): CodeIgniter\Database\Forge->createTable('patients')
+#5 F:\xammp\htdocs\group6\system\Database\MigrationRunner.php(876): App\Database\Migrations\CreatePatientsTable->up()
+#6 F:\xammp\htdocs\group6\system\Database\MigrationRunner.php(182): CodeIgniter\Database\MigrationRunner->migrate('up', Object(stdClass))
+#7 F:\xammp\htdocs\group6\system\Commands\Database\Migrate.php(85): CodeIgniter\Database\MigrationRunner->latest(NULL)
+#8 F:\xammp\htdocs\group6\system\CLI\Commands.php(74): CodeIgniter\Commands\Database\Migrate->run(Array)
+#9 F:\xammp\htdocs\group6\system\CLI\Console.php(47): CodeIgniter\CLI\Commands->run('migrate', Array)
+#10 F:\xammp\htdocs\group6\system\Boot.php(388): CodeIgniter\CLI\Console->run()
+#11 F:\xammp\htdocs\group6\system\Boot.php(133): CodeIgniter\Boot::runCommand(Object(CodeIgniter\CLI\Console))
+#12 F:\xammp\htdocs\group6\spark(87): CodeIgniter\Boot::bootSpark(Object(Config\Paths))
+#13 {main}
+ERROR - 2025-11-30 04:59:31 --> mysqli_sql_exception: Table 'patients' already exists in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('CREATE TABLE `p...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('CREATE TABLE `p...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('CREATE TABLE `p...')
+#3 F:\xammp\htdocs\group6\system\Database\Forge.php(570): CodeIgniter\Database\BaseConnection->query('CREATE TABLE `p...')
+#4 F:\xammp\htdocs\group6\app\Database\Migrations\2024-01-01-000016_CreatePatientsTable.php(61): CodeIgniter\Database\Forge->createTable('patients')
+#5 F:\xammp\htdocs\group6\system\Database\MigrationRunner.php(876): App\Database\Migrations\CreatePatientsTable->up()
+#6 F:\xammp\htdocs\group6\system\Database\MigrationRunner.php(182): CodeIgniter\Database\MigrationRunner->migrate('up', Object(stdClass))
+#7 F:\xammp\htdocs\group6\system\Commands\Database\Migrate.php(85): CodeIgniter\Database\MigrationRunner->latest(NULL)
+#8 F:\xammp\htdocs\group6\system\CLI\Commands.php(74): CodeIgniter\Commands\Database\Migrate->run(Array)
+#9 F:\xammp\htdocs\group6\system\CLI\Console.php(47): CodeIgniter\CLI\Commands->run('migrate', Array)
+#10 F:\xammp\htdocs\group6\system\Boot.php(388): CodeIgniter\CLI\Console->run()
+#11 F:\xammp\htdocs\group6\system\Boot.php(133): CodeIgniter\Boot::runCommand(Object(CodeIgniter\CLI\Console))
+#12 F:\xammp\htdocs\group6\spark(87): CodeIgniter\Boot::bootSpark(Object(Config\Paths))
+#13 {main}
+ERROR - 2025-11-30 05:00:04 --> mysqli_sql_exception: Can't DROP FOREIGN KEY `admin_patients_doctor_fk`; check that it exists in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('ALTER TABLE `ad...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('ALTER TABLE `ad...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('ALTER TABLE `ad...')
+#3 F:\xammp\htdocs\group6\system\Database\Forge.php(539): CodeIgniter\Database\BaseConnection->query('ALTER TABLE `ad...')
+#4 F:\xammp\htdocs\group6\app\Database\Migrations\2025-01-20-000008_AddDoctorIdToAdminPatients.php(32): CodeIgniter\Database\Forge->dropForeignKey('admin_patients', 'admin_patients_...')
+#5 F:\xammp\htdocs\group6\system\Database\MigrationRunner.php(876): App\Database\Migrations\AddDoctorIdToAdminPatients->down()
+#6 F:\xammp\htdocs\group6\system\Database\MigrationRunner.php(289): CodeIgniter\Database\MigrationRunner->migrate('down', Object(stdClass))
+#7 F:\xammp\htdocs\group6\system\Commands\Database\MigrateRollback.php(101): CodeIgniter\Database\MigrationRunner->regress(2)
+#8 F:\xammp\htdocs\group6\system\CLI\Commands.php(74): CodeIgniter\Commands\Database\MigrateRollback->run(Array)
+#9 F:\xammp\htdocs\group6\system\CLI\Console.php(47): CodeIgniter\CLI\Commands->run('migrate:rollbac...', Array)
+#10 F:\xammp\htdocs\group6\system\Boot.php(388): CodeIgniter\CLI\Console->run()
+#11 F:\xammp\htdocs\group6\system\Boot.php(133): CodeIgniter\Boot::runCommand(Object(CodeIgniter\CLI\Console))
+#12 F:\xammp\htdocs\group6\spark(87): CodeIgniter\Boot::bootSpark(Object(Config\Paths))
+#13 {main}
+ERROR - 2025-11-30 05:01:16 --> mysqli_sql_exception: Table 'hospital_management.consultations' doesn't exist in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT `consult...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `consult...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `consult...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `consult...', Array, false)
+#4 F:\xammp\htdocs\group6\system\Model.php(286): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\BaseModel.php(677): CodeIgniter\Model->doFindAll(0, 0)
+#6 F:\xammp\htdocs\group6\app\Models\ConsultationModel.php(99): CodeIgniter\BaseModel->findAll()
+#7 F:\xammp\htdocs\group6\app\Controllers\Doctor\ConsultationController.php(21): App\Models\ConsultationModel->getUpcomingConsultations('2')
+#8 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Doctor\ConsultationController->upcoming()
+#9 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Doctor\ConsultationController))
+#10 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#11 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#12 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#13 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#14 {main}
+CRITICAL - 2025-11-30 05:01:16 --> CodeIgniter\Database\Exceptions\DatabaseException: Table 'hospital_management.consultations' doesn't exist
+[Method: GET, Route: doctor/consultations/upcoming]
+in SYSTEMPATH\Database\BaseConnection.php on line 684.
+ 1 SYSTEMPATH\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `consultations`.*, `patients`.`firstname`, `patients`.`lastname`
+FROM `consultations`
+JOIN `patients` ON `patients`.`id` = `consultations`.`patient_id`
+WHERE `consultations`.`doctor_id` = :consultations.doctor_id:
+AND `consultations`.`type` = :consultations.type:
+AND `consultations`.`status` = :consultations.status:
+AND `consultations`.`consultation_date` >= :consultations.consultation_date:
+AND `consultations`.`deleted_at` IS NULL
+ORDER BY `consultations`.`consultation_date` ASC, `consultations`.`consultation_time` ASC', [...], false)
+ 2 SYSTEMPATH\Model.php(286): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH\BaseModel.php(677): CodeIgniter\Model->doFindAll(0, 0)
+ 4 APPPATH\Models\ConsultationModel.php(99): CodeIgniter\BaseModel->findAll()
+ 5 APPPATH\Controllers\Doctor\ConsultationController.php(21): App\Models\ConsultationModel->getUpcomingConsultations('2')
+ 6 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Doctor\ConsultationController->upcoming()
+ 7 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Doctor\ConsultationController))
+ 8 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2025-11-30 05:01:16 --> [Caused by] CodeIgniter\Database\Exceptions\DatabaseException: Table 'hospital_management.consultations' doesn't exist
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 332.
+ 1 SYSTEMPATH\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `consultations`.*, `patients`.`firstname`, `patients`.`lastname`
+FROM `consultations`
+JOIN `patients` ON `patients`.`id` = `consultations`.`patient_id`
+WHERE `consultations`.`doctor_id` = \'2\'
+AND `consultations`.`type` = \'upcoming\'
+AND `consultations`.`status` = \'approved\'
+AND `consultations`.`consultation_date` >= \'2025-11-30\'
+AND `consultations`.`deleted_at` IS NULL
+ORDER BY `consultations`.`consultation_date` ASC, `consultations`.`consultation_time` ASC')
+ 2 SYSTEMPATH\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `consultations`.*, `patients`.`firstname`, `patients`.`lastname`
+FROM `consultations`
+JOIN `patients` ON `patients`.`id` = `consultations`.`patient_id`
+WHERE `consultations`.`doctor_id` = \'2\'
+AND `consultations`.`type` = \'upcoming\'
+AND `consultations`.`status` = \'approved\'
+AND `consultations`.`consultation_date` >= \'2025-11-30\'
+AND `consultations`.`deleted_at` IS NULL
+ORDER BY `consultations`.`consultation_date` ASC, `consultations`.`consultation_time` ASC')
+ 3 SYSTEMPATH\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `consultations`.*, `patients`.`firstname`, `patients`.`lastname`
+FROM `consultations`
+JOIN `patients` ON `patients`.`id` = `consultations`.`patient_id`
+WHERE `consultations`.`doctor_id` = :consultations.doctor_id:
+AND `consultations`.`type` = :consultations.type:
+AND `consultations`.`status` = :consultations.status:
+AND `consultations`.`consultation_date` >= :consultations.consultation_date:
+AND `consultations`.`deleted_at` IS NULL
+ORDER BY `consultations`.`consultation_date` ASC, `consultations`.`consultation_time` ASC', [...], false)
+ 4 SYSTEMPATH\Model.php(286): CodeIgniter\Database\BaseBuilder->get()
+ 5 SYSTEMPATH\BaseModel.php(677): CodeIgniter\Model->doFindAll(0, 0)
+ 6 APPPATH\Models\ConsultationModel.php(99): CodeIgniter\BaseModel->findAll()
+ 7 APPPATH\Controllers\Doctor\ConsultationController.php(21): App\Models\ConsultationModel->getUpcomingConsultations('2')
+ 8 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Doctor\ConsultationController->upcoming()
+ 9 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Doctor\ConsultationController))
+10 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+11 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+12 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+13 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2025-11-30 05:01:16 --> [Caused by] mysqli_sql_exception: Table 'hospital_management.consultations' doesn't exist
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 327.
+ 1 SYSTEMPATH\Database\MySQLi\Connection.php(327): mysqli->query('SELECT `consultations`.*, `patients`.`firstname`, `patients`.`lastname`
+FROM `consultations`
+JOIN `patients` ON `patients`.`id` = `consultations`.`patient_id`
+WHERE `consultations`.`doctor_id` = \'2\'
+AND `consultations`.`type` = \'upcoming\'
+AND `consultations`.`status` = \'approved\'
+AND `consultations`.`consultation_date` >= \'2025-11-30\'
+AND `consultations`.`deleted_at` IS NULL
+ORDER BY `consultations`.`consultation_date` ASC, `consultations`.`consultation_time` ASC', 0)
+ 2 SYSTEMPATH\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `consultations`.*, `patients`.`firstname`, `patients`.`lastname`
+FROM `consultations`
+JOIN `patients` ON `patients`.`id` = `consultations`.`patient_id`
+WHERE `consultations`.`doctor_id` = \'2\'
+AND `consultations`.`type` = \'upcoming\'
+AND `consultations`.`status` = \'approved\'
+AND `consultations`.`consultation_date` >= \'2025-11-30\'
+AND `consultations`.`deleted_at` IS NULL
+ORDER BY `consultations`.`consultation_date` ASC, `consultations`.`consultation_time` ASC')
+ 3 SYSTEMPATH\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `consultations`.*, `patients`.`firstname`, `patients`.`lastname`
+FROM `consultations`
+JOIN `patients` ON `patients`.`id` = `consultations`.`patient_id`
+WHERE `consultations`.`doctor_id` = \'2\'
+AND `consultations`.`type` = \'upcoming\'
+AND `consultations`.`status` = \'approved\'
+AND `consultations`.`consultation_date` >= \'2025-11-30\'
+AND `consultations`.`deleted_at` IS NULL
+ORDER BY `consultations`.`consultation_date` ASC, `consultations`.`consultation_time` ASC')
+ 4 SYSTEMPATH\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `consultations`.*, `patients`.`firstname`, `patients`.`lastname`
+FROM `consultations`
+JOIN `patients` ON `patients`.`id` = `consultations`.`patient_id`
+WHERE `consultations`.`doctor_id` = :consultations.doctor_id:
+AND `consultations`.`type` = :consultations.type:
+AND `consultations`.`status` = :consultations.status:
+AND `consultations`.`consultation_date` >= :consultations.consultation_date:
+AND `consultations`.`deleted_at` IS NULL
+ORDER BY `consultations`.`consultation_date` ASC, `consultations`.`consultation_time` ASC', [...], false)
+ 5 SYSTEMPATH\Model.php(286): CodeIgniter\Database\BaseBuilder->get()
+ 6 SYSTEMPATH\BaseModel.php(677): CodeIgniter\Model->doFindAll(0, 0)
+ 7 APPPATH\Models\ConsultationModel.php(99): CodeIgniter\BaseModel->findAll()
+ 8 APPPATH\Controllers\Doctor\ConsultationController.php(21): App\Models\ConsultationModel->getUpcomingConsultations('2')
+ 9 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Doctor\ConsultationController->upcoming()
+10 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Doctor\ConsultationController))
+11 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+12 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+13 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+14 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ERROR - 2025-11-30 05:03:37 --> mysqli_sql_exception: Can't create table `hospital_management`.`consultations` (errno: 150 "Foreign key constraint is incorrectly formed") in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('CREATE TABLE `c...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('CREATE TABLE `c...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('CREATE TABLE `c...')
+#3 F:\xammp\htdocs\group6\system\Database\Forge.php(570): CodeIgniter\Database\BaseConnection->query('CREATE TABLE `c...')
+#4 F:\xammp\htdocs\group6\app\Database\Migrations\2024-01-01-000017_CreateConsultationsTable.php(71): CodeIgniter\Database\Forge->createTable('consultations')
+#5 F:\xammp\htdocs\group6\system\Database\MigrationRunner.php(876): App\Database\Migrations\CreateConsultationsTable->up()
+#6 F:\xammp\htdocs\group6\system\Database\MigrationRunner.php(182): CodeIgniter\Database\MigrationRunner->migrate('up', Object(stdClass))
+#7 F:\xammp\htdocs\group6\system\Commands\Database\Migrate.php(85): CodeIgniter\Database\MigrationRunner->latest(NULL)
+#8 F:\xammp\htdocs\group6\system\CLI\Commands.php(74): CodeIgniter\Commands\Database\Migrate->run(Array)
+#9 F:\xammp\htdocs\group6\system\CLI\Console.php(47): CodeIgniter\CLI\Commands->run('migrate', Array)
+#10 F:\xammp\htdocs\group6\system\Boot.php(388): CodeIgniter\CLI\Console->run()
+#11 F:\xammp\htdocs\group6\system\Boot.php(133): CodeIgniter\Boot::runCommand(Object(CodeIgniter\CLI\Console))
+#12 F:\xammp\htdocs\group6\spark(87): CodeIgniter\Boot::bootSpark(Object(Config\Paths))
+#13 {main}
+ERROR - 2025-11-30 05:03:39 --> mysqli_sql_exception: Can't DROP FOREIGN KEY `admin_patients_doctor_fk`; check that it exists in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('ALTER TABLE `ad...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('ALTER TABLE `ad...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('ALTER TABLE `ad...')
+#3 F:\xammp\htdocs\group6\system\Database\Forge.php(539): CodeIgniter\Database\BaseConnection->query('ALTER TABLE `ad...')
+#4 F:\xammp\htdocs\group6\app\Database\Migrations\2025-01-20-000008_AddDoctorIdToAdminPatients.php(32): CodeIgniter\Database\Forge->dropForeignKey('admin_patients', 'admin_patients_...')
+#5 F:\xammp\htdocs\group6\system\Database\MigrationRunner.php(876): App\Database\Migrations\AddDoctorIdToAdminPatients->down()
+#6 F:\xammp\htdocs\group6\system\Database\MigrationRunner.php(289): CodeIgniter\Database\MigrationRunner->migrate('down', Object(stdClass))
+#7 F:\xammp\htdocs\group6\system\Commands\Database\MigrateRollback.php(101): CodeIgniter\Database\MigrationRunner->regress(2)
+#8 F:\xammp\htdocs\group6\system\CLI\Commands.php(74): CodeIgniter\Commands\Database\MigrateRollback->run(Array)
+#9 F:\xammp\htdocs\group6\system\CLI\Console.php(47): CodeIgniter\CLI\Commands->run('migrate:rollbac...', Array)
+#10 F:\xammp\htdocs\group6\system\Boot.php(388): CodeIgniter\CLI\Console->run()
+#11 F:\xammp\htdocs\group6\system\Boot.php(133): CodeIgniter\Boot::runCommand(Object(CodeIgniter\CLI\Console))
+#12 F:\xammp\htdocs\group6\spark(87): CodeIgniter\Boot::bootSpark(Object(Config\Paths))
+#13 {main}
+ERROR - 2025-11-30 05:03:57 --> mysqli_sql_exception: Unknown column 'birthdate' in 'field list' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `pa...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `pa...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `pa...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1841): CodeIgniter\Database\BaseConnection->query('INSERT INTO `pa...', NULL, false)
+#4 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(2230): CodeIgniter\Database\BaseBuilder->batchExecute('_insertBatch', 100)
+#5 F:\xammp\htdocs\group6\app\Database\Seeds\DoctorSampleDataSeeder.php(45): CodeIgniter\Database\BaseBuilder->insertBatch(Array)
+#6 F:\xammp\htdocs\group6\system\Database\Seeder.php(149): App\Database\Seeds\DoctorSampleDataSeeder->run()
+#7 F:\xammp\htdocs\group6\system\Commands\Database\Seed.php(79): CodeIgniter\Database\Seeder->call('App\\Database\\Se...')
+#8 F:\xammp\htdocs\group6\system\CLI\Commands.php(74): CodeIgniter\Commands\Database\Seed->run(Array)
+#9 F:\xammp\htdocs\group6\system\CLI\Console.php(47): CodeIgniter\CLI\Commands->run('db:seed', Array)
+#10 F:\xammp\htdocs\group6\system\Boot.php(388): CodeIgniter\CLI\Console->run()
+#11 F:\xammp\htdocs\group6\system\Boot.php(133): CodeIgniter\Boot::runCommand(Object(CodeIgniter\CLI\Console))
+#12 F:\xammp\htdocs\group6\spark(87): CodeIgniter\Boot::bootSpark(Object(Config\Paths))
+#13 {main}
+ERROR - 2025-11-30 05:04:05 --> mysqli_sql_exception: Unknown column 'birthdate' in 'field list' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `pa...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `pa...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `pa...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1841): CodeIgniter\Database\BaseConnection->query('INSERT INTO `pa...', NULL, false)
+#4 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(2230): CodeIgniter\Database\BaseBuilder->batchExecute('_insertBatch', 100)
+#5 F:\xammp\htdocs\group6\app\Database\Seeds\DoctorSampleDataSeeder.php(45): CodeIgniter\Database\BaseBuilder->insertBatch(Array)
+#6 F:\xammp\htdocs\group6\system\Database\Seeder.php(149): App\Database\Seeds\DoctorSampleDataSeeder->run()
+#7 F:\xammp\htdocs\group6\system\Commands\Database\Seed.php(79): CodeIgniter\Database\Seeder->call('App\\Database\\Se...')
+#8 F:\xammp\htdocs\group6\system\CLI\Commands.php(74): CodeIgniter\Commands\Database\Seed->run(Array)
+#9 F:\xammp\htdocs\group6\system\CLI\Console.php(47): CodeIgniter\CLI\Commands->run('db:seed', Array)
+#10 F:\xammp\htdocs\group6\system\Boot.php(388): CodeIgniter\CLI\Console->run()
+#11 F:\xammp\htdocs\group6\system\Boot.php(133): CodeIgniter\Boot::runCommand(Object(CodeIgniter\CLI\Console))
+#12 F:\xammp\htdocs\group6\spark(87): CodeIgniter\Boot::bootSpark(Object(Config\Paths))
+#13 {main}
+ERROR - 2025-11-30 05:04:16 --> mysqli_sql_exception: Cannot delete or update a parent row: a foreign key constraint fails in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('DROP TABLE IF E...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('DROP TABLE IF E...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('DROP TABLE IF E...')
+#3 F:\xammp\htdocs\group6\app\Database\Seeds\CreatePatientsTableSeeder.php(12): CodeIgniter\Database\BaseConnection->query('DROP TABLE IF E...')
+#4 F:\xammp\htdocs\group6\system\Database\Seeder.php(149): App\Database\Seeds\CreatePatientsTableSeeder->run()
+#5 F:\xammp\htdocs\group6\system\Commands\Database\Seed.php(79): CodeIgniter\Database\Seeder->call('App\\Database\\Se...')
+#6 F:\xammp\htdocs\group6\system\CLI\Commands.php(74): CodeIgniter\Commands\Database\Seed->run(Array)
+#7 F:\xammp\htdocs\group6\system\CLI\Console.php(47): CodeIgniter\CLI\Commands->run('db:seed', Array)
+#8 F:\xammp\htdocs\group6\system\Boot.php(388): CodeIgniter\CLI\Console->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(133): CodeIgniter\Boot::runCommand(Object(CodeIgniter\CLI\Console))
+#10 F:\xammp\htdocs\group6\spark(87): CodeIgniter\Boot::bootSpark(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-11-30 05:05:40 --> mysqli_sql_exception: Unknown column 'role' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Database\Seeds\TestDoctorDataSeeder.php(12): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\Database\Seeder.php(149): App\Database\Seeds\TestDoctorDataSeeder->run()
+#6 F:\xammp\htdocs\group6\system\Commands\Database\Seed.php(79): CodeIgniter\Database\Seeder->call('App\\Database\\Se...')
+#7 F:\xammp\htdocs\group6\system\CLI\Commands.php(74): CodeIgniter\Commands\Database\Seed->run(Array)
+#8 F:\xammp\htdocs\group6\system\CLI\Console.php(47): CodeIgniter\CLI\Commands->run('db:seed', Array)
+#9 F:\xammp\htdocs\group6\system\Boot.php(388): CodeIgniter\CLI\Console->run()
+#10 F:\xammp\htdocs\group6\system\Boot.php(133): CodeIgniter\Boot::runCommand(Object(CodeIgniter\CLI\Console))
+#11 F:\xammp\htdocs\group6\spark(87): CodeIgniter\Boot::bootSpark(Object(Config\Paths))
+#12 {main}
+ERROR - 2025-11-30 05:06:35 --> mysqli_sql_exception: Can't create table `hospital_management`.`consultations` (errno: 150 "Foreign key constraint is incorrectly formed") in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('CREATE TABLE `c...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('CREATE TABLE `c...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('CREATE TABLE `c...')
+#3 F:\xammp\htdocs\group6\system\Database\Forge.php(570): CodeIgniter\Database\BaseConnection->query('CREATE TABLE `c...')
+#4 F:\xammp\htdocs\group6\app\Database\Migrations\2024-01-01-000017_CreateConsultationsTable.php(71): CodeIgniter\Database\Forge->createTable('consultations')
+#5 F:\xammp\htdocs\group6\system\Database\MigrationRunner.php(876): App\Database\Migrations\CreateConsultationsTable->up()
+#6 F:\xammp\htdocs\group6\system\Database\MigrationRunner.php(182): CodeIgniter\Database\MigrationRunner->migrate('up', Object(stdClass))
+#7 F:\xammp\htdocs\group6\system\Commands\Database\Migrate.php(85): CodeIgniter\Database\MigrationRunner->latest(NULL)
+#8 F:\xammp\htdocs\group6\system\CLI\Commands.php(74): CodeIgniter\Commands\Database\Migrate->run(Array)
+#9 F:\xammp\htdocs\group6\system\CLI\Console.php(47): CodeIgniter\CLI\Commands->run('migrate', Array)
+#10 F:\xammp\htdocs\group6\system\Boot.php(388): CodeIgniter\CLI\Console->run()
+#11 F:\xammp\htdocs\group6\system\Boot.php(133): CodeIgniter\Boot::runCommand(Object(CodeIgniter\CLI\Console))
+#12 F:\xammp\htdocs\group6\spark(87): CodeIgniter\Boot::bootSpark(Object(Config\Paths))
+#13 {main}
+ERROR - 2025-11-30 05:07:18 --> mysqli_sql_exception: Can't create table `hospital_management`.`consultations` (errno: 150 "Foreign key constraint is incorrectly formed") in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('CREATE TABLE `c...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('CREATE TABLE `c...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('CREATE TABLE `c...')
+#3 F:\xammp\htdocs\group6\system\Database\Forge.php(570): CodeIgniter\Database\BaseConnection->query('CREATE TABLE `c...')
+#4 F:\xammp\htdocs\group6\app\Database\Migrations\2024-01-01-000017_CreateConsultationsTable.php(71): CodeIgniter\Database\Forge->createTable('consultations')
+#5 F:\xammp\htdocs\group6\system\Database\MigrationRunner.php(876): App\Database\Migrations\CreateConsultationsTable->up()
+#6 F:\xammp\htdocs\group6\system\Database\MigrationRunner.php(182): CodeIgniter\Database\MigrationRunner->migrate('up', Object(stdClass))
+#7 F:\xammp\htdocs\group6\system\Commands\Database\Migrate.php(85): CodeIgniter\Database\MigrationRunner->latest(NULL)
+#8 F:\xammp\htdocs\group6\system\CLI\Commands.php(74): CodeIgniter\Commands\Database\Migrate->run(Array)
+#9 F:\xammp\htdocs\group6\system\CLI\Console.php(47): CodeIgniter\CLI\Commands->run('migrate', Array)
+#10 F:\xammp\htdocs\group6\system\Boot.php(388): CodeIgniter\CLI\Console->run()
+#11 F:\xammp\htdocs\group6\system\Boot.php(133): CodeIgniter\Boot::runCommand(Object(CodeIgniter\CLI\Console))
+#12 F:\xammp\htdocs\group6\spark(87): CodeIgniter\Boot::bootSpark(Object(Config\Paths))
+#13 {main}
+ERROR - 2025-11-30 05:09:23 --> mysqli_sql_exception: Can't create table `hospital_management`.`consultations` (errno: 150 "Foreign key constraint is incorrectly formed") in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('CREATE TABLE `c...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('CREATE TABLE `c...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('CREATE TABLE `c...')
+#3 F:\xammp\htdocs\group6\system\Database\Forge.php(570): CodeIgniter\Database\BaseConnection->query('CREATE TABLE `c...')
+#4 F:\xammp\htdocs\group6\app\Database\Migrations\2024-01-01-000017_CreateConsultationsTable.php(71): CodeIgniter\Database\Forge->createTable('consultations')
+#5 F:\xammp\htdocs\group6\system\Database\MigrationRunner.php(876): App\Database\Migrations\CreateConsultationsTable->up()
+#6 F:\xammp\htdocs\group6\system\Database\MigrationRunner.php(182): CodeIgniter\Database\MigrationRunner->migrate('up', Object(stdClass))
+#7 F:\xammp\htdocs\group6\system\Commands\Database\Migrate.php(85): CodeIgniter\Database\MigrationRunner->latest(NULL)
+#8 F:\xammp\htdocs\group6\system\CLI\Commands.php(74): CodeIgniter\Commands\Database\Migrate->run(Array)
+#9 F:\xammp\htdocs\group6\system\CLI\Console.php(47): CodeIgniter\CLI\Commands->run('migrate', Array)
+#10 F:\xammp\htdocs\group6\system\Boot.php(388): CodeIgniter\CLI\Console->run()
+#11 F:\xammp\htdocs\group6\system\Boot.php(133): CodeIgniter\Boot::runCommand(Object(CodeIgniter\CLI\Console))
+#12 F:\xammp\htdocs\group6\spark(87): CodeIgniter\Boot::bootSpark(Object(Config\Paths))
+#13 {main}
+ERROR - 2025-11-30 05:10:39 --> mysqli_sql_exception: Table 'consultations' already exists in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('CREATE TABLE `c...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('CREATE TABLE `c...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('CREATE TABLE `c...')
+#3 F:\xammp\htdocs\group6\system\Database\Forge.php(570): CodeIgniter\Database\BaseConnection->query('CREATE TABLE `c...')
+#4 F:\xammp\htdocs\group6\app\Database\Migrations\2024-01-01-000017_CreateConsultationsTable.php(71): CodeIgniter\Database\Forge->createTable('consultations')
+#5 F:\xammp\htdocs\group6\system\Database\MigrationRunner.php(876): App\Database\Migrations\CreateConsultationsTable->up()
+#6 F:\xammp\htdocs\group6\system\Database\MigrationRunner.php(182): CodeIgniter\Database\MigrationRunner->migrate('up', Object(stdClass))
+#7 F:\xammp\htdocs\group6\system\Commands\Database\Migrate.php(85): CodeIgniter\Database\MigrationRunner->latest(NULL)
+#8 F:\xammp\htdocs\group6\system\CLI\Commands.php(74): CodeIgniter\Commands\Database\Migrate->run(Array)
+#9 F:\xammp\htdocs\group6\system\CLI\Console.php(47): CodeIgniter\CLI\Commands->run('migrate', Array)
+#10 F:\xammp\htdocs\group6\system\Boot.php(388): CodeIgniter\CLI\Console->run()
+#11 F:\xammp\htdocs\group6\system\Boot.php(133): CodeIgniter\Boot::runCommand(Object(CodeIgniter\CLI\Console))
+#12 F:\xammp\htdocs\group6\spark(87): CodeIgniter\Boot::bootSpark(Object(Config\Paths))
+#13 {main}

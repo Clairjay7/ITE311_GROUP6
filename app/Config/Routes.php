@@ -210,3 +210,31 @@ $routes->group('receptionist/rooms', ['namespace' => 'App\\Controllers\\Receptio
     $routes->post('assign/(:num)', 'Rooms::assignStore/$1');
     $routes->post('vacate/(:num)', 'Rooms::vacate/$1');
 });
+
+// Doctor routes
+$routes->group('doctor', ['namespace' => 'App\\Controllers', 'filter' => 'auth:doctor,admin'], function($routes) {
+    $routes->get('dashboard', 'Doctor\DashboardController::index');
+    $routes->get('dashboard/stats', 'Doctor\DashboardStats::stats');
+
+    // Patient List
+    $routes->group('patients', function($routes) {
+        $routes->get('/', 'Doctor\PatientController::index');
+        $routes->get('view/(:num)', 'Doctor\PatientController::view/$1');
+        $routes->get('create', 'Doctor\PatientController::create');
+        $routes->post('store', 'Doctor\PatientController::store');
+        $routes->get('edit/(:num)', 'Doctor\PatientController::edit/$1');
+        $routes->post('update/(:num)', 'Doctor\PatientController::update/$1');
+        $routes->get('delete/(:num)', 'Doctor\PatientController::delete/$1');
+    });
+
+    // Consultation Schedule
+    $routes->group('consultations', function($routes) {
+        $routes->get('upcoming', 'Doctor\ConsultationController::upcoming');
+        $routes->get('my-schedule', 'Doctor\ConsultationController::mySchedule');
+        $routes->get('create', 'Doctor\ConsultationController::create');
+        $routes->post('store', 'Doctor\ConsultationController::store');
+        $routes->get('edit/(:num)', 'Doctor\ConsultationController::edit/$1');
+        $routes->post('update/(:num)', 'Doctor\ConsultationController::update/$1');
+        $routes->get('delete/(:num)', 'Doctor\ConsultationController::delete/$1');
+    });
+});

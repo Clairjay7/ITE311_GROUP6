@@ -29,13 +29,14 @@
                     <th>Birthdate</th>
                     <th>Gender</th>
                     <th>Contact</th>
+                    <th>Assigned Doctor</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 <?php if (empty($patients)): ?>
                     <tr>
-                        <td colspan="7" class="text-center">No patients found.</td>
+                        <td colspan="8" class="text-center">No patients found.</td>
                     </tr>
                 <?php else: ?>
                     <?php foreach ($patients as $patient): ?>
@@ -46,6 +47,7 @@
                             <td><?= esc($patient['birthdate']) ?></td>
                             <td><?= esc(ucfirst($patient['gender'])) ?></td>
                             <td><?= esc($patient['contact']) ?></td>
+                            <td><?= esc($patient['doctor_name'] ?? 'Not Assigned') ?></td>
                             <td>
                                 <a href="<?= base_url('admin/patients/edit/' . $patient['id']) ?>" class="btn btn-sm btn-edit">Edit</a>
                                 <a href="<?= base_url('admin/patients/delete/' . $patient['id']) ?>" class="btn btn-sm btn-delete" onclick="return confirm('Are you sure?')">Delete</a>

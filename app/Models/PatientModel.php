@@ -7,46 +7,29 @@ use CodeIgniter\Model;
 class PatientModel extends Model
 {
     protected $table = 'patients';
-    protected $primaryKey = 'id';
+    protected $primaryKey = 'patient_id';
     protected $useAutoIncrement = true;
     protected $returnType = 'array';
-    protected $useSoftDeletes = false;
-
-    /**
-     * Search patients by name and return minimal fields for autocomplete.
-     */
-    public function searchPatients(string $term): array
-    {
-        $term = trim($term);
-        if ($term === '') return [];
-        $builder = $this->builder();
-        $builder->select("id, CONCAT(first_name, ' ', COALESCE(last_name, '')) AS name");
-        $builder->groupStart()
-            ->like('first_name', $term)
-            ->orLike('last_name', $term)
-            ->groupEnd();
-        $builder->orderBy('first_name', 'ASC');
-        $builder->limit(10);
-        return $builder->get()->getResultArray();
-    }
+    protected $useSoftDeletes = true;
+    protected $deletedField = 'deleted_at';
 
     protected $allowedFields = [
+        'patient_reg_no',
         'first_name',
+        'middle_name', 
         'last_name',
-        'email',
-        'phone',
-        'gender',
+        'extension_name',
         'date_of_birth',
-        'address',
-        'type',
-        'blood_type',
-        'emergency_contact',
-        'insurance_provider',
-        'insurance_number',
-        'medical_history',
-        'status',
+        'gender',
+        'contact',
+        'email',
+        'address_street',
+        'address_barangay',
+        'address_city',
+        'address_province',
         'created_at',
-        'updated_at'
+        'updated_at',
+        'deleted_at'
     ];
 
     protected $useTimestamps = true;
@@ -55,27 +38,33 @@ class PatientModel extends Model
     protected $skipValidation = false;
 
     protected $validationRules = [
-        'first_name' => "required|min_length[2]|max_length[100]|regex_match[/^[A-Za-z\s\-\'\.]+$/]",
-        'last_name' => "permit_empty|max_length[100]|regex_match[/^[A-Za-z\s\-\'\.]+$/]",
-        'email' => 'permit_empty|valid_email|is_unique[patients.email,id,{id}]',
-        'phone' => 'permit_empty|max_length[20]',
-        'gender' => 'required|in_list[male,female,other]',
+        'first_name' => "required|min_length[2]|max_length[60]|regex_match[/^[A-Za-z\s\-\'\.]+$/]",
+        'last_name' => "required|min_length[2]|max_length[60]|regex_match[/^[A-Za-z\s\-\'\.]+$/]",
         'date_of_birth' => 'required|valid_date',
-        'type' => 'permit_empty|in_list[inpatient,outpatient]',
-        'insurance_provider' => 'permit_empty|string|max_length[255]',
-        'insurance_number' => 'permit_empty|string|max_length[100]',
-        'status' => 'in_list[active,inactive]'
+        'gender' => 'required|in_list[male,female,other]',
+        'contact' => 'permit_empty|max_length[20]',
+        'email' => 'permit_empty|valid_email|max_length[120]'
     ];
 
     protected $beforeInsert = ['setCreatedAt'];
     protected $beforeUpdate = ['setUpdatedAt'];
 
     protected $validationMessages = [
-        'email' => [
-            'is_unique' => 'This email is already registered.'
+        'first_name' => [
+            'required' => 'First name is required.',
+            'regex_match' => 'First name can only contain letters, spaces, hyphens, apostrophes, and dots.'
         ],
-        'id' => [
-            'is_unique' => 'A patient with this ID already exists.'
+        'last_name' => [
+            'required' => 'Last name is required.',
+            'regex_match' => 'Last name can only contain letters, spaces, hyphens, apostrophes, and dots.'
+        ],
+        'date_of_birth' => [
+            'required' => 'Birthdate is required.',
+            'valid_date' => 'Please enter a valid birthdate.'
+        ],
+        'gender' => [
+            'required' => 'Gender is required.',
+            'in_list' => 'Please select a valid gender option.'
         ]
     ];
 

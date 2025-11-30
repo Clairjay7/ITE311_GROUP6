@@ -20,6 +20,7 @@ class AdminPatientModel extends Model
         'gender',
         'contact',
         'address',
+        'doctor_id',
     ];
 
     protected $useTimestamps = true;

@@ -175,11 +175,34 @@ class Dashboard extends BaseController
                         ->countAllResults();
                 }
                 
-                // Pending lab results
-                if ($db->tableExists('lab_services')) {
-                    $data['pendingLabResults'] = $labServiceModel->builder()
-                        ->where('(result IS NULL OR result = "")')
-                        ->countAllResults();
+                // Get assigned patients from admin_patients table
+                $adminPatientModel = new \App\Models\AdminPatientModel();
+                if ($db->tableExists('admin_patients') && $doctorId) {
+                    $assignedPatients = $adminPatientModel
+                        ->where('doctor_id', $doctorId)
+                        ->findAll();
+                    $data['assignedPatients'] = $assignedPatients;
+                    $data['assignedPatientsCount'] = count($assignedPatients);
+                    
+                    // Get patient IDs for lab results query
+                    $assignedPatientIds = array_column($assignedPatients, 'id');
+                    
+                    // Pending lab results for this doctor's assigned patients
+                    if ($db->tableExists('lab_services') && !empty($assignedPatientIds)) {
+                        $data['pendingLabResults'] = $labServiceModel->builder()
+                            ->whereIn('patient_id', $assignedPatientIds)
+                            ->groupStart()
+                            ->where('result IS NULL')
+                            ->orWhere('result', '')
+                            ->groupEnd()
+                            ->countAllResults();
+                    } else {
+                        $data['pendingLabResults'] = 0;
+                    }
+                } else {
+                    $data['assignedPatients'] = [];
+                    $data['assignedPatientsCount'] = 0;
+                    $data['pendingLabResults'] = 0;
                 }
                 
                 // Prescriptions count (if prescriptions table exists)

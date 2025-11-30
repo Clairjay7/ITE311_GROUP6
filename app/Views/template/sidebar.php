@@ -80,30 +80,30 @@
             <li class="nav-section-title">Doctor Panel</li>
             <li class="nav-item">
                 <a href="<?= site_url('doctor/dashboard') ?>">
-                    <i class=""></i>
+                    <i class="fa-solid fa-gauge sidebar-icon"></i>
                     <span class="text">Dashboard</span>
                 </a>
             </li>
 
-            <li class="nav-item expandable">
-                <a href="#" onclick="toggleSubmenu(this)">
+            <li class="nav-item">
+                <a href="<?= site_url('doctor/patients') ?>">
+                    <i class="fa-solid fa-hospital-user sidebar-icon"></i>
                     <span class="text">Patient List</span>
-                    <span class="arrow">›</span>
                 </a>
-                <ul class="submenu">
-                    <li><a href="<?= site_url('doctor/patients/view') ?>"><span class="text">Patient Records</span></a></li>
-                </ul>
             </li>
 
-            <li class="nav-item expandable">
-                <a href="#" onclick="toggleSubmenu(this)">
-                    <span class="text">Consultation Schedule</span>
-                    <span class="arrow">›</span>
+            <li class="nav-item">
+                <a href="<?= site_url('doctor/consultations/upcoming') ?>">
+                    <i class="fa-regular fa-calendar-check sidebar-icon"></i>
+                    <span class="text">Upcoming Consultations</span>
                 </a>
-                <ul class="submenu">
-                    <li><a href="<?= site_url('doctor/appointments') ?>"><span class="text">Upcoming Consultations</span></a></li>
-                    <li><a href="<?= site_url('doctor/schedule') ?>"><span class="text">My Schedule</span></a></li>
-                </ul>
+            </li>
+
+            <li class="nav-item">
+                <a href="<?= site_url('doctor/consultations/my-schedule') ?>">
+                    <i class="fa-solid fa-calendar sidebar-icon"></i>
+                    <span class="text">My Schedule</span>
+                </a>
             </li>
         <?php endif; ?>
 

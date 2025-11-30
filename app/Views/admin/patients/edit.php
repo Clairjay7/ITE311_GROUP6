@@ -53,6 +53,22 @@
             <textarea id="address" name="address" class="form-control" rows="3"><?= old('address', $patient['address']) ?></textarea>
         </div>
 
+        <div class="form-group">
+            <label for="doctor_id">Assign Doctor</label>
+            <select id="doctor_id" name="doctor_id" class="form-control">
+                <option value="">Select Doctor (Optional)</option>
+                <?php if (!empty($doctors)): ?>
+                    <?php foreach ($doctors as $doctor): ?>
+                        <option value="<?= esc($doctor['id']) ?>" <?= old('doctor_id', $patient['doctor_id'] ?? null) == $doctor['id'] ? 'selected' : '' ?>>
+                            <?= esc($doctor['username']) ?> <?= !empty($doctor['email']) ? '(' . esc($doctor['email']) . ')' : '' ?>
+                        </option>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <option value="">No doctors available</option>
+                <?php endif; ?>
+            </select>
+        </div>
+
         <div class="form-actions">
             <button type="submit" class="btn btn-primary">Update Patient</button>
             <a href="<?= base_url('admin/patients') ?>" class="btn btn-secondary">Cancel</a>
