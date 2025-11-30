@@ -352,8 +352,159 @@
                 <div class="stat-title">My Assigned Patients</div>
                 <div class="stat-value" id="assigned_patients_count"><?= $assignedPatientsCount ?? '0' ?></div>
             </div>
+            
+            <div class="stat-card warning" style="border-left: 4px solid #f59e0b;">
+                <div class="stat-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
+                    <i class="fas fa-vial"></i>
+                </div>
+                <div class="stat-title">Pending Lab Requests</div>
+                <div class="stat-value" id="pending_lab_requests_count" style="color: #f59e0b;"><?= $pendingLabRequestsCount ?? '0' ?></div>
+            </div>
+            
+            <div class="stat-card" style="border-left: 4px solid #0288d1;">
+                <div class="stat-icon" style="background: rgba(2, 136, 209, 0.1); color: #0288d1;">
+                    <i class="fas fa-prescription"></i>
+                </div>
+                <div class="stat-title">Total Orders</div>
+                <div class="stat-value" id="total_orders" style="color: #0288d1;"><?= $totalOrders ?? '0' ?></div>
+            </div>
+            
+            <div class="stat-card" style="border-left: 4px solid #f59e0b;">
+                <div class="stat-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-title">Pending Orders</div>
+                <div class="stat-value" id="pending_orders" style="color: #f59e0b;"><?= $pendingOrders ?? '0' ?></div>
+            </div>
+            
+            <div class="stat-card" style="border-left: 4px solid #10b981;">
+                <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-title">Completed Orders</div>
+                <div class="stat-value" id="completed_orders" style="color: #10b981;"><?= $completedOrders ?? '0' ?></div>
+            </div>
         </div>
     </div>
+
+    <!-- Pending Lab Requests Section -->
+    <?php if (!empty($pendingLabRequests ?? [])): ?>
+        <div class="patients-section">
+            <h3>
+                <i class="fas fa-vial"></i>
+                Pending Lab Requests from Nurses
+            </h3>
+            <div class="table-container">
+                <div id="labRequestsTableContainer">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Patient</th>
+                                <th>Test Type</th>
+                                <th>Test Name</th>
+                                <th>Priority</th>
+                                <th>Requested By</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="labRequestsTableBody">
+                            <?php foreach ($pendingLabRequests as $request): ?>
+                                <tr>
+                                    <td>#<?= esc($request['id']) ?></td>
+                                    <td><strong><?= esc(ucfirst($request['firstname']) . ' ' . ucfirst($request['lastname'])) ?></strong></td>
+                                    <td><?= esc($request['test_type']) ?></td>
+                                    <td><?= esc($request['test_name']) ?></td>
+                                    <td>
+                                        <span style="background: <?= 
+                                            $request['priority'] == 'stat' ? '#fee2e2' : 
+                                            ($request['priority'] == 'urgent' ? '#fef3c7' : '#d1fae5'); 
+                                        ?>; color: <?= 
+                                            $request['priority'] == 'stat' ? '#991b1b' : 
+                                            ($request['priority'] == 'urgent' ? '#92400e' : '#065f46'); 
+                                        ?>; padding: 4px 12px; border-radius: 8px; font-size: 12px; font-weight: 600;">
+                                            <?= esc(ucfirst($request['priority'])) ?>
+                                        </span>
+                                    </td>
+                                    <td><?= esc($request['nurse_name'] ?? 'N/A') ?></td>
+                                    <td><?= esc(date('M d, Y', strtotime($request['created_at']))) ?></td>
+                                    <td>
+                                        <a href="<?= site_url('doctor/lab-requests') ?>" class="btn btn-primary" style="padding: 6px 12px; font-size: 12px;">
+                                            <i class="fas fa-eye"></i>
+                                            Review
+                                        </a>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
+
+    <!-- Recent Orders Section -->
+    <?php if (!empty($recentOrders ?? [])): ?>
+        <div class="patients-section">
+            <h3>
+                <i class="fas fa-prescription"></i>
+                Recent Medical Orders
+                <a href="<?= site_url('doctor/orders') ?>" style="margin-left: auto; font-size: 14px; color: #2e7d32; text-decoration: none;">
+                    View All <i class="fas fa-arrow-right"></i>
+                </a>
+            </h3>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Patient</th>
+                            <th>Order Type</th>
+                            <th>Description</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($recentOrders as $order): ?>
+                            <tr>
+                                <td>#<?= esc($order['id']) ?></td>
+                                <td><strong><?= esc(ucfirst($order['firstname']) . ' ' . ucfirst($order['lastname'])) ?></strong></td>
+                                <td>
+                                    <span style="background: #e0f2fe; color: #0369a1; padding: 4px 12px; border-radius: 8px; font-size: 12px; font-weight: 600;">
+                                        <?= esc(ucfirst(str_replace('_', ' ', $order['order_type']))) ?>
+                                    </span>
+                                </td>
+                                <td><?= esc(substr($order['order_description'], 0, 50)) ?><?= strlen($order['order_description']) > 50 ? '...' : '' ?></td>
+                                <td>
+                                    <span style="background: <?= 
+                                        $order['status'] == 'completed' ? '#d1fae5' : 
+                                        ($order['status'] == 'in_progress' ? '#fef3c7' : 
+                                        ($order['status'] == 'cancelled' ? '#fee2e2' : '#dbeafe')); 
+                                    ?>; color: <?= 
+                                        $order['status'] == 'completed' ? '#065f46' : 
+                                        ($order['status'] == 'in_progress' ? '#92400e' : 
+                                        ($order['status'] == 'cancelled' ? '#991b1b' : '#1e40af')); 
+                                    ?>; padding: 4px 12px; border-radius: 8px; font-size: 12px; font-weight: 600;">
+                                        <?= esc(ucfirst(str_replace('_', ' ', $order['status']))) ?>
+                                    </span>
+                                </td>
+                                <td><?= esc(date('M d, Y', strtotime($order['created_at']))) ?></td>
+                                <td>
+                                    <a href="<?= site_url('doctor/orders/view/' . $order['id']) ?>" class="btn btn-info" style="padding: 6px 12px; font-size: 12px;">
+                                        <i class="fas fa-eye"></i>
+                                        View
+                                    </a>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    <?php endif; ?>
 
     <!-- Assigned Patients List -->
     <div class="patients-section">
@@ -437,6 +588,10 @@ async function refreshDashboard() {
         setText('assigned_patients_count', data.assigned_patients_count);
         setText('pending_consultations', data.pending_consultations);
         setText('upcoming_consultations', data.upcoming_consultations);
+        setText('pending_lab_requests_count', data.pending_lab_requests_count);
+        setText('total_orders', data.total_orders);
+        setText('pending_orders', data.pending_orders);
+        setText('completed_orders', data.completed_orders);
         
         // Update patients table
         const tableBody = document.getElementById('patientsTableBody');
@@ -494,6 +649,95 @@ async function refreshDashboard() {
                     <p>You don't have any assigned patients yet. Patients assigned from the admin panel will appear here.</p>
                 </div>
             `;
+        }
+        
+        // Update lab requests table
+        const labRequestsTableBody = document.getElementById('labRequestsTableBody');
+        const labRequestsTableContainer = document.getElementById('labRequestsTableContainer');
+        
+        if (data.pending_lab_requests && data.pending_lab_requests.length > 0 && labRequestsTableContainer) {
+            let tableHTML = `
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Patient</th>
+                            <th>Test Type</th>
+                            <th>Test Name</th>
+                            <th>Priority</th>
+                            <th>Requested By</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="labRequestsTableBody">
+            `;
+            
+            data.pending_lab_requests.forEach(request => {
+                const priorityBg = request.priority == 'stat' ? '#fee2e2' : 
+                                  (request.priority == 'urgent' ? '#fef3c7' : '#d1fae5');
+                const priorityColor = request.priority == 'stat' ? '#991b1b' : 
+                                     (request.priority == 'urgent' ? '#92400e' : '#065f46');
+                const date = new Date(request.created_at).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                });
+                
+                tableHTML += `
+                    <tr>
+                        <td>#${request.id}</td>
+                        <td><strong>${request.firstname} ${request.lastname}</strong></td>
+                        <td>${request.test_type}</td>
+                        <td>${request.test_name}</td>
+                        <td>
+                            <span style="background: ${priorityBg}; color: ${priorityColor}; padding: 4px 12px; border-radius: 8px; font-size: 12px; font-weight: 600;">
+                                ${request.priority.charAt(0).toUpperCase() + request.priority.slice(1)}
+                            </span>
+                        </td>
+                        <td>${request.nurse_name || 'N/A'}</td>
+                        <td>${date}</td>
+                        <td>
+                            <a href="<?= site_url('doctor/lab-requests') ?>" class="btn btn-primary" style="padding: 6px 12px; font-size: 12px;">
+                                <i class="fas fa-eye"></i>
+                                Review
+                            </a>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            tableHTML += '</tbody></table>';
+            labRequestsTableContainer.innerHTML = tableHTML;
+        } else if (labRequestsTableContainer && (!data.pending_lab_requests || data.pending_lab_requests.length === 0)) {
+            // Hide the section if no lab requests
+            const labRequestsSection = labRequestsTableContainer.closest('.patients-section');
+            if (labRequestsSection) {
+                labRequestsSection.style.display = 'none';
+            }
+        }
+        
+        // Show lab requests section if there are requests
+        if (data.pending_lab_requests && data.pending_lab_requests.length > 0) {
+            const existingSection = document.querySelector('.patients-section:has(#labRequestsTableContainer)');
+            if (!existingSection) {
+                // Create the section if it doesn't exist
+                const patientsSection = document.querySelector('.patients-section');
+                if (patientsSection) {
+                    const labSection = document.createElement('div');
+                    labSection.className = 'patients-section';
+                    labSection.innerHTML = `
+                        <h3>
+                            <i class="fas fa-vial"></i>
+                            Pending Lab Requests from Nurses
+                        </h3>
+                        <div class="table-container">
+                            <div id="labRequestsTableContainer"></div>
+                        </div>
+                    `;
+                    patientsSection.parentNode.insertBefore(labSection, patientsSection.nextSibling);
+                }
+            }
         }
         
         // Update last refresh time

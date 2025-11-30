@@ -34,7 +34,7 @@ $routes->setAutoRoute(false);
 $routes->get('/dashboard', 'Dashboard::index', ['filter' => 'auth']);
 // Mga dashboard per role para mas madali, gamit pa rin ang unified dashboard
 $routes->get('doctor/dashboard', 'Dashboard::index', ['filter' => 'auth:doctor,admin']);
-$routes->get('nurse/dashboard', 'Dashboard::index', ['filter' => 'auth:nurse,admin']);
+$routes->get('nurse/dashboard', 'Nurse\DashboardController::index', ['filter' => 'auth:nurse,admin']);
 $routes->get('receptionist/dashboard', 'Dashboard::index', ['filter' => 'auth:receptionist,admin']);
 $routes->get('patient/dashboard', 'Dashboard::index', ['filter' => 'auth:patient']);
 $routes->get('accounting/dashboard', 'Dashboard::index', ['filter' => 'auth:finance,admin']);
@@ -44,6 +44,7 @@ $routes->get('pharmacy/dashboard', 'Dashboard::index', ['filter' => 'auth:pharma
 
 // Para sa backward compatibility: lumang URL ng admin dashboard (iba sa unified dashboard)
 $routes->get('/admin/dashboard', 'Admin\DashboardController::index', ['filter' => 'auth:admin']);
+$routes->get('/admin/dashboard/stats', 'Admin\DashboardStats::stats', ['filter' => 'auth:admin']);
 
 // Mga admin management page (hindi mga dashboard)
 $routes->get('admin/Administration/ManageUser', 'Admin::manageUsers', ['filter' => 'auth:admin']);
@@ -121,6 +122,16 @@ $routes->group('admin', ['namespace' => 'App\\Controllers\\Admin', 'filter' => '
         $routes->get('edit/(:num)', 'SystemController::edit/$1');
         $routes->post('update/(:num)', 'SystemController::update/$1');
         $routes->get('delete/(:num)', 'SystemController::delete/$1');
+    });
+    
+    // User Management
+    $routes->group('users', function($routes) {
+        $routes->get('/', 'UserController::index');
+        $routes->get('create', 'UserController::create');
+        $routes->post('store', 'UserController::store');
+        $routes->get('edit/(:num)', 'UserController::edit/$1');
+        $routes->post('update/(:num)', 'UserController::update/$1');
+        $routes->get('delete/(:num)', 'UserController::delete/$1');
     });
 });
 
@@ -236,5 +247,64 @@ $routes->group('doctor', ['namespace' => 'App\\Controllers', 'filter' => 'auth:d
         $routes->get('edit/(:num)', 'Doctor\ConsultationController::edit/$1');
         $routes->post('update/(:num)', 'Doctor\ConsultationController::update/$1');
         $routes->get('delete/(:num)', 'Doctor\ConsultationController::delete/$1');
+    });
+    
+    // Lab Requests from Nurses
+    $routes->group('lab-requests', function($routes) {
+        $routes->get('/', 'Doctor\LabRequestController::index');
+        $routes->post('confirm/(:num)', 'Doctor\LabRequestController::confirm/$1');
+        $routes->post('reject/(:num)', 'Doctor\LabRequestController::reject/$1');
+    });
+
+    // Doctor Orders
+    $routes->group('orders', function($routes) {
+        $routes->get('/', 'Doctor\OrderController::index');
+        $routes->get('create', 'Doctor\OrderController::create');
+        $routes->post('store', 'Doctor\OrderController::store');
+        $routes->get('view/(:num)', 'Doctor\OrderController::view/$1');
+        $routes->get('edit/(:num)', 'Doctor\OrderController::edit/$1');
+        $routes->post('update/(:num)', 'Doctor\OrderController::update/$1');
+        $routes->post('cancel/(:num)', 'Doctor\OrderController::cancel/$1');
+    });
+});
+
+// Nurse routes
+$routes->group('nurse', ['namespace' => 'App\\Controllers\\Nurse', 'filter' => 'auth:nurse,admin'], function($routes) {
+    // Dashboard
+    $routes->get('dashboard', 'DashboardController::index');
+    $routes->get('dashboard/stats', 'DashboardStats::stats');
+    
+    // Notifications
+    $routes->group('notifications', function($routes) {
+        $routes->post('mark-read/(:num)', 'NotificationController::markAsRead/$1');
+        $routes->post('mark-all-read', 'NotificationController::markAllAsRead');
+    });
+    
+    // Patient Handling
+    $routes->group('patients', function($routes) {
+        $routes->get('view', 'PatientController::view');
+        $routes->get('details/(:num)', 'PatientController::details/$1');
+        $routes->get('add-vitals/(:num)', 'PatientController::addVitals/$1');
+        $routes->post('store-vitals/(:num)', 'PatientController::storeVitals/$1');
+        $routes->get('add-note/(:num)', 'PatientController::addNote/$1');
+        $routes->post('store-note/(:num)', 'PatientController::storeNote/$1');
+        $routes->post('update-order-status/(:num)', 'PatientController::updateOrderStatus/$1');
+    });
+    
+    // Appointment Queue
+    $routes->group('appointments', function($routes) {
+        $routes->get('list', 'AppointmentController::list');
+        $routes->post('update-status/(:num)', 'AppointmentController::updateStatus/$1');
+        $routes->get('history', 'AppointmentController::history');
+        $routes->get('history/(:num)', 'AppointmentController::history/$1');
+    });
+    
+    // Lab Assistance
+    $routes->group('laboratory', function($routes) {
+        $routes->get('request', 'LaboratoryController::request');
+        $routes->post('store-request', 'LaboratoryController::storeRequest');
+        $routes->post('update-request-status/(:num)', 'LaboratoryController::updateRequestStatus/$1');
+        $routes->get('testresult', 'LaboratoryController::testresult');
+        $routes->post('upload-result/(:num)', 'LaboratoryController::uploadResult/$1');
     });
 });

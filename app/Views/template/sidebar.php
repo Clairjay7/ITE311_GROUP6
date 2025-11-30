@@ -73,6 +73,14 @@
                     <span class="text">System Controls</span>
                 </a>
             </li>
+
+            <!-- User Management -->
+            <li class="nav-item">
+                <a href="<?= base_url('admin/users') ?>">
+                    <i class="fa-solid fa-users-cog sidebar-icon"></i>
+                    <span class="text">User Management</span>
+                </a>
+            </li>
         <?php endif; ?>
 
         <!-- DOCTOR -->
@@ -103,6 +111,20 @@
                 <a href="<?= site_url('doctor/consultations/my-schedule') ?>">
                     <i class="fa-solid fa-calendar sidebar-icon"></i>
                     <span class="text">My Schedule</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a href="<?= site_url('doctor/lab-requests') ?>">
+                    <i class="fa-solid fa-vial sidebar-icon"></i>
+                    <span class="text">Lab Requests</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a href="<?= site_url('doctor/orders') ?>">
+                    <i class="fa-solid fa-prescription sidebar-icon"></i>
+                    <span class="text">Doctor Orders</span>
                 </a>
             </li>
         <?php endif; ?>

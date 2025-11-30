@@ -3,36 +3,34 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
+use App\Models\AdminPatientModel;
+use App\Models\ScheduleModel;
+use App\Models\LabRequestModel;
+use App\Models\BillingModel;
 
-class DashboardController extends BaseController
+class DashboardStats extends BaseController
 {
-    public function index()
+    public function stats()
     {
-        // Load models for dashboard stats
-        $patientModel = new \App\Models\AdminPatientModel();
+        $patientModel = new AdminPatientModel();
+        $scheduleModel = new ScheduleModel();
+        $labRequestModel = new LabRequestModel();
+        $billingModel = new BillingModel();
         
         // Get dashboard statistics
         $totalDoctors = $this->getTotalDoctors();
         $totalPatients = $patientModel->countAllResults();
         
-        // Get today's appointments from schedules
-        $scheduleModel = new \App\Models\ScheduleModel();
+        $today = date('Y-m-d');
         $todaysAppointments = $scheduleModel
-            ->where('date', date('Y-m-d'))
+            ->where('date', $today)
             ->countAllResults();
-        $pendingBills = $this->getPendingBills();
         
-        // Get recent activity from schedules
-        $recentActivity = $scheduleModel
-            ->select('schedules.*, admin_patients.firstname as patient_first_name, admin_patients.lastname as patient_last_name, users.username as doctor')
-            ->join('admin_patients', 'admin_patients.id = schedules.patient_id', 'left')
-            ->join('users', 'users.id = schedules.doctor', 'left')
-            ->orderBy('schedules.created_at', 'DESC')
-            ->limit(10)
-            ->findAll();
-
+        $pendingBills = $billingModel
+            ->where('status', 'pending')
+            ->countAllResults();
+        
         // Get pending lab requests from nurses
-        $labRequestModel = new \App\Models\LabRequestModel();
         $pendingLabRequests = $labRequestModel
             ->select('lab_requests.*, admin_patients.firstname, admin_patients.lastname, users.username as nurse_name')
             ->join('admin_patients', 'admin_patients.id = lab_requests.patient_id', 'left')
@@ -47,9 +45,17 @@ class DashboardController extends BaseController
             ->where('status', 'pending')
             ->where('requested_by', 'nurse')
             ->countAllResults();
+        
+        // Get recent activity from schedules
+        $recentActivity = $scheduleModel
+            ->select('schedules.*, admin_patients.firstname as patient_first_name, admin_patients.lastname as patient_last_name, users.username as doctor')
+            ->join('admin_patients', 'admin_patients.id = schedules.patient_id', 'left')
+            ->join('users', 'users.id = schedules.doctor', 'left')
+            ->orderBy('schedules.created_at', 'DESC')
+            ->limit(10)
+            ->findAll();
 
         $data = [
-            'title' => 'Admin Dashboard',
             'totalDoctors' => $totalDoctors,
             'totalPatients' => $totalPatients,
             'todaysAppointments' => $todaysAppointments,
@@ -57,27 +63,17 @@ class DashboardController extends BaseController
             'pendingLabRequestsCount' => $pendingLabRequestsCount,
             'pendingLabRequests' => $pendingLabRequests,
             'recentActivity' => $recentActivity,
+            'last_updated' => date('Y-m-d H:i:s')
         ];
 
-        return view('admin/dashboard', $data);
+        return $this->response->setJSON($data);
     }
 
     private function getTotalDoctors()
     {
         $db = \Config\Database::connect();
-        if ($db->tableExists('doctors')) {
-            return $db->table('doctors')->countAllResults();
-        }
-        return 0;
-    }
-
-    private function getPendingBills()
-    {
-        $db = \Config\Database::connect();
-        if ($db->tableExists('billing')) {
-            return $db->table('billing')
-                ->where('status', 'pending')
-                ->countAllResults();
+        if ($db->tableExists('users')) {
+            return $db->table('users')->where('role_id', 2)->countAllResults();
         }
         return 0;
     }
