@@ -57,20 +57,72 @@ Pharmacy Dashboard
         <div class="metric-grid">
             <div class="metric-item">
                 <div class="metric-title">Critical Items</div>
-                <div class="metric-value text-danger"><?= $criticalItems ?? '0' ?></div>
+                <div class="metric-value text-danger" id="criticalItems"><?= $criticalItems ?? '0' ?></div>
             </div>
             <div class="metric-item">
                 <div class="metric-title">Expiring Soon</div>
-                <div class="metric-value text-warning"><?= $expiringSoon ?? '0' ?></div>
+                <div class="metric-value text-warning" id="expiringSoon"><?= $expiringSoon ?? '0' ?></div>
             </div>
             <div class="metric-item">
                 <div class="metric-title">Out of Stock</div>
-                <div class="metric-value"><?= $outOfStock ?? '0' ?></div>
+                <div class="metric-value" id="outOfStock"><?= $outOfStock ?? '0' ?></div>
             </div>
             <div class="metric-item">
                 <div class="metric-title">Categories</div>
-                <div class="metric-value"><?= $categoriesCount ?? '0' ?></div>
+                <div class="metric-value" id="categoriesCount"><?= $categoriesCount ?? '0' ?></div>
             </div>
         </div>
     </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const pharmacyStatsEndpoint = '<?= site_url('pharmacy/dashboard/stats') ?>';
+    
+    async function refreshPharmacyDashboard() {
+        try {
+            const response = await fetch(pharmacyStatsEndpoint, {
+                headers: { 'Accept': 'application/json' }
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            
+            // Update stat cards
+            const setText = (id, value) => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.textContent = value ?? '0';
+                }
+            };
+            
+            setText('prescriptionsToday', data.prescriptions_today ?? '0');
+            setText('pendingFulfillment', data.pending_fulfillment ?? '0');
+            setText('lowStockItems', data.low_stock_items ?? '0');
+            setText('totalInventory', data.total_inventory ?? '0');
+            setText('criticalItems', data.critical_items ?? '0');
+            setText('expiringSoon', data.expiring_soon ?? '0');
+            setText('outOfStock', data.out_of_stock ?? '0');
+            setText('categoriesCount', data.categories_count ?? '0');
+        } catch (error) {
+            console.error('Error fetching Pharmacy Dashboard stats:', error);
+        }
+    }
+    
+    // Initial fetch
+    refreshPharmacyDashboard();
+    
+    // Refresh every 10 seconds
+    setInterval(refreshPharmacyDashboard, 10000);
+    
+    // Refresh when page becomes visible again
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+            refreshPharmacyDashboard();
+        }
+    });
+});
+</script>
 <?= $this->endSection() ?>

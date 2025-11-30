@@ -293,19 +293,23 @@
 
             <li class="nav-item">
                 <a href="<?= site_url('it/users') ?>">
+                    <i class="fa-solid fa-users-cog sidebar-icon"></i>
                     <span class="text">User Management</span>
                 </a>
             </li>
 
-            <li class="nav-item expandable">
-                <a href="#" onclick="toggleSubmenu(this)">
-                    <span class="text">Backup/Restore</span>
-                    <span class="arrow">›</span>
+            <li class="nav-item">
+                <a href="<?= site_url('it/backup') ?>">
+                    <i class="fa-solid fa-database sidebar-icon"></i>
+                    <span class="text">Create Backup</span>
                 </a>
-                <ul class="submenu">
-                    <li><a href="<?= site_url('it/backup') ?>"><span class="text">Create Backup</span></a></li>
-                    <li><a href="<?= site_url('it/restore') ?>"><span class="text">Restore System</span></a></li>
-                </ul>
+            </li>
+
+            <li class="nav-item">
+                <a href="<?= site_url('it/restore') ?>">
+                    <i class="fa-solid fa-rotate-left sidebar-icon"></i>
+                    <span class="text">Restore System</span>
+                </a>
             </li>
         <?php endif; ?>
 

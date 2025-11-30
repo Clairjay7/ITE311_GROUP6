@@ -31,20 +31,67 @@
         <div class="overview-card">
             <div class="card-content">
                 <h3>Pending Tests</h3>
-                <div class="card-value"><?= is_array($pendingTests) ? count($pendingTests) : (int)$pendingTests ?></div>
+                <div class="card-value" id="pendingTests"><?= is_array($pendingTests) ? count($pendingTests) : (int)$pendingTests ?></div>
             </div>
         </div>
         <div class="overview-card">
             <div class="card-content">
                 <h3>Completed Today</h3>
-                <div class="card-value"><?= is_array($completedToday) ? count($completedToday) : (int)$completedToday ?></div>
+                <div class="card-value" id="completedToday"><?= is_array($completedToday) ? count($completedToday) : (int)$completedToday ?></div>
             </div>
         </div>
         <div class="overview-card">
             <div class="card-content">
                 <h3>Total Tests This Month</h3>
-                <div class="card-value"><?= is_array($monthlyTests) ? count($monthlyTests) : (int)$monthlyTests ?></div>
+                <div class="card-value" id="monthlyTests"><?= is_array($monthlyTests) ? count($monthlyTests) : (int)$monthlyTests ?></div>
             </div>
         </div>
     </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const labStatsEndpoint = '<?= site_url('labstaff/dashboard/stats') ?>';
+    
+    async function refreshLabDashboard() {
+        try {
+            const response = await fetch(labStatsEndpoint, {
+                headers: { 'Accept': 'application/json' }
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            
+            // Update stat cards
+            const setText = (id, value) => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.textContent = value ?? '0';
+                }
+            };
+            
+            setText('pendingTests', data.pending_tests ?? '0');
+            setText('completedToday', data.completed_today ?? '0');
+            setText('monthlyTests', data.monthly_tests ?? '0');
+        } catch (error) {
+            console.error('Error fetching Lab Staff Dashboard stats:', error);
+        }
+    }
+    
+    // Initial fetch
+    refreshLabDashboard();
+    
+    // Refresh every 10 seconds
+    setInterval(refreshLabDashboard, 10000);
+    
+    // Refresh when page becomes visible again
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+            refreshLabDashboard();
+        }
+    });
+});
+</script>
 <?= $this->endSection() ?>

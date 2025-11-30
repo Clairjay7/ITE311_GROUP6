@@ -135,6 +135,36 @@ $routes->group('admin', ['namespace' => 'App\\Controllers\\Admin', 'filter' => '
     });
 });
 
+// IT Staff routes
+$routes->group('it', ['namespace' => 'App\\Controllers\\ITStaff', 'filter' => 'auth:itstaff,admin'], function($routes) {
+    $routes->get('dashboard', 'DashboardController::index');
+    $routes->get('logs', 'SystemLogController::index');
+    $routes->get('logs/view/(:num)', 'SystemLogController::view/$1');
+    $routes->get('logs/delete/(:num)', 'SystemLogController::delete/$1');
+    $routes->post('logs/clear', 'SystemLogController::clear');
+    
+    $routes->group('users', function($routes) {
+        $routes->get('/', 'UserManagementController::index');
+        $routes->get('create', 'UserManagementController::create');
+        $routes->post('store', 'UserManagementController::store');
+        $routes->get('edit/(:num)', 'UserManagementController::edit/$1');
+        $routes->post('update/(:num)', 'UserManagementController::update/$1');
+        $routes->get('delete/(:num)', 'UserManagementController::delete/$1');
+    });
+    
+    $routes->group('backup', function($routes) {
+        $routes->get('/', 'BackupController::index');
+        $routes->post('create', 'BackupController::create');
+        $routes->get('download/(:num)', 'BackupController::download/$1');
+        $routes->get('delete/(:num)', 'BackupController::delete/$1');
+    });
+    
+    $routes->group('restore', function($routes) {
+        $routes->get('/', 'RestoreController::index');
+        $routes->post('restore/(:num)', 'RestoreController::restore/$1');
+    });
+});
+
 // Mga ruta para sa schedule ng doctor
 $routes->get('/doctor/schedule', 'Doctor\Doctor::schedule', ['filter' => 'auth:admin,doctor']);
 $routes->post('/doctor/addSchedule', 'Doctor\Doctor::addSchedule', ['filter' => 'auth:admin,doctor']);
@@ -198,6 +228,42 @@ $routes->get('laboratory/testresult/data', 'Laboratory::getTestResultsData');
 
 // Endpoint para sa real-time na stats ng dashboard
 $routes->get('receptionist/dashboard/stats', 'Receptionist\DashboardStats::stats', ['filter' => 'auth:receptionist,admin']);
+
+// Pharmacy Dashboard Stats
+$routes->get('pharmacy/dashboard/stats', 'Pharmacy\DashboardStats::stats', ['filter' => 'auth:pharmacy,admin']);
+
+// Lab Staff Dashboard Stats
+$routes->get('labstaff/dashboard/stats', 'LabStaff\DashboardStats::stats', ['filter' => 'auth:labstaff,admin']);
+
+// Accountant/Finance Dashboard Stats
+$routes->get('accountant/dashboard/stats', 'Accountant\DashboardStats::stats', ['filter' => 'auth:finance,admin']);
+
+// Accountant/Finance Routes
+$routes->group('accounting', ['namespace' => 'App\\Controllers\\Accountant', 'filter' => 'auth:finance,admin'], function($routes) {
+    // Finance Overview
+    $routes->get('finance', 'FinanceOverviewController::index');
+    $routes->get('finance/create', 'FinanceOverviewController::create');
+    $routes->post('finance/store', 'FinanceOverviewController::store');
+    $routes->get('finance/edit/(:num)', 'FinanceOverviewController::edit/$1');
+    $routes->post('finance/update/(:num)', 'FinanceOverviewController::update/$1');
+    $routes->get('finance/delete/(:num)', 'FinanceOverviewController::delete/$1');
+    
+    // Payment Reports
+    $routes->get('payments', 'PaymentReportController::index');
+    $routes->get('payments/create', 'PaymentReportController::create');
+    $routes->post('payments/store', 'PaymentReportController::store');
+    $routes->get('payments/edit/(:num)', 'PaymentReportController::edit/$1');
+    $routes->post('payments/update/(:num)', 'PaymentReportController::update/$1');
+    $routes->get('payments/delete/(:num)', 'PaymentReportController::delete/$1');
+    
+    // Expense Tracking
+    $routes->get('expenses', 'ExpenseController::index');
+    $routes->get('expenses/create', 'ExpenseController::create');
+    $routes->post('expenses/store', 'ExpenseController::store');
+    $routes->get('expenses/edit/(:num)', 'ExpenseController::edit/$1');
+    $routes->post('expenses/update/(:num)', 'ExpenseController::update/$1');
+    $routes->get('expenses/delete/(:num)', 'ExpenseController::delete/$1');
+});
 
 $routes->group('receptionist/appointments', ['namespace' => 'App\\Controllers', 'filter' => 'auth:receptionist,admin'], function($routes) {
     // Gamitin ang Appointment::book para maipasa sa view ang patients at doctors mula sa database

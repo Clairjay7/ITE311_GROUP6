@@ -86,7 +86,7 @@
                             <th>Contact</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="assignedPatientsTableBody">
                         <?php foreach ($assignedPatients as $patient): ?>
                             <tr>
                                 <td>#<?= esc($patient['id']) ?></td>
@@ -116,6 +116,74 @@ document.addEventListener('DOMContentLoaded', function() {
     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
     var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+
+    // Real-time dashboard updates
+    const doctorStatsEndpoint = '<?= site_url('doctor/dashboard/stats') ?>';
+    
+    async function refreshDoctorDashboard() {
+        try {
+            const response = await fetch(doctorStatsEndpoint, {
+                headers: { 'Accept': 'application/json' }
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            
+            // Update stat cards
+            const setText = (id, value) => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.textContent = value ?? '0';
+                }
+            };
+            
+            setText('appointmentsCount', data.appointments_count ?? '0');
+            setText('patientsSeenToday', data.patients_seen_today ?? '0');
+            setText('pendingLabRequestsCount', data.pending_lab_requests_count ?? '0');
+            setText('pendingOrders', data.pending_orders ?? '0');
+            setText('assignedPatientsCount', data.assigned_patients_count ?? '0');
+            
+            // Update assigned patients table if exists
+            const patientsTableBody = document.getElementById('assignedPatientsTableBody');
+            if (patientsTableBody) {
+                if (data.assigned_patients && data.assigned_patients.length > 0) {
+                    let tableHTML = '';
+                    data.assigned_patients.forEach(patient => {
+                        tableHTML += `
+                            <tr>
+                                <td>#${patient.id}</td>
+                                <td>${patient.firstname} ${patient.lastname}</td>
+                                <td>${patient.birthdate || 'N/A'}</td>
+                                <td>${patient.gender ? patient.gender.charAt(0).toUpperCase() + patient.gender.slice(1) : 'N/A'}</td>
+                                <td>${patient.contact || 'N/A'}</td>
+                            </tr>
+                        `;
+                    });
+                    patientsTableBody.innerHTML = tableHTML;
+                } else {
+                    patientsTableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 20px; color: #94a3b8;">No assigned patients</td></tr>';
+                }
+            }
+        } catch (error) {
+            console.error('Error fetching Doctor Dashboard stats:', error);
+        }
+    }
+    
+    // Initial fetch
+    refreshDoctorDashboard();
+    
+    // Refresh every 10 seconds
+    setInterval(refreshDoctorDashboard, 10000);
+    
+    // Refresh when page becomes visible again
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+            refreshDoctorDashboard();
+        }
     });
 });
 </script>

@@ -1012,3 +1012,300 @@ AND `users`.`status` = :users.status:', [...], false)
  9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
 10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
 11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ERROR - 2025-11-30 08:32:44 --> mysqli_sql_exception: Unknown column 'last_login' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT COUNT(*)...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT COUNT(*)...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT COUNT(*)...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1733): CodeIgniter\Database\BaseConnection->query('SELECT COUNT(*)...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Dashboard.php(388): CodeIgniter\Database\BaseBuilder->countAllResults()
+#5 F:\xammp\htdocs\group6\app\Controllers\Dashboard.php(38): App\Controllers\Dashboard->buildDashboardData('itstaff', 'it.support')
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Dashboard->index()
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Dashboard))
+#8 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#9 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#10 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#11 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#12 {main}
+ERROR - 2025-11-30 08:32:44 --> Error loading dashboard data: Unknown column 'last_login' in 'where clause'
+ERROR - 2025-11-30 08:52:49 --> mysqli_sql_exception: Unknown column 'last_login' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT COUNT(*)...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT COUNT(*)...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT COUNT(*)...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1733): CodeIgniter\Database\BaseConnection->query('SELECT COUNT(*)...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Dashboard.php(388): CodeIgniter\Database\BaseBuilder->countAllResults()
+#5 F:\xammp\htdocs\group6\app\Controllers\Dashboard.php(38): App\Controllers\Dashboard->buildDashboardData('itstaff', 'it.support')
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Dashboard->index()
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Dashboard))
+#8 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#9 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#10 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#11 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#12 {main}
+ERROR - 2025-11-30 08:52:49 --> Error loading dashboard data: Unknown column 'last_login' in 'where clause'
+ERROR - 2025-11-30 08:54:06 --> mysqli_sql_exception: Unknown column 'last_login' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT COUNT(*)...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT COUNT(*)...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT COUNT(*)...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1733): CodeIgniter\Database\BaseConnection->query('SELECT COUNT(*)...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Dashboard.php(388): CodeIgniter\Database\BaseBuilder->countAllResults()
+#5 F:\xammp\htdocs\group6\app\Controllers\Dashboard.php(38): App\Controllers\Dashboard->buildDashboardData('itstaff', 'it.support')
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Dashboard->index()
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Dashboard))
+#8 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#9 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#10 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#11 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#12 {main}
+ERROR - 2025-11-30 08:54:06 --> Error loading dashboard data: Unknown column 'last_login' in 'where clause'
+ERROR - 2025-11-30 09:00:35 --> mysqli_sql_exception: Unknown column 'last_login' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT COUNT(*)...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT COUNT(*)...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT COUNT(*)...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1733): CodeIgniter\Database\BaseConnection->query('SELECT COUNT(*)...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Dashboard.php(388): CodeIgniter\Database\BaseBuilder->countAllResults()
+#5 F:\xammp\htdocs\group6\app\Controllers\Dashboard.php(38): App\Controllers\Dashboard->buildDashboardData('itstaff', 'it.support')
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Dashboard->index()
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Dashboard))
+#8 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#9 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#10 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#11 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#12 {main}
+ERROR - 2025-11-30 09:00:35 --> Error loading dashboard data: Unknown column 'last_login' in 'where clause'
+ERROR - 2025-11-30 09:03:16 --> mysqli_sql_exception: Unknown column 'last_login' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT COUNT(*)...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT COUNT(*)...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT COUNT(*)...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1733): CodeIgniter\Database\BaseConnection->query('SELECT COUNT(*)...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Dashboard.php(388): CodeIgniter\Database\BaseBuilder->countAllResults()
+#5 F:\xammp\htdocs\group6\app\Controllers\Dashboard.php(38): App\Controllers\Dashboard->buildDashboardData('itstaff', 'it.support')
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Dashboard->index()
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Dashboard))
+#8 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#9 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#10 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#11 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#12 {main}
+ERROR - 2025-11-30 09:03:16 --> Error loading dashboard data: Unknown column 'last_login' in 'where clause'
+ERROR - 2025-11-30 09:08:56 --> mysqli_sql_exception: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near ') VALUES ('info', 'Backup created by IT Staff:  (Backup ID: 1)', '6', '::1', ...' at line 1 in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `sy...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `sy...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `sy...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `sy...', Array, false)
+#4 F:\xammp\htdocs\group6\system\Model.php(394): CodeIgniter\Database\BaseBuilder->insert()
+#5 F:\xammp\htdocs\group6\system\BaseModel.php(838): CodeIgniter\Model->doInsert(Array)
+#6 F:\xammp\htdocs\group6\system\Model.php(797): CodeIgniter\BaseModel->insert(Array, true)
+#7 F:\xammp\htdocs\group6\app\Controllers\ITStaff\BackupController.php(269): CodeIgniter\Model->insert(Array)
+#8 F:\xammp\htdocs\group6\app\Controllers\ITStaff\BackupController.php(95): App\Controllers\ITStaff\BackupController->logBackupAction('Backup created', 1)
+#9 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\ITStaff\BackupController->create()
+#10 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\ITStaff\BackupController))
+#11 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#12 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#13 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#14 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#15 {main}
+ERROR - 2025-11-30 09:08:56 --> mysqli_sql_exception: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near ') VALUES ('error', 'Backup failed: You have an error in your SQL syntax; chec...' at line 1 in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `sy...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `sy...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `sy...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `sy...', Array, false)
+#4 F:\xammp\htdocs\group6\system\Model.php(394): CodeIgniter\Database\BaseBuilder->insert()
+#5 F:\xammp\htdocs\group6\system\BaseModel.php(838): CodeIgniter\Model->doInsert(Array)
+#6 F:\xammp\htdocs\group6\system\Model.php(797): CodeIgniter\BaseModel->insert(Array, true)
+#7 F:\xammp\htdocs\group6\app\Controllers\ITStaff\BackupController.php(269): CodeIgniter\Model->insert(Array)
+#8 F:\xammp\htdocs\group6\app\Controllers\ITStaff\BackupController.php(103): App\Controllers\ITStaff\BackupController->logBackupAction('Backup failed: ...', NULL, 'error')
+#9 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\ITStaff\BackupController->create()
+#10 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\ITStaff\BackupController))
+#11 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#12 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#13 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#14 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#15 {main}
+CRITICAL - 2025-11-30 09:08:56 --> CodeIgniter\Database\Exceptions\DatabaseException: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near ') VALUES ('error', 'Backup failed: You have an error in your SQL syntax; chec...' at line 1
+[Method: POST, Route: it/backup/create]
+in SYSTEMPATH\Database\BaseConnection.php on line 684.
+ 1 SYSTEMPATH\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `system_logs` (`level`, `message`, `user_id`, `ip_address`, `user_agent`, `module`, `action`, `created_at`, ) VALUES (:level:, :message:, :user_id:, :ip_address:, :user_agent:, :module:, :action:, :created_at:, ::)', [...], false)
+ 2 SYSTEMPATH\Model.php(394): CodeIgniter\Database\BaseBuilder->insert()
+ 3 SYSTEMPATH\BaseModel.php(838): CodeIgniter\Model->doInsert([...])
+ 4 SYSTEMPATH\Model.php(797): CodeIgniter\BaseModel->insert([...], true)
+ 5 APPPATH\Controllers\ITStaff\BackupController.php(269): CodeIgniter\Model->insert([...])
+ 6 APPPATH\Controllers\ITStaff\BackupController.php(103): App\Controllers\ITStaff\BackupController->logBackupAction('Backup failed: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near \') VALUES (\'info\', \'Backup created by IT Staff:  (Backup ID: 1)\', \'6\', \'::1\', ...\' at line 1', null, 'error')
+ 7 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\ITStaff\BackupController->create()
+ 8 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\ITStaff\BackupController))
+ 9 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+10 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+11 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+12 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2025-11-30 09:08:56 --> [Caused by] CodeIgniter\Database\Exceptions\DatabaseException: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near ') VALUES ('error', 'Backup failed: You have an error in your SQL syntax; chec...' at line 1
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 332.
+ 1 SYSTEMPATH\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `system_logs` (`level`, `message`, `user_id`, `ip_address`, `user_agent`, `module`, `action`, `created_at`, ) VALUES (\'error\', \'Backup failed: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near \\\') VALUES (\\\'info\\\', \\\'Backup created by IT Staff:  (Backup ID: 1)\\\', \\\'6\\\', \\\'::1\\\', ...\\\' at line 1 by IT Staff: \', \'6\', \'::1\', \'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36\', \'backup_restore\', \'backup_failed:_you_have_an_error_in_your_sql_syntax;_check_the_manual_that_corresponds_to_your_mariadb_server_version_for_the_right_syntax_to_use_near_\\\')_values_(\\\'info\\\',_\\\'backup_created_by_it_staff:__(backup_id:_1)\\\',_\\\'6\\\',_\\\'::1\\\',_...\\\'_at_line_1\', \'2025-11-30 09:08:56\', \'2025-11-30 09:08:56\')')
+ 2 SYSTEMPATH\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `system_logs` (`level`, `message`, `user_id`, `ip_address`, `user_agent`, `module`, `action`, `created_at`, ) VALUES (\'error\', \'Backup failed: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near \\\') VALUES (\\\'info\\\', \\\'Backup created by IT Staff:  (Backup ID: 1)\\\', \\\'6\\\', \\\'::1\\\', ...\\\' at line 1 by IT Staff: \', \'6\', \'::1\', \'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36\', \'backup_restore\', \'backup_failed:_you_have_an_error_in_your_sql_syntax;_check_the_manual_that_corresponds_to_your_mariadb_server_version_for_the_right_syntax_to_use_near_\\\')_values_(\\\'info\\\',_\\\'backup_created_by_it_staff:__(backup_id:_1)\\\',_\\\'6\\\',_\\\'::1\\\',_...\\\'_at_line_1\', \'2025-11-30 09:08:56\', \'2025-11-30 09:08:56\')')
+ 3 SYSTEMPATH\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `system_logs` (`level`, `message`, `user_id`, `ip_address`, `user_agent`, `module`, `action`, `created_at`, ) VALUES (:level:, :message:, :user_id:, :ip_address:, :user_agent:, :module:, :action:, :created_at:, ::)', [...], false)
+ 4 SYSTEMPATH\Model.php(394): CodeIgniter\Database\BaseBuilder->insert()
+ 5 SYSTEMPATH\BaseModel.php(838): CodeIgniter\Model->doInsert([...])
+ 6 SYSTEMPATH\Model.php(797): CodeIgniter\BaseModel->insert([...], true)
+ 7 APPPATH\Controllers\ITStaff\BackupController.php(269): CodeIgniter\Model->insert([...])
+ 8 APPPATH\Controllers\ITStaff\BackupController.php(103): App\Controllers\ITStaff\BackupController->logBackupAction('Backup failed: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near \') VALUES (\'info\', \'Backup created by IT Staff:  (Backup ID: 1)\', \'6\', \'::1\', ...\' at line 1', null, 'error')
+ 9 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\ITStaff\BackupController->create()
+10 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\ITStaff\BackupController))
+11 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+12 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+13 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+14 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2025-11-30 09:08:56 --> [Caused by] mysqli_sql_exception: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near ') VALUES ('error', 'Backup failed: You have an error in your SQL syntax; chec...' at line 1
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 327.
+ 1 SYSTEMPATH\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `system_logs` (`level`, `message`, `user_id`, `ip_address`, `user_agent`, `module`, `action`, `created_at`, ) VALUES (\'error\', \'Backup failed: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near \\\') VALUES (\\\'info\\\', \\\'Backup created by IT Staff:  (Backup ID: 1)\\\', \\\'6\\\', \\\'::1\\\', ...\\\' at line 1 by IT Staff: \', \'6\', \'::1\', \'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36\', \'backup_restore\', \'backup_failed:_you_have_an_error_in_your_sql_syntax;_check_the_manual_that_corresponds_to_your_mariadb_server_version_for_the_right_syntax_to_use_near_\\\')_values_(\\\'info\\\',_\\\'backup_created_by_it_staff:__(backup_id:_1)\\\',_\\\'6\\\',_\\\'::1\\\',_...\\\'_at_line_1\', \'2025-11-30 09:08:56\', \'2025-11-30 09:08:56\')', 0)
+ 2 SYSTEMPATH\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `system_logs` (`level`, `message`, `user_id`, `ip_address`, `user_agent`, `module`, `action`, `created_at`, ) VALUES (\'error\', \'Backup failed: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near \\\') VALUES (\\\'info\\\', \\\'Backup created by IT Staff:  (Backup ID: 1)\\\', \\\'6\\\', \\\'::1\\\', ...\\\' at line 1 by IT Staff: \', \'6\', \'::1\', \'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36\', \'backup_restore\', \'backup_failed:_you_have_an_error_in_your_sql_syntax;_check_the_manual_that_corresponds_to_your_mariadb_server_version_for_the_right_syntax_to_use_near_\\\')_values_(\\\'info\\\',_\\\'backup_created_by_it_staff:__(backup_id:_1)\\\',_\\\'6\\\',_\\\'::1\\\',_...\\\'_at_line_1\', \'2025-11-30 09:08:56\', \'2025-11-30 09:08:56\')')
+ 3 SYSTEMPATH\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `system_logs` (`level`, `message`, `user_id`, `ip_address`, `user_agent`, `module`, `action`, `created_at`, ) VALUES (\'error\', \'Backup failed: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near \\\') VALUES (\\\'info\\\', \\\'Backup created by IT Staff:  (Backup ID: 1)\\\', \\\'6\\\', \\\'::1\\\', ...\\\' at line 1 by IT Staff: \', \'6\', \'::1\', \'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36\', \'backup_restore\', \'backup_failed:_you_have_an_error_in_your_sql_syntax;_check_the_manual_that_corresponds_to_your_mariadb_server_version_for_the_right_syntax_to_use_near_\\\')_values_(\\\'info\\\',_\\\'backup_created_by_it_staff:__(backup_id:_1)\\\',_\\\'6\\\',_\\\'::1\\\',_...\\\'_at_line_1\', \'2025-11-30 09:08:56\', \'2025-11-30 09:08:56\')')
+ 4 SYSTEMPATH\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `system_logs` (`level`, `message`, `user_id`, `ip_address`, `user_agent`, `module`, `action`, `created_at`, ) VALUES (:level:, :message:, :user_id:, :ip_address:, :user_agent:, :module:, :action:, :created_at:, ::)', [...], false)
+ 5 SYSTEMPATH\Model.php(394): CodeIgniter\Database\BaseBuilder->insert()
+ 6 SYSTEMPATH\BaseModel.php(838): CodeIgniter\Model->doInsert([...])
+ 7 SYSTEMPATH\Model.php(797): CodeIgniter\BaseModel->insert([...], true)
+ 8 APPPATH\Controllers\ITStaff\BackupController.php(269): CodeIgniter\Model->insert([...])
+ 9 APPPATH\Controllers\ITStaff\BackupController.php(103): App\Controllers\ITStaff\BackupController->logBackupAction('Backup failed: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near \') VALUES (\'info\', \'Backup created by IT Staff:  (Backup ID: 1)\', \'6\', \'::1\', ...\' at line 1', null, 'error')
+10 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\ITStaff\BackupController->create()
+11 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\ITStaff\BackupController))
+12 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+13 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+14 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+15 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ERROR - 2025-11-30 09:10:34 --> mysqli_sql_exception: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near ') VALUES ('info', 'Backup created by IT Staff: Unknown (Backup ID: 2)', '6', ...' at line 1 in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `sy...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `sy...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `sy...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `sy...', Array, false)
+#4 F:\xammp\htdocs\group6\system\Model.php(394): CodeIgniter\Database\BaseBuilder->insert()
+#5 F:\xammp\htdocs\group6\system\BaseModel.php(838): CodeIgniter\Model->doInsert(Array)
+#6 F:\xammp\htdocs\group6\system\Model.php(797): CodeIgniter\BaseModel->insert(Array, true)
+#7 F:\xammp\htdocs\group6\app\Controllers\ITStaff\BackupController.php(284): CodeIgniter\Model->insert(Array)
+#8 F:\xammp\htdocs\group6\app\Controllers\ITStaff\BackupController.php(95): App\Controllers\ITStaff\BackupController->logBackupAction('Backup created', 2)
+#9 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\ITStaff\BackupController->create()
+#10 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\ITStaff\BackupController))
+#11 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#12 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#13 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#14 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#15 {main}
+ERROR - 2025-11-30 09:10:34 --> Failed to log backup action: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near ') VALUES ('info', 'Backup created by IT Staff: Unknown (Backup ID: 2)', '6', ...' at line 1
+ERROR - 2025-11-30 09:10:51 --> mysqli_sql_exception: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 'CREATE TABLE `admin_patients` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREME...' at line 7 in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('-- Database Bac...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('-- Database Bac...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('-- Database Bac...')
+#3 F:\xammp\htdocs\group6\app\Controllers\ITStaff\RestoreController.php(109): CodeIgniter\Database\BaseConnection->query('-- Database Bac...')
+#4 F:\xammp\htdocs\group6\app\Controllers\ITStaff\RestoreController.php(65): App\Controllers\ITStaff\RestoreController->restoreDatabase('F:\\xammp\\htdocs...')
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\ITStaff\RestoreController->restore('1')
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\ITStaff\RestoreController))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-11-30 09:10:51 --> mysqli_sql_exception: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near ') VALUES ('error', 'Restore failed: You have an error in your SQL syntax; che...' at line 1 in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `sy...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `sy...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `sy...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `sy...', Array, false)
+#4 F:\xammp\htdocs\group6\system\Model.php(394): CodeIgniter\Database\BaseBuilder->insert()
+#5 F:\xammp\htdocs\group6\system\BaseModel.php(838): CodeIgniter\Model->doInsert(Array)
+#6 F:\xammp\htdocs\group6\system\Model.php(797): CodeIgniter\BaseModel->insert(Array, true)
+#7 F:\xammp\htdocs\group6\app\Controllers\ITStaff\RestoreController.php(165): CodeIgniter\Model->insert(Array)
+#8 F:\xammp\htdocs\group6\app\Controllers\ITStaff\RestoreController.php(84): App\Controllers\ITStaff\RestoreController->logRestoreAction('Restore failed:...', '1', 'error')
+#9 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\ITStaff\RestoreController->restore('1')
+#10 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\ITStaff\RestoreController))
+#11 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#12 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#13 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#14 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#15 {main}
+ERROR - 2025-11-30 09:10:51 --> Failed to log restore action: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near ') VALUES ('error', 'Restore failed: You have an error in your SQL syntax; che...' at line 1
+CRITICAL - 2025-11-30 09:11:40 --> Error: Class "ZipArchive" not found
+[Method: POST, Route: it/backup/create]
+in APPPATH\Controllers\ITStaff\BackupController.php on line 217.
+ 1 APPPATH\Controllers\ITStaff\BackupController.php(76): App\Controllers\ITStaff\BackupController->createFilesBackup('F:\\xammp\\htdocs\\group6\\writable\\backups/jan23_2025-11-30_09-11-40.zip')
+ 2 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\ITStaff\BackupController->create()
+ 3 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\ITStaff\BackupController))
+ 4 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 5 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 7 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ERROR - 2025-11-30 09:12:00 --> mysqli_sql_exception: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near ') VALUES ('info', 'Backup created by IT Staff: Unknown (Backup ID: 3)', '6', ...' at line 1 in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `sy...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `sy...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `sy...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `sy...', Array, false)
+#4 F:\xammp\htdocs\group6\system\Model.php(394): CodeIgniter\Database\BaseBuilder->insert()
+#5 F:\xammp\htdocs\group6\system\BaseModel.php(838): CodeIgniter\Model->doInsert(Array)
+#6 F:\xammp\htdocs\group6\system\Model.php(797): CodeIgniter\BaseModel->insert(Array, true)
+#7 F:\xammp\htdocs\group6\app\Controllers\ITStaff\BackupController.php(284): CodeIgniter\Model->insert(Array)
+#8 F:\xammp\htdocs\group6\app\Controllers\ITStaff\BackupController.php(95): App\Controllers\ITStaff\BackupController->logBackupAction('Backup created', 3)
+#9 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\ITStaff\BackupController->create()
+#10 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\ITStaff\BackupController))
+#11 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#12 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#13 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#14 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#15 {main}
+ERROR - 2025-11-30 09:12:00 --> Failed to log backup action: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near ') VALUES ('info', 'Backup created by IT Staff: Unknown (Backup ID: 3)', '6', ...' at line 1
+ERROR - 2025-11-30 09:12:07 --> mysqli_sql_exception: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near ') VALUES ('info', 'Backup deleted by IT Staff: Unknown (Backup ID: 1)', '6', ...' at line 1 in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `sy...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `sy...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `sy...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `sy...', Array, false)
+#4 F:\xammp\htdocs\group6\system\Model.php(394): CodeIgniter\Database\BaseBuilder->insert()
+#5 F:\xammp\htdocs\group6\system\BaseModel.php(838): CodeIgniter\Model->doInsert(Array)
+#6 F:\xammp\htdocs\group6\system\Model.php(797): CodeIgniter\BaseModel->insert(Array, true)
+#7 F:\xammp\htdocs\group6\app\Controllers\ITStaff\BackupController.php(284): CodeIgniter\Model->insert(Array)
+#8 F:\xammp\htdocs\group6\app\Controllers\ITStaff\BackupController.php(145): App\Controllers\ITStaff\BackupController->logBackupAction('Backup deleted', '1')
+#9 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\ITStaff\BackupController->delete('1')
+#10 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\ITStaff\BackupController))
+#11 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#12 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#13 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#14 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#15 {main}
+ERROR - 2025-11-30 09:12:07 --> Failed to log backup action: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near ') VALUES ('info', 'Backup deleted by IT Staff: Unknown (Backup ID: 1)', '6', ...' at line 1
+ERROR - 2025-11-30 09:26:33 --> mysqli_sql_exception: Unknown column 'last_login' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT COUNT(*)...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT COUNT(*)...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT COUNT(*)...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1733): CodeIgniter\Database\BaseConnection->query('SELECT COUNT(*)...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Dashboard.php(388): CodeIgniter\Database\BaseBuilder->countAllResults()
+#5 F:\xammp\htdocs\group6\app\Controllers\Dashboard.php(38): App\Controllers\Dashboard->buildDashboardData('itstaff', 'it.support')
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Dashboard->index()
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Dashboard))
+#8 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#9 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#10 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#11 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#12 {main}
+ERROR - 2025-11-30 09:26:33 --> Error loading dashboard data: Unknown column 'last_login' in 'where clause'
+ERROR - 2025-11-30 09:26:53 --> mysqli_sql_exception: Unknown column 'last_login' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT COUNT(*)...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT COUNT(*)...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT COUNT(*)...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1733): CodeIgniter\Database\BaseConnection->query('SELECT COUNT(*)...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Dashboard.php(388): CodeIgniter\Database\BaseBuilder->countAllResults()
+#5 F:\xammp\htdocs\group6\app\Controllers\Dashboard.php(38): App\Controllers\Dashboard->buildDashboardData('itstaff', 'it.support')
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Dashboard->index()
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Dashboard))
+#8 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#9 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#10 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#11 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#12 {main}
+ERROR - 2025-11-30 09:26:53 --> Error loading dashboard data: Unknown column 'last_login' in 'where clause'
