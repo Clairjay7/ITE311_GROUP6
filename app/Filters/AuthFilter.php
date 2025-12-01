@@ -16,9 +16,24 @@ class AuthFilter implements FilterInterface
 
         if ($arguments) {
             $allowedRoles = is_array($arguments) ? $arguments : explode(',', $arguments);
-            $userRole = session()->get('role');
+            $allowedRoles = array_map('trim', $allowedRoles); // Remove whitespace
+            $userRole = strtolower(session()->get('role') ?? '');
             
-            if (!in_array($userRole, $allowedRoles)) {
+            // Normalize role names (handle both labstaff and lab_staff)
+            $normalizedRoles = [];
+            foreach ($allowedRoles as $role) {
+                $normalizedRoles[] = strtolower(trim($role));
+                // Also add underscore variant if it's labstaff
+                if (strtolower(trim($role)) === 'labstaff') {
+                    $normalizedRoles[] = 'lab_staff';
+                }
+                // Also add no-underscore variant if it's lab_staff
+                if (strtolower(trim($role)) === 'lab_staff') {
+                    $normalizedRoles[] = 'labstaff';
+                }
+            }
+            
+            if (!in_array($userRole, $normalizedRoles)) {
                 return redirect()->to('/login')->with('error', 'Access denied.');
             }
         }

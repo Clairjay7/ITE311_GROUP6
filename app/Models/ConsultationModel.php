@@ -20,6 +20,8 @@ class ConsultationModel extends Model
         'consultation_time',
         'type',
         'notes',
+        'observations',
+        'diagnosis',
         'status',
         'created_at',
         'updated_at',
@@ -38,7 +40,9 @@ class ConsultationModel extends Model
         'consultation_time' => 'required|regex_match[/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/]',
         'type' => 'required|in_list[upcoming,completed]',
         'status' => 'required|in_list[pending,approved,cancelled]',
-        'notes' => 'permit_empty|max_length[2000]'
+        'notes' => 'permit_empty|max_length[2000]',
+        'observations' => 'permit_empty|max_length[5000]',
+        'diagnosis' => 'permit_empty|max_length[2000]'
     ];
 
     protected $validationMessages = [

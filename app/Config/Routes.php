@@ -39,8 +39,19 @@ $routes->get('receptionist/dashboard', 'Dashboard::index', ['filter' => 'auth:re
 $routes->get('patient/dashboard', 'Dashboard::index', ['filter' => 'auth:patient']);
 $routes->get('accounting/dashboard', 'Dashboard::index', ['filter' => 'auth:finance,admin']);
 $routes->get('itstaff/dashboard', 'Dashboard::index', ['filter' => 'auth:itstaff,admin']);
-$routes->get('labstaff/dashboard', 'Dashboard::index', ['filter' => 'auth:labstaff,admin']);
-$routes->get('pharmacy/dashboard', 'Dashboard::index', ['filter' => 'auth:pharmacy,admin']);
+// Lab Staff Routes
+$routes->group('labstaff', ['filter' => 'auth:labstaff,lab_staff,admin'], function($routes) {
+    $routes->get('dashboard', 'LabStaff\LabStaffController::dashboard');
+    $routes->get('test-requests', 'LabStaff\LabStaffController::testRequests');
+    $routes->get('pending-specimens', 'LabStaff\LabStaffController::pendingSpecimens');
+    $routes->get('completed-tests', 'LabStaff\LabStaffController::completedTests');
+    $routes->post('test-requests/mark-collected/(:num)', 'LabStaff\LabStaffController::markCollected/$1');
+    $routes->post('test-requests/mark-completed/(:num)', 'LabStaff\LabStaffController::markCompleted/$1');
+    $routes->post('pending-specimens/mark-collected/(:num)', 'LabStaff\LabStaffController::markCollected/$1');
+    $routes->post('pending-specimens/mark-completed/(:num)', 'LabStaff\LabStaffController::markCompleted/$1');
+    $routes->get('logout', 'LabStaff\LabStaffController::logout');
+});
+$routes->get('pharmacy/dashboard', 'Pharmacy\PharmacyController::index', ['filter' => 'auth:pharmacy,admin']);
 
 // Para sa backward compatibility: lumang URL ng admin dashboard (iba sa unified dashboard)
 $routes->get('/admin/dashboard', 'Admin\DashboardController::index', ['filter' => 'auth:admin']);
@@ -232,13 +243,33 @@ $routes->get('receptionist/dashboard/stats', 'Receptionist\DashboardStats::stats
 // Pharmacy Dashboard Stats
 $routes->get('pharmacy/dashboard/stats', 'Pharmacy\DashboardStats::stats', ['filter' => 'auth:pharmacy,admin']);
 
+// Pharmacy Routes
+$routes->group('pharmacy', ['namespace' => 'App\\Controllers\\Pharmacy'], function($routes) {
+    $routes->get('/', 'PharmacyController::index');
+    $routes->get('prescription-queue', 'PharmacyController::prescriptionQueue');
+    $routes->get('medicine-release', 'PharmacyController::medicineRelease');
+    $routes->get('stock-monitoring', 'PharmacyController::stockMonitoring');
+    $routes->post('dispense/(:num)', 'PharmacyController::dispensePrescription/$1');
+    $routes->post('update-pharmacy-status/(:num)', 'PharmacyController::updatePharmacyStatus/$1');
+    $routes->post('update-stock/(:num)', 'PharmacyController::updateStock/$1');
+    $routes->get('add-medicine', 'PharmacyController::addMedicine');
+    $routes->post('add-medicine', 'PharmacyController::addMedicine');
+    $routes->get('edit-medicine/(:num)', 'PharmacyController::editMedicine/$1');
+    $routes->post('edit-medicine/(:num)', 'PharmacyController::editMedicine/$1');
+    $routes->post('delete-medicine/(:num)', 'PharmacyController::deleteMedicine/$1');
+});
+
+// Test route (remove after testing)
+$routes->get('pharmacy/test-insert', 'Pharmacy\TestController::testInsert');
+$routes->get('pharmacy/direct-test', 'Pharmacy\DirectInsert::index');
+
 // Lab Staff Dashboard Stats
 $routes->get('labstaff/dashboard/stats', 'LabStaff\DashboardStats::stats', ['filter' => 'auth:labstaff,admin']);
 
 // Accountant/Finance Dashboard Stats
 $routes->get('accountant/dashboard/stats', 'Accountant\DashboardStats::stats', ['filter' => 'auth:finance,admin']);
 
-// Accountant/Finance Routes
+// Accountant/Finance Routes (Admin can also access)
 $routes->group('accounting', ['namespace' => 'App\\Controllers\\Accountant', 'filter' => 'auth:finance,admin'], function($routes) {
     // Finance Overview
     $routes->get('finance', 'FinanceOverviewController::index');
@@ -263,6 +294,20 @@ $routes->group('accounting', ['namespace' => 'App\\Controllers\\Accountant', 'fi
     $routes->get('expenses/edit/(:num)', 'ExpenseController::edit/$1');
     $routes->post('expenses/update/(:num)', 'ExpenseController::update/$1');
     $routes->get('expenses/delete/(:num)', 'ExpenseController::delete/$1');
+    
+    // Medication Billing
+    $routes->get('medication-billing', 'MedicationBillingController::index');
+    $routes->get('medication-billing/view/(:num)', 'MedicationBillingController::view/$1');
+    $routes->get('medication-billing/invoice/(:num)', 'MedicationBillingController::invoice/$1');
+    $routes->post('medication-billing/process-payment/(:num)', 'MedicationBillingController::processPayment/$1');
+    $routes->post('medication-billing/cancel/(:num)', 'MedicationBillingController::cancel/$1');
+});
+
+// Doctor read-only access to medication billing
+$routes->group('accounting/medication-billing', ['namespace' => 'App\\Controllers\\Accountant', 'filter' => 'auth:doctor'], function($routes) {
+    $routes->get('/', 'MedicationBillingController::index');
+    $routes->get('view/(:num)', 'MedicationBillingController::view/$1');
+    $routes->get('invoice/(:num)', 'MedicationBillingController::invoice/$1');
 });
 
 $routes->group('receptionist/appointments', ['namespace' => 'App\\Controllers', 'filter' => 'auth:receptionist,admin'], function($routes) {
@@ -279,6 +324,13 @@ $routes->group('receptionist/patients', ['namespace' => 'App\\Controllers\\Recep
     $routes->get('edit/(:num)', 'Patients::edit/$1');
     $routes->post('update/(:num)', 'Patients::update/$1');
     $routes->post('delete/(:num)', 'Patients::delete/$1');
+});
+
+// Receptionist - Assign Doctor Routes
+$routes->group('receptionist/assign-doctor', ['namespace' => 'App\\Controllers\\Receptionist', 'filter' => 'auth:receptionist,admin'], function($routes) {
+    $routes->get('waiting-list', 'AssignDoctorController::waitingList');
+    $routes->get('available-doctors', 'AssignDoctorController::getAvailableDoctors');
+    $routes->post('assign', 'AssignDoctorController::assign');
 });
 
 $routes->group('receptionist/rooms', ['namespace' => 'App\\Controllers\\Receptionist', 'filter' => 'auth:receptionist,admin'], function($routes) {
@@ -310,6 +362,8 @@ $routes->group('doctor', ['namespace' => 'App\\Controllers', 'filter' => 'auth:d
         $routes->get('my-schedule', 'Doctor\ConsultationController::mySchedule');
         $routes->get('create', 'Doctor\ConsultationController::create');
         $routes->post('store', 'Doctor\ConsultationController::store');
+        $routes->get('start/(:num)/(:any)', 'Doctor\ConsultationController::startConsultation/$1/$2');
+        $routes->post('save-consultation', 'Doctor\ConsultationController::saveConsultation');
         $routes->get('edit/(:num)', 'Doctor\ConsultationController::edit/$1');
         $routes->post('update/(:num)', 'Doctor\ConsultationController::update/$1');
         $routes->get('delete/(:num)', 'Doctor\ConsultationController::delete/$1');
@@ -363,6 +417,21 @@ $routes->group('nurse', ['namespace' => 'App\\Controllers\\Nurse', 'filter' => '
         $routes->post('update-status/(:num)', 'AppointmentController::updateStatus/$1');
         $routes->get('history', 'AppointmentController::history');
         $routes->get('history/(:num)', 'AppointmentController::history/$1');
+    });
+    
+    // Medication Administration
+    $routes->group('medications', function($routes) {
+        $routes->get('/', 'MedicationController::index');
+        $routes->get('view/(:num)', 'MedicationController::view/$1');
+        $routes->post('administer/(:num)', 'MedicationController::administer/$1');
+    });
+    
+    // Triage
+    $routes->group('triage', function($routes) {
+        $routes->get('/', 'TriageController::index');
+        $routes->get('triage/(:num)/(:any)', 'TriageController::triage/$1/$2'); // patient_id, source
+        $routes->post('save', 'TriageController::save');
+        $routes->post('send-to-doctor', 'TriageController::sendToDoctor');
     });
     
     // Lab Assistance

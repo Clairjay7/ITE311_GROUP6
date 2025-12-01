@@ -15,9 +15,20 @@ class BillingModel extends Model
 
     protected $allowedFields = [
         'patient_id',
+        'order_id',
         'service',
+        'medicine_name',
+        'dosage',
+        'quantity',
+        'unit_price',
+        'administration_fee',
         'amount',
         'status',
+        'nurse_id',
+        'administered_at',
+        'invoice_number',
+        'processed_by',
+        'paid_at',
     ];
 
     protected $useTimestamps = true;

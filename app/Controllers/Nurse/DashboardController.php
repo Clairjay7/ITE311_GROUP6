@@ -45,11 +45,46 @@ class DashboardController extends BaseController
             ->groupBy('admin_patients.id')
             ->countAllResults();
 
-        // Get medications due (pending doctor orders)
-        $medicationsDue = $orderModel
-            ->where('order_type', 'medication')
-            ->where('status', 'pending')
-            ->countAllResults();
+        $db = \Config\Database::connect();
+        
+        // Get assigned patients from medication orders
+        $assignedPatients = $db->table('doctor_orders do')
+            ->select('ap.*')
+            ->join('admin_patients ap', 'ap.id = do.patient_id', 'left')
+            ->where('do.nurse_id', $nurseId)
+            ->where('do.order_type', 'medication')
+            ->groupBy('ap.id')
+            ->get()
+            ->getResultArray();
+
+        // Get medication orders assigned to this nurse with pharmacy status
+        $medicationOrders = $db->table('doctor_orders do')
+            ->select('do.*, ap.firstname, ap.lastname, u.username as doctor_name')
+            ->join('admin_patients ap', 'ap.id = do.patient_id', 'left')
+            ->join('users u', 'u.id = do.doctor_id', 'left')
+            ->where('do.order_type', 'medication')
+            ->where('do.nurse_id', $nurseId)
+            ->orderBy('do.created_at', 'DESC')
+            ->get()
+            ->getResultArray();
+
+        // Group medication orders by status
+        $waitingForPharmacy = array_filter($medicationOrders, function($order) {
+            $pharmacyStatus = $order['pharmacy_status'] ?? 'pending';
+            return in_array($pharmacyStatus, ['pending', 'approved', 'prepared']);
+        });
+
+        $readyToAdminister = array_filter($medicationOrders, function($order) {
+            return ($order['pharmacy_status'] ?? 'pending') === 'dispensed' && 
+                   ($order['status'] ?? 'pending') !== 'completed';
+        });
+
+        $administered = array_filter($medicationOrders, function($order) {
+            return ($order['status'] ?? 'pending') === 'completed';
+        });
+
+        // Get medications due count (ready to administer)
+        $medicationsDue = count($readyToAdminister);
 
         // Get vitals pending (patients without vitals today)
         $vitalsPending = $this->getVitalsPendingCount($today);
@@ -125,6 +160,14 @@ class DashboardController extends BaseController
             'unreadNotifications' => $unreadNotifications,
             'unreadNotificationsCount' => $unreadNotificationsCount,
             'todaysAppointments' => $todaysAppointments,
+            // Medication administration data
+            'assignedPatients' => $assignedPatients,
+            'waitingForPharmacy' => $waitingForPharmacy,
+            'readyToAdminister' => $readyToAdminister,
+            'administered' => $administered,
+            'waitingCount' => count($waitingForPharmacy),
+            'readyCount' => count($readyToAdminister),
+            'administeredCount' => count($administered),
         ];
 
         return view('nurse/dashboard', $data);

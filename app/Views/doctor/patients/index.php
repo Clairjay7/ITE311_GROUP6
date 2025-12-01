@@ -288,6 +288,7 @@
                                 <th>Name</th>
                                 <th>Birthdate</th>
                                 <th>Gender</th>
+                                <th>Visit Type</th>
                                 <th>Contact</th>
                                 <th>Address</th>
                                 <th>Actions</th>
@@ -295,32 +296,70 @@
                         </thead>
                         <tbody>
                             <?php foreach ($patients as $patient): ?>
-                                <tr>
-                                    <td><strong>#<?= esc($patient['id']) ?></strong></td>
+                                <tr style="<?= isset($patient['source']) && $patient['source'] === 'receptionist' ? 'background: #f0fdf4;' : '' ?>">
+                                    <td><strong>#<?= esc($patient['id'] ?? $patient['patient_id'] ?? 'N/A') ?></strong></td>
                                     <td>
                                         <strong style="color: #1e293b;">
-                                            <?= esc(ucfirst($patient['firstname']) . ' ' . ucfirst($patient['lastname'])) ?>
+                                            <?= esc(ucfirst($patient['firstname'] ?? '') . ' ' . ucfirst($patient['lastname'] ?? '')) ?>
+                                            <?php if (isset($patient['source']) && $patient['source'] === 'receptionist'): ?>
+                                                <span style="background: #d1fae5; color: #065f46; padding: 2px 8px; border-radius: 4px; font-size: 10px; margin-left: 8px;">Receptionist</span>
+                                            <?php endif; ?>
                                         </strong>
                                     </td>
-                                    <td><?= esc(date('M d, Y', strtotime($patient['birthdate']))) ?></td>
+                                    <td><?= !empty($patient['birthdate']) ? esc(date('M d, Y', strtotime($patient['birthdate']))) : 'N/A' ?></td>
                                     <td>
                                         <span class="badge-modern" style="background: #e0f2fe; color: #0369a1;">
-                                            <?= esc(ucfirst($patient['gender'])) ?>
+                                            <?= esc(ucfirst($patient['gender'] ?? 'N/A')) ?>
                                         </span>
+                                    </td>
+                                    <td>
+                                        <?php if (!empty($patient['visit_type'])): ?>
+                                            <span class="badge-modern" style="background: <?= 
+                                                $patient['visit_type'] === 'Emergency' ? '#fee2e2' : 
+                                                ($patient['visit_type'] === 'Consultation' ? '#dbeafe' : 
+                                                ($patient['visit_type'] === 'Check-up' ? '#fef3c7' : '#d1fae5')); 
+                                            ?>; color: <?= 
+                                                $patient['visit_type'] === 'Emergency' ? '#991b1b' : 
+                                                ($patient['visit_type'] === 'Consultation' ? '#1e40af' : 
+                                                ($patient['visit_type'] === 'Check-up' ? '#92400e' : '#065f46')); 
+                                            ?>;">
+                                                <?= esc($patient['visit_type']) ?>
+                                            </span>
+                                        <?php else: ?>
+                                            <span class="badge-modern" style="background: #f1f5f9; color: #64748b;">N/A</span>
+                                        <?php endif; ?>
                                     </td>
                                     <td><?= esc($patient['contact'] ?? 'N/A') ?></td>
                                     <td><?= esc(substr($patient['address'] ?? 'N/A', 0, 40)) ?><?= strlen($patient['address'] ?? '') > 40 ? '...' : '' ?></td>
                                     <td>
                                         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                                            <a href="<?= site_url('doctor/patients/view/' . $patient['id']) ?>" 
+                                            <?php 
+                                            // For consultation start, use the original patient ID (patient_id for receptionist, id for admin)
+                                            // The controller will handle the conversion
+                                            $patientSource = $patient['source'] ?? 'admin'; // Default to 'admin' if not set
+                                            $consultationPatientId = ($patientSource === 'receptionist') 
+                                                ? ($patient['patient_id'] ?? $patient['id']) 
+                                                : ($patient['id'] ?? $patient['patient_id']);
+                                            $consultationSource = ($patientSource === 'receptionist') ? 'patients' : 'admin_patients';
+                                            
+                                            // For view/edit/delete, use the appropriate ID
+                                            $viewId = ($patient['patient_id'] ?? $patient['id'] ?? $patient['id']);
+                                            $editId = ($patient['patient_id'] ?? $patient['id'] ?? $patient['id']);
+                                            $deleteId = ($patient['patient_id'] ?? $patient['id'] ?? $patient['id']);
+                                            ?>
+                                            <a href="<?= site_url('doctor/consultations/start/' . $consultationPatientId . '/' . $consultationSource) ?>" 
+                                               class="btn-modern btn-modern-primary btn-sm-modern" title="Start Consultation">
+                                                <i class="fas fa-stethoscope"></i> Start Consultation
+                                            </a>
+                                            <a href="<?= site_url('doctor/patients/view/' . $viewId) ?>" 
                                                class="btn-modern btn-modern-info btn-sm-modern" title="View Details">
                                                 <i class="fas fa-eye"></i>
                                             </a>
-                                            <a href="<?= site_url('doctor/patients/edit/' . $patient['id']) ?>" 
+                                            <a href="<?= site_url('doctor/patients/edit/' . $editId) ?>" 
                                                class="btn-modern btn-modern-warning btn-sm-modern" title="Edit Patient">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <a href="<?= site_url('doctor/patients/delete/' . $patient['id']) ?>" 
+                                            <a href="<?= site_url('doctor/patients/delete/' . $deleteId) ?>" 
                                                class="btn-modern btn-modern-danger btn-sm-modern" 
                                                onclick="return confirm('Are you sure you want to delete this patient?')" 
                                                title="Delete Patient">

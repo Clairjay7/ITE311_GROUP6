@@ -46,6 +46,10 @@
             <i class="fas fa-money-bill-wave" style="font-size: 24px; margin-bottom: 8px; display: block;"></i>
             Payment Reports
         </a>
+        <a href="<?= site_url('accounting/medication-billing') ?>" style="background: #10b981; color: white; padding: 16px; border-radius: 12px; text-decoration: none; text-align: center; font-weight: 600; box-shadow: 0 2px 6px rgba(0,0,0,0.08);">
+            <i class="fas fa-pills" style="font-size: 24px; margin-bottom: 8px; display: block;"></i>
+            Medication Billing
+        </a>
         <a href="<?= site_url('accounting/expenses') ?>" style="background: #f59e0b; color: white; padding: 16px; border-radius: 12px; text-decoration: none; text-align: center; font-weight: 600; box-shadow: 0 2px 6px rgba(0,0,0,0.08);">
             <i class="fas fa-receipt" style="font-size: 24px; margin-bottom: 8px; display: block;"></i>
             Expense Tracking
@@ -70,6 +74,13 @@
             <div class="card-content">
                 <h3>Pending Bills</h3>
                 <div class="card-value" id="pendingBills"><?= is_array($pendingBills) ? count($pendingBills) : (int)($pendingBills ?? 0) ?></div>
+            </div>
+        </div>
+        <div class="overview-card" style="border-left: 4px solid #10b981;">
+            <div class="card-content">
+                <h3 style="color: #10b981;">Medication Bills (Pending)</h3>
+                <div class="card-value" id="medicationBillsPending" style="color: #10b981;">0</div>
+                <div style="font-size: 12px; color: #64748b; margin-top: 4px;">Amount: <span id="medicationBillsAmount">₱0.00</span></div>
             </div>
         </div>
         <div class="overview-card">
@@ -187,6 +198,8 @@ document.addEventListener('DOMContentLoaded', function() {
             setText('activeUsers', data.active_users ?? '0');
             setText('totalUsers', data.total_users ?? '0');
             setText('systemLogs', data.system_logs ?? '0');
+            setText('medicationBillsPending', data.medication_bills_pending ?? '0');
+            setText('medicationBillsAmount', data.medication_bills_amount ?? '0', true);
         } catch (error) {
             console.error('Error fetching Accountant Dashboard stats:', error);
         }

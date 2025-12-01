@@ -441,11 +441,144 @@
         </div>
     </div>
 
+    <!-- Assigned Patients & Medication Orders -->
+    <div class="section-card">
+        <h3>
+            <i class="fas fa-user-injured"></i>
+            Assigned Patients
+            <a href="<?= site_url('nurse/medications') ?>" style="float: right; font-size: 14px; color: #0288d1; text-decoration: none;">
+                View All Medications <i class="fas fa-arrow-right"></i>
+            </a>
+        </h3>
+        <?php if (!empty($assignedPatients)): ?>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-bottom: 20px;">
+                <?php foreach ($assignedPatients as $patient): ?>
+                    <div style="background: #f8fafc; padding: 12px; border-radius: 8px; border-left: 4px solid #0288d1;">
+                        <strong><?= esc($patient['firstname'] . ' ' . $patient['lastname']) ?></strong>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        <?php else: ?>
+            <div class="empty-state">
+                <p>No assigned patients</p>
+            </div>
+        <?php endif; ?>
+    </div>
+
+    <!-- Medication Orders Status -->
+    <div class="section-card">
+        <h3>
+            <i class="fas fa-pills"></i>
+            Medication Orders Status
+            <a href="<?= site_url('nurse/medications') ?>" style="float: right; font-size: 14px; color: #0288d1; text-decoration: none;">
+                View All <i class="fas fa-arrow-right"></i>
+            </a>
+        </h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 20px;">
+            <div style="background: #fff3cd; padding: 16px; border-radius: 8px; border-left: 4px solid #f59e0b;">
+                <div style="font-size: 24px; font-weight: 700; color: #92400e;"><?= $waitingCount ?? 0 ?></div>
+                <div style="color: #92400e; font-weight: 600;">Waiting for Pharmacy</div>
+                <small style="color: #666;">Pending/Approved/Prepared</small>
+            </div>
+            <div style="background: #d1fae5; padding: 16px; border-radius: 8px; border-left: 4px solid #10b981;">
+                <div style="font-size: 24px; font-weight: 700; color: #065f46;"><?= $readyCount ?? 0 ?></div>
+                <div style="color: #065f46; font-weight: 600;">Ready to Administer</div>
+                <small style="color: #666;">Dispensed by Pharmacy</small>
+            </div>
+            <div style="background: #dbeafe; padding: 16px; border-radius: 8px; border-left: 4px solid #3b82f6;">
+                <div style="font-size: 24px; font-weight: 700; color: #1e40af;"><?= $administeredCount ?? 0 ?></div>
+                <div style="color: #1e40af; font-weight: 600;">Administered</div>
+                <small style="color: #666;">Completed</small>
+            </div>
+        </div>
+        
+        <?php if (!empty($readyToAdminister)): ?>
+            <div style="margin-top: 20px; margin-bottom: 24px;">
+                <h4 style="color: #0288d1; margin-bottom: 12px;">Ready to Administer (<?= count($readyToAdminister) ?>)</h4>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Patient</th>
+                            <th>Medicine</th>
+                            <th>Dosage</th>
+                            <th>Frequency</th>
+                            <th>Dispensed At</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach (array_slice($readyToAdminister, 0, 5) as $order): ?>
+                            <tr>
+                                <td><strong><?= esc($order['firstname'] . ' ' . $order['lastname']) ?></strong></td>
+                                <td><strong><?= esc($order['medicine_name'] ?? $order['order_description']) ?></strong></td>
+                                <td><?= esc($order['dosage'] ?? 'N/A') ?></td>
+                                <td><?= esc($order['frequency'] ?? 'N/A') ?></td>
+                                <td><?= $order['pharmacy_dispensed_at'] ? date('M d, Y h:i A', strtotime($order['pharmacy_dispensed_at'])) : 'N/A' ?></td>
+                                <td>
+                                    <a href="<?= site_url('nurse/medications') ?>" class="btn btn-success">
+                                        <i class="fas fa-syringe"></i> Administer
+                                    </a>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        <?php endif; ?>
+
+        <?php if (!empty($administered)): ?>
+            <div style="margin-top: 20px;">
+                <h4 style="color: #1e40af; margin-bottom: 12px;">
+                    <i class="fas fa-check-circle"></i> Recently Administered (<?= count($administered) ?>)
+                </h4>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Patient</th>
+                            <th>Medicine</th>
+                            <th>Dosage</th>
+                            <th>Frequency</th>
+                            <th>Administered At</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach (array_slice($administered, 0, 5) as $order): ?>
+                            <tr>
+                                <td><strong><?= esc($order['firstname'] . ' ' . $order['lastname']) ?></strong></td>
+                                <td><strong><?= esc($order['medicine_name'] ?? $order['order_description']) ?></strong></td>
+                                <td><?= esc($order['dosage'] ?? 'N/A') ?></td>
+                                <td><?= esc($order['frequency'] ?? 'N/A') ?></td>
+                                <td>
+                                    <strong style="color: #1e40af;">
+                                        <?= $order['completed_at'] ? date('M d, Y h:i A', strtotime($order['completed_at'])) : 'N/A' ?>
+                                    </strong>
+                                </td>
+                                <td>
+                                    <a href="<?= site_url('nurse/medications/view/' . $order['id']) ?>" class="btn btn-primary">
+                                        <i class="fas fa-eye"></i> View Details
+                                    </a>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+                <?php if (count($administered) > 5): ?>
+                    <div style="text-align: center; margin-top: 12px;">
+                        <a href="<?= site_url('nurse/medications') ?>" style="color: #0288d1; text-decoration: none; font-weight: 600;">
+                            View All Administered Medications <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                <?php endif; ?>
+            </div>
+        <?php endif; ?>
+    </div>
+
     <!-- Pending Doctor Orders -->
     <div class="section-card">
         <h3>
             <i class="fas fa-prescription"></i>
-            Pending Doctor Orders
+            Pending Doctor Orders (Non-Medication)
         </h3>
         <div class="table-container">
             <div id="pendingOrdersContainer">

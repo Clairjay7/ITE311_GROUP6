@@ -46,11 +46,28 @@ class DashboardStats extends BaseController
                 ->groupBy('admin_patients.id')
                 ->countAllResults();
 
-            // Get medications due
-            $medicationsDue = $orderModel
-                ->where('order_type', 'medication')
-                ->where('status', 'pending')
-                ->countAllResults();
+            $db = \Config\Database::connect();
+            
+            // Get medication orders assigned to this nurse with pharmacy status
+            $medicationOrders = $db->table('doctor_orders do')
+                ->where('do.order_type', 'medication')
+                ->where('do.nurse_id', $nurseId)
+                ->get()
+                ->getResultArray();
+
+            // Count by status
+            $waitingForPharmacy = array_filter($medicationOrders, function($order) {
+                $pharmacyStatus = $order['pharmacy_status'] ?? 'pending';
+                return in_array($pharmacyStatus, ['pending', 'approved', 'prepared']);
+            });
+
+            $readyToAdminister = array_filter($medicationOrders, function($order) {
+                return ($order['pharmacy_status'] ?? 'pending') === 'dispensed' && 
+                       ($order['status'] ?? 'pending') !== 'completed';
+            });
+
+            // Get medications due (ready to administer)
+            $medicationsDue = count($readyToAdminister);
 
             // Get vitals pending
             $vitalsPending = $this->getVitalsPendingCount($today);
@@ -125,6 +142,9 @@ class DashboardStats extends BaseController
                 'unreadNotifications' => $unreadNotifications,
                 'unreadNotificationsCount' => $unreadNotificationsCount,
                 'todaysAppointments' => $todaysAppointments,
+                // Medication administration stats
+                'waitingForPharmacy' => count($waitingForPharmacy ?? []),
+                'readyToAdminister' => count($readyToAdminister ?? []),
                 'last_updated' => date('Y-m-d H:i:s')
             ];
 

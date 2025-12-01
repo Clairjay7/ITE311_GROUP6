@@ -158,6 +158,39 @@ class DashboardStats extends BaseController
                 $treatmentCharges = (float) ($treatmentBilling->sum ?? 0);
             }
 
+            // Medication billing statistics
+            $medicationBillsPending = 0;
+            $medicationBillsAmount = 0.0;
+            $medicationBillsPaid = 0;
+            $medicationBillsPaidAmount = 0.0;
+            
+            if ($db->tableExists('billing')) {
+                $medicationBillsPending = $db->table('billing')
+                    ->where('service', 'Medication Administration')
+                    ->where('status', 'pending')
+                    ->countAllResults();
+                
+                $medicationBillsPaid = $db->table('billing')
+                    ->where('service', 'Medication Administration')
+                    ->where('status', 'paid')
+                    ->countAllResults();
+                
+                $medicationPendingAmount = $db->table('billing')
+                    ->selectSum('amount', 'sum')
+                    ->where('service', 'Medication Administration')
+                    ->where('status', 'pending')
+                    ->get()->getRow();
+                $medicationBillsAmount = (float) ($medicationPendingAmount->sum ?? 0);
+                
+                $medicationPaidAmount = $db->table('billing')
+                    ->selectSum('amount', 'sum')
+                    ->where('service', 'Medication Administration')
+                    ->where('status', 'paid')
+                    ->where('DATE(created_at)', $today)
+                    ->get()->getRow();
+                $medicationBillsPaidAmount = (float) ($medicationPaidAmount->sum ?? 0);
+            }
+
             // Pharmacy → Medication Expenses
             $pharmacyRevenue = 0.0;
             $pharmacyExpenses = 0.0;
@@ -245,6 +278,11 @@ class DashboardStats extends BaseController
                 'active_users' => $activeUsers,
                 'system_logs' => $systemLogs,
                 'total_revenue' => $totalRevenue,
+                // Medication billing stats
+                'medication_bills_pending' => $medicationBillsPending,
+                'medication_bills_amount' => $medicationBillsAmount,
+                'medication_bills_paid' => $medicationBillsPaid,
+                'medication_bills_paid_amount' => $medicationBillsPaidAmount,
                 'last_updated' => date('Y-m-d H:i:s')
             ];
 

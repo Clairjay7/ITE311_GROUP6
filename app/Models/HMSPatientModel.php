@@ -27,6 +27,8 @@ class HMSPatientModel extends Model
         'insurance_provider', 'insurance_number', 'philhealth_number', 'billing_address', 'payment_type',
         // Registration details & signatures
         'registration_date', 'registered_by', 'signature_patient', 'signature_staff', 'date_signed',
+        // Visit type and triage
+        'visit_type', 'triage_status',
     ];
 
     protected $useTimestamps = true;

@@ -139,6 +139,13 @@
                 </a>
             </li>
 
+            <li class="nav-item">
+                <a href="<?= site_url('nurse/triage') ?>">
+                    <i class="fa-solid fa-stethoscope sidebar-icon"></i>
+                    <span class="text">Emergency Triage</span>
+                </a>
+            </li>
+
             <li class="nav-item expandable">
                 <a href="#" onclick="toggleSubmenu(this)">
                     <span class="text">Patient Handling</span>
@@ -146,6 +153,12 @@
                 </a>
                 <ul class="submenu">
                     <li><a href="<?= site_url('nurse/patients/view') ?>"><span class="text">Patient Information</span></a></li>
+                    <li>
+                        <a href="<?= site_url('nurse/medications') ?>">
+                            <i class="fa-solid fa-pills sidebar-icon"></i>
+                            <span class="text">Medication Administration</span>
+                        </a>
+                    </li>
                 </ul>
             </li>
 
@@ -314,30 +327,36 @@
         <?php endif; ?>
 
         <!-- LAB STAFF -->
-        <?php if ($role === 'lab_staff'): ?>
+        <?php if ($role === 'labstaff' || $role === 'lab_staff'): ?>
             <li class="nav-section-title">Laboratory Panel</li>
             <li class="nav-item">
-                <a href="<?= site_url('lab/dashboard') ?>">
+                <a href="<?= site_url('labstaff/dashboard') ?>">
                     <i class="fa-solid fa-microscope sidebar-icon"></i>
                     <span class="text">Dashboard</span>
                 </a>
             </li>
-
             <li class="nav-item">
-                <a href="<?= site_url('lab/requests') ?>">
+                <a href="<?= site_url('labstaff/test-requests') ?>">
+                    <i class="fa-solid fa-flask sidebar-icon"></i>
                     <span class="text">Test Requests</span>
                 </a>
             </li>
-
             <li class="nav-item">
-                <a href="<?= site_url('lab/pending') ?>">
+                <a href="<?= site_url('labstaff/pending-specimens') ?>">
+                    <i class="fa-solid fa-vial sidebar-icon"></i>
                     <span class="text">Pending Specimens</span>
                 </a>
             </li>
-
             <li class="nav-item">
-                <a href="<?= site_url('lab/completed') ?>">
+                <a href="<?= site_url('labstaff/completed-tests') ?>">
+                    <i class="fa-solid fa-check-circle sidebar-icon"></i>
                     <span class="text">Completed Tests</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="<?= site_url('labstaff/logout') ?>">
+                    <i class="fa-solid fa-sign-out-alt sidebar-icon"></i>
+                    <span class="text">Logout</span>
                 </a>
             </li>
         <?php endif; ?>
@@ -346,26 +365,29 @@
         <?php if ($role === 'pharmacy'): ?>
             <li class="nav-section-title">Pharmacy Panel</li>
             <li class="nav-item">
-                <a href="<?= site_url('pharmacy/dashboard') ?>">
+                <a href="<?= site_url('pharmacy') ?>">
                     <i class="fa-solid fa-briefcase-medical sidebar-icon"></i>
                     <span class="text">Dashboard</span>
                 </a>
             </li>
 
             <li class="nav-item">
-                <a href="<?= site_url('pharmacy/prescriptions') ?>">
+                <a href="<?= site_url('pharmacy/prescription-queue') ?>">
+                    <i class="fa-solid fa-prescription sidebar-icon"></i>
                     <span class="text">Prescription Queue</span>
                 </a>
             </li>
 
             <li class="nav-item">
-                <a href="<?= site_url('pharmacy/release') ?>">
+                <a href="<?= site_url('pharmacy/medicine-release') ?>">
+                    <i class="fa-solid fa-pills sidebar-icon"></i>
                     <span class="text">Medicine Release</span>
                 </a>
             </li>
 
             <li class="nav-item">
-                <a href="<?= site_url('pharmacy/stock') ?>">
+                <a href="<?= site_url('pharmacy/stock-monitoring') ?>">
+                    <i class="fa-solid fa-boxes-stacked sidebar-icon"></i>
                     <span class="text">Stock Monitoring</span>
                 </a>
             </li>

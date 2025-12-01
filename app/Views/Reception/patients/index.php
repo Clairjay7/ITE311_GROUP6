@@ -73,9 +73,9 @@
             <tr>
               <td><?= esc($p['patient_id']) ?></td>
               <td><?= esc($p['full_name']) ?></td>
+              <td><?= esc($p['age'] ?? '-') ?></td>
+              <td><?= esc($p['gender'] ?? '-') ?></td>
               <td><span class="badge <?= $p['type']==='In-Patient'?'bg-info':'bg-success' ?>"><?= esc($p['type']) ?></span></td>
-              <td><?= esc($p['doctor_name'] ?? '-') ?></td>
-              <td><?= esc($p['department_name'] ?? '-') ?></td>
               <td><?= esc($p['contact'] ?? '-') ?></td>
               <td>
                 <a class="btn btn-sm btn-outline-primary" href="<?= site_url('receptionist/patients/show/'.$p['patient_id']) ?>">View</a>
@@ -102,9 +102,9 @@
           <tr>
             <th>ID</th>
             <th>Full Name</th>
+            <th>Age</th>
+            <th>Gender</th>
             <th>Type</th>
-            <th>Doctor</th>
-            <th>Department</th>
             <th>Contact</th>
             <th>Actions</th>
           </tr>
@@ -114,9 +114,9 @@
             <tr>
               <td><?= esc($p['patient_id']) ?></td>
               <td><?= esc($p['full_name']) ?></td>
+              <td><?= esc($p['age'] ?? '-') ?></td>
+              <td><?= esc($p['gender'] ?? '-') ?></td>
               <td><span class="badge <?= $p['type']==='In-Patient'?'bg-info':'bg-success' ?>"><?= esc($p['type']) ?></span></td>
-              <td><?= esc($p['doctor_name'] ?? '-') ?></td>
-              <td><?= esc($p['department_name'] ?? '-') ?></td>
               <td><?= esc($p['contact'] ?? '-') ?></td>
               <td>
                 <a class="btn btn-sm btn-outline-primary" href="<?= site_url('receptionist/patients/show/'.$p['patient_id']) ?>">View</a>

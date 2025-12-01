@@ -28,13 +28,19 @@
 
     <!-- Overview Cards -->
     <div class="overview-grid">
-        <div class="overview-card">
+        <div class="overview-card" onclick="window.location.href='<?= site_url('labstaff/test-requests') ?>'" style="cursor: pointer;">
             <div class="card-content">
                 <h3>Pending Tests</h3>
                 <div class="card-value" id="pendingTests"><?= is_array($pendingTests) ? count($pendingTests) : (int)$pendingTests ?></div>
             </div>
         </div>
-        <div class="overview-card">
+        <div class="overview-card" onclick="window.location.href='<?= site_url('labstaff/pending-specimens') ?>'" style="cursor: pointer;">
+            <div class="card-content">
+                <h3>Pending Specimens</h3>
+                <div class="card-value" id="pendingSpecimens"><?= isset($pendingSpecimens) ? (is_array($pendingSpecimens) ? count($pendingSpecimens) : (int)$pendingSpecimens) : '0' ?></div>
+            </div>
+        </div>
+        <div class="overview-card" onclick="window.location.href='<?= site_url('labstaff/completed-tests') ?>'" style="cursor: pointer;">
             <div class="card-content">
                 <h3>Completed Today</h3>
                 <div class="card-value" id="completedToday"><?= is_array($completedToday) ? count($completedToday) : (int)$completedToday ?></div>
@@ -46,6 +52,22 @@
                 <div class="card-value" id="monthlyTests"><?= is_array($monthlyTests) ? count($monthlyTests) : (int)$monthlyTests ?></div>
             </div>
         </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div style="margin-top: 32px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+        <a href="<?= site_url('labstaff/test-requests') ?>" class="btn btn-primary btn-lg" style="padding: 16px; text-align: center; text-decoration: none; border-radius: 12px;">
+            <i class="fas fa-flask fa-2x mb-2"></i><br>
+            <strong>Test Requests</strong>
+        </a>
+        <a href="<?= site_url('labstaff/pending-specimens') ?>" class="btn btn-warning btn-lg" style="padding: 16px; text-align: center; text-decoration: none; border-radius: 12px;">
+            <i class="fas fa-vial fa-2x mb-2"></i><br>
+            <strong>Pending Specimens</strong>
+        </a>
+        <a href="<?= site_url('labstaff/completed-tests') ?>" class="btn btn-success btn-lg" style="padding: 16px; text-align: center; text-decoration: none; border-radius: 12px;">
+            <i class="fas fa-check-circle fa-2x mb-2"></i><br>
+            <strong>Completed Tests</strong>
+        </a>
     </div>
 
 <script>
@@ -73,6 +95,7 @@ document.addEventListener('DOMContentLoaded', function() {
             };
             
             setText('pendingTests', data.pending_tests ?? '0');
+            setText('pendingSpecimens', data.pending_specimens ?? '0');
             setText('completedToday', data.completed_today ?? '0');
             setText('monthlyTests', data.monthly_tests ?? '0');
         } catch (error) {

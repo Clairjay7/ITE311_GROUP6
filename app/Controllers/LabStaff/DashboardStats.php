@@ -11,7 +11,7 @@ class DashboardStats extends BaseController
     public function stats()
     {
         // Check if user is logged in and is lab staff
-        if (!session()->get('logged_in') || session()->get('role') !== 'lab_staff') {
+        if (!session()->get('logged_in') || !in_array(session()->get('role'), ['labstaff', 'lab_staff', 'admin'])) {
             return $this->response->setJSON(['error' => 'Unauthorized'])->setStatusCode(401);
         }
 
@@ -62,8 +62,14 @@ class DashboardStats extends BaseController
                 ->limit(10)
                 ->findAll();
 
+            // Get pending specimens count
+            $pendingSpecimens = $labRequestModel
+                ->whereIn('status', ['pending', 'in_progress'])
+                ->countAllResults();
+
             $data = [
                 'pending_tests' => $pendingTests,
+                'pending_specimens' => $pendingSpecimens,
                 'completed_today' => $completedToday,
                 'monthly_tests' => $monthlyTests,
                 'pending_tests_list' => $pendingTestsList,

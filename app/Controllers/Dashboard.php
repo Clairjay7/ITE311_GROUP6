@@ -352,30 +352,63 @@ class Dashboard extends BaseController
 
             // Lab Staff Dashboard - Specific data
             if ($userRole === 'lab_staff' || $userRole === 'labstaff') {
-                if ($db->tableExists('lab_services')) {
-                    // Pending tests (tests without results)
-                    $pendingTests = $labServiceModel->builder()
-                        ->groupStart()
-                        ->where('result IS NULL')
-                        ->orWhere('result', '')
-                        ->groupEnd()
-                        ->get()->getResultArray();
-                    $data['pendingTests'] = is_array($pendingTests) ? $pendingTests : [];
+                $labRequestModel = new \App\Models\LabRequestModel();
+                
+                if ($db->tableExists('lab_requests')) {
+                    // Pending test requests
+                    $data['pendingTests'] = $labRequestModel
+                        ->where('status', 'pending')
+                        ->countAllResults();
                     
-                    // Completed today (tests with results created today)
-                    $data['completedToday'] = $labServiceModel->builder()
-                        ->where('DATE(created_at)', $today)
-                        ->groupStart()
-                        ->where('result IS NOT NULL')
-                        ->where('result !=', '')
-                        ->groupEnd()
+                    // Pending specimens (pending or in_progress)
+                    $data['pendingSpecimens'] = $labRequestModel
+                        ->whereIn('status', ['pending', 'in_progress'])
+                        ->countAllResults();
+                    
+                    // Completed today
+                    $data['completedToday'] = $labRequestModel
+                        ->where('status', 'completed')
+                        ->where('DATE(updated_at)', $today)
                         ->countAllResults();
                     
                     // Monthly tests
-                    $data['monthlyTests'] = $labServiceModel->builder()
-                        ->where('created_at >=', $monthStart)
-                        ->where('created_at <=', $monthEnd)
+                    $data['monthlyTests'] = $labRequestModel
+                        ->where('status', 'completed')
+                        ->where('DATE(updated_at) >=', $monthStart)
                         ->countAllResults();
+                } else {
+                    // Fallback to lab_services if lab_requests doesn't exist
+                    if ($db->tableExists('lab_services')) {
+                        // Pending tests (tests without results)
+                        $pendingTests = $labServiceModel->builder()
+                            ->groupStart()
+                            ->where('result IS NULL')
+                            ->orWhere('result', '')
+                            ->groupEnd()
+                            ->get()->getResultArray();
+                        $data['pendingTests'] = is_array($pendingTests) ? $pendingTests : [];
+                        $data['pendingSpecimens'] = count($pendingTests);
+                        
+                        // Completed today (tests with results created today)
+                        $data['completedToday'] = $labServiceModel->builder()
+                            ->where('DATE(created_at)', $today)
+                            ->groupStart()
+                            ->where('result IS NOT NULL')
+                            ->where('result !=', '')
+                            ->groupEnd()
+                            ->countAllResults();
+                        
+                        // Monthly tests
+                        $data['monthlyTests'] = $labServiceModel->builder()
+                            ->where('created_at >=', $monthStart)
+                            ->where('created_at <=', $monthEnd)
+                            ->countAllResults();
+                    } else {
+                        $data['pendingTests'] = 0;
+                        $data['pendingSpecimens'] = 0;
+                        $data['completedToday'] = 0;
+                        $data['monthlyTests'] = 0;
+                    }
                 }
             }
 

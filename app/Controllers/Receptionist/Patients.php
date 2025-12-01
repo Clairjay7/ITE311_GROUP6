@@ -70,6 +70,60 @@ class Patients extends BaseController
             }
         }
 
+        // Get doctors from both users table and doctors table
+        $db = \Config\Database::connect();
+        $allDoctors = [];
+        
+        // Get doctors from users table (primary source)
+        // Users table uses role_id, need to join with roles table or check role name
+        if ($db->tableExists('users') && $db->tableExists('roles')) {
+            $userDoctors = $db->table('users')
+                ->select('users.id, users.username, users.email')
+                ->join('roles', 'roles.id = users.role_id', 'left')
+                ->where('roles.name', 'doctor')
+                ->where('users.status', 'active')
+                ->get()
+                ->getResultArray();
+            
+            foreach ($userDoctors as $userDoctor) {
+                // Get specialization from doctors table if exists
+                $doctorDetails = null;
+                if ($db->tableExists('doctors')) {
+                    $doctorDetails = $db->table('doctors')
+                        ->where('id', $userDoctor['id'])
+                        ->orWhere('doctor_name', $userDoctor['username'])
+                        ->get()
+                        ->getRowArray();
+                }
+                
+                $allDoctors[] = [
+                    'id' => $userDoctor['id'],
+                    'doctor_name' => $userDoctor['username'] ?? 'Dr. ' . $userDoctor['id'],
+                    'specialization' => $doctorDetails['specialization'] ?? 'General Practice',
+                ];
+            }
+        }
+        
+        // Also include doctors from doctors table (if not already added)
+        $doctorsFromTable = $this->doctorModel->findAll();
+        foreach ($doctorsFromTable as $doctor) {
+            $alreadyAdded = false;
+            foreach ($allDoctors as $doc) {
+                if ($doc['id'] == $doctor['id']) {
+                    $alreadyAdded = true;
+                    break;
+                }
+            }
+            
+            if (!$alreadyAdded) {
+                $allDoctors[] = [
+                    'id' => $doctor['id'],
+                    'doctor_name' => $doctor['doctor_name'] ?? 'Dr. ' . $doctor['id'],
+                    'specialization' => $doctor['specialization'] ?? 'General Practice',
+                ];
+            }
+        }
+
         $viewName = $prefType === 'Out-Patient'
             ? 'Reception/patients/Outpatient'
             : 'Reception/patients/register';
@@ -77,7 +131,7 @@ class Patients extends BaseController
         return view($viewName, [
             'title' => 'Register Patient',
             'departments' => $this->departmentModel->findAll(),
-            'doctors' => $this->doctorModel->findAll(),
+            'doctors' => $allDoctors,
             'validation' => \Config\Services::validation(),
             'initialType' => $prefType,
             'availableRoomsByWard' => $availableRoomsByWard,
@@ -93,6 +147,7 @@ class Patients extends BaseController
             'civil_status' => 'permit_empty|in_list[Single,Married,Widowed,Divorced,Separated,Annulled,Other]',
             'date_of_birth' => 'permit_empty|valid_date',
             'type' => 'required|in_list[In-Patient,Out-Patient]',
+            'visit_type' => 'required|in_list[Consultation,Check-up,Follow-up,Emergency]',
             'payment_type' => 'permit_empty|in_list[Cash,Insurance,Credit]',
             'blood_type' => 'permit_empty|in_list[A+,A-,B+,B-,AB+,AB-,O+,O-]'
         ];
@@ -128,11 +183,14 @@ class Patients extends BaseController
             $age = $age !== null ? (int)$age : null;
         }
 
+        // Simplified address handling - single field
+        $address = trim((string)$this->request->getPost('address'));
+        // Keep old address fields for backward compatibility but use simplified address if provided
         $addressStreet = trim((string)$this->request->getPost('address_street'));
         $addressBarangay = trim((string)$this->request->getPost('address_barangay'));
         $addressCity = trim((string)$this->request->getPost('address_city'));
         $addressProvince = trim((string)$this->request->getPost('address_province'));
-        $composedAddress = trim(implode(', ', array_filter([$addressStreet, $addressBarangay, $addressCity, $addressProvince])));
+        $composedAddress = $address ?: trim(implode(', ', array_filter([$addressStreet, $addressBarangay, $addressCity, $addressProvince])));
 
         // Prevent duplicate: same full_name + date_of_birth or contact
         $exists = $this->patientModel->groupStart()
@@ -147,6 +205,14 @@ class Patients extends BaseController
             return redirect()->back()->withInput()->with('error', 'Duplicate patient detected.');
         }
 
+        $visitType = $this->request->getPost('visit_type');
+        $doctorId = $this->request->getPost('doctor_id') ?: null;
+        
+        // Only allow doctor assignment for Consultation, Check-up, Follow-up
+        if ($visitType === 'Emergency') {
+            $doctorId = null; // Emergency cases go to triage first
+        }
+
         $data = [
             'patient_reg_no' => $this->request->getPost('patient_reg_no') ?: null,
             'first_name' => $first,
@@ -159,46 +225,45 @@ class Patients extends BaseController
             'date_of_birth' => $dob ?: null,
             'age' => $age,
             'contact' => $this->request->getPost('contact') ?: null,
-            'email' => $this->request->getPost('email') ?: null,
-            'address_street' => $addressStreet ?: null,
-            'address_barangay' => $addressBarangay ?: null,
-            'address_city' => $addressCity ?: null,
-            'address_province' => $addressProvince ?: null,
             'address' => $composedAddress ?: null,
-            'nationality' => $this->request->getPost('nationality') ?: null,
-            'religion' => $this->request->getPost('religion') ?: null,
             'type' => $this->request->getPost('type'),
-            'doctor_id' => $this->request->getPost('doctor_id') ?: null,
-            'department_id' => $this->request->getPost('department_id') ?: null,
+            'visit_type' => $visitType,
+            'triage_status' => $visitType === 'Emergency' ? 'pending' : null,
+            'doctor_id' => $doctorId,
             'purpose' => $this->request->getPost('purpose') ?: null,
             'admission_date' => $this->request->getPost('type') === 'In-Patient' ? $this->request->getPost('admission_date') : null,
             'room_number' => $this->request->getPost('type') === 'In-Patient' ? $this->request->getPost('room_number') : null,
-            'emergency_name' => $this->request->getPost('emergency_name') ?: null,
-            'emergency_relationship' => $this->request->getPost('emergency_relationship') ?: null,
-            'emergency_contact' => $this->request->getPost('emergency_contact') ?: null,
-            'emergency_address' => $this->request->getPost('emergency_address') ?: null,
-            'blood_type' => $this->request->getPost('blood_type') ?: null,
-            'allergies' => $this->request->getPost('allergies') ?: null,
-            'existing_conditions' => $this->request->getPost('existing_conditions') ?: null,
-            'current_medications' => $this->request->getPost('current_medications') ?: null,
-            'past_surgeries' => $this->request->getPost('past_surgeries') ?: null,
-            'family_history' => $this->request->getPost('family_history') ?: null,
-            'insurance_provider' => $this->request->getPost('insurance_provider') ?: null,
-            'insurance_number' => $this->request->getPost('insurance_number') ?: null,
-            'philhealth_number' => $this->request->getPost('philhealth_number') ?: null,
-            'billing_address' => $this->request->getPost('billing_address') ?: null,
-            'payment_type' => $this->request->getPost('payment_type') ?: null,
-            'registration_date' => $this->request->getPost('registration_date') ?: date('Y-m-d'),
-            'registered_by' => $this->request->getPost('registered_by') ?: null,
-            'signature_patient' => $this->request->getPost('signature_patient') ?: null,
-            'signature_staff' => $this->request->getPost('signature_staff') ?: null,
+            'registration_date' => date('Y-m-d'),
         ];
 
         $this->patientModel->save($data);
 
+        // Get the inserted patient_id (primary key is 'patient_id', not 'id')
         $patientId = $this->patientModel->getInsertID();
         $type = $this->request->getPost('type');
-        if ($patientId && $type === 'In-Patient') {
+        
+        // If getInsertID() returns 0 or null, try to get it from the saved data
+        if (empty($patientId) && !empty($data['patient_id'])) {
+            $patientId = $data['patient_id'];
+        } elseif (empty($patientId)) {
+            // Fallback: get the last inserted patient_id
+            $db = \Config\Database::connect();
+            $lastPatient = $db->table('patients')
+                ->select('patient_id')
+                ->where('full_name', $fullName)
+                ->where('doctor_id', $doctorId)
+                ->orderBy('patient_id', 'DESC')
+                ->limit(1)
+                ->get()
+                ->getRowArray();
+            $patientId = $lastPatient['patient_id'] ?? null;
+        }
+        
+        // Log for debugging
+        log_message('debug', "Patient registered - patient_id: {$patientId}, doctor_id: {$doctorId}, type: {$type}, visit_type: {$visitType}");
+        
+        // Handle room assignment ONLY for Emergency cases
+        if ($patientId && $type === 'In-Patient' && $visitType === 'Emergency') {
             $ward = trim((string)$this->request->getPost('ward'));
             $roomNumber = trim((string)$this->request->getPost('room_number'));
             if ($ward !== '' && $roomNumber !== '') {
@@ -212,6 +277,114 @@ class Patients extends BaseController
                         'status' => 'Occupied',
                     ]);
                 }
+            }
+        } else {
+            // For non-emergency cases, clear room assignment
+            $data['room_number'] = null;
+            if ($patientId) {
+                $this->patientModel->update($patientId, ['room_number' => null]);
+            }
+        }
+
+        // Create admin_patients record if doctor is assigned (for doctor orders compatibility)
+        if ($patientId && $doctorId && in_array($visitType, ['Consultation', 'Check-up', 'Follow-up'])) {
+            $db = \Config\Database::connect();
+            
+            // Extract name parts for admin_patients
+            $nameParts = [];
+            if (!empty($first)) $nameParts[] = $first;
+            if (!empty($last)) $nameParts[] = $last;
+            if (empty($nameParts) && !empty($fullName)) {
+                $parts = explode(' ', $fullName, 2);
+                $nameParts = [$parts[0] ?? '', $parts[1] ?? ''];
+            }
+            
+            // Check if admin_patients record already exists
+            $existingAdminPatient = null;
+            if (!empty($nameParts[0]) && !empty($nameParts[1]) && $db->tableExists('admin_patients')) {
+                $existingAdminPatient = $db->table('admin_patients')
+                    ->where('firstname', $nameParts[0])
+                    ->where('lastname', $nameParts[1])
+                    ->where('doctor_id', $doctorId)
+                    ->where('deleted_at IS NULL', null, false)
+                    ->get()
+                    ->getRowArray();
+            }
+            
+            $adminPatientId = null;
+            if ($existingAdminPatient) {
+                $adminPatientId = $existingAdminPatient['id'];
+                // Update doctor_id, visit_type, and timestamp
+                $db->table('admin_patients')
+                    ->where('id', $adminPatientId)
+                    ->update([
+                        'doctor_id' => $doctorId,
+                        'visit_type' => $visitType,
+                        'updated_at' => date('Y-m-d H:i:s')
+                    ]);
+            } else {
+                // Create admin_patients record
+                if ($db->tableExists('admin_patients')) {
+                    $adminPatientData = [
+                        'firstname' => $nameParts[0] ?? '',
+                        'lastname' => $nameParts[1] ?? '',
+                        'birthdate' => $dob ?: null,
+                        'gender' => strtolower($this->request->getPost('gender') ?? 'other'),
+                        'contact' => $this->request->getPost('contact') ?: null,
+                        'address' => $composedAddress ?: null,
+                        'doctor_id' => $doctorId,
+                        'visit_type' => $visitType, // Include visit_type
+                        'created_at' => date('Y-m-d H:i:s'),
+                        'updated_at' => date('Y-m-d H:i:s'),
+                    ];
+                    
+                    try {
+                        $db->table('admin_patients')->insert($adminPatientData);
+                        $adminPatientId = $db->insertID();
+                        log_message('info', "Receptionist: Created admin_patients record ID {$adminPatientId} for patient_id: {$patientId}");
+                    } catch (\Exception $e) {
+                        log_message('error', "Receptionist: Failed to create admin_patients record: " . $e->getMessage());
+                        // Continue - OrderController will handle it later
+                    }
+                }
+            }
+            
+            // Create consultation record (uses admin_patients.id)
+            $appointmentDate = $this->request->getPost('appointment_date') ?: date('Y-m-d');
+            
+            if ($db->tableExists('consultations') && !empty($adminPatientId)) {
+                $consultationModel = new \App\Models\ConsultationModel();
+                $consultationModel->insert([
+                    'doctor_id' => $doctorId,
+                    'patient_id' => $adminPatientId, // Use admin_patients.id for consultations table
+                    'consultation_date' => $appointmentDate,
+                    'consultation_time' => date('H:i:s'),
+                    'type' => 'upcoming',
+                    'status' => 'approved',
+                    'notes' => $this->request->getPost('purpose') ?: "Visit Type: {$visitType}",
+                    'created_at' => date('Y-m-d H:i:s'),
+                ]);
+            }
+
+            // Audit log
+            if ($db->tableExists('audit_logs')) {
+                $db->table('audit_logs')->insert([
+                    'action' => 'patient_registration_with_doctor',
+                    'user_id' => session()->get('user_id'),
+                    'user_role' => 'receptionist',
+                    'user_name' => session()->get('username') ?? session()->get('name') ?? 'Receptionist',
+                    'description' => "Patient {$fullName} registered with visit type: {$visitType}. Assigned to doctor ID: {$doctorId}",
+                    'related_id' => $patientId,
+                    'related_type' => 'patient',
+                    'metadata' => json_encode([
+                        'patient_id' => $patientId,
+                        'doctor_id' => $doctorId,
+                        'visit_type' => $visitType,
+                        'appointment_date' => $appointmentDate,
+                    ]),
+                    'ip_address' => $this->request->getIPAddress(),
+                    'created_at' => date('Y-m-d H:i:s'),
+                ]);
             }
         }
 
@@ -292,11 +465,14 @@ class Patients extends BaseController
             $age = $age !== null ? (int)$age : null;
         }
 
-        $addressStreet   = trim((string)$this->request->getPost('address_street'));
+        // Simplified address handling - single field
+        $address = trim((string)$this->request->getPost('address'));
+        // Keep old address fields for backward compatibility but use simplified address if provided
+        $addressStreet = trim((string)$this->request->getPost('address_street'));
         $addressBarangay = trim((string)$this->request->getPost('address_barangay'));
-        $addressCity     = trim((string)$this->request->getPost('address_city'));
+        $addressCity = trim((string)$this->request->getPost('address_city'));
         $addressProvince = trim((string)$this->request->getPost('address_province'));
-        $composedAddress = trim(implode(', ', array_filter([$addressStreet, $addressBarangay, $addressCity, $addressProvince])));
+        $composedAddress = $address ?: trim(implode(', ', array_filter([$addressStreet, $addressBarangay, $addressCity, $addressProvince])));
 
         $data = [
             'patient_id' => $id,

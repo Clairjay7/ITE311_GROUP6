@@ -160,8 +160,27 @@
                 <select name="patient_id" id="patient_id" class="form-control-modern" required>
                     <option value="">Select Patient</option>
                     <?php foreach ($patients as $patient): ?>
-                        <option value="<?= esc($patient['id']) ?>" <?= old('patient_id') == $patient['id'] ? 'selected' : '' ?>>
-                            <?= esc(ucfirst($patient['firstname']) . ' ' . ucfirst($patient['lastname'])) ?>
+                        <?php 
+                        // Always use 'id' field which is set to admin_patients.id for all patients
+                        // For receptionist patients, 'id' is already converted to admin_patients.id in the controller
+                        $patientId = $patient['id'] ?? $patient['admin_patient_id'] ?? null;
+                        $patientName = trim(($patient['firstname'] ?? '') . ' ' . ($patient['lastname'] ?? ''));
+                        if (empty($patientName) && !empty($patient['full_name'])) {
+                            $patientName = $patient['full_name'];
+                        }
+                        $sourceLabel = isset($patient['source']) && $patient['source'] === 'receptionist' ? ' (Receptionist)' : '';
+                        ?>
+                        <?php 
+                        // Check if this patient should be selected
+                        $isSelected = false;
+                        if (!empty($selected_patient_id ?? null)) {
+                            $isSelected = ($patientId == $selected_patient_id);
+                        } else {
+                            $isSelected = (old('patient_id') == $patientId);
+                        }
+                        ?>
+                        <option value="<?= esc($patientId) ?>" data-patient-source="<?= esc($patient['source'] ?? 'admin_patients') ?>" <?= $isSelected ? 'selected' : '' ?>>
+                            <?= esc(ucwords($patientName)) ?><?= $sourceLabel ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
@@ -171,9 +190,34 @@
             </div>
             
             <div class="form-group-modern">
+                <label class="form-label-modern" for="order_type">
+                    <i class="fas fa-tag me-2"></i>
+                    Order Type <span class="text-danger">*</span>
+                </label>
+                <select name="order_type" id="order_type" class="form-control-modern" required>
+                    <option value="">Select Order Type</option>
+                    <?php 
+                    $selectedOrderType = $selected_order_type ?? old('order_type');
+                    ?>
+                    <option value="medication" <?= $selectedOrderType == 'medication' ? 'selected' : '' ?>>Medication (Routes to Pharmacy first)</option>
+                    <option value="lab_test" <?= $selectedOrderType == 'lab_test' ? 'selected' : '' ?>>Lab Test</option>
+                    <option value="procedure" <?= $selectedOrderType == 'procedure' ? 'selected' : '' ?>>Procedure</option>
+                    <option value="diet" <?= $selectedOrderType == 'diet' ? 'selected' : '' ?>>Diet</option>
+                    <option value="activity" <?= $selectedOrderType == 'activity' ? 'selected' : '' ?>>Activity</option>
+                    <option value="other" <?= $selectedOrderType == 'other' ? 'selected' : '' ?>>Other</option>
+                </select>
+                <?php if (session()->getFlashdata('errors') && isset(session()->getFlashdata('errors')['order_type'])): ?>
+                    <div class="text-danger"><?= esc(session()->getFlashdata('errors')['order_type']) ?></div>
+                <?php endif; ?>
+            </div>
+
+            <div class="form-group-modern">
                 <label class="form-label-modern" for="nurse_id">
                     <i class="fas fa-user-nurse me-2"></i>
                     Assign to Nurse <span class="text-danger">*</span>
+                    <small style="display: block; font-weight: normal; color: #64748b; margin-top: 4px;">
+                        <i class="fas fa-info-circle"></i> Nurse will administer medication after Pharmacy dispenses
+                    </small>
                 </label>
                 <select name="nurse_id" id="nurse_id" class="form-control-modern" required>
                     <option value="">Select Nurse</option>
@@ -188,25 +232,79 @@
                 <?php endif; ?>
             </div>
             
-            <div class="form-group-modern">
-                <label class="form-label-modern" for="order_type">
-                    <i class="fas fa-tag me-2"></i>
-                    Order Type <span class="text-danger">*</span>
-                </label>
-                <select name="order_type" id="order_type" class="form-control-modern" required>
-                    <option value="">Select Order Type</option>
-                    <option value="medication" <?= old('order_type') == 'medication' ? 'selected' : '' ?>>Medication</option>
-                    <option value="lab_test" <?= old('order_type') == 'lab_test' ? 'selected' : '' ?>>Lab Test</option>
-                    <option value="procedure" <?= old('order_type') == 'procedure' ? 'selected' : '' ?>>Procedure</option>
-                    <option value="diet" <?= old('order_type') == 'diet' ? 'selected' : '' ?>>Diet</option>
-                    <option value="activity" <?= old('order_type') == 'activity' ? 'selected' : '' ?>>Activity</option>
-                    <option value="other" <?= old('order_type') == 'other' ? 'selected' : '' ?>>Other</option>
-                </select>
-                <?php if (session()->getFlashdata('errors') && isset(session()->getFlashdata('errors')['order_type'])): ?>
-                    <div class="text-danger"><?= esc(session()->getFlashdata('errors')['order_type']) ?></div>
-                <?php endif; ?>
+            <!-- Medication-specific fields (shown when medication is selected) -->
+            <div id="medicationFields" style="display: none;">
+                <div class="form-group-modern">
+                    <label class="form-label-modern" for="medicine_name">
+                        <i class="fas fa-pills me-2"></i>
+                        Select Medicine <span class="text-danger">*</span>
+                    </label>
+                    <select name="medicine_name" id="medicine_name" class="form-control-modern" required>
+                        <option value="">-- Select Medicine --</option>
+                        <?php if (!empty($medicines)): ?>
+                            <?php foreach ($medicines as $medicine): ?>
+                                <option value="<?= esc($medicine['item_name']) ?>" 
+                                    data-description="<?= esc($medicine['description'] ?? '') ?>"
+                                    data-quantity="<?= esc($medicine['quantity']) ?>"
+                                    data-price="<?= esc($medicine['price']) ?>"
+                                    <?= old('medicine_name') == $medicine['item_name'] ? 'selected' : '' ?>>
+                                    <?= esc($medicine['item_name']) ?> 
+                                    <?php if ($medicine['quantity'] < 10): ?>
+                                        <span style="color: #ef4444;">(Low Stock: <?= $medicine['quantity'] ?>)</span>
+                                    <?php elseif ($medicine['quantity'] < 20): ?>
+                                        <span style="color: #f59e0b;">(Stock: <?= $medicine['quantity'] ?>)</span>
+                                    <?php else: ?>
+                                        <span style="color: #10b981;">(Stock: <?= $medicine['quantity'] ?>)</span>
+                                    <?php endif; ?>
+                                </option>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <option value="" disabled>No medicines available in pharmacy</option>
+                        <?php endif; ?>
+                    </select>
+                    <?php if (empty($medicines)): ?>
+                        <div class="text-danger" style="margin-top: 8px;">
+                            <i class="fas fa-exclamation-triangle"></i> No medicines available in pharmacy. Please contact pharmacy staff.
+                        </div>
+                    <?php endif; ?>
+                    <small id="medicineInfo" style="display: none; margin-top: 8px; padding: 8px; background: #f1f5f9; border-radius: 6px; color: #475569;">
+                        <strong>Description:</strong> <span id="medicineDescription"></span><br>
+                        <strong>Available Stock:</strong> <span id="medicineStock"></span> units<br>
+                        <strong>Price:</strong> ₱<span id="medicinePrice"></span>
+                    </small>
+                    <?php if (session()->getFlashdata('errors') && isset(session()->getFlashdata('errors')['medicine_name'])): ?>
+                        <div class="text-danger"><?= esc(session()->getFlashdata('errors')['medicine_name']) ?></div>
+                    <?php endif; ?>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group-modern">
+                            <label class="form-label-modern" for="dosage">
+                                <i class="fas fa-syringe me-2"></i>
+                                Dosage <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" name="dosage" id="dosage" class="form-control-modern" value="<?= old('dosage') ?>" placeholder="e.g., 500mg, 1 tablet">
+                            <?php if (session()->getFlashdata('errors') && isset(session()->getFlashdata('errors')['dosage'])): ?>
+                                <div class="text-danger"><?= esc(session()->getFlashdata('errors')['dosage']) ?></div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group-modern">
+                            <label class="form-label-modern" for="duration">
+                                <i class="fas fa-calendar-alt me-2"></i>
+                                Duration <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" name="duration" id="duration" class="form-control-modern" value="<?= old('duration') ?>" placeholder="e.g., 7 days, 2 weeks">
+                            <?php if (session()->getFlashdata('errors') && isset(session()->getFlashdata('errors')['duration'])): ?>
+                                <div class="text-danger"><?= esc(session()->getFlashdata('errors')['duration']) ?></div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
             </div>
-            
+
             <div class="form-group-modern">
                 <label class="form-label-modern" for="order_description">
                     <i class="fas fa-file-medical me-2"></i>
@@ -225,15 +323,26 @@
                 </label>
                 <textarea name="instructions" id="instructions" class="form-control-modern" rows="3" placeholder="Additional instructions for nurses..."><?= old('instructions') ?></textarea>
             </div>
+
+            <div class="form-group-modern">
+                <label class="form-label-modern" for="remarks">
+                    <i class="fas fa-sticky-note me-2"></i>
+                    Remarks (Optional)
+                </label>
+                <textarea name="remarks" id="remarks" class="form-control-modern" rows="2" placeholder="Additional remarks or notes..."><?= old('remarks') ?></textarea>
+            </div>
             
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group-modern">
                         <label class="form-label-modern" for="frequency">
                             <i class="fas fa-clock me-2"></i>
-                            Frequency (Optional)
+                            Frequency <span id="frequencyRequired" class="text-danger" style="display: none;">*</span>
                         </label>
                         <input type="text" name="frequency" id="frequency" class="form-control-modern" value="<?= old('frequency') ?>" placeholder="e.g., Every 8 hours, Once daily">
+                        <?php if (session()->getFlashdata('errors') && isset(session()->getFlashdata('errors')['frequency'])): ?>
+                            <div class="text-danger"><?= esc(session()->getFlashdata('errors')['frequency']) ?></div>
+                        <?php endif; ?>
                     </div>
                 </div>
                 <div class="col-md-6">
@@ -268,5 +377,60 @@
         </form>
     </div>
 </div>
+
+<script>
+document.getElementById('order_type').addEventListener('change', function() {
+    const medicationFields = document.getElementById('medicationFields');
+    const frequencyRequired = document.getElementById('frequencyRequired');
+    const medicineName = document.getElementById('medicine_name');
+    const dosage = document.getElementById('dosage');
+    const duration = document.getElementById('duration');
+    const frequency = document.getElementById('frequency');
+    
+    if (this.value === 'medication') {
+        // Show medication fields
+        medicationFields.style.display = 'block';
+        frequencyRequired.style.display = 'inline';
+        medicineName.setAttribute('required', 'required');
+        dosage.setAttribute('required', 'required');
+        duration.setAttribute('required', 'required');
+        frequency.setAttribute('required', 'required');
+    } else {
+        // Hide medication fields
+        medicationFields.style.display = 'none';
+        frequencyRequired.style.display = 'none';
+        medicineName.removeAttribute('required');
+        dosage.removeAttribute('required');
+        duration.removeAttribute('required');
+        frequency.removeAttribute('required');
+    }
+});
+
+// Show medicine info when selected
+const medicineNameSelect = document.getElementById('medicine_name');
+if (medicineNameSelect) {
+    medicineNameSelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        const medicineInfo = document.getElementById('medicineInfo');
+        const medicineDescription = document.getElementById('medicineDescription');
+        const medicineStock = document.getElementById('medicineStock');
+        const medicinePrice = document.getElementById('medicinePrice');
+        
+        if (this.value && selectedOption) {
+            medicineDescription.textContent = selectedOption.getAttribute('data-description') || 'No description';
+            medicineStock.textContent = selectedOption.getAttribute('data-quantity') || '0';
+            medicinePrice.textContent = parseFloat(selectedOption.getAttribute('data-price') || 0).toFixed(2);
+            medicineInfo.style.display = 'block';
+        } else {
+            medicineInfo.style.display = 'none';
+        }
+    });
+}
+
+// Trigger on page load if medication is already selected
+if (document.getElementById('order_type').value === 'medication') {
+    document.getElementById('order_type').dispatchEvent(new Event('change'));
+}
+</script>
 <?= $this->endSection() ?>
 

@@ -40,12 +40,148 @@ class DashboardController extends BaseController
             ->where('doctor_id', $doctorId)
             ->countAllResults();
 
-        // Get recent assigned patients
+        // Get recent assigned patients (including newly assigned from waiting list)
+        // Increased limit to show more patients
         $assignedPatients = $patientModel
             ->where('doctor_id', $doctorId)
+            ->orderBy('updated_at', 'DESC')
             ->orderBy('created_at', 'DESC')
-            ->limit(5)
+            ->limit(50) // Increased to show more patients
             ->findAll();
+
+        // Get patients from patients table (HMSPatientModel) assigned to this doctor
+        // This includes both In-Patients and Out-Patients registered by receptionist
+        $db = \Config\Database::connect();
+        $hmsPatients = [];
+        if ($db->tableExists('patients')) {
+            // Query directly using doctor_id (which is users.id from session)
+            // Out-patients are saved to patients table with doctor_id = users.id
+            // Make sure to select all necessary fields
+            $hmsPatientsRaw = $db->table('patients')
+                ->select('patients.*')
+                ->where('patients.doctor_id', $doctorId)
+                ->where('patients.doctor_id IS NOT NULL')
+                ->where('patients.doctor_id !=', 0)
+                ->orderBy('patients.updated_at', 'DESC')
+                ->orderBy('patients.created_at', 'DESC')
+                ->limit(50) // Increased limit to show more patients
+                ->get()
+                ->getResultArray();
+            
+            // Format hmsPatients to match admin_patients structure for consistent display
+            foreach ($hmsPatientsRaw as $patient) {
+                $nameParts = [];
+                if (!empty($patient['first_name'])) $nameParts[] = $patient['first_name'];
+                if (!empty($patient['last_name'])) $nameParts[] = $patient['last_name'];
+                
+                // If no first_name/last_name, parse full_name
+                if (empty($nameParts) && !empty($patient['full_name'])) {
+                    $parts = explode(' ', $patient['full_name'], 2);
+                    $nameParts = [
+                        $parts[0] ?? '',
+                        $parts[1] ?? ''
+                    ];
+                }
+                
+                $hmsPatients[] = [
+                    'id' => $patient['patient_id'] ?? $patient['id'] ?? null,
+                    'patient_id' => $patient['patient_id'] ?? $patient['id'] ?? null,
+                    'firstname' => $nameParts[0] ?? '',
+                    'lastname' => $nameParts[1] ?? '',
+                    'first_name' => $patient['first_name'] ?? $nameParts[0] ?? '',
+                    'last_name' => $patient['last_name'] ?? $nameParts[1] ?? '',
+                    'full_name' => $patient['full_name'] ?? implode(' ', $nameParts),
+                    'birthdate' => $patient['date_of_birth'] ?? $patient['birthdate'] ?? null,
+                    'gender' => strtolower($patient['gender'] ?? ''),
+                    'contact' => $patient['contact'] ?? null,
+                    'address' => $patient['address'] ?? null,
+                    'type' => $patient['type'] ?? 'Out-Patient',
+                    'visit_type' => $patient['visit_type'] ?? null,
+                    'source' => 'receptionist',
+                ];
+            }
+            
+            // Log for debugging (remove in production)
+            if (empty($hmsPatients)) {
+                log_message('debug', "No patients found for doctor_id: {$doctorId} in patients table");
+                // Check if there are any patients with doctor_id at all
+                $testQuery = $db->table('patients')
+                    ->select('patient_id, full_name, doctor_id, type, visit_type')
+                    ->where('doctor_id IS NOT NULL')
+                    ->where('doctor_id !=', 0)
+                    ->limit(5)
+                    ->get()
+                    ->getResultArray();
+                log_message('debug', "Sample patients with doctor_id: " . json_encode($testQuery));
+            } else {
+                log_message('debug', "Found " . count($hmsPatients) . " patients for doctor_id: {$doctorId} in patients table");
+            }
+        }
+
+        // Get awaiting consultation patients (assigned but consultation not completed)
+        // Consultations table references patients.patient_id, so we need to join with patients table
+        $awaitingConsultation = [];
+        
+        if ($db->tableExists('consultations') && $db->tableExists('patients')) {
+            // Query consultations and join with patients table (for out-patients)
+            $consultations = $db->table('consultations')
+                ->select('consultations.*, patients.full_name, patients.date_of_birth as birthdate, patients.gender, patients.patient_id, patients.type as patient_type')
+                ->join('patients', 'patients.patient_id = consultations.patient_id', 'left')
+                ->where('consultations.doctor_id', $doctorId)
+                ->where('consultations.type', 'upcoming')
+                ->where('consultations.status', 'approved')
+                ->where('consultations.consultation_date >=', $today)
+                ->orderBy('consultations.consultation_date', 'ASC')
+                ->orderBy('consultations.consultation_time', 'ASC')
+                ->get()
+                ->getResultArray();
+            
+            foreach ($consultations as $consult) {
+                // Format patient name
+                $nameParts = explode(' ', $consult['full_name'] ?? '');
+                $consult['firstname'] = $nameParts[0] ?? '';
+                $consult['lastname'] = implode(' ', array_slice($nameParts, 1)) ?? '';
+                $awaitingConsultation[] = $consult;
+            }
+        }
+        
+        // Also check admin_patients if they have consultations (though consultations table references patients.patient_id)
+        // This is for backward compatibility if there are any old records
+        if ($db->tableExists('admin_patients')) {
+            $adminConsultations = $consultationModel
+                ->select('consultations.*, admin_patients.firstname, admin_patients.lastname, admin_patients.birthdate, admin_patients.gender, admin_patients.id as patient_id')
+                ->join('admin_patients', 'admin_patients.id = consultations.patient_id', 'left')
+                ->where('consultations.doctor_id', $doctorId)
+                ->where('consultations.type', 'upcoming')
+                ->where('consultations.status', 'approved')
+                ->where('consultations.consultation_date >=', $today)
+                ->where('admin_patients.id IS NOT NULL') // Only get records that actually have admin_patient
+                ->orderBy('consultations.consultation_date', 'ASC')
+                ->orderBy('consultations.consultation_time', 'ASC')
+                ->findAll();
+            
+            // Add to awaiting consultation, avoiding duplicates
+            foreach ($adminConsultations as $consult) {
+                // Check if this consultation is already in the list
+                $exists = false;
+                foreach ($awaitingConsultation as $existing) {
+                    if ($existing['id'] == $consult['id']) {
+                        $exists = true;
+                        break;
+                    }
+                }
+                if (!$exists) {
+                    $awaitingConsultation[] = $consult;
+                }
+            }
+        }
+        
+        // Sort by consultation date and time
+        usort($awaitingConsultation, function($a, $b) {
+            $dateA = strtotime($a['consultation_date'] . ' ' . ($a['consultation_time'] ?? '00:00:00'));
+            $dateB = strtotime($b['consultation_date'] . ' ' . ($b['consultation_time'] ?? '00:00:00'));
+            return $dateA <=> $dateB;
+        });
 
         // Get pending lab requests from nurses for assigned patients
         $labRequestModel = new \App\Models\LabRequestModel();
@@ -95,6 +231,110 @@ class DashboardController extends BaseController
         $unreadNotifications = $notificationModel->getUnreadNotifications($doctorId);
         $totalUnreadNotifications = count($unreadNotifications);
 
+        // Get emergency cases assigned to this doctor (Critical triage)
+        $triageModel = new \App\Models\TriageModel();
+        $emergencyCases = [];
+        if ($db->tableExists('triage')) {
+            // Get critical triage cases assigned to this doctor
+            $triageRecords = $triageModel
+                ->where('doctor_id', $doctorId)
+                ->where('triage_level', 'Critical')
+                ->orderBy('created_at', 'DESC')
+                ->findAll();
+            
+            foreach ($triageRecords as $triage) {
+                $patientInfo = null;
+                $patientName = 'Unknown Patient';
+                
+                // Try to get patient from patients table first
+                if ($db->tableExists('patients')) {
+                    $patient = $db->table('patients')
+                        ->where('patient_id', $triage['patient_id'])
+                        ->get()
+                        ->getRowArray();
+                    
+                    if ($patient) {
+                        $patientName = $patient['full_name'] ?? ($patient['first_name'] . ' ' . $patient['last_name']);
+                        $patientInfo = [
+                            'patient_id' => $patient['patient_id'],
+                            'patient_name' => $patientName,
+                            'visit_type' => $patient['visit_type'] ?? 'Emergency',
+                            'source' => 'patients'
+                        ];
+                    }
+                }
+                
+                // If not found in patients table, try admin_patients
+                if (!$patientInfo && $db->tableExists('admin_patients')) {
+                    $patient = $db->table('admin_patients')
+                        ->where('id', $triage['patient_id'])
+                        ->get()
+                        ->getRowArray();
+                    
+                    if ($patient) {
+                        $patientName = ($patient['firstname'] ?? '') . ' ' . ($patient['lastname'] ?? '');
+                        $patientInfo = [
+                            'patient_id' => $patient['id'],
+                            'patient_name' => $patientName,
+                            'visit_type' => $patient['visit_type'] ?? 'Emergency',
+                            'source' => 'admin_patients'
+                        ];
+                    }
+                }
+                
+                if ($patientInfo) {
+                    $emergencyCases[] = array_merge($triage, $patientInfo);
+                }
+            }
+        }
+
+        // Merge assignedPatients and hmsPatients for unified display
+        $merged = array_merge($assignedPatients, $hmsPatients);
+        
+        // Deduplicate: If same patient exists in both tables (same name + doctor_id), keep only admin_patients version
+        $allAssignedPatients = [];
+        $seenKeys = [];
+        
+        foreach ($merged as $patient) {
+            // Create a unique key based on name (case-insensitive) and doctor_id
+            $nameKey = strtolower(trim(($patient['firstname'] ?? $patient['first_name'] ?? '') . ' ' . ($patient['lastname'] ?? $patient['last_name'] ?? '')));
+            $key = md5($nameKey . '|' . $doctorId);
+            
+            // If we've seen this patient before, prefer admin_patients version (source = 'admin' or no source)
+            if (isset($seenKeys[$key])) {
+                // If current patient is from admin_patients and previous was from receptionist, replace it
+                $currentSource = $patient['source'] ?? 'admin';
+                $prevSource = $seenKeys[$key]['source'] ?? 'admin';
+                if ($currentSource === 'admin' && $prevSource === 'receptionist') {
+                    $allAssignedPatients[$seenKeys[$key]['index']] = $patient;
+                    $seenKeys[$key] = ['index' => $seenKeys[$key]['index'], 'source' => $currentSource];
+                }
+                // Otherwise, skip this duplicate
+                continue;
+            }
+            
+            // Add to deduplicated list
+            $index = count($allAssignedPatients);
+            $allAssignedPatients[] = $patient;
+            $seenKeys[$key] = ['index' => $index, 'source' => $patient['source'] ?? 'admin'];
+        }
+        
+        // Re-index array
+        $allAssignedPatients = array_values($allAssignedPatients);
+        
+        // Sort by updated_at (most recently updated first) to show newly assigned patients
+        usort($allAssignedPatients, function($a, $b) {
+            $updatedA = strtotime($a['updated_at'] ?? $a['created_at'] ?? '1970-01-01');
+            $updatedB = strtotime($b['updated_at'] ?? $b['created_at'] ?? '1970-01-01');
+            return $updatedB <=> $updatedA; // Descending order
+        });
+        
+        // Debug: Log patient counts
+        log_message('debug', "Doctor Dashboard - doctor_id: {$doctorId}, assignedPatientsCount: {$assignedPatientsCount}, hmsPatientsCount: " . count($hmsPatients) . ", total: " . count($allAssignedPatients));
+        if (!empty($hmsPatients)) {
+            log_message('debug', "Sample hmsPatient: " . json_encode($hmsPatients[0] ?? []));
+        }
+        
         $data = [
             'title' => 'Doctor Dashboard',
             'name' => session()->get('name'),
@@ -103,8 +343,12 @@ class DashboardController extends BaseController
             'pendingLabResults' => $pendingLabResults,
             'pendingLabRequestsCount' => $pendingLabRequestsCount,
             'pendingLabRequests' => $pendingLabRequests,
-            'assignedPatientsCount' => $assignedPatientsCount,
+            'assignedPatientsCount' => count($allAssignedPatients), // Use merged count
             'assignedPatients' => $assignedPatients,
+            'hmsPatients' => $hmsPatients,
+            'allAssignedPatients' => $allAssignedPatients, // Pass merged list to view
+            'awaitingConsultation' => $awaitingConsultation,
+            'emergencyCases' => $emergencyCases,
             'totalOrders' => $totalOrders,
             'pendingOrders' => $pendingOrders,
             'inProgressOrders' => $inProgressOrders,

@@ -212,10 +212,18 @@
             Patient Details
         </h1>
         <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-            <a href="<?= site_url('doctor/patients/edit/' . $patient['id']) ?>" class="btn-modern btn-modern-warning">
-                <i class="fas fa-edit"></i>
-                Edit Patient
-            </a>
+            <?php if (!isset($patient_source) || $patient_source !== 'patients'): ?>
+                <!-- Only show Edit button for admin_patients, not receptionist patients -->
+                <a href="<?= site_url('doctor/patients/edit/' . ($patient['id'] ?? $patient['patient_id'])) ?>" class="btn-modern btn-modern-warning">
+                    <i class="fas fa-edit"></i>
+                    Edit Patient
+                </a>
+            <?php else: ?>
+                <!-- Receptionist patients - read only -->
+                <span style="background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 8px; font-size: 13px;">
+                    <i class="fas fa-info-circle"></i> Read-only (Receptionist Patient)
+                </span>
+            <?php endif; ?>
             <a href="<?= site_url('doctor/patients') ?>" class="btn-modern btn-modern-secondary">
                 <i class="fas fa-arrow-left"></i>
                 Back to List
@@ -235,15 +243,15 @@
                         <table class="info-table">
                             <tr>
                                 <td>Patient ID:</td>
-                                <td><strong>#<?= esc($patient['id']) ?></strong></td>
+                                <td><strong>#<?= esc($patient['id'] ?? $patient['patient_id'] ?? 'N/A') ?></strong></td>
                             </tr>
                             <tr>
                                 <td>Full Name:</td>
-                                <td><strong><?= esc(ucfirst($patient['firstname']) . ' ' . ucfirst($patient['lastname'])) ?></strong></td>
+                                <td><strong><?= esc(ucfirst($patient['firstname'] ?? '') . ' ' . ucfirst($patient['lastname'] ?? '')) ?></strong></td>
                             </tr>
                             <tr>
                                 <td>Birthdate:</td>
-                                <td><?= esc(date('F d, Y', strtotime($patient['birthdate']))) ?></td>
+                                <td><?= !empty($patient['birthdate']) ? esc(date('F d, Y', strtotime($patient['birthdate']))) : 'N/A' ?></td>
                             </tr>
                             <tr>
                                 <td>Gender:</td>
@@ -271,13 +279,25 @@
                             Registration Information
                         </div>
                         <table class="info-table">
+                            <?php if (isset($patient_source) && $patient_source === 'patients'): ?>
+                                <tr>
+                                    <td>Patient Type:</td>
+                                    <td><span class="badge-modern" style="background: #d1fae5; color: #065f46;"><?= esc($patient['type'] ?? 'Out-Patient') ?></span></td>
+                                </tr>
+                                <?php if (!empty($patient['visit_type'])): ?>
+                                <tr>
+                                    <td>Visit Type:</td>
+                                    <td><span class="badge-modern" style="background: #dbeafe; color: #1e40af;"><?= esc($patient['visit_type']) ?></span></td>
+                                </tr>
+                                <?php endif; ?>
+                            <?php endif; ?>
                             <tr>
                                 <td>Registered Date:</td>
-                                <td><?= date('F d, Y h:i A', strtotime($patient['created_at'])) ?></td>
+                                <td><?= !empty($patient['created_at']) ? date('F d, Y h:i A', strtotime($patient['created_at'])) : 'N/A' ?></td>
                             </tr>
                             <tr>
                                 <td>Last Updated:</td>
-                                <td><?= date('F d, Y h:i A', strtotime($patient['updated_at'])) ?></td>
+                                <td><?= !empty($patient['updated_at']) ? date('F d, Y h:i A', strtotime($patient['updated_at'])) : 'N/A' ?></td>
                             </tr>
                         </table>
                     </div>

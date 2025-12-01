@@ -19,9 +19,14 @@ class PaymentReportController extends BaseController
 
     public function index()
     {
-        // Check if user is logged in and is finance/accountant
-        if (!session()->get('logged_in') || session()->get('role') !== 'finance') {
-            return redirect()->to('/auth')->with('error', 'You must be logged in as accountant to access this page.');
+        // Check if user is logged in - Allow Admin and Accountant
+        if (!session()->get('logged_in')) {
+            return redirect()->to('/auth')->with('error', 'You must be logged in to access this page.');
+        }
+
+        $role = session()->get('role');
+        if (!in_array($role, ['finance', 'admin'])) {
+            return redirect()->to('/dashboard')->with('error', 'Access denied. Only Admin and Accountant can access payment reports.');
         }
 
         $db = \Config\Database::connect();
@@ -33,21 +38,39 @@ class PaymentReportController extends BaseController
                 ->select('billing.*, admin_patients.firstname, admin_patients.lastname')
                 ->join('admin_patients', 'admin_patients.id = billing.patient_id', 'left')
                 ->where('billing.status', 'paid')
+                ->where('billing.service !=', 'Medication Administration') // Exclude medication bills (they're in payment_reports)
                 ->orderBy('billing.updated_at', 'DESC')
                 ->limit(20)
                 ->get()->getResultArray();
         }
 
+        // Get payment reports including medication billing payments
+        $paymentReports = $this->paymentReportModel
+            ->select('payment_reports.*, admin_patients.firstname, admin_patients.lastname, 
+                     users.username as processed_by_name, billing.service as billing_service,
+                     billing.medicine_name, billing.invoice_number as billing_invoice')
+            ->join('admin_patients', 'admin_patients.id = payment_reports.patient_id', 'left')
+            ->join('users', 'users.id = payment_reports.processed_by', 'left')
+            ->join('billing', 'billing.id = payment_reports.billing_id', 'left')
+            ->orderBy('payment_reports.created_at', 'DESC')
+            ->findAll();
+
+        // Separate medication payments from other payments
+        $medicationPayments = array_filter($paymentReports, function($report) {
+            return !empty($report['billing_service']) && $report['billing_service'] === 'Medication Administration';
+        });
+        $otherPayments = array_filter($paymentReports, function($report) {
+            return empty($report['billing_service']) || $report['billing_service'] !== 'Medication Administration';
+        });
+
         $data = [
             'title' => 'Payment Reports',
             'name' => session()->get('name'),
-            'payment_reports' => $this->paymentReportModel
-                ->select('payment_reports.*, admin_patients.firstname, admin_patients.lastname, users.username as processed_by_name')
-                ->join('admin_patients', 'admin_patients.id = payment_reports.patient_id', 'left')
-                ->join('users', 'users.id = payment_reports.processed_by', 'left')
-                ->orderBy('payment_reports.created_at', 'DESC')
-                ->findAll(),
-            'billing_payments' => $billingPayments, // Receptionist → Patient Payments
+            'payment_reports' => $paymentReports,
+            'medication_payments' => $medicationPayments,
+            'other_payments' => $otherPayments,
+            'billing_payments' => $billingPayments, // Receptionist → Patient Payments (non-medication)
+            'userRole' => $role,
         ];
 
         return view('Accountant/payment_reports/index', $data);
@@ -55,9 +78,14 @@ class PaymentReportController extends BaseController
 
     public function create()
     {
-        // Check if user is logged in and is finance/accountant
-        if (!session()->get('logged_in') || session()->get('role') !== 'finance') {
-            return redirect()->to('/auth')->with('error', 'You must be logged in as accountant to access this page.');
+        // Check if user is logged in - Allow Admin and Accountant
+        if (!session()->get('logged_in')) {
+            return redirect()->to('/auth')->with('error', 'You must be logged in to access this page.');
+        }
+
+        $role = session()->get('role');
+        if (!in_array($role, ['finance', 'admin'])) {
+            return redirect()->to('/dashboard')->with('error', 'Access denied.');
         }
 
         $data = [
@@ -71,9 +99,14 @@ class PaymentReportController extends BaseController
 
     public function store()
     {
-        // Check if user is logged in and is finance/accountant
-        if (!session()->get('logged_in') || session()->get('role') !== 'finance') {
-            return redirect()->to('/auth')->with('error', 'You must be logged in as accountant to access this page.');
+        // Check if user is logged in - Allow Admin and Accountant
+        if (!session()->get('logged_in')) {
+            return redirect()->to('/auth')->with('error', 'You must be logged in to access this page.');
+        }
+
+        $role = session()->get('role');
+        if (!in_array($role, ['finance', 'admin'])) {
+            return redirect()->to('/dashboard')->with('error', 'Access denied.');
         }
 
         $rules = [
@@ -109,9 +142,14 @@ class PaymentReportController extends BaseController
 
     public function edit($id)
     {
-        // Check if user is logged in and is finance/accountant
-        if (!session()->get('logged_in') || session()->get('role') !== 'finance') {
-            return redirect()->to('/auth')->with('error', 'You must be logged in as accountant to access this page.');
+        // Check if user is logged in - Allow Admin and Accountant
+        if (!session()->get('logged_in')) {
+            return redirect()->to('/auth')->with('error', 'You must be logged in to access this page.');
+        }
+
+        $role = session()->get('role');
+        if (!in_array($role, ['finance', 'admin'])) {
+            return redirect()->to('/dashboard')->with('error', 'Access denied.');
         }
 
         $paymentReport = $this->paymentReportModel->find($id);
@@ -132,9 +170,14 @@ class PaymentReportController extends BaseController
 
     public function update($id)
     {
-        // Check if user is logged in and is finance/accountant
-        if (!session()->get('logged_in') || session()->get('role') !== 'finance') {
-            return redirect()->to('/auth')->with('error', 'You must be logged in as accountant to access this page.');
+        // Check if user is logged in - Allow Admin and Accountant
+        if (!session()->get('logged_in')) {
+            return redirect()->to('/auth')->with('error', 'You must be logged in to access this page.');
+        }
+
+        $role = session()->get('role');
+        if (!in_array($role, ['finance', 'admin'])) {
+            return redirect()->to('/dashboard')->with('error', 'Access denied.');
         }
 
         $paymentReport = $this->paymentReportModel->find($id);
@@ -175,9 +218,14 @@ class PaymentReportController extends BaseController
 
     public function delete($id)
     {
-        // Check if user is logged in and is finance/accountant
-        if (!session()->get('logged_in') || session()->get('role') !== 'finance') {
-            return redirect()->to('/auth')->with('error', 'You must be logged in as accountant to access this page.');
+        // Check if user is logged in - Allow Admin and Accountant
+        if (!session()->get('logged_in')) {
+            return redirect()->to('/auth')->with('error', 'You must be logged in to access this page.');
+        }
+
+        $role = session()->get('role');
+        if (!in_array($role, ['finance', 'admin'])) {
+            return redirect()->to('/dashboard')->with('error', 'Access denied.');
         }
 
         $paymentReport = $this->paymentReportModel->find($id);

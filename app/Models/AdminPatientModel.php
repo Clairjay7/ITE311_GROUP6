@@ -21,6 +21,8 @@ class AdminPatientModel extends Model
         'contact',
         'address',
         'doctor_id',
+        'visit_type',
+        'triage_status',
     ];
 
     protected $useTimestamps = true;

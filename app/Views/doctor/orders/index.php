@@ -310,6 +310,7 @@
                                 <th>Order Type</th>
                                 <th>Description</th>
                                 <th>Status</th>
+                                <th>Pharmacy Status</th>
                                 <th>Created</th>
                                 <th>Completed By</th>
                                 <th>Actions</th>
@@ -346,17 +347,58 @@
                                             ($order['status'] == 'in_progress' ? '#92400e' : 
                                             ($order['status'] == 'cancelled' ? '#991b1b' : '#1e40af')); 
                                         ?>;">
-                                            <?= esc(ucfirst(str_replace('_', ' ', $order['status']))) ?>
+                                            <?php if ($order['order_type'] === 'medication' && $order['status'] == 'completed'): ?>
+                                                <i class="fas fa-check-circle"></i> Administered
+                                            <?php else: ?>
+                                                <?= esc(ucfirst(str_replace('_', ' ', $order['status']))) ?>
+                                            <?php endif; ?>
                                         </span>
                                     </td>
+                                    <td>
+                                        <?php if ($order['order_type'] === 'medication'): ?>
+                                            <span class="badge-modern" style="background: <?= 
+                                                ($order['pharmacy_status'] ?? 'pending') == 'dispensed' ? '#d1fae5' : 
+                                                (($order['pharmacy_status'] ?? 'pending') == 'prepared' ? '#fef3c7' : 
+                                                (($order['pharmacy_status'] ?? 'pending') == 'approved' ? '#dbeafe' : '#fee2e2')); 
+                                            ?>; color: <?= 
+                                                ($order['pharmacy_status'] ?? 'pending') == 'dispensed' ? '#065f46' : 
+                                                (($order['pharmacy_status'] ?? 'pending') == 'prepared' ? '#92400e' : 
+                                                (($order['pharmacy_status'] ?? 'pending') == 'approved' ? '#1e40af' : '#991b1b')); 
+                                            ?>;">
+                                                <?= esc(ucfirst($order['pharmacy_status'] ?? 'Pending')) ?>
+                                            </span>
+                                        <?php else: ?>
+                                            <span style="color: #94a3b8;">N/A</span>
+                                        <?php endif; ?>
+                                    </td>
                                     <td><?= esc(date('M d, Y', strtotime($order['created_at']))) ?></td>
-                                    <td><?= esc($order['completed_by_name'] ?? 'N/A') ?></td>
+                                    <td>
+                                        <?php if ($order['order_type'] === 'medication' && ($order['status'] ?? 'pending') === 'completed'): ?>
+                                            <div>
+                                                <strong style="color: #065f46;">
+                                                    <i class="fas fa-check-circle"></i> Administered
+                                                </strong>
+                                                <br>
+                                                <small style="color: #64748b;">
+                                                    By: <?= esc($order['completed_by_name'] ?? 'Nurse') ?>
+                                                </small>
+                                                <?php if ($order['completed_at']): ?>
+                                                <br>
+                                                <small style="color: #64748b;">
+                                                    At: <?= date('M d, Y h:i A', strtotime($order['completed_at'])) ?>
+                                                </small>
+                                                <?php endif; ?>
+                                            </div>
+                                        <?php else: ?>
+                                            <?= esc($order['completed_by_name'] ?? 'N/A') ?>
+                                        <?php endif; ?>
+                                    </td>
                                     <td>
                                         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                                             <a href="<?= site_url('doctor/orders/view/' . $order['id']) ?>" class="btn-sm-modern btn-info">
                                                 <i class="fas fa-eye"></i>
                                             </a>
-                                            <?php if (in_array($order['status'], ['pending', 'in_progress'])): ?>
+                                            <?php if (in_array($order['status'], ['pending', 'in_progress']) && $order['order_type'] !== 'medication'): ?>
                                                 <a href="<?= site_url('doctor/orders/edit/' . $order['id']) ?>" class="btn-sm-modern btn-warning">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
@@ -416,9 +458,11 @@
                                             <a href="<?= site_url('doctor/orders/view/' . $order['id']) ?>" class="btn-sm-modern btn-info">
                                                 <i class="fas fa-eye"></i>
                                             </a>
-                                            <a href="<?= site_url('doctor/orders/edit/' . $order['id']) ?>" class="btn-sm-modern btn-warning">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
+                                            <?php if ($order['order_type'] !== 'medication'): ?>
+                                                <a href="<?= site_url('doctor/orders/edit/' . $order['id']) ?>" class="btn-sm-modern btn-warning">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                            <?php endif; ?>
                                         </div>
                                     </td>
                                 </tr>

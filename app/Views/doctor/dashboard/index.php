@@ -304,7 +304,7 @@
     <div class="welcome-section">
         <div class="refresh-indicator" id="refreshIndicator">
             <div class="spinner" id="refreshSpinner" style="display: none;"></div>
-            <span id="lastUpdate">Auto-updating...</span>
+            <span id="lastUpdate">Auto-updating every 5 seconds...</span>
         </div>
         <h2>Welcome back, Dr. <?= esc($name ?? 'Doctor') ?></h2>
         <p>Here's what's happening with your patients today</p>
@@ -319,6 +319,14 @@
                 </div>
                 <div class="stat-title">Today's Appointments</div>
                 <div class="stat-value" id="appointments_count"><?= $appointmentsCount ?? '0' ?></div>
+            </div>
+            
+            <div class="stat-card success">
+                <div class="stat-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-title">My Assigned Patients</div>
+                <div class="stat-value" id="assigned_patients_count"><?= ($assignedPatientsCount ?? 0) + (count($hmsPatients ?? [])) ?></div>
             </div>
             
             <div class="stat-card success">
@@ -345,12 +353,15 @@
                 <div class="stat-value" id="upcoming_consultations">0</div>
             </div>
             
-            <div class="stat-card success">
+            <div class="stat-card success" style="cursor: pointer;" onclick="document.getElementById('patientsTableContainer').scrollIntoView({behavior: 'smooth'});">
                 <div class="stat-icon">
                     <i class="fas fa-users"></i>
                 </div>
                 <div class="stat-title">My Assigned Patients</div>
-                <div class="stat-value" id="assigned_patients_count"><?= $assignedPatientsCount ?? '0' ?></div>
+                <div class="stat-value" id="assigned_patients_count"><?= ($assignedPatientsCount ?? 0) + (count($hmsPatients ?? [])) ?></div>
+                <div style="font-size: 12px; color: #64748b; margin-top: 4px;">
+                    <i class="fas fa-info-circle"></i> Click to view list
+                </div>
             </div>
             
             <div class="stat-card warning" style="border-left: 4px solid #f59e0b;">
@@ -506,15 +517,123 @@
         </div>
     <?php endif; ?>
 
-    <!-- Assigned Patients List -->
-    <div class="patients-section">
-        <h3>
-            <i class="fas fa-list"></i>
-            My Assigned Patients
+    <!-- Emergency Cases Section -->
+    <div class="patients-section" id="emergencyCasesSection" data-section="emergency" style="margin-top: 24px; background: #fee2e2; border-left: 4px solid #ef4444; padding: 20px; border-radius: 8px; <?= empty($emergencyCases ?? []) ? 'display: none;' : '' ?>">
+        <h3 style="color: #991b1b; margin-bottom: 16px;">
+            <i class="fas fa-exclamation-triangle"></i> Emergency Cases (Critical Triage)
         </h3>
         <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Patient Name</th>
+                        <th>Triage Level</th>
+                        <th>Chief Complaint</th>
+                        <th>Triage Time</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (!empty($emergencyCases ?? [])): ?>
+                        <?php foreach ($emergencyCases as $case): ?>
+                            <tr>
+                                <td><strong><?= esc($case['patient_name'] ?? 'N/A') ?></strong></td>
+                                <td>
+                                    <span style="background: #ef4444; color: white; padding: 4px 12px; border-radius: 8px; font-size: 12px; font-weight: 600;">
+                                        <?= esc($case['triage_level']) ?>
+                                    </span>
+                                </td>
+                                <td><?= esc($case['chief_complaint'] ?? 'N/A') ?></td>
+                                <td><?= esc(date('M d, Y H:i', strtotime($case['created_at']))) ?></td>
+                                <td>
+                                    <a href="<?= site_url('doctor/consultations/view/' . ($case['patient_id'] ?? '')) ?>" class="btn btn-danger" style="padding: 6px 12px; font-size: 12px;">
+                                        <i class="fas fa-user-md"></i> Attend Now
+                                    </a>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Awaiting Consultation Section -->
+    <div class="patients-section" id="awaitingConsultationSection" data-section="awaiting" style="margin-top: 24px; background: #fef3c7; border-left: 4px solid #f59e0b; padding: 20px; border-radius: 8px; <?= empty($awaitingConsultation ?? []) ? 'display: none;' : '' ?>">
+        <h3 style="color: #92400e; margin-bottom: 16px;">
+            <i class="fas fa-clock"></i> Awaiting Consultation
+        </h3>
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Patient Name</th>
+                        <th>Consultation Date</th>
+                        <th>Consultation Time</th>
+                        <th>Visit Type</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (!empty($awaitingConsultation ?? [])): ?>
+                        <?php foreach ($awaitingConsultation as $consultation): ?>
+                            <tr>
+                                <td><strong><?= esc(($consultation['firstname'] ?? '') . ' ' . ($consultation['lastname'] ?? '')) ?></strong></td>
+                                <td><?= esc(date('M d, Y', strtotime($consultation['consultation_date']))) ?></td>
+                                <td><?= esc(date('h:i A', strtotime($consultation['consultation_time']))) ?></td>
+                                <td>
+                                    <?php if (!empty($consultation['visit_type'])): ?>
+                                        <span style="background: <?= 
+                                            $consultation['visit_type'] === 'Emergency' ? '#fee2e2' : 
+                                            ($consultation['visit_type'] === 'Consultation' ? '#dbeafe' : 
+                                            ($consultation['visit_type'] === 'Check-up' ? '#fef3c7' : '#d1fae5')); 
+                                        ?>; color: <?= 
+                                            $consultation['visit_type'] === 'Emergency' ? '#991b1b' : 
+                                            ($consultation['visit_type'] === 'Consultation' ? '#1e40af' : 
+                                            ($consultation['visit_type'] === 'Check-up' ? '#92400e' : '#065f46')); 
+                                        ?>; padding: 4px 12px; border-radius: 8px; font-size: 12px; font-weight: 600;">
+                                            <?= esc($consultation['visit_type']) ?>
+                                        </span>
+                                    <?php else: ?>
+                                        <span style="background: #f1f5f9; color: #64748b; padding: 4px 12px; border-radius: 8px; font-size: 12px;">N/A</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <span style="background: #fef3c7; color: #92400e; padding: 4px 12px; border-radius: 8px; font-size: 12px; font-weight: 600;">
+                                        Awaiting Consultation
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="<?= site_url('doctor/consultations/view/' . $consultation['id']) ?>" class="btn btn-info" style="padding: 6px 12px; font-size: 12px;">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Assigned Patients List -->
+    <div class="patients-section" style="margin-top: 32px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h3 style="margin: 0;">
+                <i class="fas fa-users"></i>
+                My Assigned Patients
+                <span style="background: #2e7d32; color: white; padding: 4px 12px; border-radius: 20px; font-size: 14px; margin-left: 12px;">
+                    Total: <?= ($assignedPatientsCount ?? 0) + (count($hmsPatients ?? [])) ?>
+                </span>
+            </h3>
+            <a href="<?= site_url('doctor/patients') ?>" class="btn-modern btn-modern-primary" style="text-decoration: none;">
+                <i class="fas fa-list"></i> View All Patients
+            </a>
+        </div>
+        <div class="table-container">
             <div id="patientsTableContainer">
-                <?php if (!empty($assignedPatients ?? [])): ?>
+                <?php if (!empty($assignedPatients ?? []) || !empty($hmsPatients ?? [])): ?>
                     <table class="data-table">
                         <thead>
                             <tr>
@@ -522,23 +641,63 @@
                                 <th>Name</th>
                                 <th>Birthdate</th>
                                 <th>Gender</th>
+                                <th>Visit Type</th>
                                 <th>Contact</th>
+                                <th>Source</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody id="patientsTableBody">
-                            <?php foreach ($assignedPatients as $patient): ?>
-                                <tr>
-                                    <td>#<?= esc($patient['id']) ?></td>
-                                    <td><strong><?= esc($patient['firstname'] . ' ' . $patient['lastname']) ?></strong></td>
-                                    <td><?= esc(date('M d, Y', strtotime($patient['birthdate']))) ?></td>
-                                    <td><?= esc(ucfirst($patient['gender'])) ?></td>
+                            <?php 
+                            // Use merged allAssignedPatients if available, otherwise merge manually
+                            $displayPatients = $allAssignedPatients ?? array_merge($assignedPatients ?? [], $hmsPatients ?? []);
+                            foreach ($displayPatients as $patient): ?>
+                                <?php
+                                // Format patient name - handle both admin_patients and patients table structures
+                                $nameParts = [];
+                                if (!empty($patient['firstname'])) $nameParts[] = $patient['firstname'];
+                                if (!empty($patient['lastname'])) $nameParts[] = $patient['lastname'];
+                                if (empty($nameParts) && !empty($patient['first_name'])) $nameParts[] = $patient['first_name'];
+                                if (empty($nameParts) && !empty($patient['last_name'])) $nameParts[] = $patient['last_name'];
+                                if (empty($nameParts) && !empty($patient['full_name'])) {
+                                    $parts = explode(' ', $patient['full_name'], 2);
+                                    $nameParts = [$parts[0] ?? '', $parts[1] ?? ''];
+                                }
+                                $patientName = !empty($patient['full_name']) ? $patient['full_name'] : implode(' ', $nameParts);
+                                $patientId = $patient['patient_id'] ?? $patient['id'] ?? null;
+                                $visitType = $patient['visit_type'] ?? 'N/A';
+                                $visitTypeBg = $visitType === 'Emergency' ? '#fee2e2' : 
+                                              ($visitType === 'Consultation' ? '#dbeafe' : 
+                                              ($visitType === 'Check-up' ? '#fef3c7' : 
+                                              ($visitType === 'Follow-up' ? '#d1fae5' : '#f1f5f9')));
+                                $visitTypeColor = $visitType === 'Emergency' ? '#991b1b' : 
+                                                 ($visitType === 'Consultation' ? '#1e40af' : 
+                                                 ($visitType === 'Check-up' ? '#92400e' : 
+                                                 ($visitType === 'Follow-up' ? '#065f46' : '#64748b')));
+                                $isReceptionist = isset($patient['source']) && $patient['source'] === 'receptionist';
+                                $birthdate = $patient['birthdate'] ?? $patient['date_of_birth'] ?? null;
+                                ?>
+                                <tr style="<?= $isReceptionist ? 'background: #f0fdf4;' : '' ?>">
+                                    <td>#<?= esc($patientId) ?></td>
+                                    <td><strong><?= esc($patientName) ?></strong></td>
+                                    <td><?= !empty($birthdate) ? esc(date('M d, Y', strtotime($birthdate))) : 'N/A' ?></td>
+                                    <td><?= esc(ucfirst($patient['gender'] ?? 'N/A')) ?></td>
+                                    <td>
+                                        <span style="background: <?= $visitTypeBg ?>; color: <?= $visitTypeColor ?>; padding: 4px 12px; border-radius: 8px; font-size: 12px; font-weight: 600;">
+                                            <?= esc($visitType) ?>
+                                        </span>
+                                    </td>
                                     <td><?= esc($patient['contact'] ?? 'N/A') ?></td>
                                     <td>
-                                        <a href="<?= site_url('doctor/patients/view/' . $patient['id']) ?>" class="btn btn-info">
+                                        <span style="background: <?= $isReceptionist ? '#d1fae5' : '#dbeafe' ?>; color: <?= $isReceptionist ? '#065f46' : '#1e40af' ?>; padding: 4px 8px; border-radius: 4px; font-size: 11px;">
+                                            <?= $isReceptionist ? 'Receptionist' : 'Admin Panel' ?>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="<?= site_url('doctor/patients/view/' . $patientId) ?>" class="btn btn-info" style="padding: 6px 12px; font-size: 12px;">
                                             <i class="fas fa-eye"></i> View
                                         </a>
-                                        <a href="<?= site_url('doctor/patients/edit/' . $patient['id']) ?>" class="btn btn-warning">
+                                        <a href="<?= site_url('doctor/patients/edit/' . $patientId) ?>" class="btn btn-warning" style="padding: 6px 12px; font-size: 12px;">
                                             <i class="fas fa-edit"></i> Edit
                                         </a>
                                     </td>
@@ -550,7 +709,7 @@
                     <div class="empty-state">
                         <i class="fas fa-user-injured"></i>
                         <h4>No Patients Assigned</h4>
-                        <p>You don't have any assigned patients yet. Patients assigned from the admin panel will appear here.</p>
+                        <p>You don't have any assigned patients yet. Patients assigned from the receptionist or admin panel will appear here.</p>
                     </div>
                 <?php endif; ?>
             </div>
@@ -585,7 +744,9 @@ async function refreshDashboard() {
         
         setText('appointments_count', data.appointments_count);
         setText('patients_seen_today', data.patients_seen_today);
-        setText('assigned_patients_count', data.assigned_patients_count);
+        // Update assigned patients count (includes both admin_patients and patients table)
+        const totalPatients = (data.assigned_patients_count || 0) + (data.hms_patients ? data.hms_patients.length : 0);
+        setText('assigned_patients_count', totalPatients);
         setText('pending_consultations', data.pending_consultations);
         setText('upcoming_consultations', data.upcoming_consultations);
         setText('pending_lab_requests_count', data.pending_lab_requests_count);
@@ -593,11 +754,30 @@ async function refreshDashboard() {
         setText('pending_orders', data.pending_orders);
         setText('completed_orders', data.completed_orders);
         
+        // Update emergency cases count if available
+        if (data.emergency_cases_count !== undefined) {
+            const emergencyCountEl = document.getElementById('emergency_cases_count');
+            if (emergencyCountEl) {
+                emergencyCountEl.textContent = data.emergency_cases_count;
+            }
+        }
+        
+        // Update awaiting consultation count if available
+        if (data.awaiting_consultation_count !== undefined) {
+            const awaitingCountEl = document.getElementById('awaiting_consultation_count');
+            if (awaitingCountEl) {
+                awaitingCountEl.textContent = data.awaiting_consultation_count;
+            }
+        }
+        
         // Update patients table
         const tableBody = document.getElementById('patientsTableBody');
         const tableContainer = document.getElementById('patientsTableContainer');
         
-        if (data.assigned_patients && data.assigned_patients.length > 0) {
+        // Use merged all_assigned_patients if available, otherwise merge manually
+        const allPatients = data.all_assigned_patients || [...(data.assigned_patients || []), ...(data.hms_patients || [])];
+        
+        if (allPatients.length > 0) {
             let tableHTML = `
                 <table class="data-table">
                     <thead>
@@ -606,32 +786,58 @@ async function refreshDashboard() {
                             <th>Name</th>
                             <th>Birthdate</th>
                             <th>Gender</th>
+                            <th>Visit Type</th>
                             <th>Contact</th>
+                            <th>Source</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody id="patientsTableBody">
             `;
             
-            data.assigned_patients.forEach(patient => {
-                const birthdate = new Date(patient.birthdate).toLocaleDateString('en-US', {
+            allPatients.forEach(patient => {
+                const birthdate = patient.birthdate ? new Date(patient.birthdate).toLocaleDateString('en-US', {
                     year: 'numeric',
                     month: 'short',
                     day: 'numeric'
-                });
+                }) : 'N/A';
+                
+                const visitType = patient.visit_type || 'N/A';
+                const visitTypeBg = visitType === 'Emergency' ? '#fee2e2' : 
+                                   (visitType === 'Consultation' ? '#dbeafe' : 
+                                   (visitType === 'Check-up' ? '#fef3c7' : 
+                                   (visitType === 'Follow-up' ? '#d1fae5' : '#f1f5f9')));
+                const visitTypeColor = visitType === 'Emergency' ? '#991b1b' : 
+                                     (visitType === 'Consultation' ? '#1e40af' : 
+                                     (visitType === 'Check-up' ? '#92400e' : 
+                                     (visitType === 'Follow-up' ? '#065f46' : '#64748b')));
+                
+                const patientId = patient.patient_id || patient.id;
+                const isReceptionist = patient.source === 'receptionist';
                 
                 tableHTML += `
-                    <tr>
-                        <td>#${patient.id}</td>
-                        <td><strong>${patient.firstname} ${patient.lastname}</strong></td>
+                    <tr style="${isReceptionist ? 'background: #f0fdf4;' : ''}">
+                        <td>#${patientId}</td>
+                        <td><strong>${patient.firstname || ''} ${patient.lastname || ''}</strong></td>
                         <td>${birthdate}</td>
-                        <td>${patient.gender.charAt(0).toUpperCase() + patient.gender.slice(1)}</td>
+                        <td>${patient.gender ? patient.gender.charAt(0).toUpperCase() + patient.gender.slice(1) : 'N/A'}</td>
+                        <td>
+                            <span style="background: ${visitTypeBg}; color: ${visitTypeColor}; padding: 4px 12px; border-radius: 8px; font-size: 12px; font-weight: 600;">
+                                ${visitType}
+                            </span>
+                        </td>
                         <td>${patient.contact || 'N/A'}</td>
                         <td>
-                            <a href="<?= site_url('doctor/patients/view/') ?>${patient.id}" class="btn btn-info">
+                            ${isReceptionist ? 
+                                '<span style="background: #d1fae5; color: #065f46; padding: 4px 8px; border-radius: 4px; font-size: 11px;">Receptionist</span>' : 
+                                '<span style="background: #dbeafe; color: #1e40af; padding: 4px 8px; border-radius: 4px; font-size: 11px;">Admin Panel</span>'
+                            }
+                        </td>
+                        <td>
+                            <a href="<?= site_url('doctor/patients/view/') ?>${patientId}" class="btn btn-info" style="padding: 6px 12px; font-size: 12px;">
                                 <i class="fas fa-eye"></i> View
                             </a>
-                            <a href="<?= site_url('doctor/patients/edit/') ?>${patient.id}" class="btn btn-warning">
+                            <a href="<?= site_url('doctor/patients/edit/') ?>${patientId}" class="btn btn-warning" style="padding: 6px 12px; font-size: 12px;">
                                 <i class="fas fa-edit"></i> Edit
                             </a>
                         </td>
@@ -646,7 +852,7 @@ async function refreshDashboard() {
                 <div class="empty-state">
                     <i class="fas fa-user-injured"></i>
                     <h4>No Patients Assigned</h4>
-                    <p>You don't have any assigned patients yet. Patients assigned from the admin panel will appear here.</p>
+                    <p>You don't have any assigned patients yet. Patients assigned from the receptionist or admin panel will appear here.</p>
                 </div>
             `;
         }
@@ -740,6 +946,106 @@ async function refreshDashboard() {
             }
         }
         
+        // Update awaiting consultation section dynamically
+        const awaitingSection = document.getElementById('awaitingConsultationSection');
+        if (data.awaiting_consultation && data.awaiting_consultation.length > 0) {
+            if (awaitingSection) {
+                awaitingSection.style.display = 'block';
+                const tbody = awaitingSection.querySelector('tbody');
+                if (tbody) {
+                    let html = '';
+                    data.awaiting_consultation.forEach(consult => {
+                        const consultDate = new Date(consult.consultation_date).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric'
+                        });
+                        const consultTime = new Date('2000-01-01 ' + consult.consultation_time).toLocaleTimeString('en-US', {
+                            hour: 'numeric',
+                            minute: '2-digit',
+                            hour12: true
+                        });
+                        const visitType = consult.visit_type || 'N/A';
+                        const visitTypeBg = visitType === 'Emergency' ? '#fee2e2' : 
+                                           (visitType === 'Consultation' ? '#dbeafe' : 
+                                           (visitType === 'Check-up' ? '#fef3c7' : 
+                                           (visitType === 'Follow-up' ? '#d1fae5' : '#f1f5f9')));
+                        const visitTypeColor = visitType === 'Emergency' ? '#991b1b' : 
+                                              (visitType === 'Consultation' ? '#1e40af' : 
+                                              (visitType === 'Check-up' ? '#92400e' : 
+                                              (visitType === 'Follow-up' ? '#065f46' : '#64748b')));
+                        html += `
+                            <tr>
+                                <td><strong>${consult.firstname || ''} ${consult.lastname || ''}</strong></td>
+                                <td>${consultDate}</td>
+                                <td>${consultTime}</td>
+                                <td>
+                                    <span style="background: ${visitTypeBg}; color: ${visitTypeColor}; padding: 4px 12px; border-radius: 8px; font-size: 12px; font-weight: 600;">
+                                        ${visitType}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span style="background: #fef3c7; color: #92400e; padding: 4px 12px; border-radius: 8px; font-size: 12px; font-weight: 600;">
+                                        Awaiting Consultation
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="<?= site_url('doctor/consultations/view/') ?>${consult.id}" class="btn btn-info" style="padding: 6px 12px; font-size: 12px;">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                    tbody.innerHTML = html;
+                }
+            }
+        } else if (awaitingSection) {
+            awaitingSection.style.display = 'none';
+        }
+        
+        // Update emergency cases section dynamically
+        const emergencySection = document.getElementById('emergencyCasesSection');
+        if (data.emergency_cases && data.emergency_cases.length > 0) {
+            if (emergencySection) {
+                emergencySection.style.display = 'block';
+                const tbody = emergencySection.querySelector('tbody');
+                if (tbody) {
+                    let html = '';
+                    data.emergency_cases.forEach(case_ => {
+                        const triageTime = new Date(case_.created_at).toLocaleString('en-US', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric',
+                            hour: 'numeric',
+                            minute: '2-digit',
+                            hour12: true
+                        });
+                        html += `
+                            <tr>
+                                <td><strong>${case_.patient_name || 'N/A'}</strong></td>
+                                <td>
+                                    <span style="background: #ef4444; color: white; padding: 4px 12px; border-radius: 8px; font-size: 12px; font-weight: 600;">
+                                        ${case_.triage_level || 'Critical'}
+                                    </span>
+                                </td>
+                                <td>${case_.chief_complaint || 'N/A'}</td>
+                                <td>${triageTime}</td>
+                                <td>
+                                    <a href="<?= site_url('doctor/consultations/view/') ?>${case_.patient_id || ''}" class="btn btn-danger" style="padding: 6px 12px; font-size: 12px;">
+                                        <i class="fas fa-user-md"></i> Attend Now
+                                    </a>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                    tbody.innerHTML = html;
+                }
+            }
+        } else if (emergencySection) {
+            emergencySection.style.display = 'none';
+        }
+        
         // Update last refresh time
         const now = new Date();
         lastUpdate.textContent = `Updated: ${now.toLocaleTimeString()}`;
@@ -753,16 +1059,25 @@ async function refreshDashboard() {
 }
 
 // Initialize on page load
+let refreshInterval;
 window.addEventListener('DOMContentLoaded', () => {
     refreshDashboard();
-    // Auto-refresh every 10 seconds
-    setInterval(refreshDashboard, 10000);
+    // Auto-refresh every 5 seconds for real-time updates
+    refreshInterval = setInterval(refreshDashboard, 5000);
 });
 
-// Also refresh when page becomes visible again
+// Pause refresh when tab is hidden, resume when visible
 document.addEventListener('visibilitychange', () => {
-    if (!document.hidden) {
+    if (document.hidden) {
+        if (refreshInterval) {
+            clearInterval(refreshInterval);
+        }
+    } else {
         refreshDashboard();
+        if (refreshInterval) {
+            clearInterval(refreshInterval);
+        }
+        refreshInterval = setInterval(refreshDashboard, 5000);
     }
 });
 </script>
