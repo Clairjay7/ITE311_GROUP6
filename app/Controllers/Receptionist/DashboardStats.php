@@ -118,6 +118,38 @@ class DashboardStats extends BaseController
                     ->countAllResults();
             }
 
+            // Get pending admissions (consultations marked for admission but not yet admitted)
+            $pendingAdmissions = [];
+            if ($db->tableExists('consultations') && $db->tableExists('admin_patients')) {
+                $pendingAdmissionsRaw = $db->table('consultations c')
+                    ->select('c.*, ap.firstname, ap.lastname, ap.contact, u.username as doctor_name')
+                    ->join('admin_patients ap', 'ap.id = c.patient_id', 'left')
+                    ->join('users u', 'u.id = c.doctor_id', 'left')
+                    ->where('c.for_admission', 1)
+                    ->where('c.type', 'completed')
+                    ->where('c.status', 'approved')
+                    ->where('c.deleted_at', null)
+                    ->orderBy('c.consultation_date', 'DESC')
+                    ->limit(5)
+                    ->get()
+                    ->getResultArray();
+
+                // Filter out already admitted
+                foreach ($pendingAdmissionsRaw as $consultation) {
+                    $existingAdmission = $db->table('admissions')
+                        ->where('consultation_id', $consultation['id'])
+                        ->where('status !=', 'discharged')
+                        ->where('status !=', 'cancelled')
+                        ->where('deleted_at', null)
+                        ->get()
+                        ->getRowArray();
+                    
+                    if (!$existingAdmission) {
+                        $pendingAdmissions[] = $consultation;
+                    }
+                }
+            }
+
         } catch (\Throwable $e) {
             log_message('error', 'DashboardStats error: ' . $e->getMessage());
             $newRegistrations = 0;
@@ -127,6 +159,7 @@ class DashboardStats extends BaseController
             $waitingPatients = 0;
             $pendingPaymentsAmount = 0.0;
             $pendingInvoices = 0;
+            $pendingAdmissions = [];
         }
 
         $data = [
@@ -137,6 +170,7 @@ class DashboardStats extends BaseController
             'total_outpatients' => $totalOutPatients,
             'pending_payments_amount' => $pendingPaymentsAmount,
             'pending_invoices' => $pendingInvoices,
+            'pending_admissions' => $pendingAdmissions,
         ];
 
         return $this->response->setJSON($data);

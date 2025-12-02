@@ -249,6 +249,86 @@ class DashboardStats extends BaseController
                     ->countAllResults();
             }
 
+            // Pending Charges (from new charges system)
+            $pendingChargesCount = 0;
+            $pendingCharges = [];
+            $pendingChargesAmount = 0.0;
+            if ($db->tableExists('charges')) {
+                $pendingChargesCount = $db->table('charges')
+                    ->where('status', 'pending')
+                    ->where('deleted_at', null)
+                    ->countAllResults();
+                
+                $pendingCharges = $db->table('charges c')
+                    ->select('c.*, ap.firstname, ap.lastname, 
+                             u.username as doctor_name')
+                    ->join('admin_patients ap', 'ap.id = c.patient_id', 'left')
+                    ->join('consultations con', 'con.id = c.consultation_id', 'left')
+                    ->join('users u', 'u.id = con.doctor_id', 'left')
+                    ->where('c.status', 'pending')
+                    ->where('c.deleted_at', null)
+                    ->orderBy('c.created_at', 'DESC')
+                    ->limit(10)
+                    ->get()
+                    ->getResultArray();
+                
+                $pendingChargesSum = $db->table('charges')
+                    ->selectSum('total_amount', 'sum')
+                    ->where('status', 'pending')
+                    ->where('deleted_at', null)
+                    ->get()
+                    ->getRow();
+                $pendingChargesAmount = (float) ($pendingChargesSum->sum ?? 0);
+            }
+
+            // Discharge Pending (patients with discharge orders waiting for billing)
+            $dischargePendingCount = 0;
+            $dischargePendingList = [];
+            $dischargePendingAmount = 0.0;
+            if ($db->tableExists('admissions') && $db->tableExists('discharge_orders')) {
+                $dischargePendingCount = $db->table('admissions a')
+                    ->join('discharge_orders do', 'do.admission_id = a.id', 'left')
+                    ->where('a.discharge_status', 'discharge_pending')
+                    ->where('a.status', 'admitted')
+                    ->where('do.status', 'pending')
+                    ->where('a.deleted_at', null)
+                    ->countAllResults();
+                
+                $dischargePendingList = $db->table('admissions a')
+                    ->select('a.*, ap.firstname, ap.lastname, ap.contact,
+                             r.room_number, r.ward,
+                             do.id as discharge_order_id, do.discharge_date as planned_discharge_date,
+                             u.username as doctor_name,
+                             SUM(c.total_amount) as total_charges')
+                    ->join('admin_patients ap', 'ap.id = a.patient_id', 'left')
+                    ->join('rooms r', 'r.id = a.room_id', 'left')
+                    ->join('discharge_orders do', 'do.admission_id = a.id', 'left')
+                    ->join('users u', 'u.id = do.doctor_id', 'left')
+                    ->join('charges c', 'c.patient_id = a.patient_id', 'left')
+                    ->where('a.discharge_status', 'discharge_pending')
+                    ->where('a.status', 'admitted')
+                    ->where('do.status', 'pending')
+                    ->where('a.deleted_at', null)
+                    ->groupBy('a.id')
+                    ->orderBy('do.discharge_date', 'ASC')
+                    ->limit(10)
+                    ->get()
+                    ->getResultArray();
+                
+                // Calculate total amount for discharge pending patients
+                foreach ($dischargePendingList as $item) {
+                    $patientCharges = $db->table('charges')
+                        ->selectSum('total_amount', 'sum')
+                        ->where('patient_id', $item['patient_id'])
+                        ->where('status !=', 'paid')
+                        ->where('status !=', 'cancelled')
+                        ->where('deleted_at', null)
+                        ->get()
+                        ->getRow();
+                    $dischargePendingAmount += (float) ($patientCharges->sum ?? 0);
+                }
+            }
+
             // Calculate total revenue from all sources
             $totalRevenue = $todayRevenue + $patientPaymentsToday + $consultationCharges + $labCharges + $treatmentCharges + $labTestRevenue;
 
@@ -283,6 +363,14 @@ class DashboardStats extends BaseController
                 'medication_bills_amount' => $medicationBillsAmount,
                 'medication_bills_paid' => $medicationBillsPaid,
                 'medication_bills_paid_amount' => $medicationBillsPaidAmount,
+                // Pending charges stats
+                'pending_charges_count' => $pendingChargesCount,
+                'pending_charges' => $pendingCharges,
+                'pending_charges_amount' => $pendingChargesAmount,
+                // Discharge pending stats
+                'discharge_pending_count' => $dischargePendingCount,
+                'discharge_pending_list' => $dischargePendingList,
+                'discharge_pending_amount' => $dischargePendingAmount,
                 'last_updated' => date('Y-m-d H:i:s')
             ];
 

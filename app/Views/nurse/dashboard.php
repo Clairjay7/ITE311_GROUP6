@@ -574,6 +574,38 @@
         <?php endif; ?>
     </div>
 
+    <!-- Pending Discharges -->
+    <div class="section-card" style="border-left: 4px solid #2e7d32;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h3 style="margin: 0;">
+                <i class="fas fa-sign-out-alt"></i>
+                Pending Discharges
+            </h3>
+            <a href="<?= site_url('nurse/discharge') ?>" class="btn-sm" style="background: #2e7d32; color: white; text-decoration: none; padding: 8px 16px; border-radius: 8px;">
+                View All <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+        <div id="pendingDischargesContainer">
+            <p style="color: #94a3b8; font-size: 14px; text-align: center; padding: 20px;">Loading pending discharges...</p>
+        </div>
+    </div>
+
+    <!-- Pending Admissions -->
+    <div class="section-card" style="border-left: 4px solid #dc2626;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h3 style="margin: 0;">
+                <i class="fas fa-hospital"></i>
+                Pending Admissions
+            </h3>
+            <a href="<?= site_url('nurse/admission/pending') ?>" class="btn-sm" style="background: #dc2626; color: white; text-decoration: none; padding: 8px 16px; border-radius: 8px;">
+                View All <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+        <div id="pendingAdmissionsContainer">
+            <p style="color: #94a3b8; font-size: 14px; text-align: center; padding: 20px;">Loading pending admissions...</p>
+        </div>
+    </div>
+
     <!-- Pending Doctor Orders -->
     <div class="section-card">
         <h3>
@@ -905,6 +937,12 @@ async function refreshDashboard() {
             `;
         }, ['Patient', 'Order Type', 'Description', 'Doctor', 'Date', 'Actions']);
 
+        // Update pending admissions
+        updatePendingAdmissions('pendingAdmissionsContainer', data.pendingAdmissions);
+
+        // Update pending discharges
+        updatePendingDischarges('pendingDischargesContainer', data.pendingDischarges);
+
         // Update lab requests
         updateLabRequests('pendingLabRequestsContainer', data.pendingLabRequests);
         updateLabRequests('approvedLabRequestsContainer', data.approvedLabRequests, true);
@@ -1015,6 +1053,87 @@ function updateLabResults(containerId, results) {
         container.innerHTML = html;
     } else {
         container.innerHTML = '<p style="color: #94a3b8; font-size: 14px;">No results available</p>';
+    }
+}
+
+function updatePendingAdmissions(containerId, admissions) {
+    const container = document.getElementById(containerId);
+    if (admissions && admissions.length > 0) {
+        let html = '';
+        admissions.forEach(admission => {
+            const consultationDate = new Date(admission.consultation_date).toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric' 
+            });
+            html += `
+                <div style="background: #fee2e2; padding: 16px; border-radius: 8px; margin-bottom: 12px; border-left: 4px solid #dc2626;">
+                    <div style="display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap; gap: 12px;">
+                        <div style="flex: 1;">
+                            <div style="font-weight: 600; color: #991b1b; margin-bottom: 8px;">
+                                <i class="fas fa-user-injured"></i> ${admission.firstname} ${admission.lastname}
+                            </div>
+                            <div style="font-size: 13px; color: #7f1d1d; margin-bottom: 4px;">
+                                <i class="fas fa-user-md"></i> Doctor: ${admission.doctor_name || 'N/A'}
+                            </div>
+                            <div style="font-size: 12px; color: #991b1b; margin-top: 4px;">
+                                <i class="fas fa-calendar"></i> Consultation: ${consultationDate}
+                            </div>
+                        </div>
+                        <a href="<?= site_url('admission/create/') ?>${admission.id}" 
+                           class="btn-sm" 
+                           style="background: #dc2626; color: white; text-decoration: none; padding: 8px 16px; border-radius: 8px; white-space: nowrap;">
+                            <i class="fas fa-hospital"></i> Admit Patient
+                        </a>
+                    </div>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    } else {
+        container.innerHTML = '<div style="text-align: center; padding: 20px; color: #94a3b8;"><i class="fas fa-check-circle" style="font-size: 32px; margin-bottom: 8px; opacity: 0.5;"></i><p style="margin: 0; font-size: 14px;">No pending admissions</p></div>';
+    }
+}
+
+function updatePendingDischarges(containerId, discharges) {
+    const container = document.getElementById(containerId);
+    if (discharges && discharges.length > 0) {
+        let html = '';
+        discharges.forEach(discharge => {
+            const plannedDate = new Date(discharge.planned_discharge_date).toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric' 
+            });
+            html += `
+                <div style="background: #d1fae5; padding: 16px; border-radius: 8px; margin-bottom: 12px; border-left: 4px solid #2e7d32;">
+                    <div style="display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap; gap: 12px;">
+                        <div style="flex: 1;">
+                            <div style="font-weight: 600; color: #065f46; margin-bottom: 8px;">
+                                <i class="fas fa-user-injured"></i> ${discharge.firstname} ${discharge.lastname}
+                            </div>
+                            <div style="font-size: 13px; color: #047857; margin-bottom: 4px;">
+                                <i class="fas fa-bed"></i> Room: ${discharge.room_number || 'N/A'} - ${discharge.ward || 'N/A'}
+                            </div>
+                            <div style="font-size: 13px; color: #047857; margin-bottom: 4px;">
+                                <i class="fas fa-user-md"></i> Doctor: ${discharge.doctor_name || 'N/A'}
+                            </div>
+                            <div style="font-size: 12px; color: #065f46; margin-top: 4px;">
+                                <i class="fas fa-calendar"></i> Planned: ${plannedDate}
+                            </div>
+                        </div>
+                        <a href="<?= site_url('nurse/discharge/view/') ?>${discharge.id}" 
+                           class="btn-sm" 
+                           style="background: #2e7d32; color: white; text-decoration: none; padding: 8px 16px; border-radius: 8px; white-space: nowrap;">
+                            <i class="fas fa-eye"></i> Prepare Patient
+                        </a>
+                    </div>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    } else {
+        container.innerHTML = '<div style="text-align: center; padding: 20px; color: #94a3b8;"><i class="fas fa-check-circle" style="font-size: 32px; margin-bottom: 8px; opacity: 0.5;"></i><p style="margin: 0; font-size: 14px;">No pending discharges</p></div>';
     }
 }
 

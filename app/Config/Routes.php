@@ -301,6 +301,19 @@ $routes->group('accounting', ['namespace' => 'App\\Controllers\\Accountant', 'fi
     $routes->get('medication-billing/invoice/(:num)', 'MedicationBillingController::invoice/$1');
     $routes->post('medication-billing/process-payment/(:num)', 'MedicationBillingController::processPayment/$1');
     $routes->post('medication-billing/cancel/(:num)', 'MedicationBillingController::cancel/$1');
+    
+    // Charges Management (Auto-generated charges from consultations)
+    $routes->get('charges', 'ChargesController::index');
+    $routes->get('charges/view/(:num)', 'ChargesController::view/$1');
+    $routes->get('charges/invoice/(:num)', 'ChargesController::invoice/$1');
+    $routes->post('charges/approve/(:num)', 'ChargesController::approve/$1');
+    $routes->post('charges/process-payment/(:num)', 'ChargesController::processPayment/$1');
+    $routes->post('charges/cancel/(:num)', 'ChargesController::cancel/$1');
+    
+    // Discharge Management (Finalize billing before discharge)
+    $routes->get('discharge', 'DischargeController::index');
+    $routes->get('discharge/finalize/(:num)', 'DischargeController::finalize/$1');
+    $routes->post('discharge/process/(:num)', 'DischargeController::processDischarge/$1');
 });
 
 // Doctor read-only access to medication billing
@@ -338,6 +351,11 @@ $routes->group('receptionist/rooms', ['namespace' => 'App\\Controllers\\Receptio
     $routes->get('assign/(:num)', 'Rooms::assignForm/$1');
     $routes->post('assign/(:num)', 'Rooms::assignStore/$1');
     $routes->post('vacate/(:num)', 'Rooms::vacate/$1');
+});
+
+// Receptionist - Admission (can assign rooms/beds)
+$routes->group('receptionist/admission', ['namespace' => 'App\\Controllers', 'filter' => 'auth:receptionist'], function($routes) {
+    $routes->get('pending', 'Nurse\AdmissionController::pending');
 });
 
 // Doctor routes
@@ -386,10 +404,32 @@ $routes->group('doctor', ['namespace' => 'App\\Controllers', 'filter' => 'auth:d
         $routes->post('update/(:num)', 'Doctor\OrderController::update/$1');
         $routes->post('cancel/(:num)', 'Doctor\OrderController::cancel/$1');
     });
+    
+    // Doctor Discharge (Primary role - creates discharge orders)
+    $routes->group('discharge', function($routes) {
+        $routes->get('/', 'Doctor\DischargeController::index');
+        $routes->get('create/(:num)', 'Doctor\DischargeController::create/$1');
+        $routes->post('store', 'Doctor\DischargeController::store');
+        $routes->get('view/(:num)', 'Doctor\DischargeController::view/$1');
+    });
+});
+
+// Admission Routes (Nurse, Receptionist ONLY - Doctor can only mark "For Admission" but cannot process)
+// NOT for Lab, Pharmacy, Accountant, IT, Doctor
+$routes->group('admission', ['namespace' => 'App\\Controllers', 'filter' => 'auth:nurse,receptionist'], function($routes) {
+    $routes->get('create/(:num)', 'AdmissionController::create/$1');
+    $routes->get('create', 'AdmissionController::create');
+    $routes->post('store', 'AdmissionController::store');
+    $routes->get('view/(:num)', 'AdmissionController::view/$1');
+    $routes->get('beds/(:num)', 'AdmissionController::getBeds/$1');
 });
 
 // Nurse routes
 $routes->group('nurse', ['namespace' => 'App\\Controllers\\Nurse', 'filter' => 'auth:nurse,admin'], function($routes) {
+    // Nurse Discharge (Secondary role - prepare patient, print instructions)
+    $routes->get('discharge', 'DischargeController::index');
+    $routes->get('discharge/view/(:num)', 'DischargeController::view/$1');
+    $routes->get('discharge/print/(:num)', 'DischargeController::printInstructions/$1');
     // Dashboard
     $routes->get('dashboard', 'DashboardController::index');
     $routes->get('dashboard/stats', 'DashboardStats::stats');
@@ -441,5 +481,10 @@ $routes->group('nurse', ['namespace' => 'App\\Controllers\\Nurse', 'filter' => '
         $routes->post('update-request-status/(:num)', 'LaboratoryController::updateRequestStatus/$1');
         $routes->get('testresult', 'LaboratoryController::testresult');
         $routes->post('upload-result/(:num)', 'LaboratoryController::uploadResult/$1');
+    });
+    
+    // Admission (Nurse can process admissions)
+    $routes->group('admission', function($routes) {
+        $routes->get('pending', 'AdmissionController::pending');
     });
 });

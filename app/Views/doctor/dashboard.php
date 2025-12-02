@@ -37,8 +37,17 @@
 <div class="dashboard-container">
     <!-- Welcome Section -->
     <div class="welcome-section">
-        <h2>Welcome back, Dr. <?= esc($name ?? 'Doctor') ?></h2>
-        <p>Here's what's happening with your patients today</p>
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+            <div>
+                <h2>Welcome back, Dr. <?= esc($name ?? 'Doctor') ?></h2>
+                <p>Here's what's happening with your patients today</p>
+            </div>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                <a href="<?= site_url('doctor/discharge') ?>" style="background: #2e7d32; color: white; padding: 12px 24px; border-radius: 10px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-sign-out-alt"></i> Discharge Patients
+                </a>
+            </div>
+        </div>
     </div>
 
     <!-- Stats Grid -->

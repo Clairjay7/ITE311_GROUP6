@@ -43,6 +43,24 @@
     </div>
 </div>
 
+<!-- Pending Admissions Section -->
+<div style="margin-top: 32px; background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px; box-shadow: 0 2px 6px rgba(15,23,42,.08); border-left: 4px solid #dc2626;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 style="margin: 0; color: #dc2626; font-size: 24px;">
+            <i class="fas fa-hospital"></i> Pending Admissions
+        </h2>
+        <a href="<?= site_url('receptionist/admission/pending') ?>" style="background: #dc2626; color: white; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-weight: 600;">
+            View All <i class="fas fa-arrow-right"></i>
+        </a>
+    </div>
+    <div id="pending-admissions-container">
+        <div style="text-align: center; padding: 40px; color: #94a3b8;">
+            <i class="fas fa-spinner fa-spin" style="font-size: 24px;"></i>
+            <p>Loading pending admissions...</p>
+        </div>
+    </div>
+</div>
+
 <!-- Waiting List Section -->
 <div style="margin-top: 32px; background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px; box-shadow: 0 2px 6px rgba(15,23,42,.08);">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
@@ -376,7 +394,50 @@ async function refreshDashboard(){
     const amt = typeof data.pending_payments_amount === 'number' ? new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(data.pending_payments_amount) : '₱--';
     setText('pending_payments_amount', amt);
     setText('pending_invoices', (data.pending_invoices ?? '--') + ' invoices');
+    
+    // Update pending admissions
+    updatePendingAdmissions(data.pending_admissions || []);
   }catch(e){ /* silent fail */ }
+}
+
+function updatePendingAdmissions(admissions) {
+  const container = document.getElementById('pending-admissions-container');
+  if (!container) return;
+  
+  if (admissions && admissions.length > 0) {
+    let html = '';
+    admissions.forEach(admission => {
+      const consultationDate = new Date(admission.consultation_date).toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric' 
+      });
+      html += `
+        <div style="background: #fee2e2; padding: 16px; border-radius: 8px; margin-bottom: 12px; border-left: 4px solid #dc2626;">
+          <div style="display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap; gap: 12px;">
+            <div style="flex: 1;">
+              <div style="font-weight: 600; color: #991b1b; margin-bottom: 8px;">
+                <i class="fas fa-user-injured"></i> ${admission.firstname || ''} ${admission.lastname || ''}
+              </div>
+              <div style="font-size: 13px; color: #7f1d1d; margin-bottom: 4px;">
+                <i class="fas fa-user-md"></i> Doctor: ${admission.doctor_name || 'N/A'}
+              </div>
+              <div style="font-size: 12px; color: #991b1b; margin-top: 4px;">
+                <i class="fas fa-calendar"></i> Consultation: ${consultationDate}
+              </div>
+            </div>
+            <a href="<?= site_url('admission/create/') ?>${admission.id}" 
+               style="background: #dc2626; color: white; text-decoration: none; padding: 8px 16px; border-radius: 8px; white-space: nowrap; font-weight: 600;">
+              <i class="fas fa-hospital"></i> Admit Patient
+            </a>
+          </div>
+        </div>
+      `;
+    });
+    container.innerHTML = html;
+  } else {
+    container.innerHTML = '<div style="text-align: center; padding: 20px; color: #94a3b8;"><i class="fas fa-check-circle" style="font-size: 32px; margin-bottom: 8px; opacity: 0.5;"></i><p style="margin: 0; font-size: 14px;">No pending admissions</p></div>';
+  }
 }
 window.addEventListener('DOMContentLoaded', () => {
   refreshDashboard();

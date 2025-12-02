@@ -37,6 +37,33 @@ class OrderController extends BaseController
         $completedOrders = array_filter($allOrders, fn($order) => $order['status'] === 'completed');
         $cancelledOrders = array_filter($allOrders, fn($order) => $order['status'] === 'cancelled');
 
+        // Check if there's a consultation_id in query string and if it's marked for admission
+        $consultationId = $this->request->getGet('consultation_id');
+        $consultation = null;
+        $showAdmitInfo = false;
+        
+        if ($consultationId) {
+            $db = \Config\Database::connect();
+            $consultation = $db->table('consultations')
+                ->where('id', $consultationId)
+                ->where('doctor_id', $doctorId)
+                ->get()
+                ->getRowArray();
+            
+            if ($consultation && !empty($consultation['for_admission'])) {
+                // Check if not already admitted
+                $existingAdmission = $db->table('admissions')
+                    ->where('consultation_id', $consultationId)
+                    ->where('status !=', 'discharged')
+                    ->where('status !=', 'cancelled')
+                    ->where('deleted_at', null)
+                    ->get()
+                    ->getRowArray();
+                
+                $showAdmitInfo = !$existingAdmission;
+            }
+        }
+
         $data = [
             'title' => 'Doctor Orders',
             'allOrders' => $allOrders,
@@ -44,6 +71,8 @@ class OrderController extends BaseController
             'inProgressOrders' => $inProgressOrders,
             'completedOrders' => $completedOrders,
             'cancelledOrders' => $cancelledOrders,
+            'consultation' => $consultation,
+            'showAdmitInfo' => $showAdmitInfo,
         ];
 
         return view('doctor/orders/index', $data);

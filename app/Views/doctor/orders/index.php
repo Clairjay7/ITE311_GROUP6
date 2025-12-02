@@ -265,6 +265,20 @@
         </div>
     <?php endif; ?>
     
+    <?php if (isset($showAdmitInfo) && $showAdmitInfo && isset($consultation)): ?>
+        <div class="alert-modern" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); color: #92400e; border-left: 4px solid #f59e0b;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+                <div>
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Patient Marked for Admission</strong>
+                    <p style="margin: 8px 0 0 0; font-size: 14px; opacity: 0.9;">
+                        This patient has been marked for admission. A Nurse or Receptionist will process the admission and assign a room/bed.
+                    </p>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
+    
     <?php if (session()->getFlashdata('error')): ?>
         <div class="alert-modern alert-modern-danger alert-dismissible fade show" role="alert">
             <i class="fas fa-exclamation-circle me-2"></i>

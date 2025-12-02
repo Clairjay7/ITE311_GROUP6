@@ -6,6 +6,8 @@ use App\Controllers\BaseController;
 use App\Models\ConsultationModel;
 use App\Models\AdminPatientModel;
 use App\Models\PatientVitalModel;
+use App\Models\ChargeModel;
+use App\Models\BillingItemModel;
 
 class ConsultationController extends BaseController
 {
@@ -39,7 +41,16 @@ class ConsultationController extends BaseController
         $consultationModel = new ConsultationModel();
         $doctorId = session()->get('user_id');
 
-        $mySchedule = $consultationModel->getDoctorSchedule($doctorId);
+        // Get consultations with for_admission field
+        $db = \Config\Database::connect();
+        $mySchedule = $db->table('consultations c')
+            ->select('c.*, ap.firstname, ap.lastname')
+            ->join('admin_patients ap', 'ap.id = c.patient_id', 'left')
+            ->where('c.doctor_id', $doctorId)
+            ->orderBy('c.consultation_date', 'DESC')
+            ->orderBy('c.consultation_time', 'DESC')
+            ->get()
+            ->getResultArray();
 
         $data = [
             'title' => 'My Schedule',
@@ -416,7 +427,8 @@ class ConsultationController extends BaseController
             'consultation_time' => 'required|regex_match[/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/]',
             'observations' => 'permit_empty|max_length[5000]',
             'diagnosis' => 'permit_empty|max_length[2000]',
-            'notes' => 'permit_empty|max_length[2000]'
+            'notes' => 'permit_empty|max_length[2000]',
+            'for_admission' => 'permit_empty|in_list[0,1]'
         ]);
 
         if (!$validation) {
@@ -484,6 +496,7 @@ class ConsultationController extends BaseController
             'observations' => $this->request->getPost('observations'),
             'diagnosis' => $this->request->getPost('diagnosis'),
             'notes' => $this->request->getPost('notes') . ($queueNumber ? ' | Queue #' . $queueNumber : ''),
+            'for_admission' => $this->request->getPost('for_admission') ? 1 : 0,
         ];
 
         // Update or create consultation record
@@ -512,36 +525,136 @@ class ConsultationController extends BaseController
                 }
             }
             
-            // Generate billing entry for consultation
-            if ($db->tableExists('billing')) {
+            // AUTO-GENERATE CHARGES: Create charge record and billing items
+            $chargeModel = new ChargeModel();
+            $billingItemModel = new BillingItemModel();
+            
+            if ($db->tableExists('charges') && $db->tableExists('billing_items')) {
+                // Generate unique charge number
+                $chargeNumber = $chargeModel->generateChargeNumber();
+                
+                // Initialize total amount
+                $totalAmount = 0.00;
+                $billingItems = [];
+                
+                // 1. Consultation Fee
                 $consultationFee = 500.00; // Default consultation fee
-                $billingData = [
-                    'patient_id' => $adminPatientId,
-                    'billing_service' => 'Consultation',
-                    'amount' => $consultationFee,
-                    'status' => 'pending',
-                    'description' => 'Doctor Consultation - ' . date('Y-m-d'),
-                    'created_at' => date('Y-m-d H:i:s'),
-                    'updated_at' => date('Y-m-d H:i:s'),
+                $billingItems[] = [
+                    'item_type' => 'consultation',
+                    'item_name' => 'Doctor Consultation',
+                    'description' => 'Consultation on ' . date('Y-m-d'),
+                    'quantity' => 1.00,
+                    'unit_price' => $consultationFee,
+                    'total_price' => $consultationFee,
+                    'related_id' => $consultationId,
+                    'related_type' => 'consultation',
                 ];
-                $db->table('billing')->insert($billingData);
+                $totalAmount += $consultationFee;
+                
+                // 2. Lab Test Fees (if lab requests exist and are completed)
+                if ($db->tableExists('lab_requests')) {
+                    $labRequests = $db->table('lab_requests')
+                        ->where('patient_id', $adminPatientId)
+                        ->where('doctor_id', $doctorId)
+                        ->where('status', 'completed')
+                        ->where('requested_date', $this->request->getPost('consultation_date'))
+                        ->get()
+                        ->getResultArray();
+                    
+                    foreach ($labRequests as $labRequest) {
+                        // Default lab test fee (can be made configurable)
+                        $labTestFee = 300.00; // Default fee per test
+                        $billingItems[] = [
+                            'item_type' => 'lab_test',
+                            'item_name' => $labRequest['test_name'] ?? $labRequest['test_type'] ?? 'Lab Test',
+                            'description' => 'Lab Test: ' . ($labRequest['test_type'] ?? 'N/A'),
+                            'quantity' => 1.00,
+                            'unit_price' => $labTestFee,
+                            'total_price' => $labTestFee,
+                            'related_id' => $labRequest['id'],
+                            'related_type' => 'lab_request',
+                        ];
+                        $totalAmount += $labTestFee;
+                    }
+                }
+                
+                // 3. Medication Charges (only if dispensed by pharmacy)
+                if ($db->tableExists('doctor_orders') && $db->tableExists('pharmacy')) {
+                    $medicationOrders = $db->table('doctor_orders')
+                        ->where('patient_id', $adminPatientId)
+                        ->where('doctor_id', $doctorId)
+                        ->where('order_type', 'medication')
+                        ->where('pharmacy_status', 'dispensed') // Only dispensed medications
+                        ->get()
+                        ->getResultArray();
+                    
+                    foreach ($medicationOrders as $order) {
+                        // Get medicine price from pharmacy
+                        $medicine = $db->table('pharmacy')
+                            ->where('item_name', $order['medicine_name'])
+                            ->get()
+                            ->getRowArray();
+                        
+                        if ($medicine) {
+                            $medicinePrice = (float)($medicine['price'] ?? 0.00);
+                            $quantity = 1.00; // Default quantity
+                            
+                            $billingItems[] = [
+                                'item_type' => 'medication',
+                                'item_name' => $order['medicine_name'] ?? 'Medication',
+                                'description' => 'Medication: ' . ($order['dosage'] ?? 'N/A'),
+                                'quantity' => $quantity,
+                                'unit_price' => $medicinePrice,
+                                'total_price' => $medicinePrice * $quantity,
+                                'related_id' => $order['id'],
+                                'related_type' => 'doctor_order',
+                            ];
+                            $totalAmount += ($medicinePrice * $quantity);
+                        }
+                    }
+                }
+                
+                // Create charge record
+                $chargeData = [
+                    'consultation_id' => $consultationId,
+                    'patient_id' => $adminPatientId,
+                    'charge_number' => $chargeNumber,
+                    'total_amount' => $totalAmount,
+                    'status' => 'pending',
+                    'notes' => 'Auto-generated charge for consultation #' . $consultationId,
+                ];
+                
+                if ($chargeModel->insert($chargeData)) {
+                    $chargeId = $chargeModel->getInsertID();
+                    
+                    // Insert all billing items
+                    foreach ($billingItems as $item) {
+                        $item['charge_id'] = $chargeId;
+                        $billingItemModel->insert($item);
+                    }
+                    
+                    // Notify Accountant about new charge
+                    if ($db->tableExists('accountant_notifications')) {
+                        $db->table('accountant_notifications')->insert([
+                            'type' => 'new_charge',
+                            'title' => 'New Charge Generated',
+                            'message' => 'New charge ' . $chargeNumber . ' generated for patient ID: ' . $adminPatientId . '. Total Amount: ₱' . number_format($totalAmount, 2),
+                            'related_id' => $chargeId,
+                            'related_type' => 'charge',
+                            'is_read' => 0,
+                            'created_at' => date('Y-m-d H:i:s'),
+                        ]);
+                    }
+                }
             }
             
-            // Notify Accountant about new billing (if notification system exists)
-            if ($db->tableExists('accountant_notifications')) {
-                $db->table('accountant_notifications')->insert([
-                    'type' => 'new_billing',
-                    'title' => 'New Consultation Billing',
-                    'message' => 'New consultation billing generated for patient ID: ' . $adminPatientId . '. Amount: ₱' . number_format($consultationFee, 2),
-                    'related_id' => $adminPatientId,
-                    'related_type' => 'billing',
-                    'is_read' => 0,
-                    'created_at' => date('Y-m-d H:i:s'),
-                ]);
+            // Redirect based on admission status
+            $forAdmission = $this->request->getPost('for_admission') ? 1 : 0;
+            if ($forAdmission) {
+                return redirect()->to('/doctor/orders?patient_id=' . $adminPatientId . '&consultation_id=' . $consultationId)->with('success', 'Consultation completed and saved successfully. Patient is marked for admission. A Nurse or Receptionist will process the admission and assign a room/bed. You can now create orders for this patient.');
+            } else {
+                return redirect()->to('/doctor/orders?patient_id=' . $adminPatientId)->with('success', 'Consultation completed and saved successfully. Charges generated. You can now create orders for this patient.');
             }
-            
-            // Redirect to doctor orders page with patient_id for easy order creation
-            return redirect()->to('/doctor/orders?patient_id=' . $adminPatientId)->with('success', 'Consultation completed and saved successfully. Billing entry created. You can now create orders for this patient.');
         } else {
             return redirect()->back()->withInput()->with('error', 'Failed to save consultation.');
         }

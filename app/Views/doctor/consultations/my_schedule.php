@@ -292,6 +292,31 @@
                                     <td><?= esc(substr($consultation['notes'] ?? 'No notes', 0, 50)) ?><?= strlen($consultation['notes'] ?? '') > 50 ? '...' : '' ?></td>
                                     <td>
                                         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                            <?php if ($consultation['type'] == 'completed' && !empty($consultation['for_admission'])): ?>
+                                                <?php
+                                                // Check if already admitted
+                                                $db = \Config\Database::connect();
+                                                $existingAdmission = $db->table('admissions')
+                                                    ->where('consultation_id', $consultation['id'])
+                                                    ->where('status !=', 'discharged')
+                                                    ->where('status !=', 'cancelled')
+                                                    ->where('deleted_at', null)
+                                                    ->get()
+                                                    ->getRowArray();
+                                                ?>
+                                                <?php if ($existingAdmission): ?>
+                                                    <span class="badge-modern" style="background: #d1fae5; color: #065f46;">
+                                                        <i class="fas fa-check"></i> Admitted
+                                                    </span>
+                                                <?php else: ?>
+                                                    <span class="badge-modern" style="background: #fee2e2; color: #991b1b;">
+                                                        <i class="fas fa-hospital"></i> For Admission
+                                                    </span>
+                                                    <small style="display: block; color: #64748b; font-size: 11px; margin-top: 4px;">
+                                                        Nurse/Receptionist will process
+                                                    </small>
+                                                <?php endif; ?>
+                                            <?php endif; ?>
                                             <a href="<?= site_url('doctor/consultations/edit/' . $consultation['id']) ?>" 
                                                class="btn-modern btn-modern-warning btn-sm-modern" title="Edit Consultation">
                                                 <i class="fas fa-edit"></i>

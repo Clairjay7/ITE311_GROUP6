@@ -38,6 +38,11 @@
 
     <!-- Quick Actions -->
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
+        <a href="<?= site_url('accounting/charges') ?>" style="background: #dc2626; color: white; padding: 16px; border-radius: 12px; text-decoration: none; text-align: center; font-weight: 600; box-shadow: 0 2px 6px rgba(0,0,0,0.08); position: relative;">
+            <i class="fas fa-file-invoice-dollar" style="font-size: 24px; margin-bottom: 8px; display: block;"></i>
+            Pending Charges
+            <span id="pendingChargesBadge" style="position: absolute; top: 8px; right: 8px; background: rgba(255,255,255,0.3); border-radius: 12px; padding: 2px 8px; font-size: 12px; font-weight: 700;">0</span>
+        </a>
         <a href="<?= site_url('accounting/finance') ?>" style="background: #2e7d32; color: white; padding: 16px; border-radius: 12px; text-decoration: none; text-align: center; font-weight: 600; box-shadow: 0 2px 6px rgba(0,0,0,0.08);">
             <i class="fas fa-chart-line" style="font-size: 24px; margin-bottom: 8px; display: block;"></i>
             Finance Overview
@@ -54,6 +59,36 @@
             <i class="fas fa-receipt" style="font-size: 24px; margin-bottom: 8px; display: block;"></i>
             Expense Tracking
         </a>
+    </div>
+
+    <!-- Pending Charges Section -->
+    <div style="background: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; margin-bottom: 24px; box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h2 style="color: #dc2626; margin: 0; font-size: 20px; font-weight: 700;">
+                <i class="fas fa-file-invoice-dollar" style="margin-right: 8px;"></i>
+                Pending Charges
+            </h2>
+            <a href="<?= site_url('accounting/charges') ?>" style="color: #dc2626; text-decoration: none; font-weight: 600; font-size: 14px;">
+                View All <i class="fas fa-arrow-right" style="margin-left: 4px;"></i>
+            </a>
+        </div>
+        <div id="pendingChargesList" style="min-height: 100px;">
+            <p style="color: #64748b; text-align: center; padding: 20px;">Loading pending charges...</p>
+        </div>
+    </div>
+
+    <!-- Discharge Pending Section -->
+    <div style="background: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; margin-bottom: 24px; box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08); border-left: 4px solid #f59e0b;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h2 style="color: #f59e0b; margin: 0; font-size: 20px; font-weight: 700;">
+                <i class="fas fa-sign-out-alt" style="margin-right: 8px;"></i>
+                Discharge Pending (Finalize Billing)
+            </h2>
+            <span id="dischargePendingBadge" style="background: #f59e0b; color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 700;">0</span>
+        </div>
+        <div id="dischargePendingList" style="min-height: 100px;">
+            <p style="color: #64748b; text-align: center; padding: 20px;">Loading discharge pending patients...</p>
+        </div>
     </div>
 
     <!-- Overview Cards -->
@@ -200,9 +235,128 @@ document.addEventListener('DOMContentLoaded', function() {
             setText('systemLogs', data.system_logs ?? '0');
             setText('medicationBillsPending', data.medication_bills_pending ?? '0');
             setText('medicationBillsAmount', data.medication_bills_amount ?? '0', true);
+            
+            // Update pending charges badge
+            setText('pendingChargesBadge', data.pending_charges_count ?? '0');
+            
+            // Load pending charges list
+            loadPendingCharges(data.pending_charges ?? []);
+            
+            // Update discharge pending badge
+            setText('dischargePendingBadge', data.discharge_pending_count ?? '0');
+            
+            // Load discharge pending list
+            loadDischargePending(data.discharge_pending_list ?? []);
         } catch (error) {
             console.error('Error fetching Accountant Dashboard stats:', error);
         }
+    }
+    
+    async function loadPendingCharges(charges) {
+        const container = document.getElementById('pendingChargesList');
+        if (!container) return;
+        
+        if (!charges || charges.length === 0) {
+            container.innerHTML = '<p style="color: #64748b; text-align: center; padding: 20px;">No pending charges at this time.</p>';
+            return;
+        }
+        
+        let html = '<div style="display: grid; gap: 12px;">';
+        charges.slice(0, 5).forEach(charge => {
+            const patientName = (charge.firstname || '') + ' ' + (charge.lastname || '');
+            const doctorName = charge.doctor_name || 'N/A';
+            const statusColor = charge.status === 'pending' ? '#dc2626' : charge.status === 'approved' ? '#f59e0b' : '#10b981';
+            html += `
+                <div style="border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; background: #f9fafb;">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <div>
+                            <div style="font-weight: 600; color: #1f2937; margin-bottom: 4px;">
+                                ${charge.charge_number || 'N/A'}
+                            </div>
+                            <div style="font-size: 14px; color: #64748b; margin-bottom: 4px;">
+                                <strong>Patient:</strong> ${patientName || 'Unknown Patient'}
+                            </div>
+                            <div style="font-size: 14px; color: #64748b; margin-bottom: 4px;">
+                                <strong>Doctor:</strong> ${doctorName}
+                            </div>
+                            <div style="font-size: 14px; color: #1f2937; font-weight: 600;">
+                                ₱${parseFloat(charge.total_amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <span style="background: ${statusColor}; color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; text-transform: uppercase;">
+                                ${charge.status || 'pending'}
+                            </span>
+                            <div style="margin-top: 8px;">
+                                <a href="<?= site_url('accounting/charges/view/') ?>${charge.id}" style="color: #0288d1; text-decoration: none; font-size: 12px; font-weight: 600;">
+                                    View Details <i class="fas fa-arrow-right" style="margin-left: 4px;"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        html += '</div>';
+        
+        if (charges.length > 5) {
+            html += `<p style="text-align: center; margin-top: 12px; color: #64748b; font-size: 14px;">
+                And ${charges.length - 5} more charge(s). 
+                <a href="<?= site_url('accounting/charges') ?>" style="color: #dc2626; text-decoration: none; font-weight: 600;">View All</a>
+            </p>`;
+        }
+        
+        container.innerHTML = html;
+    }
+    
+    async function loadDischargePending(discharges) {
+        const container = document.getElementById('dischargePendingList');
+        if (!container) return;
+        
+        if (!discharges || discharges.length === 0) {
+            container.innerHTML = '<p style="color: #64748b; text-align: center; padding: 20px;">No patients pending discharge.</p>';
+            return;
+        }
+        
+        let html = '<div style="display: grid; gap: 12px;">';
+        discharges.forEach(discharge => {
+            const patientName = (discharge.firstname || '') + ' ' + (discharge.lastname || '');
+            const totalCharges = parseFloat(discharge.total_charges || 0);
+            const plannedDate = discharge.planned_discharge_date ? new Date(discharge.planned_discharge_date).toLocaleDateString('en-US', { 
+                year: 'numeric', month: 'short', day: 'numeric' 
+            }) : 'N/A';
+            html += `
+                <div style="border: 1px solid #fef3c7; border-radius: 8px; padding: 16px; background: #fffbeb;">
+                    <div style="display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap; gap: 12px;">
+                        <div style="flex: 1;">
+                            <div style="font-weight: 600; color: #92400e; margin-bottom: 8px;">
+                                <i class="fas fa-user-injured"></i> ${patientName}
+                            </div>
+                            <div style="font-size: 13px; color: #78350f; margin-bottom: 4px;">
+                                <i class="fas fa-bed"></i> Room: ${discharge.room_number || 'N/A'} - ${discharge.ward || 'N/A'}
+                            </div>
+                            <div style="font-size: 13px; color: #78350f; margin-bottom: 4px;">
+                                <i class="fas fa-user-md"></i> Doctor: ${discharge.doctor_name || 'N/A'}
+                            </div>
+                            <div style="font-size: 12px; color: #92400e; margin-top: 4px;">
+                                <i class="fas fa-calendar"></i> Planned Discharge: ${plannedDate}
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-size: 18px; font-weight: 700; color: #92400e; margin-bottom: 8px;">
+                                ₱${totalCharges.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </div>
+                            <a href="<?= site_url('accounting/discharge/finalize/') ?>${discharge.id}" 
+                               style="background: #f59e0b; color: white; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px; display: inline-block;">
+                                <i class="fas fa-check-circle"></i> Finalize Billing
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        html += '</div>';
+        container.innerHTML = html;
     }
     
     // Initial fetch

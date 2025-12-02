@@ -127,6 +127,13 @@
                     <span class="text">Doctor Orders</span>
                 </a>
             </li>
+
+            <li class="nav-item">
+                <a href="<?= site_url('doctor/discharge') ?>">
+                    <i class="fa-solid fa-sign-out-alt sidebar-icon"></i>
+                    <span class="text">Discharge Patients</span>
+                </a>
+            </li>
         <?php endif; ?>
 
         <!-- NURSE -->
@@ -181,6 +188,13 @@
                     <li><a href="<?= site_url('nurse/laboratory/request') ?>"><span class="text">Create Lab Request</span></a></li>
                     <li><a href="<?= site_url('nurse/laboratory/testresult') ?>"><span class="text">Results Inquiry</span></a></li>
                 </ul>
+            </li>
+
+            <li class="nav-item">
+                <a href="<?= site_url('nurse/discharge') ?>">
+                    <i class="fa-solid fa-sign-out-alt sidebar-icon"></i>
+                    <span class="text">Discharge Preparation</span>
+                </a>
             </li>
         <?php endif; ?>
 
@@ -284,6 +298,13 @@
             <li class="nav-item">
                 <a href="<?= site_url('accounting/expenses') ?>">
                     <span class="text">Expense Tracking</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a href="<?= site_url('accounting/discharge') ?>">
+                    <i class="fa-solid fa-sign-out-alt sidebar-icon"></i>
+                    <span class="text">Discharge Billing</span>
                 </a>
             </li>
         <?php endif; ?>

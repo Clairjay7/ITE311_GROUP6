@@ -353,6 +353,25 @@
                         </div>
                     <?php endif; ?>
                 </div>
+
+                <div class="form-group-modern" style="margin-bottom: 24px;">
+                    <div style="display: flex; align-items: center; gap: 12px; padding: 16px; background: #f8fafc; border-radius: 10px; border: 2px solid #e5e7eb;">
+                        <input type="checkbox" 
+                               name="for_admission" 
+                               id="for_admission" 
+                               value="1"
+                               <?= old('for_admission') ? 'checked' : '' ?>
+                               style="width: 20px; height: 20px; cursor: pointer;">
+                        <label for="for_admission" style="margin: 0; font-weight: 600; color: #1e293b; cursor: pointer; flex: 1;">
+                            <i class="fas fa-hospital me-2" style="color: #dc2626;"></i>
+                            Mark patient for admission
+                        </label>
+                    </div>
+                    <p style="margin-top: 8px; font-size: 13px; color: #64748b;">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Check this box if the patient needs to be admitted to the hospital. A Nurse or Receptionist will process the admission and assign a room/bed.
+                    </p>
+                </div>
                 
                 <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 32px;">
                     <a href="<?= site_url('doctor/patients') ?>" class="btn-modern btn-modern-secondary">
