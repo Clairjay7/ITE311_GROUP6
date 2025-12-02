@@ -29,7 +29,7 @@ class DoctorNotificationModel extends Model
 
     protected $validationRules = [
         'doctor_id' => 'required|integer',
-        'type' => 'required|in_list[order_completed,order_updated,lab_request_pending,patient_assigned,system]',
+        'type' => 'required|in_list[order_completed,order_updated,lab_request_pending,lab_result_ready,patient_assigned,system]',
         'title' => 'required|max_length[255]',
         'message' => 'required',
     ];

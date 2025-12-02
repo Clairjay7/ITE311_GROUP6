@@ -251,6 +251,26 @@ class DashboardStats extends BaseController
                 ->limit(5)
                 ->findAll();
 
+            // Get completed lab results (recent)
+            $completedLabResults = [];
+            if (!empty($patientIds)) {
+                $db = \Config\Database::connect();
+                if ($db->tableExists('lab_requests') && $db->tableExists('lab_results')) {
+                    $completedLabResults = $db->table('lab_requests lr')
+                        ->select('lr.*, lr_result.result, lr_result.interpretation, lr_result.completed_at,
+                                 admin_patients.firstname, admin_patients.lastname')
+                        ->join('lab_results lr_result', 'lr_result.lab_request_id = lr.id', 'left')
+                        ->join('admin_patients', 'admin_patients.id = lr.patient_id', 'left')
+                        ->whereIn('lr.patient_id', $patientIds)
+                        ->where('lr.doctor_id', $doctorId)
+                        ->where('lr.status', 'completed')
+                        ->orderBy('lr_result.completed_at', 'DESC')
+                        ->limit(5)
+                        ->get()
+                        ->getResultArray();
+                }
+            }
+
             // Get unread notifications
             $notificationModel = new DoctorNotificationModel();
             $unreadNotifications = $notificationModel->getUnreadNotifications($doctorId);
@@ -358,6 +378,24 @@ class DashboardStats extends BaseController
                 return $updatedB <=> $updatedA; // Descending order
             });
 
+            // Get admitted patients
+            $admittedPatients = [];
+            if ($db->tableExists('admissions')) {
+                $admittedPatients = $db->table('admissions a')
+                    ->select('a.*, ap.firstname, ap.lastname, r.room_number, r.ward,
+                             (SELECT COUNT(*) FROM doctor_orders WHERE admission_id = a.id AND status != "completed" AND status != "cancelled") as pending_orders_count')
+                    ->join('admin_patients ap', 'ap.id = a.patient_id', 'left')
+                    ->join('rooms r', 'r.id = a.room_id', 'left')
+                    ->where('a.attending_physician_id', $doctorId)
+                    ->where('a.status', 'admitted')
+                    ->where('a.discharge_status', 'admitted')
+                    ->where('a.deleted_at', null)
+                    ->orderBy('a.admission_date', 'DESC')
+                    ->limit(5)
+                    ->get()
+                    ->getResultArray();
+            }
+
             $data = [
                 'appointments_count' => $appointmentsCount,
                 'patients_seen_today' => $patientsSeenToday,
@@ -368,9 +406,11 @@ class DashboardStats extends BaseController
                 'awaiting_consultation_count' => count($awaitingConsultation),
                 'pending_lab_requests_count' => $pendingLabRequestsCount,
                 'pending_lab_requests' => $pendingLabRequests,
+                'completed_lab_results' => $completedLabResults,
                 'assigned_patients' => $assignedPatients,
                 'hms_patients' => $hmsPatients,
                 'all_assigned_patients' => $allAssignedPatients, // Pass merged list
+                'admitted_patients' => $admittedPatients,
                 'total_orders' => $totalOrders,
                 'pending_orders' => $pendingOrders,
                 'in_progress_orders' => $inProgressOrders,

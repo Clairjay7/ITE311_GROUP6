@@ -20,12 +20,25 @@ class LaboratoryController extends BaseController
 
         $patientModel = new AdminPatientModel();
         $labRequestModel = new LabRequestModel();
+        $db = \Config\Database::connect();
 
         // Get all patients
         $patients = $patientModel
             ->orderBy('lastname', 'ASC')
             ->orderBy('firstname', 'ASC')
             ->findAll();
+
+        // Get all active lab tests
+        $labTests = [];
+        if ($db->tableExists('lab_tests')) {
+            $labTests = $db->table('lab_tests')
+                ->where('is_active', 1)
+                ->where('deleted_at', null)
+                ->orderBy('test_type', 'ASC')
+                ->orderBy('test_name', 'ASC')
+                ->get()
+                ->getResultArray();
+        }
 
         // Get pending lab requests
         $pendingRequests = $labRequestModel
@@ -39,6 +52,7 @@ class LaboratoryController extends BaseController
         $data = [
             'title' => 'Create Lab Request',
             'patients' => $patients,
+            'labTests' => $labTests,
             'pendingRequests' => $pendingRequests,
             'validation' => \Config\Services::validation()
         ];
@@ -119,16 +133,22 @@ class LaboratoryController extends BaseController
             return redirect()->back()->with('error', 'Lab request not found.');
         }
 
+        $newStatus = $this->request->getPost('status');
+        $notes = $this->request->getPost('notes');
+
+        // Nurses CANNOT mark lab requests as 'completed' - only lab staff can do this
+        if ($newStatus === 'completed') {
+            return redirect()->back()->with('error', 'You do not have permission to mark lab requests as completed. Only laboratory staff can complete lab tests.');
+        }
+
+        // Nurses can only update to pending, in_progress, or cancelled (not completed)
         $validation = $this->validate([
-            'status' => 'required|in_list[pending,in_progress,completed,cancelled]',
+            'status' => 'required|in_list[pending,in_progress,cancelled]',
         ]);
 
         if (!$validation) {
-            return redirect()->back()->with('error', 'Invalid status.');
+            return redirect()->back()->with('error', 'Invalid status. Nurses cannot mark lab requests as completed.');
         }
-
-        $newStatus = $this->request->getPost('status');
-        $notes = $this->request->getPost('notes');
 
         if ($labRequestModel->update($id, ['status' => $newStatus])) {
             // Log status change
@@ -136,7 +156,7 @@ class LaboratoryController extends BaseController
                 'lab_request_id' => $id,
                 'status' => $newStatus,
                 'changed_by' => $nurseId,
-                'notes' => $notes,
+                'notes' => $notes . ' (Updated by nurse - cannot mark as completed)',
                 'created_at' => date('Y-m-d H:i:s'),
             ]);
 
@@ -200,81 +220,9 @@ class LaboratoryController extends BaseController
             return redirect()->back()->with('error', 'Lab request not found.');
         }
 
-        $validation = $this->validate([
-            'result' => 'permit_empty|max_length[2000]',
-            'result_file' => 'permit_empty|uploaded[result_file]|max_size[result_file,10240]|ext_in[result_file,pdf,jpg,jpeg,png]',
-        ]);
-
-        if (!$validation) {
-            return redirect()->back()->withInput()->with('validation', $this->validator);
-        }
-
-        $file = $this->request->getFile('result_file');
-        $resultFile = null;
-        $resultFileType = null;
-
-        if ($file && $file->isValid() && !$file->hasMoved()) {
-            $newName = $file->getRandomName();
-            $file->move(WRITEPATH . 'uploads/lab_results/', $newName);
-            $resultFile = $newName;
-            $resultFileType = $file->getClientMimeType();
-        }
-
-        // Check if result already exists
-        $existingResult = $labResultModel->where('lab_request_id', $requestId)->first();
-        
-        $resultData = [
-            'lab_request_id' => $requestId,
-            'result' => $this->request->getPost('result'),
-            'interpretation' => $this->request->getPost('interpretation'),
-            'completed_by' => $nurseId,
-            'completed_at' => date('Y-m-d H:i:s'),
-        ];
-
-        if ($resultFile) {
-            $resultData['result_file'] = $resultFile;
-            $resultData['result_file_type'] = $resultFileType;
-        }
-
-        $isNewResult = !$existingResult;
-        
-        if ($existingResult) {
-            $labResultModel->update($existingResult['id'], $resultData);
-        } else {
-            $labResultModel->insert($resultData);
-        }
-
-        // Update request status to completed
-        $wasCompleted = $request['status'] === 'completed';
-        $labRequestModel->update($requestId, ['status' => 'completed']);
-
-        // Log status change
-        $historyModel = new LabStatusHistoryModel();
-        $historyModel->insert([
-            'lab_request_id' => $requestId,
-            'status' => 'completed',
-            'changed_by' => $nurseId,
-            'notes' => 'Lab result uploaded',
-            'created_at' => date('Y-m-d H:i:s'),
-        ]);
-
-        // Create notification for the nurse who requested it (when result is first created or status changes to completed)
-        if ($request['nurse_id'] && ($isNewResult || !$wasCompleted)) {
-            $patientModel = new AdminPatientModel();
-            $patient = $patientModel->find($request['patient_id']);
-            $notificationModel = new NurseNotificationModel();
-            $notificationModel->insert([
-                'nurse_id' => $request['nurse_id'],
-                'type' => 'lab_result_ready',
-                'title' => 'Lab Result Ready',
-                'message' => 'Lab result for ' . ($patient ? $patient['firstname'] . ' ' . $patient['lastname'] : 'patient') . ' (' . $request['test_name'] . ') is now available.',
-                'related_id' => $requestId,
-                'related_type' => 'lab_result',
-                'is_read' => 0,
-            ]);
-        }
-
-        return redirect()->to('/nurse/laboratory/testresult')->with('success', 'Lab result uploaded successfully.');
+        // Nurses CANNOT upload results or mark lab requests as completed
+        // Only laboratory staff can complete lab tests and upload results
+        return redirect()->back()->with('error', 'You do not have permission to upload lab results. Only laboratory staff can complete lab tests and upload results. Please contact the laboratory department.');
     }
 }
 

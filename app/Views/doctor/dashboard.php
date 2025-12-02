@@ -43,6 +43,9 @@
                 <p>Here's what's happening with your patients today</p>
             </div>
             <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                <a href="<?= site_url('doctor/admission-orders') ?>" style="background: #0288d1; color: white; padding: 12px 24px; border-radius: 10px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-hospital"></i> Admitted Patients
+                </a>
                 <a href="<?= site_url('doctor/discharge') ?>" style="background: #2e7d32; color: white; padding: 12px 24px; border-radius: 10px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;">
                     <i class="fas fa-sign-out-alt"></i> Discharge Patients
                 </a>
@@ -77,6 +80,33 @@
                 <div class="stat-title">My Assigned Patients</div>
                 <div class="stat-value"><?= $assignedPatientsCount ?? '0' ?></div>
             </div>
+        </div>
+    </div>
+
+    <!-- Completed Lab Results Section -->
+    <div class="patients-section" style="margin-top: 24px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h3 style="color: #0288d1; margin: 0;">
+                <i class="fas fa-vial"></i> Recent Lab Results
+            </h3>
+        </div>
+        <div id="completedLabResultsContainer" style="background: white; border-radius: 8px; padding: 16px; min-height: 100px;">
+            <p style="color: #94a3b8; text-align: center; padding: 20px;">Loading lab results...</p>
+        </div>
+    </div>
+
+    <!-- Admitted Patients Section -->
+    <div class="patients-section" style="margin-top: 24px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h3 style="color: #2e7d32; margin: 0;">
+                <i class="fas fa-hospital"></i> My Admitted Patients
+            </h3>
+            <a href="<?= site_url('doctor/admission-orders') ?>" style="color: #2e7d32; text-decoration: none; font-weight: 600;">
+                View All <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+        <div id="admittedPatientsContainer" style="background: white; border-radius: 8px; padding: 16px; min-height: 100px;">
+            <p style="color: #94a3b8; text-align: center; padding: 20px;">Loading admitted patients...</p>
         </div>
     </div>
 
@@ -156,6 +186,12 @@ document.addEventListener('DOMContentLoaded', function() {
             setText('pendingOrders', data.pending_orders ?? '0');
             setText('assignedPatientsCount', data.assigned_patients_count ?? '0');
             
+            // Update completed lab results
+            updateCompletedLabResults('completedLabResultsContainer', data.completed_lab_results ?? []);
+            
+            // Update admitted patients
+            updateAdmittedPatients('admittedPatientsContainer', data.admitted_patients ?? []);
+            
             // Update assigned patients table if exists
             const patientsTableBody = document.getElementById('assignedPatientsTableBody');
             if (patientsTableBody) {
@@ -179,6 +215,94 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         } catch (error) {
             console.error('Error fetching Doctor Dashboard stats:', error);
+        }
+    }
+
+    function updateAdmittedPatients(containerId, patients) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        
+        if (patients && patients.length > 0) {
+            let html = '';
+            patients.forEach(patient => {
+                const admissionDate = new Date(patient.admission_date).toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'short', 
+                    day: 'numeric' 
+                });
+                html += `
+                    <div style="background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; margin-bottom: 12px;">
+                        <div style="display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap; gap: 12px;">
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600; color: #1e293b; margin-bottom: 8px;">
+                                    <i class="fas fa-user-injured"></i> ${patient.firstname} ${patient.lastname}
+                                </div>
+                                <div style="font-size: 13px; color: #64748b; margin-bottom: 4px;">
+                                    <i class="fas fa-bed"></i> Room: ${patient.room_number || 'N/A'} - ${patient.ward || 'N/A'}
+                                </div>
+                                <div style="font-size: 12px; color: #94a3b8; margin-top: 4px;">
+                                    <i class="fas fa-calendar"></i> Admitted: ${admissionDate}
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                ${patient.pending_orders_count > 0 ? `
+                                    <span style="background: #f59e0b; color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;">
+                                        ${patient.pending_orders_count} Pending
+                                    </span>
+                                ` : ''}
+                                <a href="<?= site_url('doctor/admission-orders/view/') ?>${patient.id}" 
+                                   style="background: #2e7d32; color: white; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 600;">
+                                    <i class="fas fa-eye"></i> View
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        } else {
+            container.innerHTML = '<div style="text-align: center; padding: 20px; color: #94a3b8;"><i class="fas fa-hospital" style="font-size: 32px; margin-bottom: 8px; opacity: 0.5;"></i><p style="margin: 0; font-size: 14px;">No admitted patients</p></div>';
+        }
+    }
+    
+    function updateCompletedLabResults(containerId, results) {
+        const container = document.getElementById(containerId);
+        if (results && results.length > 0) {
+            let html = '';
+            results.forEach(result => {
+                html += `
+                    <div style="background: #f8fafc; border: 1px solid #e5e7eb; border-left: 4px solid #0288d1; border-radius: 8px; padding: 16px; margin-bottom: 12px;">
+                        <div style="display: flex; justify-content: space-between; align-items: start;">
+                            <div style="flex: 1;">
+                                <strong style="color: #0288d1; font-size: 15px;">
+                                    ${result.test_name || 'Lab Test'}
+                                </strong>
+                                <div style="margin-top: 8px; color: #64748b; font-size: 13px;">
+                                    Patient: ${result.firstname} ${result.lastname}
+                                </div>
+                                ${result.result ? `
+                                    <div style="margin-top: 12px; padding: 12px; background: white; border-radius: 6px; border: 1px solid #e5e7eb;">
+                                        <strong style="color: #475569; font-size: 13px;">Result:</strong>
+                                        <div style="margin-top: 4px; color: #1e293b; font-size: 13px; white-space: pre-wrap;">${result.result.substring(0, 100)}${result.result.length > 100 ? '...' : ''}</div>
+                                    </div>
+                                ` : ''}
+                            </div>
+                            <div style="text-align: right;">
+                                <span style="padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; background: #d1fae5; color: #065f46;">
+                                    <i class="fas fa-check-circle"></i> Completed
+                                </span>
+                            </div>
+                        </div>
+                        <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #e5e7eb; font-size: 12px; color: #64748b;">
+                            <i class="fas fa-calendar"></i> 
+                            Completed: ${result.completed_at ? new Date(result.completed_at).toLocaleString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : 'N/A'}
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        } else {
+            container.innerHTML = '<div style="text-align: center; padding: 20px; color: #94a3b8;"><i class="fas fa-vial" style="font-size: 32px; margin-bottom: 8px; opacity: 0.5;"></i><p style="margin: 0; font-size: 14px;">No completed lab results</p></div>';
         }
     }
     

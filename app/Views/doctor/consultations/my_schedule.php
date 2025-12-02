@@ -325,10 +325,55 @@
                                                class="btn-modern btn-modern-info btn-sm-modern" title="View Patient">
                                                 <i class="fas fa-user"></i>
                                             </a>
+                                            <?php
+                                            // Check if consultation has related records (for warning message)
+                                            $db = \Config\Database::connect();
+                                            $hasCharges = $db->table('charges')
+                                                ->where('consultation_id', $consultation['id'])
+                                                ->where('deleted_at', null)
+                                                ->countAllResults() > 0;
+                                            
+                                            $hasAdmission = $db->table('admissions')
+                                                ->where('consultation_id', $consultation['id'])
+                                                ->where('status !=', 'cancelled')
+                                                ->where('deleted_at', null)
+                                                ->countAllResults() > 0;
+                                            
+                                            // Check for discharge orders through admission
+                                            $hasDischargeOrder = false;
+                                            if ($hasAdmission) {
+                                                $admission = $db->table('admissions')
+                                                    ->where('consultation_id', $consultation['id'])
+                                                    ->where('status !=', 'cancelled')
+                                                    ->where('deleted_at', null)
+                                                    ->get()
+                                                    ->getRowArray();
+                                                
+                                                if ($admission) {
+                                                    $hasDischargeOrder = $db->table('discharge_orders')
+                                                        ->where('admission_id', $admission['id'])
+                                                        ->countAllResults() > 0;
+                                                }
+                                            }
+                                            
+                                            $hasRelatedRecords = $hasCharges || $hasAdmission || $hasDischargeOrder;
+                                            
+                                            // Build warning message
+                                            $warningMsg = 'Are you sure you want to delete this consultation? This action cannot be undone.';
+                                            if ($hasRelatedRecords) {
+                                                $warnings = [];
+                                                if ($hasCharges) $warnings[] = 'billing charges';
+                                                if ($hasAdmission) $warnings[] = 'admission record';
+                                                if ($hasDischargeOrder) $warnings[] = 'discharge order';
+                                                $warningMsg = 'WARNING: This consultation has associated ' . implode(', ', $warnings) . 
+                                                            '. Deleting it may affect related records. Are you sure you want to proceed?';
+                                            }
+                                            $warningMsgJs = addslashes($warningMsg);
+                                            ?>
                                             <a href="<?= site_url('doctor/consultations/delete/' . $consultation['id']) ?>" 
                                                class="btn-modern btn-modern-danger btn-sm-modern" 
-                                               onclick="return confirm('Are you sure you want to delete this consultation?')" 
-                                               title="Delete Consultation">
+                                               onclick="return confirm('<?= $warningMsgJs ?>')" 
+                                               title="<?= $hasRelatedRecords ? 'Delete Consultation (has related records)' : 'Delete Consultation' ?>">
                                                 <i class="fas fa-trash"></i>
                                             </a>
                                         </div>

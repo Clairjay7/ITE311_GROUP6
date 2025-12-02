@@ -1,19 +1,46 @@
 # Disable directory browsing
-Options All -Indexes
+Options -Indexes
 
 <IfModule mod_rewrite.c>
     RewriteEngine On
     
-    # Redirect to public directory
-    RewriteCond %{REQUEST_URI} !^/public/
-    RewriteRule ^(.*)$ public/$1 [L]
+    # Deny direct access to sensitive folders
+    RewriteCond %{REQUEST_URI} (app|system|writable|tests)/
+    RewriteRule ^ - [F]
     
-    # Redirect root to public
-    RewriteRule ^$ public/ [L]
+    # Block direct access to /public - return 404 (Page Not Found)
+    # This MUST be before the internal rewrite rule below
+    # Catches: /group6/public, /group6/public/, /group6/public/anything
+    # Case-insensitive to handle Group6 vs group6
+    RewriteCond %{REQUEST_URI} /public [NC]
+    RewriteRule ^(.*)/public(/.*)?$ - [R=404,L]
+    
+    # Skip rewrite if file or directory exists in root
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    
+    # Redirect everything else to public folder (internal rewrite, no redirect)
+    RewriteRule ^(.*)$ public/$1 [L]
 </IfModule>
 
 # Deny access to .env file
 <Files ".env">
-    Order allow,deny
-    Deny from all
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
 </Files>
+
+# Deny access to sensitive files
+<FilesMatch "^(composer\.(json|lock)|package\.json|package-lock\.json|\.gitignore|README\.md|spark)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>

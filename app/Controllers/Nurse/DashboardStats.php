@@ -82,22 +82,36 @@ class DashboardStats extends BaseController
                 ->limit(5)
                 ->findAll();
 
-            // Get pending lab requests
+            // Get lab orders from doctor orders (nurse can see but cannot approve)
+            // Lab orders bypass nurse approval - they go directly to lab staff
+            $labOrdersFromDoctor = $orderModel
+                ->select('doctor_orders.*, admin_patients.firstname, admin_patients.lastname, users.username as doctor_name')
+                ->join('admin_patients', 'admin_patients.id = doctor_orders.patient_id', 'left')
+                ->join('users', 'users.id = doctor_orders.doctor_id', 'left')
+                ->where('doctor_orders.order_type', 'lab_test')
+                ->where('doctor_orders.nurse_id', $nurseId)
+                ->where('doctor_orders.status', 'pending')
+                ->orderBy('doctor_orders.created_at', 'DESC')
+                ->limit(5)
+                ->findAll();
+
+            // Get pending lab requests (nurse-created requests that need doctor approval)
             $pendingLabRequests = $labRequestModel
                 ->select('lab_requests.*, admin_patients.firstname, admin_patients.lastname')
                 ->join('admin_patients', 'admin_patients.id = lab_requests.patient_id', 'left')
                 ->where('lab_requests.nurse_id', $nurseId)
+                ->where('lab_requests.requested_by', 'nurse')
                 ->where('lab_requests.status', 'pending')
                 ->orderBy('lab_requests.created_at', 'DESC')
                 ->limit(5)
                 ->findAll();
 
-            // Get approved lab requests
+            // Get approved/in-progress lab requests (nurse can prepare patient)
             $approvedLabRequests = $labRequestModel
                 ->select('lab_requests.*, admin_patients.firstname, admin_patients.lastname')
                 ->join('admin_patients', 'admin_patients.id = lab_requests.patient_id', 'left')
                 ->where('lab_requests.nurse_id', $nurseId)
-                ->where('lab_requests.status', 'in_progress')
+                ->whereIn('lab_requests.status', ['in_progress', 'pending'])
                 ->orderBy('lab_requests.updated_at', 'DESC')
                 ->limit(5)
                 ->findAll();
@@ -188,6 +202,7 @@ class DashboardStats extends BaseController
                 'medicationsDue' => $medicationsDue,
                 'vitalsPending' => $vitalsPending,
                 'pendingOrders' => $pendingOrders,
+                'labOrdersFromDoctor' => $labOrdersFromDoctor,
                 'pendingLabRequests' => $pendingLabRequests,
                 'approvedLabRequests' => $approvedLabRequests,
                 'completedLabResults' => $completedLabResults,

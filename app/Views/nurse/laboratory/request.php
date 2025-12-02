@@ -177,27 +177,56 @@
                 </div>
                 
                 <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="test_type" class="form-label">Test Type *</label>
-                            <input type="text" class="form-control" id="test_type" name="test_type" 
-                                   value="<?= old('test_type') ?>" required placeholder="e.g., Blood Test, Urine Test">
-                            <?php if (isset($validation) && $validation->getError('test_type')): ?>
-                                <div class="text-danger"><?= $validation->getError('test_type') ?></div>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
+                    <div class="col-md-12">
                         <div class="form-group">
                             <label for="test_name" class="form-label">Test Name *</label>
-                            <input type="text" class="form-control" id="test_name" name="test_name" 
-                                   value="<?= old('test_name') ?>" required placeholder="e.g., Complete Blood Count">
+                            <select class="form-select" id="test_name" name="test_name" required onchange="updateLabTestInfo(this)">
+                                <option value="">-- Select Lab Test --</option>
+                                <?php if (!empty($labTests)): ?>
+                                    <?php 
+                                    $groupedTests = [];
+                                    foreach ($labTests as $test) {
+                                        $groupedTests[$test['test_type']][] = $test;
+                                    }
+                                    ?>
+                                    <?php foreach ($groupedTests as $testType => $tests): ?>
+                                        <optgroup label="<?= esc($testType) ?>">
+                                            <?php foreach ($tests as $test): ?>
+                                                <option value="<?= esc($test['test_name']) ?>" 
+                                                    data-type="<?= esc($test['test_type']) ?>"
+                                                    data-description="<?= esc($test['description'] ?? '') ?>"
+                                                    data-normal-range="<?= esc($test['normal_range'] ?? '') ?>"
+                                                    data-price="<?= esc($test['price']) ?>"
+                                                    <?= old('test_name') == $test['test_name'] ? 'selected' : '' ?>>
+                                                    <?= esc($test['test_name']) ?> 
+                                                    <span style="color: #64748b;">(₱<?= number_format($test['price'], 2) ?>)</span>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </optgroup>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <option value="" disabled>No lab tests available</option>
+                                <?php endif; ?>
+                            </select>
                             <?php if (isset($validation) && $validation->getError('test_name')): ?>
                                 <div class="text-danger"><?= $validation->getError('test_name') ?></div>
                             <?php endif; ?>
+                            <?php if (empty($labTests)): ?>
+                                <div style="margin-top: 8px; padding: 8px; background: #fee2e2; border-radius: 6px; color: #991b1b; font-size: 13px;">
+                                    <i class="fas fa-exclamation-triangle"></i> No lab tests available. Please run the seeder to populate lab tests.
+                                </div>
+                            <?php endif; ?>
+                            <small id="labTestInfo" style="display: none; margin-top: 8px; padding: 8px; background: #f1f5f9; border-radius: 6px; color: #475569; font-size: 12px;">
+                                <strong>Type:</strong> <span id="labTestType"></span><br>
+                                <strong>Description:</strong> <span id="labTestDescription"></span><br>
+                                <strong>Normal Range:</strong> <span id="labTestNormalRange"></span><br>
+                                <strong>Price:</strong> ₱<span id="labTestPrice"></span>
+                            </small>
                         </div>
                     </div>
                 </div>
+                
+                <input type="hidden" id="test_type" name="test_type" value="<?= old('test_type') ?>">
                 
                 <div class="row">
                     <div class="col-md-6">
@@ -283,5 +312,29 @@
         </div>
     <?php endif; ?>
 </div>
+
+<script>
+function updateLabTestInfo(select) {
+    const option = select.options[select.selectedIndex];
+    const infoDiv = document.getElementById('labTestInfo');
+    const typeSpan = document.getElementById('labTestType');
+    const descSpan = document.getElementById('labTestDescription');
+    const rangeSpan = document.getElementById('labTestNormalRange');
+    const priceSpan = document.getElementById('labTestPrice');
+    const testTypeInput = document.getElementById('test_type');
+    
+    if (option.value && option.dataset.type) {
+        typeSpan.textContent = option.dataset.type || 'N/A';
+        descSpan.textContent = option.dataset.description || 'N/A';
+        rangeSpan.textContent = option.dataset.normalRange || 'N/A';
+        priceSpan.textContent = parseFloat(option.dataset.price || 0).toFixed(2);
+        testTypeInput.value = option.dataset.type || '';
+        infoDiv.style.display = 'block';
+    } else {
+        infoDiv.style.display = 'none';
+        testTypeInput.value = '';
+    }
+}
+</script>
 <?= $this->endSection() ?>
 

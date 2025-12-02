@@ -50,6 +50,7 @@ $routes->group('labstaff', ['filter' => 'auth:labstaff,lab_staff,admin'], functi
     $routes->post('pending-specimens/mark-collected/(:num)', 'LabStaff\LabStaffController::markCollected/$1');
     $routes->post('pending-specimens/mark-completed/(:num)', 'LabStaff\LabStaffController::markCompleted/$1');
     $routes->get('logout', 'LabStaff\LabStaffController::logout');
+    $routes->get('labstaff/logout', 'LabStaff\LabStaffController::logout');
 });
 $routes->get('pharmacy/dashboard', 'Pharmacy\PharmacyController::index', ['filter' => 'auth:pharmacy,admin']);
 
@@ -405,6 +406,14 @@ $routes->group('doctor', ['namespace' => 'App\\Controllers', 'filter' => 'auth:d
         $routes->post('cancel/(:num)', 'Doctor\OrderController::cancel/$1');
     });
     
+    // Admission Orders (After patient is admitted)
+    $routes->group('admission-orders', function($routes) {
+        $routes->get('/', 'Doctor\AdmissionOrdersController::index');
+        $routes->get('view/(:num)', 'Doctor\AdmissionOrdersController::view/$1');
+        $routes->get('create/(:num)', 'Doctor\AdmissionOrdersController::create/$1');
+        $routes->post('store', 'Doctor\AdmissionOrdersController::store');
+    });
+
     // Doctor Discharge (Primary role - creates discharge orders)
     $routes->group('discharge', function($routes) {
         $routes->get('/', 'Doctor\DischargeController::index');

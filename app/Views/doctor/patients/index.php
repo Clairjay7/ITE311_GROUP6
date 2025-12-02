@@ -346,11 +346,76 @@
                                             $viewId = ($patient['patient_id'] ?? $patient['id'] ?? $patient['id']);
                                             $editId = ($patient['patient_id'] ?? $patient['id'] ?? $patient['id']);
                                             $deleteId = ($patient['patient_id'] ?? $patient['id'] ?? $patient['id']);
+                                            
+                                            // Check if there's already a completed consultation for this patient today
+                                            $db = \Config\Database::connect();
+                                            $doctorId = session()->get('user_id');
+                                            $today = date('Y-m-d');
+                                            
+                                            // Consultations table uses admin_patients.id, so we need to find the correct ID
+                                            $checkPatientId = null;
+                                            
+                                            if ($patientSource === 'admin' || $patientSource === 'admin_patients') {
+                                                // Direct ID from admin_patients
+                                                $checkPatientId = $consultationPatientId;
+                                            } else {
+                                                // For patients table, find the corresponding admin_patients record
+                                                if ($db->tableExists('patients')) {
+                                                    $hmsPatient = $db->table('patients')
+                                                        ->where('patient_id', $consultationPatientId)
+                                                        ->get()
+                                                        ->getRowArray();
+                                                    
+                                                    if ($hmsPatient) {
+                                                        $nameParts = [];
+                                                        if (!empty($hmsPatient['first_name'])) $nameParts[] = $hmsPatient['first_name'];
+                                                        if (!empty($hmsPatient['last_name'])) $nameParts[] = $hmsPatient['last_name'];
+                                                        if (empty($nameParts) && !empty($hmsPatient['full_name'])) {
+                                                            $parts = explode(' ', $hmsPatient['full_name'], 2);
+                                                            $nameParts = [$parts[0] ?? '', $parts[1] ?? ''];
+                                                        }
+                                                        
+                                                        $adminPatient = $db->table('admin_patients')
+                                                            ->where('firstname', $nameParts[0] ?? '')
+                                                            ->where('lastname', $nameParts[1] ?? '')
+                                                            ->where('doctor_id', $doctorId)
+                                                            ->get()
+                                                            ->getRowArray();
+                                                        
+                                                        if ($adminPatient) {
+                                                            $checkPatientId = $adminPatient['id'];
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            
+                                            $hasCompletedConsultation = false;
+                                            if ($checkPatientId) {
+                                                $existingConsultation = $db->table('consultations')
+                                                    ->where('patient_id', $checkPatientId)
+                                                    ->where('doctor_id', $doctorId)
+                                                    ->where('consultation_date', $today)
+                                                    ->where('type', 'completed')
+                                                    ->where('status', 'approved')
+                                                    ->where('deleted_at', null)
+                                                    ->get()
+                                                    ->getRowArray();
+                                                
+                                                $hasCompletedConsultation = !empty($existingConsultation);
+                                            }
                                             ?>
-                                            <a href="<?= site_url('doctor/consultations/start/' . $consultationPatientId . '/' . $consultationSource) ?>" 
-                                               class="btn-modern btn-modern-primary btn-sm-modern" title="Start Consultation">
-                                                <i class="fas fa-stethoscope"></i> Start Consultation
-                                            </a>
+                                            <?php if (!$hasCompletedConsultation): ?>
+                                                <a href="<?= site_url('doctor/consultations/start/' . $consultationPatientId . '/' . $consultationSource) ?>" 
+                                                   class="btn-modern btn-modern-primary btn-sm-modern" title="Start Consultation">
+                                                    <i class="fas fa-stethoscope"></i> Start Consultation
+                                                </a>
+                                            <?php else: ?>
+                                                <span class="btn-modern btn-sm-modern" 
+                                                      style="background: #d1fae5; color: #065f46; cursor: default;" 
+                                                      title="Consultation already completed today">
+                                                    <i class="fas fa-check-circle"></i> Consultation Done
+                                                </span>
+                                            <?php endif; ?>
                                             <a href="<?= site_url('doctor/patients/view/' . $viewId) ?>" 
                                                class="btn-modern btn-modern-info btn-sm-modern" title="View Details">
                                                 <i class="fas fa-eye"></i>

@@ -462,14 +462,45 @@
                                     </td>
                                     <td>
                                         <?php if ($order['status'] !== 'completed'): ?>
-                                            <form action="<?= site_url('nurse/patients/update-order-status/' . $order['id']) ?>" method="post" style="display: inline;">
-                                                <?= csrf_field() ?>
-                                                <input type="hidden" name="status" value="completed">
-                                                <button type="submit" class="btn-modern btn-modern-success btn-sm-modern" onclick="return confirm('Mark this order as completed?')">
-                                                    <i class="fas fa-check"></i>
-                                                    Mark Complete
-                                                </button>
-                                            </form>
+                                            <?php if ($order['order_type'] === 'lab_test'): ?>
+                                                <?php 
+                                                // For lab_test orders, only show "Mark Complete" if lab staff has completed it
+                                                $labRequestStatus = $order['lab_request_status'] ?? 'not_found';
+                                                $hasLabResult = $order['has_lab_result'] ?? false;
+                                                $canMarkComplete = ($labRequestStatus === 'completed' && $hasLabResult);
+                                                ?>
+                                                <?php if ($canMarkComplete): ?>
+                                                    <form action="<?= site_url('nurse/patients/update-order-status/' . $order['id']) ?>" method="post" style="display: inline;">
+                                                        <?= csrf_field() ?>
+                                                        <input type="hidden" name="status" value="completed">
+                                                        <button type="submit" class="btn-modern btn-modern-success btn-sm-modern" onclick="return confirm('Mark this lab test order as completed? Lab result is available.')">
+                                                            <i class="fas fa-check"></i>
+                                                            Mark Complete
+                                                        </button>
+                                                    </form>
+                                                <?php else: ?>
+                                                    <div style="padding: 8px 12px; background: #fef3c7; border-radius: 6px; font-size: 12px; color: #92400e;">
+                                                        <i class="fas fa-clock"></i>
+                                                        <?php if ($labRequestStatus === 'not_found'): ?>
+                                                            Waiting for lab request
+                                                        <?php elseif ($labRequestStatus !== 'completed'): ?>
+                                                            Lab status: <?= ucfirst(str_replace('_', ' ', $labRequestStatus)) ?>
+                                                        <?php elseif (!$hasLabResult): ?>
+                                                            Waiting for lab results
+                                                        <?php endif; ?>
+                                                    </div>
+                                                <?php endif; ?>
+                                            <?php else: ?>
+                                                <!-- For non-lab_test orders, show mark complete button normally -->
+                                                <form action="<?= site_url('nurse/patients/update-order-status/' . $order['id']) ?>" method="post" style="display: inline;">
+                                                    <?= csrf_field() ?>
+                                                    <input type="hidden" name="status" value="completed">
+                                                    <button type="submit" class="btn-modern btn-modern-success btn-sm-modern" onclick="return confirm('Mark this order as completed?')">
+                                                        <i class="fas fa-check"></i>
+                                                        Mark Complete
+                                                    </button>
+                                                </form>
+                                            <?php endif; ?>
                                         <?php else: ?>
                                             <span style="color: #10b981; font-weight: 600;">
                                                 <i class="fas fa-check-circle"></i> Completed

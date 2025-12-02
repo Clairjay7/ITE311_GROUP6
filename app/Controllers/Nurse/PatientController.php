@@ -76,6 +76,39 @@ class PatientController extends BaseController
             ->where('doctor_orders.patient_id', $id)
             ->orderBy('doctor_orders.created_at', 'DESC')
             ->findAll();
+        
+        // For lab_test orders, check if corresponding lab_request is completed
+        $db = \Config\Database::connect();
+        foreach ($orders as &$order) {
+            if ($order['order_type'] === 'lab_test') {
+                // Find corresponding lab_request
+                $labRequest = null;
+                if ($db->tableExists('lab_requests')) {
+                    $labRequest = $db->table('lab_requests')
+                        ->where('patient_id', $order['patient_id'])
+                        ->where('doctor_id', $order['doctor_id'])
+                        ->where('test_name', $order['order_description'])
+                        ->orderBy('created_at', 'DESC')
+                        ->limit(1)
+                        ->get()
+                        ->getRowArray();
+                }
+                
+                // Add lab_request status and result info to order
+                $order['lab_request_status'] = $labRequest['status'] ?? 'not_found';
+                $order['lab_request_id'] = $labRequest['id'] ?? null;
+                $order['has_lab_result'] = false;
+                
+                // Check if lab result exists
+                if ($labRequest && $db->tableExists('lab_results')) {
+                    $labResult = $db->table('lab_results')
+                        ->where('lab_request_id', $labRequest['id'])
+                        ->get()
+                        ->getRowArray();
+                    $order['has_lab_result'] = !empty($labResult);
+                }
+            }
+        }
 
         $data = [
             'title' => 'Patient Details',
@@ -242,6 +275,61 @@ class PatientController extends BaseController
 
         $newStatus = $this->request->getPost('status');
         $notes = $this->request->getPost('notes');
+
+        // For lab_test orders: Nurses CANNOT mark as complete unless lab staff has completed the lab request
+        if ($order['order_type'] === 'lab_test' && $newStatus === 'completed') {
+            $db = \Config\Database::connect();
+            
+            // Find the corresponding lab_request
+            $labRequest = null;
+            
+            // Try to find by extracting link info from doctor_order instructions/remarks
+            // Or find by matching patient_id, doctor_id, and test_name
+            if ($db->tableExists('lab_requests')) {
+                // First, try to find by matching criteria
+                $labRequest = $db->table('lab_requests')
+                    ->where('patient_id', $order['patient_id'])
+                    ->where('doctor_id', $order['doctor_id'])
+                    ->where('test_name', $order['order_description'])
+                    ->orderBy('created_at', 'DESC')
+                    ->limit(1)
+                    ->get()
+                    ->getRowArray();
+                
+                // If not found, try to find by admission_id if available
+                if (!$labRequest && !empty($order['admission_id'])) {
+                    $labRequest = $db->table('lab_requests')
+                        ->where('patient_id', $order['patient_id'])
+                        ->where('doctor_id', $order['doctor_id'])
+                        ->where('test_name', $order['order_description'])
+                        ->orderBy('created_at', 'DESC')
+                        ->limit(1)
+                        ->get()
+                        ->getRowArray();
+                }
+            }
+            
+            // Check if lab_request exists and is completed
+            if (!$labRequest) {
+                return redirect()->back()->with('error', 'Cannot mark lab test order as complete. Lab request not found. Please contact the laboratory department.');
+            }
+            
+            if ($labRequest['status'] !== 'completed') {
+                return redirect()->back()->with('error', 'Cannot mark lab test order as complete. Laboratory staff has not yet completed the lab test. Current lab status: ' . ucfirst(str_replace('_', ' ', $labRequest['status'])) . '. Please wait for laboratory to complete the test first.');
+            }
+            
+            // Check if lab result exists
+            if ($db->tableExists('lab_results')) {
+                $labResult = $db->table('lab_results')
+                    ->where('lab_request_id', $labRequest['id'])
+                    ->get()
+                    ->getRowArray();
+                
+                if (!$labResult) {
+                    return redirect()->back()->with('error', 'Cannot mark lab test order as complete. Lab result is not yet available. Please wait for laboratory to upload the results.');
+                }
+            }
+        }
 
         $updateData = [
             'status' => $newStatus,

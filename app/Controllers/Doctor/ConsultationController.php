@@ -41,12 +41,13 @@ class ConsultationController extends BaseController
         $consultationModel = new ConsultationModel();
         $doctorId = session()->get('user_id');
 
-        // Get consultations with for_admission field
+        // Get consultations with for_admission field (exclude soft-deleted)
         $db = \Config\Database::connect();
         $mySchedule = $db->table('consultations c')
             ->select('c.*, ap.firstname, ap.lastname')
             ->join('admin_patients ap', 'ap.id = c.patient_id', 'left')
             ->where('c.doctor_id', $doctorId)
+            ->where('c.deleted_at', null) // Exclude soft-deleted consultations
             ->orderBy('c.consultation_date', 'DESC')
             ->orderBy('c.consultation_time', 'DESC')
             ->get()
@@ -222,10 +223,18 @@ class ConsultationController extends BaseController
 
         $consultationModel = new ConsultationModel();
         $doctorId = session()->get('user_id');
+        $db = \Config\Database::connect();
 
-        $consultation = $consultationModel->find($id);
+        // Try to find the consultation (including soft-deleted ones to check if it exists)
+        $consultation = $consultationModel->withDeleted()->find($id);
+        
         if (!$consultation) {
-            return redirect()->to('/doctor/consultations/my-schedule')->with('error', 'Consultation not found.');
+            return redirect()->to('/doctor/consultations/my-schedule')->with('error', 'Consultation not found. It may have been already deleted.');
+        }
+
+        // Check if already soft-deleted
+        if (!empty($consultation['deleted_at'])) {
+            return redirect()->to('/doctor/consultations/my-schedule')->with('error', 'This consultation has already been deleted.');
         }
 
         // Verify this consultation belongs to this doctor
@@ -233,10 +242,53 @@ class ConsultationController extends BaseController
             return redirect()->to('/doctor/consultations/my-schedule')->with('error', 'You do not have access to this consultation.');
         }
 
+        // Check if consultation has related records (for warning only, not blocking)
+        $hasCharges = $db->table('charges')
+            ->where('consultation_id', $id)
+            ->where('deleted_at', null)
+            ->countAllResults() > 0;
+
+        $hasAdmission = $db->table('admissions')
+            ->where('consultation_id', $id)
+            ->where('status !=', 'cancelled')
+            ->where('deleted_at', null)
+            ->countAllResults() > 0;
+
+        // Check for discharge orders through admission
+        $hasDischargeOrder = false;
+        if ($hasAdmission) {
+            $admission = $db->table('admissions')
+                ->where('consultation_id', $id)
+                ->where('status !=', 'cancelled')
+                ->where('deleted_at', null)
+                ->get()
+                ->getRowArray();
+            
+            if ($admission) {
+                $hasDischargeOrder = $db->table('discharge_orders')
+                    ->where('admission_id', $admission['id'])
+                    ->countAllResults() > 0;
+            }
+        }
+
+        // Proceed with deletion (allow deletion even with related records)
         if ($consultationModel->delete($id)) {
-            return redirect()->to('/doctor/consultations/my-schedule')->with('success', 'Consultation deleted successfully.');
+            $message = 'Consultation deleted successfully.';
+            
+            // Add warning if there were related records
+            if ($hasCharges || $hasAdmission || $hasDischargeOrder) {
+                $warnings = [];
+                if ($hasCharges) $warnings[] = 'billing charges';
+                if ($hasAdmission) $warnings[] = 'admission record';
+                if ($hasDischargeOrder) $warnings[] = 'discharge order';
+                
+                $message .= ' Note: This consultation had associated ' . implode(', ', $warnings) . 
+                           '. Related records may need manual review.';
+            }
+            
+            return redirect()->to('/doctor/consultations/my-schedule')->with('success', $message);
         } else {
-            return redirect()->back()->with('error', 'Failed to delete consultation.');
+            return redirect()->back()->with('error', 'Failed to delete consultation. Please try again.');
         }
     }
 

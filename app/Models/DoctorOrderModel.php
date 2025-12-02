@@ -14,6 +14,7 @@ class DoctorOrderModel extends Model
 
     protected $allowedFields = [
         'patient_id',
+        'admission_id',
         'doctor_id',
         'nurse_id',
         'order_type',

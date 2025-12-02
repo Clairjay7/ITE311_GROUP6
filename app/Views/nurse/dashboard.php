@@ -658,18 +658,48 @@
         </div>
     </div>
 
-    <!-- Lab Requests Status -->
+    <!-- Lab Orders & Requests Status -->
     <div class="section-card">
         <h3>
             <i class="fas fa-vial"></i>
-            Lab Requests Status
+            Lab Orders & Requests
+            <small style="font-size: 12px; color: #64748b; font-weight: normal;">
+                (Lab orders from doctors go directly to lab staff - no approval needed)
+            </small>
         </h3>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
-            <!-- Pending Requests -->
+            <!-- Lab Orders from Doctor (Direct to Lab Staff) -->
+            <div>
+                <h5 style="color: #0288d1; margin-bottom: 12px;">
+                    <i class="fas fa-user-md"></i>
+                    Lab Orders from Doctor (<?= count($labOrdersFromDoctor ?? []) ?>)
+                </h5>
+                <div id="labOrdersFromDoctorContainer">
+                    <?php if (!empty($labOrdersFromDoctor)): ?>
+                        <?php foreach ($labOrdersFromDoctor as $order): ?>
+                            <div style="background: #e3f2fd; padding: 12px; border-radius: 8px; margin-bottom: 8px; border-left: 4px solid #0288d1;">
+                                <div style="font-weight: 600; color: #0277bd;">
+                                    <?= esc($order['order_description']) ?>
+                                </div>
+                                <div style="font-size: 12px; color: #01579b; margin-top: 4px;">
+                                    Patient: <?= esc(ucfirst($order['firstname']) . ' ' . ucfirst($order['lastname'])) ?>
+                                </div>
+                                <div style="font-size: 11px; color: #0277bd; margin-top: 4px;">
+                                    <i class="fas fa-info-circle"></i> Sent directly to lab staff - prepare patient for test
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <p style="color: #94a3b8; font-size: 14px;">No lab orders from doctor</p>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <!-- Pending Requests (Nurse-created, need doctor approval) -->
             <div>
                 <h5 style="color: #f59e0b; margin-bottom: 12px;">
                     <i class="fas fa-clock"></i>
-                    Pending (<?= count($pendingLabRequests ?? []) ?>)
+                    Pending (Nurse-created) (<?= count($pendingLabRequests ?? []) ?>)
                 </h5>
                 <div id="pendingLabRequestsContainer">
                     <?php if (!empty($pendingLabRequests)): ?>
@@ -943,6 +973,11 @@ async function refreshDashboard() {
         // Update pending discharges
         updatePendingDischarges('pendingDischargesContainer', data.pendingDischarges);
 
+        // Update lab orders from doctor
+        if (data.labOrdersFromDoctor) {
+            updateLabOrdersFromDoctor('labOrdersFromDoctorContainer', data.labOrdersFromDoctor);
+        }
+        
         // Update lab requests
         updateLabRequests('pendingLabRequestsContainer', data.pendingLabRequests);
         updateLabRequests('approvedLabRequestsContainer', data.approvedLabRequests, true);
@@ -1001,6 +1036,31 @@ function updateTable(bodyId, containerId, data, rowTemplate, headers) {
         container.innerHTML = html;
     } else {
         container.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i><p>No data available</p></div>';
+    }
+}
+
+function updateLabOrdersFromDoctor(containerId, orders) {
+    const container = document.getElementById(containerId);
+    if (orders && orders.length > 0) {
+        let html = '';
+        orders.forEach(order => {
+            html += `
+                <div style="background: #e3f2fd; padding: 12px; border-radius: 8px; margin-bottom: 8px; border-left: 4px solid #0288d1;">
+                    <div style="font-weight: 600; color: #0277bd;">
+                        ${order.order_description || 'Lab Test'}
+                    </div>
+                    <div style="font-size: 12px; color: #01579b; margin-top: 4px;">
+                        Patient: ${order.firstname} ${order.lastname}
+                    </div>
+                    <div style="font-size: 11px; color: #0277bd; margin-top: 4px;">
+                        <i class="fas fa-info-circle"></i> Sent directly to lab staff - prepare patient for test
+                    </div>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    } else {
+        container.innerHTML = '<p style="color: #94a3b8; font-size: 14px;">No lab orders from doctor</p>';
     }
 }
 

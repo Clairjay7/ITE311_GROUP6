@@ -129,6 +129,13 @@
             </li>
 
             <li class="nav-item">
+                <a href="<?= site_url('doctor/admission-orders') ?>">
+                    <i class="fa-solid fa-hospital sidebar-icon"></i>
+                    <span class="text">Admitted Patients</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
                 <a href="<?= site_url('doctor/discharge') ?>">
                     <i class="fa-solid fa-sign-out-alt sidebar-icon"></i>
                     <span class="text">Discharge Patients</span>
@@ -374,12 +381,6 @@
                     <span class="text">Completed Tests</span>
                 </a>
             </li>
-            <li class="nav-item">
-                <a href="<?= site_url('labstaff/logout') ?>">
-                    <i class="fa-solid fa-sign-out-alt sidebar-icon"></i>
-                    <span class="text">Logout</span>
-                </a>
-            </li>
         <?php endif; ?>
 
         <!-- PHARMACY -->
@@ -417,6 +418,7 @@
         <!-- COMMON -->
         <li class="nav-item">
             <a href="<?= site_url('auth/logout') ?>">
+                <i class="fa-solid fa-sign-out-alt sidebar-icon"></i>
                 <span class="text">Logout</span>
             </a>
         </li>

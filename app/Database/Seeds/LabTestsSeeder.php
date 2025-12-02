@@ -1,0 +1,325 @@
+<?php
+
+namespace App\Database\Seeds;
+
+use CodeIgniter\Database\Seeder;
+
+class LabTestsSeeder extends Seeder
+{
+    public function run()
+    {
+        $db = \Config\Database::connect();
+        
+        // Common hospital lab tests - Basic and daily use
+        $labTests = [
+            // Hematology Tests
+            [
+                'test_name' => 'Complete Blood Count (CBC)',
+                'test_type' => 'Hematology',
+                'description' => 'Complete blood count including RBC, WBC, Hemoglobin, Hematocrit, Platelets',
+                'normal_range' => 'Varies by component',
+                'price' => 350.00,
+                'is_active' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ],
+            [
+                'test_name' => 'Hemoglobin (Hb)',
+                'test_type' => 'Hematology',
+                'description' => 'Hemoglobin level measurement',
+                'normal_range' => 'Male: 13.5-17.5 g/dL, Female: 12.0-15.5 g/dL',
+                'price' => 150.00,
+                'is_active' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ],
+            [
+                'test_name' => 'Hematocrit (Hct)',
+                'test_type' => 'Hematology',
+                'description' => 'Hematocrit level measurement',
+                'normal_range' => 'Male: 40-50%, Female: 36-46%',
+                'price' => 120.00,
+                'is_active' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ],
+            [
+                'test_name' => 'White Blood Cell Count (WBC)',
+                'test_type' => 'Hematology',
+                'description' => 'Total white blood cell count',
+                'normal_range' => '4,500-11,000 cells/μL',
+                'price' => 150.00,
+                'is_active' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ],
+            [
+                'test_name' => 'Platelet Count',
+                'test_type' => 'Hematology',
+                'description' => 'Platelet count measurement',
+                'normal_range' => '150,000-450,000 cells/μL',
+                'price' => 150.00,
+                'is_active' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ],
+            [
+                'test_name' => 'Blood Type & Rh',
+                'test_type' => 'Hematology',
+                'description' => 'Blood typing and Rh factor determination',
+                'normal_range' => 'A, B, AB, O / Rh+ or Rh-',
+                'price' => 200.00,
+                'is_active' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ],
+            
+            // Chemistry Tests
+            [
+                'test_name' => 'Fasting Blood Sugar (FBS)',
+                'test_type' => 'Chemistry',
+                'description' => 'Fasting blood glucose level',
+                'normal_range' => '70-100 mg/dL',
+                'price' => 200.00,
+                'is_active' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ],
+            [
+                'test_name' => 'Random Blood Sugar (RBS)',
+                'test_type' => 'Chemistry',
+                'description' => 'Random blood glucose level',
+                'normal_range' => '< 140 mg/dL',
+                'price' => 200.00,
+                'is_active' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ],
+            [
+                'test_name' => 'Blood Urea Nitrogen (BUN)',
+                'test_type' => 'Chemistry',
+                'description' => 'Kidney function test',
+                'normal_range' => '7-20 mg/dL',
+                'price' => 250.00,
+                'is_active' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ],
+            [
+                'test_name' => 'Creatinine',
+                'test_type' => 'Chemistry',
+                'description' => 'Kidney function test',
+                'normal_range' => 'Male: 0.7-1.3 mg/dL, Female: 0.6-1.1 mg/dL',
+                'price' => 250.00,
+                'is_active' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ],
+            [
+                'test_name' => 'Total Cholesterol',
+                'test_type' => 'Chemistry',
+                'description' => 'Total cholesterol level',
+                'normal_range' => '< 200 mg/dL',
+                'price' => 300.00,
+                'is_active' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ],
+            [
+                'test_name' => 'Triglycerides',
+                'test_type' => 'Chemistry',
+                'description' => 'Triglyceride level',
+                'normal_range' => '< 150 mg/dL',
+                'price' => 300.00,
+                'is_active' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ],
+            [
+                'test_name' => 'ALT (SGPT)',
+                'test_type' => 'Chemistry',
+                'description' => 'Alanine aminotransferase - Liver function test',
+                'normal_range' => 'Male: 7-40 U/L, Female: 7-35 U/L',
+                'price' => 250.00,
+                'is_active' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ],
+            [
+                'test_name' => 'AST (SGOT)',
+                'test_type' => 'Chemistry',
+                'description' => 'Aspartate aminotransferase - Liver function test',
+                'normal_range' => 'Male: 10-40 U/L, Female: 9-32 U/L',
+                'price' => 250.00,
+                'is_active' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ],
+            [
+                'test_name' => 'Sodium (Na)',
+                'test_type' => 'Chemistry',
+                'description' => 'Serum sodium level',
+                'normal_range' => '136-145 mEq/L',
+                'price' => 200.00,
+                'is_active' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ],
+            [
+                'test_name' => 'Potassium (K)',
+                'test_type' => 'Chemistry',
+                'description' => 'Serum potassium level',
+                'normal_range' => '3.5-5.0 mEq/L',
+                'price' => 200.00,
+                'is_active' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ],
+            
+            // Urinalysis
+            [
+                'test_name' => 'Urinalysis (Complete)',
+                'test_type' => 'Urinalysis',
+                'description' => 'Complete urinalysis including physical, chemical, and microscopic examination',
+                'normal_range' => 'Varies by component',
+                'price' => 250.00,
+                'is_active' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ],
+            [
+                'test_name' => 'Urine Culture & Sensitivity',
+                'test_type' => 'Microbiology',
+                'description' => 'Bacterial culture and antibiotic sensitivity testing',
+                'normal_range' => 'No growth (sterile)',
+                'price' => 400.00,
+                'is_active' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ],
+            [
+                'test_name' => 'Pregnancy Test (Urine)',
+                'test_type' => 'Urinalysis',
+                'description' => 'Pregnancy test using urine sample',
+                'normal_range' => 'Positive or Negative',
+                'price' => 200.00,
+                'is_active' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ],
+            
+            // Microbiology
+            [
+                'test_name' => 'Gram Stain',
+                'test_type' => 'Microbiology',
+                'description' => 'Gram staining for bacterial identification',
+                'normal_range' => 'No organisms seen',
+                'price' => 300.00,
+                'is_active' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ],
+            [
+                'test_name' => 'Blood Culture',
+                'test_type' => 'Microbiology',
+                'description' => 'Blood culture for bacterial infection',
+                'normal_range' => 'No growth',
+                'price' => 500.00,
+                'is_active' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ],
+            
+            // Imaging
+            [
+                'test_name' => 'Chest X-Ray',
+                'test_type' => 'Imaging',
+                'description' => 'Chest X-ray examination',
+                'normal_range' => 'Normal lung fields, no abnormalities',
+                'price' => 800.00,
+                'is_active' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ],
+            [
+                'test_name' => 'Abdominal X-Ray',
+                'test_type' => 'Imaging',
+                'description' => 'Abdominal X-ray examination',
+                'normal_range' => 'Normal abdominal structures',
+                'price' => 800.00,
+                'is_active' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ],
+            [
+                'test_name' => 'ECG (Electrocardiogram)',
+                'test_type' => 'Imaging',
+                'description' => 'Electrocardiogram for heart rhythm analysis',
+                'normal_range' => 'Normal sinus rhythm',
+                'price' => 600.00,
+                'is_active' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ],
+            [
+                'test_name' => 'Ultrasound (Abdomen)',
+                'test_type' => 'Imaging',
+                'description' => 'Abdominal ultrasound examination',
+                'normal_range' => 'Normal organ sizes and structures',
+                'price' => 1200.00,
+                'is_active' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ],
+            [
+                'test_name' => 'Ultrasound (Pelvis)',
+                'test_type' => 'Imaging',
+                'description' => 'Pelvic ultrasound examination',
+                'normal_range' => 'Normal pelvic structures',
+                'price' => 1200.00,
+                'is_active' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ],
+            
+            // Serology
+            [
+                'test_name' => 'Hepatitis B Surface Antigen (HBsAg)',
+                'test_type' => 'Serology',
+                'description' => 'Hepatitis B screening test',
+                'normal_range' => 'Negative',
+                'price' => 400.00,
+                'is_active' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ],
+            [
+                'test_name' => 'HIV Test',
+                'test_type' => 'Serology',
+                'description' => 'HIV screening test',
+                'normal_range' => 'Negative',
+                'price' => 500.00,
+                'is_active' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ],
+            [
+                'test_name' => 'VDRL/RPR',
+                'test_type' => 'Serology',
+                'description' => 'Syphilis screening test',
+                'normal_range' => 'Non-reactive',
+                'price' => 350.00,
+                'is_active' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ],
+        ];
+        
+        // Insert lab tests
+        $db->table('lab_tests')->insertBatch($labTests);
+        
+        echo "Lab tests seeded successfully!\n";
+    }
+}
+
+
