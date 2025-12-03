@@ -362,14 +362,23 @@
                                             ($order['status'] == 'cancelled' ? '#991b1b' : '#1e40af')); 
                                         ?>;">
                                             <?php if ($order['order_type'] === 'medication' && $order['status'] == 'completed'): ?>
-                                                <i class="fas fa-check-circle"></i> Administered
+                                                <?php if (($order['purchase_location'] ?? '') === 'outside'): ?>
+                                                    <i class="fas fa-prescription"></i> Prescribed
+                                                <?php else: ?>
+                                                    <i class="fas fa-check-circle"></i> Administered
+                                                <?php endif; ?>
                                             <?php else: ?>
                                                 <?= esc(ucfirst(str_replace('_', ' ', $order['status']))) ?>
                                             <?php endif; ?>
                                         </span>
                                     </td>
                                     <td>
-                                        <?php if ($order['order_type'] === 'medication'): ?>
+                                        <?php if ($order['order_type'] === 'medication' && ($order['purchase_location'] ?? '') === 'outside'): ?>
+                                            <span class="badge-modern" style="background: #f1f5f9; color: #64748b;">
+                                                <i class="fas fa-store"></i> N/A
+                                            </span>
+                                            <small style="display: block; margin-top: 4px; color: #94a3b8; font-size: 11px;">Outside Purchase</small>
+                                        <?php elseif ($order['order_type'] === 'medication'): ?>
                                             <span class="badge-modern" style="background: <?= 
                                                 ($order['pharmacy_status'] ?? 'pending') == 'dispensed' ? '#d1fae5' : 
                                                 (($order['pharmacy_status'] ?? 'pending') == 'prepared' ? '#fef3c7' : 
@@ -382,7 +391,7 @@
                                                 <?= esc(ucfirst($order['pharmacy_status'] ?? 'Pending')) ?>
                                             </span>
                                         <?php else: ?>
-                                            <span style="color: #94a3b8;">N/A</span>
+                                            <span style="color: #94a3b8;">—</span>
                                         <?php endif; ?>
                                     </td>
                                     <td><?= esc(date('M d, Y', strtotime($order['created_at']))) ?></td>

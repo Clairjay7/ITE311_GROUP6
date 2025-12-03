@@ -74,7 +74,7 @@ $initialType = $initialType ?? 'Out-Patient';
               <option value="">-- Select Visit Type --</option>
               <option value="Emergency" <?= set_select('visit_type','Emergency') ?>>Emergency</option>
             </select>
-            <small class="text-muted">Emergency cases require room assignment and will go to Nurse Triage first</small>
+            <small class="text-muted">Emergency cases require ER room assignment and will go to Nurse Triage for vital signs check</small>
           </div>
           <div class="col-md-4">
             <label class="form-label">Purpose of Visit / Reason</label>
@@ -91,29 +91,40 @@ $initialType = $initialType ?? 'Out-Patient';
           </div>
         </div>
         
-        <!-- Room Assignment (Required for In-Patient Emergency) -->
-        <div id="room_assignment_section">
-          <h5 class="section-title mb-3">Room Assignment</h5>
-          <div class="alert alert-info">
-            <i class="fas fa-info-circle"></i> Room assignment is required for Emergency In-Patient cases.
+        <!-- ER Room Assignment (Required for Emergency In-Patient) -->
+        <div id="er_room_section" style="display: none;">
+          <h5 class="section-title mb-3">ER Room Assignment <span class="text-danger">*</span></h5>
+          <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle"></i> 
+            <strong>Emergency Case:</strong> ER room assignment is <strong>REQUIRED</strong>. Patient will go to Nurse Triage for vital signs check, then Doctor will review if admission is needed.
           </div>
           <div class="row g-3 mb-4">
             <div class="col-md-6">
-              <label class="form-label">Ward<span class="text-danger">*</span></label>
-              <select name="ward" id="wardSelect" class="form-select" required>
-                <option value="">-- Select Ward --</option>
-                <?php foreach (($availableRoomsByWard ?? []) as $wardName => $rooms): ?>
-                  <?php if (!empty($rooms)): ?>
-                    <option value="<?= esc($wardName) ?>" <?= set_select('ward', $wardName) ?>><?= esc($wardName) ?></option>
-                  <?php endif; ?>
-                <?php endforeach; ?>
-              </select>
+              <label class="form-label">ER Ward</label>
+              <input type="text" class="form-control" value="Emergency / ER" readonly>
+              <input type="hidden" name="ward" value="Emergency">
             </div>
             <div class="col-md-6">
-              <label class="form-label">Room Number<span class="text-danger">*</span></label>
-              <select name="room_number" id="roomSelect" class="form-select" required>
-                <option value="">-- Select Room --</option>
+              <label class="form-label">ER Room <span class="text-danger">*</span></label>
+              <select name="er_room_id" id="erRoomSelect" class="form-select" required>
+                <option value="">-- Select ER Room --</option>
+                <?php if (!empty($erRooms ?? [])): ?>
+                  <?php foreach ($erRooms as $room): ?>
+                    <option value="<?= esc($room['id']) ?>">
+                      <?= esc($room['room_number']) ?> - <?= esc($room['ward'] ?? 'ER') ?> 
+                      <?php if (!empty($room['room_type'])): ?>
+                        (<?= esc($room['room_type']) ?>)
+                      <?php endif; ?>
+                    </option>
+                  <?php endforeach; ?>
+                <?php else: ?>
+                  <option value="" disabled>No Available ER Rooms - Please create ER rooms first</option>
+                <?php endif; ?>
               </select>
+              <small class="text-muted text-danger">
+                <i class="fas fa-exclamation-circle"></i> 
+                <strong>Required:</strong> You must select an ER room for Emergency In-Patient registration.
+              </small>
             </div>
           </div>
         </div>
@@ -147,33 +158,22 @@ window.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // Ward/Room dropdown handling for In-Patient registration (Emergency only, room assignment always required)
-  const wardSelect = document.getElementById('wardSelect');
-  const roomSelect = document.getElementById('roomSelect');
+  // Show/hide ER room section based on visit type
+  const visitTypeSelect = document.getElementById('visit_type');
+  const erRoomSection = document.getElementById('er_room_section');
 
-  if (wardSelect && roomSelect) {
-    const roomsByWard = <?= json_encode($availableRoomsByWard ?? []) ?>;
-
-    function populateRoomsForWard(wardName) {
-      roomSelect.innerHTML = '';
-      const placeholder = document.createElement('option');
-      placeholder.value = '';
-      placeholder.textContent = '-- Select Room --';
-      roomSelect.appendChild(placeholder);
-
-      const rooms = roomsByWard[wardName] || [];
-      rooms.forEach(function (room) {
-        const opt = document.createElement('option');
-        opt.value = room.room_number;
-        opt.textContent = room.room_number;
-        roomSelect.appendChild(opt);
-      });
+  if (visitTypeSelect && erRoomSection) {
+    function toggleERRoomSection() {
+      if (visitTypeSelect.value === 'Emergency') {
+        erRoomSection.style.display = 'block';
+      } else {
+        erRoomSection.style.display = 'none';
+      }
     }
 
-    wardSelect.addEventListener('change', function () {
-      const wardName = this.value;
-      populateRoomsForWard(wardName);
-    });
+    visitTypeSelect.addEventListener('change', toggleERRoomSection);
+    // Check on page load
+    toggleERRoomSection();
   }
 });
 </script>

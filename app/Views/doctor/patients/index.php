@@ -450,5 +450,67 @@
             <?php endif; ?>
         </div>
     </div>
+
+    <!-- Patients Marked for Admission by Nurse (Pending Doctor Approval) -->
+    <?php if (!empty($patientsForAdmission ?? [])): ?>
+    <div class="modern-card" style="margin-top: 30px; border-left: 4px solid #f59e0b;">
+        <div class="card-header-modern" style="background: #fef3c7; border-bottom: 2px solid #f59e0b;">
+            <h5 style="color: #92400e;">
+                <i class="fas fa-user-injured"></i>
+                Patients Marked for Admission (Pending Your Approval)
+            </h5>
+            <span class="badge-modern badge-warning">
+                <?= count($patientsForAdmission) ?> Patient(s)
+            </span>
+        </div>
+        <div class="card-body-modern">
+            <div class="table-container">
+                <table class="table-modern">
+                    <thead>
+                        <tr>
+                            <th>Patient Name</th>
+                            <th>Triage Level</th>
+                            <th>Chief Complaint</th>
+                            <th>Nurse Recommendation</th>
+                            <th>Requested At</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($patientsForAdmission as $patient): ?>
+                            <tr>
+                                <td><strong><?= esc($patient['patient_name']) ?></strong></td>
+                                <td>
+                                    <span class="badge-modern <?= 
+                                        strtolower($patient['triage_level']) === 'critical' ? 'badge-danger' : 
+                                        (strtolower($patient['triage_level']) === 'moderate' ? 'badge-warning' : 'badge-info') 
+                                    ?>">
+                                        <?= esc($patient['triage_level']) ?>
+                                    </span>
+                                </td>
+                                <td><?= esc($patient['chief_complaint']) ?></td>
+                                <td>
+                                    <div style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" 
+                                         title="<?= esc($patient['admission_reason']) ?>">
+                                        <?= esc(substr($patient['admission_reason'], 0, 100)) ?><?= strlen($patient['admission_reason']) > 100 ? '...' : '' ?>
+                                    </div>
+                                </td>
+                                <td><?= date('M d, Y H:i', strtotime($patient['created_at'])) ?></td>
+                                <td>
+                                    <a href="<?= site_url('doctor/patients/view/' . $patient['patient_id']) ?>" 
+                                       class="btn-modern btn-modern-info btn-sm-modern">
+                                        <i class="fas fa-eye"></i> View Patient
+                                    </a>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
 </div>
+
+
 <?= $this->endSection() ?>

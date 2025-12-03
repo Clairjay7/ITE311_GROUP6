@@ -28,16 +28,11 @@ class LaboratoryController extends BaseController
             ->orderBy('firstname', 'ASC')
             ->findAll();
 
-        // Get all active lab tests
+        // Get all active lab tests grouped by category
         $labTests = [];
         if ($db->tableExists('lab_tests')) {
-            $labTests = $db->table('lab_tests')
-                ->where('is_active', 1)
-                ->where('deleted_at', null)
-                ->orderBy('test_type', 'ASC')
-                ->orderBy('test_name', 'ASC')
-                ->get()
-                ->getResultArray();
+            $labTestModel = new \App\Models\LabTestModel();
+            $labTests = $labTestModel->getActiveTestsGroupedByCategory();
         }
 
         // Get pending lab requests
@@ -114,6 +109,101 @@ class LaboratoryController extends BaseController
             return redirect()->to('/nurse/laboratory/request')->with('success', 'Lab request created successfully. Waiting for doctor confirmation.');
         } else {
             return redirect()->back()->withInput()->with('error', 'Failed to create lab request.');
+        }
+    }
+
+    /**
+     * Mark Specimen as Collected - For "with specimen" tests after payment is paid
+     */
+    public function markSpecimenCollected($id)
+    {
+        // Check if user is logged in and is a nurse
+        if (!session()->get('logged_in') || session()->get('role') !== 'nurse') {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Unauthorized. Please log in as a nurse.'
+            ])->setStatusCode(401);
+        }
+
+        $labRequestModel = new LabRequestModel();
+        $historyModel = new LabStatusHistoryModel();
+        $nurseId = session()->get('user_id');
+        $db = \Config\Database::connect();
+
+        $request = $labRequestModel->find($id);
+        if (!$request) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Lab request not found.'
+            ])->setStatusCode(404);
+        }
+
+        // Verify this request is assigned to this nurse
+        if (empty($request['nurse_id']) || $request['nurse_id'] != $nurseId) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'You are not assigned to collect specimen for this lab request.'
+            ])->setStatusCode(403);
+        }
+
+        // Check if payment is approved or paid
+        $paymentStatus = $request['payment_status'] ?? 'unpaid';
+        if (!in_array($paymentStatus, ['approved', 'paid'])) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Payment must be approved by accountant before collecting specimen. Current status: ' . ucfirst($paymentStatus)
+            ])->setStatusCode(400);
+        }
+
+        // Check if status is pending (ready for collection)
+        if ($request['status'] !== 'pending') {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Specimen can only be collected for pending requests. Current status: ' . ucfirst(str_replace('_', ' ', $request['status']))
+            ])->setStatusCode(400);
+        }
+
+        // Update status to 'specimen_collected' (ready for lab)
+        if ($labRequestModel->update($id, [
+            'status' => 'specimen_collected',
+            'updated_at' => date('Y-m-d H:i:s')
+        ])) {
+            // Log status change
+            $historyModel->insert([
+                'lab_request_id' => $id,
+                'status' => 'specimen_collected',
+                'changed_by' => $nurseId,
+                'notes' => 'Specimen collected by nurse - ready for laboratory testing',
+                'created_at' => date('Y-m-d H:i:s'),
+            ]);
+
+            // Notify lab staff that specimen is ready
+            if ($db->tableExists('accountant_notifications')) {
+                $patientModel = new AdminPatientModel();
+                $patient = $patientModel->find($request['patient_id']);
+                $patientName = ($patient ? $patient['firstname'] . ' ' . $patient['lastname'] : 'Patient');
+                
+                // Use accountant_notifications as a general notification system for lab staff
+                $db->table('accountant_notifications')->insert([
+                    'type' => 'lab_specimen_ready',
+                    'title' => 'Lab Specimen Ready for Testing',
+                    'message' => 'Specimen collected for ' . $patientName . ' - Test: ' . ($request['test_name'] ?? 'Lab Test') . '. Ready for laboratory testing.',
+                    'related_id' => $id,
+                    'related_type' => 'lab_request',
+                    'is_read' => 0,
+                    'created_at' => date('Y-m-d H:i:s'),
+                ]);
+            }
+
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => 'Specimen marked as collected. Request is now ready for laboratory testing.'
+            ]);
+        } else {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Failed to mark specimen as collected.'
+            ])->setStatusCode(500);
         }
     }
 

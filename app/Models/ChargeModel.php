@@ -20,6 +20,8 @@ class ChargeModel extends Model
         'total_amount',
         'status',
         'notes',
+        'processed_by',
+        'paid_at',
     ];
 
     protected $useTimestamps = true;

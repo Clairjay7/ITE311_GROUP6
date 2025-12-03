@@ -102,6 +102,7 @@
                             <th>Priority</th>
                             <th>Requested Date</th>
                             <th>Status</th>
+                            <th>Payment</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -138,14 +139,65 @@
                                     </span>
                                 </td>
                                 <td>
-                                    <?php if ($specimen['status'] === 'pending'): ?>
-                                        <button onclick="markCollected(<?= $specimen['id'] ?>)" class="btn-modern btn-primary">
-                                            <i class="fas fa-vial"></i> Mark Collected
-                                        </button>
-                                    <?php elseif ($specimen['status'] === 'in_progress'): ?>
-                                        <button onclick="openCompleteModal(<?= $specimen['id'] ?>, '<?= esc($specimen['test_name']) ?>')" class="btn-modern btn-info">
-                                            <i class="fas fa-check-circle"></i> Mark Completed
-                                        </button>
+                                    <?php 
+                                    // CRITICAL: Only show as 'paid' if BOTH payment_status AND charge_status are 'paid'
+                                    // This ensures accountant has processed the payment
+                                    $paymentStatus = $specimen['payment_status'] ?? 'unpaid';
+                                    $chargeStatus = $specimen['charge_status'] ?? 'pending';
+                                    
+                                    // If charge_status is not 'paid', then payment is NOT processed by accountant yet
+                                    if ($chargeStatus !== 'paid') {
+                                        $paymentStatus = 'pending'; // Override - accountant hasn't processed yet
+                                    }
+                                    
+                                    // If payment_status is not 'paid', override regardless of charge_status
+                                    if ($specimen['payment_status'] !== 'paid') {
+                                        $paymentStatus = $specimen['payment_status'] ?? 'pending';
+                                    }
+                                    
+                                    $paymentBadgeClass = ($paymentStatus === 'paid' && $chargeStatus === 'paid') ? 'badge-completed' : 'badge-pending';
+                                    ?>
+                                    <span class="badge <?= $paymentBadgeClass ?>" style="display: block; margin-bottom: 4px;">
+                                        <?= esc(ucfirst($paymentStatus)) ?>
+                                    </span>
+                                    <?php if ($paymentStatus === 'paid' && $chargeStatus === 'paid' && !empty($specimen['charge_number'])): ?>
+                                        <small style="display: block; color: #64748b; font-size: 11px;">
+                                            <?= esc($specimen['charge_number']) ?>
+                                        </small>
+                                    <?php endif; ?>
+                                    <?php if ($chargeStatus !== 'paid'): ?>
+                                        <small style="display: block; color: #ef4444; font-size: 11px; margin-top: 4px;">
+                                            <i class="fas fa-exclamation-triangle"></i> Waiting for accountant to process payment
+                                        </small>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <?php if ($paymentStatus === 'paid'): ?>
+                                        <?php if ($specimen['status'] === 'specimen_collected'): ?>
+                                            <!-- Nurse has collected specimen, lab staff needs to mark as collected to start testing -->
+                                            <button onclick="markCollected(<?= $specimen['id'] ?>)" class="btn-modern btn-primary" style="margin-bottom: 4px;">
+                                                <i class="fas fa-vial"></i> Mark Collected (Start Test)
+                                            </button>
+                                        <?php elseif ($specimen['status'] === 'in_progress'): ?>
+                                            <!-- Lab staff is testing, can now complete and generate result -->
+                                            <button onclick="openCompleteModal(<?= $specimen['id'] ?>, '<?= esc($specimen['test_name']) ?>')" class="btn-modern btn-info" style="margin-bottom: 4px;">
+                                                <i class="fas fa-check-circle"></i> Mark Completed (Generate Result)
+                                            </button>
+                                        <?php elseif ($specimen['status'] === 'pending'): ?>
+                                            <!-- For without_specimen tests that are pending -->
+                                            <?php 
+                                            $isWithoutSpecimen = empty($specimen['nurse_id']);
+                                            ?>
+                                            <?php if ($isWithoutSpecimen): ?>
+                                                <button onclick="openCompleteModal(<?= $specimen['id'] ?>, '<?= esc($specimen['test_name']) ?>')" class="btn-modern btn-info" style="margin-bottom: 4px;">
+                                                    <i class="fas fa-flask"></i> Start Test (No Specimen)
+                                                </button>
+                                            <?php else: ?>
+                                                <span class="text-muted" style="font-size: 12px;">Waiting for nurse to collect specimen</span>
+                                            <?php endif; ?>
+                                        <?php endif; ?>
+                                    <?php else: ?>
+                                        <span class="text-muted" style="font-size: 12px;">Payment required</span>
                                     <?php endif; ?>
                                 </td>
                             </tr>
@@ -168,12 +220,18 @@
                 <input type="text" id="complete_test_name" class="form-control" readonly>
             </div>
             <div class="form-group">
-                <label>Result *</label>
-                <textarea name="result" id="test_result" class="form-control" rows="5" required></textarea>
+                <label>Test Result *</label>
+                <textarea name="result" id="test_result" class="form-control" rows="8" required placeholder="Enter the test results here. Include all values, measurements, and findings."></textarea>
+                <small style="color: #64748b; font-size: 12px; margin-top: 4px; display: block;">
+                    <i class="fas fa-info-circle"></i> Enter detailed test results including all values and findings
+                </small>
             </div>
             <div class="form-group">
-                <label>Interpretation</label>
-                <textarea name="interpretation" id="test_interpretation" class="form-control" rows="3"></textarea>
+                <label>Interpretation / Clinical Significance</label>
+                <textarea name="interpretation" id="test_interpretation" class="form-control" rows="4" placeholder="Enter clinical interpretation, normal/abnormal findings, and recommendations if any."></textarea>
+                <small style="color: #64748b; font-size: 12px; margin-top: 4px; display: block;">
+                    <i class="fas fa-info-circle"></i> Optional: Provide clinical interpretation and recommendations
+                </small>
             </div>
             <div style="display: flex; gap: 12px; margin-top: 24px;">
                 <button type="submit" class="btn-modern btn-primary" style="flex: 1;">
@@ -188,6 +246,9 @@
 </div>
 
 <script>
+// Note: Lab staff cannot process payments - only accountant can process payments
+// Lab staff can only see requests after accountant has processed payment
+
 function markCollected(requestId) {
     if (!confirm('Mark this specimen as collected?')) return;
     

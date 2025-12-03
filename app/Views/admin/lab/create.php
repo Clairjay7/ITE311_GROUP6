@@ -9,6 +9,23 @@
         <a href="<?= base_url('admin/lab') ?>" class="btn btn-secondary">Back to List</a>
     </div>
 
+    <?php if (session()->getFlashdata('error')): ?>
+        <div class="alert alert-danger" style="background: #fee2e2; color: #991b1b; padding: 12px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #dc2626;">
+            <i class="fas fa-exclamation-circle"></i> <?= esc(session()->getFlashdata('error')) ?>
+        </div>
+    <?php endif; ?>
+    
+    <?php if (session()->getFlashdata('errors')): ?>
+        <div class="alert alert-danger" style="background: #fee2e2; color: #991b1b; padding: 12px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #dc2626;">
+            <strong>Validation Errors:</strong>
+            <ul style="margin: 8px 0 0 20px; padding: 0;">
+                <?php foreach (session()->getFlashdata('errors') as $field => $error): ?>
+                    <li><?= esc(is_array($error) ? $error[0] : $error) ?></li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
+    <?php endif; ?>
+
     <form method="POST" action="<?= base_url('admin/lab/store') ?>" class="form-container">
         <div class="form-group">
             <label for="patient_id">Patient *</label>
@@ -20,9 +37,86 @@
             </select>
         </div>
 
+        <div class="form-group" id="nurse_field_group" style="display: none;">
+            <label for="nurse_id">Nurse <span id="nurse_required_indicator" style="color: #ef4444;">*</span> <span id="nurse_label_text">(Will collect specimen)</span></label>
+            <select id="nurse_id" name="nurse_id" class="form-control">
+                <option value="">-- Select Nurse --</option>
+                <?php foreach ($nurses as $nurse): ?>
+                    <option value="<?= esc($nurse['id']) ?>">
+                        <?= esc($nurse['username']) ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+            <small id="nurse_help_text" style="color: #64748b; font-size: 12px; margin-top: 4px; display: block;">
+                <i class="fas fa-info-circle"></i> Select a nurse who will collect the specimen from the patient
+            </small>
+        </div>
+
         <div class="form-group">
-            <label for="test_type">Test Type *</label>
-            <input type="text" id="test_type" name="test_type" class="form-control" value="<?= old('test_type') ?>" required>
+            <label for="test_type">Lab Test *</label>
+            <select id="test_type" name="test_type" class="form-control" required onchange="updateTestInfo()">
+                <option value="">-- Select Lab Test --</option>
+                <?php
+                $categoryLabels = [
+                    'with_specimen' => '🔬 With Specimen (Requires Physical Specimen)',
+                    'without_specimen' => '📋 Without Specimen (No Physical Specimen Needed)'
+                ];
+                
+                // Ensure both categories are shown, even if empty
+                $allCategories = ['with_specimen', 'without_specimen'];
+                ?>
+                <?php if (!empty($labTests)): ?>
+                    <?php foreach ($allCategories as $category): ?>
+                        <?php if (isset($labTests[$category]) && is_array($labTests[$category]) && !empty($labTests[$category])): ?>
+                            <optgroup label="<?= esc($categoryLabels[$category] ?? ucfirst(str_replace('_', ' ', $category))) ?>">
+                                <?php foreach ($labTests[$category] as $testType => $tests): ?>
+                                    <?php if (is_array($tests)): ?>
+                                        <?php foreach ($tests as $test): ?>
+                                            <?php if (is_array($test)): ?>
+                                                <option value="<?= esc($test['test_name']) ?>" 
+                                                        data-test-type="<?= esc($test['test_type']) ?>"
+                                                        data-specimen-category="<?= esc($test['specimen_category'] ?? 'with_specimen') ?>"
+                                                        data-description="<?= esc($test['description'] ?? '') ?>"
+                                                        data-normal-range="<?= esc($test['normal_range'] ?? '') ?>"
+                                                        data-price="<?= esc($test['price'] ?? '0.00') ?>">
+                                                    <?= esc($test['test_name']) ?> 
+                                                    <span style="color: #64748b;">(<?= esc($test['test_type']) ?>)</span>
+                                                    <?php if (!empty($test['price'])): ?>
+                                                        - ₱<?= number_format($test['price'], 2) ?>
+                                                    <?php endif; ?>
+                                                </option>
+                                            <?php endif; ?>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
+                                <?php endforeach; ?>
+                            </optgroup>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <option value="" disabled>No lab tests available. Please add lab tests first.</option>
+                <?php endif; ?>
+            </select>
+            <small style="color: #64748b; font-size: 12px; margin-top: 4px; display: block;">
+                <i class="fas fa-info-circle"></i> Select a lab test from the dropdown
+            </small>
+        </div>
+        
+        <div id="test_info" style="display: none; margin-top: 12px; padding: 12px; background: #f8fafc; border-radius: 8px; border-left: 4px solid #2e7d32;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+                <div>
+                    <div style="font-size: 11px; color: #64748b; text-transform: uppercase; font-weight: 600; margin-bottom: 4px;">Test Type</div>
+                    <div id="test_type_display" style="font-weight: 600; color: #1e293b;"></div>
+                </div>
+                <div>
+                    <div style="font-size: 11px; color: #64748b; text-transform: uppercase; font-weight: 600; margin-bottom: 4px;">Price</div>
+                    <div id="test_price_display" style="font-weight: 600; color: #2e7d32;"></div>
+                </div>
+                <div>
+                    <div style="font-size: 11px; color: #64748b; text-transform: uppercase; font-weight: 600; margin-bottom: 4px;">Normal Range</div>
+                    <div id="test_range_display" style="font-weight: 600; color: #1e293b;"></div>
+                </div>
+            </div>
+            <div id="test_description_display" style="margin-top: 8px; font-size: 13px; color: #475569;"></div>
         </div>
 
         <div class="form-group">
@@ -54,6 +148,59 @@
 .form-group label { display: block; margin-bottom: 6px; font-weight: 600; color: #374151; }
 .form-control { width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; }
 .form-actions { display: flex; gap: 12px; margin-top: 24px; }
+.form-control:focus { outline: none; border-color: #2e7d32; box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1); }
 </style>
+
+<script>
+function updateTestInfo() {
+    const select = document.getElementById('test_type');
+    const selectedOption = select.options[select.selectedIndex];
+    const infoDiv = document.getElementById('test_info');
+    const nurseField = document.getElementById('nurse_id');
+    const nurseFieldGroup = document.getElementById('nurse_field_group');
+    const nurseRequiredIndicator = document.getElementById('nurse_required_indicator');
+    const nurseLabelText = document.getElementById('nurse_label_text');
+    const nurseHelpText = document.getElementById('nurse_help_text');
+    
+    if (!selectedOption || !selectedOption.value || selectedOption.value === '') {
+        infoDiv.style.display = 'none';
+        // Reset nurse field to default
+        nurseField.required = false;
+        nurseRequiredIndicator.style.display = 'none';
+        nurseLabelText.textContent = '(Will collect specimen)';
+        nurseHelpText.textContent = 'Select a nurse who will collect the specimen from the patient';
+        return;
+    }
+    
+    const testType = selectedOption.dataset.testType || '';
+    const description = selectedOption.dataset.description || '';
+    const normalRange = selectedOption.dataset.normalRange || 'N/A';
+    const price = selectedOption.dataset.price || '0.00';
+    const specimenCategory = selectedOption.dataset.specimenCategory || 'with_specimen';
+    
+    document.getElementById('test_type_display').textContent = testType || 'N/A';
+    document.getElementById('test_price_display').textContent = price > 0 ? '₱' + parseFloat(price).toFixed(2) : 'Free';
+    document.getElementById('test_range_display').textContent = normalRange || 'N/A';
+    document.getElementById('test_description_display').textContent = description || 'No description available';
+    
+    infoDiv.style.display = 'block';
+    
+    // Update nurse field based on specimen category
+    if (specimenCategory === 'with_specimen') {
+        // With specimen - nurse is REQUIRED
+        nurseFieldGroup.style.display = 'block';
+        nurseField.setAttribute('required', 'required');
+        nurseRequiredIndicator.style.display = 'inline';
+        nurseLabelText.textContent = '(Will collect specimen)';
+        nurseHelpText.innerHTML = '<i class="fas fa-info-circle"></i> <span style="color: #ef4444;">Required:</span> Select a nurse who will collect the specimen from the patient';
+    } else {
+        // Without specimen - nurse is NOT required - HIDE the field
+        nurseFieldGroup.style.display = 'none';
+        nurseField.removeAttribute('required');
+        nurseField.value = ''; // Clear selection
+    }
+}
+
+</script>
 <?= $this->endSection() ?>
 

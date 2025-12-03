@@ -24,10 +24,10 @@ class DashboardStats extends BaseController
             $labRequestModel = new LabRequestModel();
             $labResultModel = new LabResultModel();
 
-            // Pending tests
+            // Pending tests (only after payment is paid - accountant must process payment first)
             $pendingTests = $labRequestModel
                 ->where('status', 'pending')
-                ->orWhere('status', 'in_progress')
+                ->where('payment_status', 'paid') // ONLY count after payment is PAID
                 ->countAllResults();
 
             // Completed today
@@ -52,31 +52,51 @@ class DashboardStats extends BaseController
                 ->limit(10)
                 ->findAll();
 
-            // Get pending specimens count
+            // Get pending specimens count (only after payment is paid)
             $pendingSpecimens = $labRequestModel
-                ->whereIn('status', ['pending', 'in_progress'])
+                ->whereIn('status', ['specimen_collected', 'in_progress'])
+                ->where('payment_status', 'paid') // ONLY count after payment is PAID
                 ->countAllResults();
 
-            // Get urgent/stat tests count
-            $urgentTests = $labRequestModel
-                ->whereIn('status', ['pending', 'in_progress'])
-                ->whereIn('priority', ['urgent', 'stat'])
+            // Get urgent/stat tests count (only after payment is paid)
+            $urgentTests = $db->table('lab_requests')
+                ->join('charges', 'charges.id = lab_requests.charge_id', 'inner')
+                ->whereIn('lab_requests.status', ['pending', 'in_progress', 'specimen_collected'])
+                ->whereIn('lab_requests.priority', ['urgent', 'stat'])
+                ->where('lab_requests.payment_status', 'paid')
+                ->where('charges.status', 'paid')
+                ->where('lab_requests.charge_id IS NOT NULL')
                 ->countAllResults();
 
-            // Get pending tests list with more details
+            // Get pending tests list with more details (only after payment is paid)
             $pendingTestsList = $db->table('lab_requests')
                 ->select('lab_requests.*, 
                     admin_patients.firstname, 
                     admin_patients.lastname,
                     doctor.username as doctor_name,
-                    nurse.username as nurse_name')
+                    nurse.username as nurse_name,
+                    charges.charge_number,
+                    charges.status as charge_status')
                 ->join('admin_patients', 'admin_patients.id = lab_requests.patient_id', 'left')
                 ->join('users as doctor', 'doctor.id = lab_requests.doctor_id', 'left')
                 ->join('users as nurse', 'nurse.id = lab_requests.nurse_id', 'left')
-                ->whereIn('lab_requests.status', ['pending', 'in_progress'])
+                ->join('charges', 'charges.id = lab_requests.charge_id', 'inner') // INNER JOIN - must have charge
+                ->where('lab_requests.status !=', 'cancelled')
+                ->where('lab_requests.payment_status', 'paid') // ONLY show after payment is PAID
+                ->where('charges.status', 'paid') // ALSO verify charge status is paid
+                ->where('lab_requests.charge_id IS NOT NULL') // Must have charge_id
+                ->groupStart()
+                    // Include requests that are ready for testing:
+                    // 1. Status = 'pending' with payment paid (without_specimen tests)
+                    ->where('lab_requests.status', 'pending')
+                    ->groupEnd()
+                ->orGroupStart()
+                    // 2. Status = 'specimen_collected' or 'in_progress' (with_specimen tests that have been collected)
+                    ->whereIn('lab_requests.status', ['specimen_collected', 'in_progress'])
+                    ->groupEnd()
                 ->orderBy('lab_requests.priority', 'ASC') // Urgent/Stat first
                 ->orderBy('lab_requests.requested_date', 'ASC')
-                ->orderBy('lab_requests.created_at', 'ASC')
+                ->orderBy('lab_requests.created_at', 'DESC')
                 ->limit(10)
                 ->get()
                 ->getResultArray();

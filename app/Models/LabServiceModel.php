@@ -15,6 +15,9 @@ class LabServiceModel extends Model
 
     protected $allowedFields = [
         'patient_id',
+        'doctor_id',
+        'nurse_id',
+        'lab_request_id',
         'test_type',
         'result',
         'remarks',

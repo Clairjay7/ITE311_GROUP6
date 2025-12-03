@@ -637,6 +637,54 @@ class OrderController extends BaseController
         }
     }
 
+    public function printPrescription($id)
+    {
+        // Check if user is logged in and is a doctor
+        if (!session()->get('logged_in') || session()->get('role') !== 'doctor') {
+            return redirect()->to('/auth')->with('error', 'You must be logged in as a doctor to access this page.');
+        }
+
+        $doctorId = session()->get('user_id');
+        $orderModel = new DoctorOrderModel();
+        $db = \Config\Database::connect();
+
+        // Get order with patient and doctor info
+        $order = $orderModel
+            ->select('doctor_orders.*, admin_patients.firstname, admin_patients.lastname, admin_patients.birthdate, admin_patients.gender, admin_patients.contact, admin_patients.address, users.username as doctor_name')
+            ->join('admin_patients', 'admin_patients.id = doctor_orders.patient_id', 'left')
+            ->join('users', 'users.id = doctor_orders.doctor_id', 'left')
+            ->where('doctor_orders.id', $id)
+            ->where('doctor_orders.doctor_id', $doctorId)
+            ->where('doctor_orders.order_type', 'medication')
+            ->where('doctor_orders.purchase_location', 'outside')
+            ->first();
+
+        if (!$order) {
+            return redirect()->to('/doctor/orders')->with('error', 'Prescription not found or not available for printing.');
+        }
+
+        // Get consultation info if available
+        $consultation = null;
+        if ($db->tableExists('consultations')) {
+            $consultation = $db->table('consultations')
+                ->where('patient_id', $order['patient_id'])
+                ->where('doctor_id', $doctorId)
+                ->where('type', 'completed')
+                ->orderBy('created_at', 'DESC')
+                ->get()
+                ->getRowArray();
+        }
+
+        $data = [
+            'title' => 'Prescription',
+            'order' => $order,
+            'consultation' => $consultation,
+        ];
+
+        return view('doctor/orders/print_prescription', $data);
+    }
+
+
     public function view($id)
     {
         // Check if user is logged in and is a doctor

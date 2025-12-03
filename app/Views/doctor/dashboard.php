@@ -225,34 +225,50 @@ document.addEventListener('DOMContentLoaded', function() {
         if (patients && patients.length > 0) {
             let html = '';
             patients.forEach(patient => {
-                const admissionDate = new Date(patient.admission_date).toLocaleDateString('en-US', { 
+                const admissionDate = patient.admission_date ? new Date(patient.admission_date).toLocaleDateString('en-US', { 
                     year: 'numeric', 
                     month: 'short', 
                     day: 'numeric' 
-                });
+                }) : 'N/A';
+                
+                const patientName = (patient.firstname || '') + ' ' + (patient.lastname || '');
+                const roomInfo = (patient.room_number || 'N/A') + (patient.ward ? ' - ' + patient.ward : '');
+                const admissionReason = patient.admission_reason || 'N/A';
+                const diagnosis = patient.diagnosis || 'N/A';
+                const admissionId = patient.id || patient.admission_id || '';
+                const pendingCount = parseInt(patient.pending_orders_count || 0);
+                
                 html += `
                     <div style="background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; margin-bottom: 12px;">
                         <div style="display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap; gap: 12px;">
                             <div style="flex: 1;">
-                                <div style="font-weight: 600; color: #1e293b; margin-bottom: 8px;">
-                                    <i class="fas fa-user-injured"></i> ${patient.firstname} ${patient.lastname}
+                                <div style="font-weight: 600; color: #1e293b; margin-bottom: 8px; font-size: 16px;">
+                                    <i class="fas fa-user-injured"></i> ${patientName.trim() || 'Unknown Patient'}
                                 </div>
                                 <div style="font-size: 13px; color: #64748b; margin-bottom: 4px;">
-                                    <i class="fas fa-bed"></i> Room: ${patient.room_number || 'N/A'} - ${patient.ward || 'N/A'}
+                                    <i class="fas fa-bed"></i> Room: ${roomInfo}
                                 </div>
-                                <div style="font-size: 12px; color: #94a3b8; margin-top: 4px;">
-                                    <i class="fas fa-calendar"></i> Admitted: ${admissionDate}
+                                <div style="font-size: 13px; color: #64748b; margin-bottom: 4px;">
+                                    <i class="fas fa-calendar"></i> Admission Date: ${admissionDate}
                                 </div>
+                                <div style="font-size: 13px; color: #64748b; margin-bottom: 4px;">
+                                    <i class="fas fa-info-circle"></i> Admission Reason: ${admissionReason}
+                                </div>
+                                ${diagnosis !== 'N/A' ? `
+                                    <div style="background: #fef3c7; padding: 8px 12px; border-radius: 6px; margin-top: 8px; font-size: 13px; color: #92400e;">
+                                        <strong>Diagnosis:</strong> ${diagnosis}
+                                    </div>
+                                ` : ''}
                             </div>
-                            <div style="display: flex; gap: 8px; align-items: center;">
-                                ${patient.pending_orders_count > 0 ? `
-                                    <span style="background: #f59e0b; color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;">
-                                        ${patient.pending_orders_count} Pending
+                            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                                ${pendingCount > 0 ? `
+                                    <span style="background: #f59e0b; color: white; padding: 6px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;">
+                                        ${pendingCount} Pending Orders
                                     </span>
                                 ` : ''}
-                                <a href="<?= site_url('doctor/admission-orders/view/') ?>${patient.id}" 
-                                   style="background: #2e7d32; color: white; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 600;">
-                                    <i class="fas fa-eye"></i> View
+                                <a href="<?= site_url('doctor/admission-orders/view/') ?>${admissionId}" 
+                                   style="background: #2e7d32; color: white; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 600; white-space: nowrap;">
+                                    <i class="fas fa-eye"></i> View & Manage Orders
                                 </a>
                             </div>
                         </div>

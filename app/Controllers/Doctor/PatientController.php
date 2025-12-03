@@ -123,12 +123,159 @@ class PatientController extends BaseController
             return $lastA <=> $lastB;
         });
 
+        // Get patients marked for admission by nurse (pending doctor approval)
+        $patientsForAdmission = [];
+        if ($db->tableExists('admission_requests')) {
+            $admissionRequests = $db->table('admission_requests')
+                ->select('admission_requests.*, 
+                         admin_patients.firstname, admin_patients.lastname, admin_patients.id as admin_patient_id,
+                         patients.full_name, patients.patient_id as hms_patient_id,
+                         triage.triage_level, triage.chief_complaint, triage.disposition, triage.doctor_id as triage_doctor_id, triage.assigned_doctor_id')
+                ->join('admin_patients', 'admin_patients.id = admission_requests.patient_id', 'left')
+                ->join('patients', 'patients.patient_id = admission_requests.patient_id', 'left')
+                ->join('triage', 'triage.id = admission_requests.triage_id', 'left')
+                ->where('admission_requests.status', 'pending_doctor_approval')
+                ->groupStart()
+                    // Get patients assigned to this doctor OR patients from triage assigned to this doctor
+                    ->where('admin_patients.doctor_id', $doctorId)
+                    ->orWhere('patients.doctor_id', $doctorId)
+                    ->orWhere('triage.doctor_id', $doctorId)
+                    ->orWhere('triage.assigned_doctor_id', $doctorId)
+                ->groupEnd()
+                ->orderBy('admission_requests.created_at', 'DESC')
+                ->get()
+                ->getResultArray();
+            
+            foreach ($admissionRequests as $request) {
+                $patientId = $request['admin_patient_id'] ?? $request['hms_patient_id'] ?? $request['patient_id'] ?? null;
+                $patientName = '';
+                if ($request['firstname'] && $request['lastname']) {
+                    $patientName = $request['firstname'] . ' ' . $request['lastname'];
+                } elseif ($request['full_name']) {
+                    $patientName = $request['full_name'];
+                } else {
+                    $patientName = 'Patient ' . $patientId;
+                }
+                
+                $patientsForAdmission[] = [
+                    'admission_request_id' => $request['id'] ?? null,
+                    'patient_id' => $patientId,
+                    'patient_name' => $patientName,
+                    'triage_level' => $request['triage_level'] ?? 'N/A',
+                    'disposition' => $request['disposition'] ?? 'Admission',
+                    'chief_complaint' => $request['chief_complaint'] ?? 'N/A',
+                    'admission_reason' => $request['admission_reason'] ?? '',
+                    'requested_by' => $request['requested_by'] ?? null,
+                    'requested_by_role' => $request['requested_by_role'] ?? 'nurse',
+                    'created_at' => $request['created_at'] ?? date('Y-m-d H:i:s'),
+                ];
+            }
+        }
+
         $data = [
             'title' => 'Patient List',
-            'patients' => $patients
+            'patients' => $patients,
+            'patientsForAdmission' => $patientsForAdmission // Patients marked for admission by nurse
         ];
 
         return view('doctor/patients/index', $data);
+    }
+
+    /**
+     * Approve admission request (Doctor approves nurse's recommendation)
+     */
+    public function approveAdmission()
+    {
+        if (!session()->get('logged_in') || session()->get('role') !== 'doctor') {
+            return $this->response->setJSON(['success' => false, 'message' => 'Access denied'])->setStatusCode(401);
+        }
+
+        $admissionRequestId = $this->request->getPost('admission_request_id');
+        $doctorNotes = $this->request->getPost('doctor_notes') ?? '';
+
+        if (!$admissionRequestId) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Admission request ID is required']);
+        }
+
+        $db = \Config\Database::connect();
+        $doctorId = session()->get('user_id');
+        $db->transStart();
+
+        try {
+            // Get admission request
+            $admissionRequest = $db->table('admission_requests')
+                ->where('id', $admissionRequestId)
+                ->where('status', 'pending_doctor_approval')
+                ->get()
+                ->getRowArray();
+
+            if (!$admissionRequest) {
+                throw new \Exception('Admission request not found or already processed');
+            }
+
+            // Update admission request status to "doctor_approved" (ready for receptionist to assign bed)
+            $db->table('admission_requests')
+                ->where('id', $admissionRequestId)
+                ->update([
+                    'status' => 'doctor_approved', // Doctor approved - ready for receptionist to assign ER bed
+                    'approved_by' => $doctorId,
+                    'approved_by_role' => 'doctor',
+                    'approved_at' => date('Y-m-d H:i:s'),
+                    'doctor_notes' => $doctorNotes,
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ]);
+
+            // Update consultation if exists
+            if ($db->tableExists('consultations')) {
+                $db->table('consultations')
+                    ->where('patient_id', $admissionRequest['patient_id'])
+                    ->where('consultation_date', date('Y-m-d'))
+                    ->update([
+                        'for_admission' => 1,
+                        'status' => 'approved',
+                        'updated_at' => date('Y-m-d H:i:s'),
+                    ]);
+            }
+
+            // Audit log
+            if ($db->tableExists('audit_logs')) {
+                $db->table('audit_logs')->insert([
+                    'action' => 'admission_approved_by_doctor',
+                    'user_id' => $doctorId,
+                    'user_role' => 'doctor',
+                    'user_name' => session()->get('username') ?? session()->get('name') ?? 'Doctor',
+                    'description' => "Doctor approved admission request for patient ID: {$admissionRequest['patient_id']}. Ready for receptionist to assign ER bed.",
+                    'related_id' => $admissionRequest['patient_id'],
+                    'related_type' => 'patient',
+                    'metadata' => json_encode([
+                        'admission_request_id' => $admissionRequestId,
+                        'patient_id' => $admissionRequest['patient_id'],
+                        'doctor_notes' => $doctorNotes,
+                    ]),
+                    'ip_address' => $this->request->getIPAddress(),
+                    'created_at' => date('Y-m-d H:i:s'),
+                ]);
+            }
+
+            $db->transComplete();
+
+            if ($db->transStatus() === false) {
+                throw new \Exception('Transaction failed');
+            }
+
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => 'Admission approved. Receptionist will now assign ER bed.'
+            ]);
+
+        } catch (\Exception $e) {
+            $db->transRollback();
+            log_message('error', 'Admission approval error: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ])->setStatusCode(500);
+        }
     }
 
     public function view($id)
@@ -149,75 +296,46 @@ class PatientController extends BaseController
         
         // If not found in admin_patients, try patients table (receptionist patients)
         if (!$patient && $db->tableExists('patients')) {
-            $hmsPatient = $db->table('patients')
+            $patient = $db->table('patients')
                 ->where('patient_id', $id)
                 ->get()
                 ->getRowArray();
-            
-            if ($hmsPatient) {
-                // Verify this patient is assigned to this doctor
-                if (($hmsPatient['doctor_id'] ?? null) != $doctorId) {
-                    return redirect()->to('/doctor/patients')->with('error', 'You do not have access to this patient.');
-                }
-                
-                // Format patient data to match admin_patients structure
-                $nameParts = [];
-                if (!empty($hmsPatient['first_name'])) $nameParts[] = $hmsPatient['first_name'];
-                if (!empty($hmsPatient['last_name'])) $nameParts[] = $hmsPatient['last_name'];
-                
-                // If no first_name/last_name, parse full_name
-                if (empty($nameParts) && !empty($hmsPatient['full_name'])) {
-                    $parts = explode(' ', $hmsPatient['full_name'], 2);
-                    $nameParts = [
-                        $parts[0] ?? '',
-                        $parts[1] ?? ''
-                    ];
-                }
-                
-                $patient = [
-                    'id' => $hmsPatient['patient_id'] ?? $hmsPatient['id'] ?? null,
-                    'patient_id' => $hmsPatient['patient_id'] ?? $hmsPatient['id'] ?? null,
-                    'firstname' => $nameParts[0] ?? '',
-                    'lastname' => $nameParts[1] ?? '',
-                    'full_name' => $hmsPatient['full_name'] ?? implode(' ', $nameParts),
-                    'birthdate' => $hmsPatient['date_of_birth'] ?? $hmsPatient['birthdate'] ?? null,
-                    'gender' => strtolower($hmsPatient['gender'] ?? ''),
-                    'contact' => $hmsPatient['contact'] ?? null,
-                    'address' => $hmsPatient['address'] ?? null,
-                    'type' => $hmsPatient['type'] ?? 'Out-Patient',
-                    'visit_type' => $hmsPatient['visit_type'] ?? null,
-                    'doctor_id' => $hmsPatient['doctor_id'] ?? null,
-                    'source' => 'receptionist',
-                ];
-                $patientSource = 'patients';
+            $patientSource = 'patients';
+        }
+
+        if (!$patient) {
+            return redirect()->back()->with('error', 'Patient not found.');
+        }
+
+        // Get patient consultations
+        $consultations = [];
+        if ($db->tableExists('consultations')) {
+            if ($patientSource === 'admin_patients') {
+                $consultations = $consultationModel
+                    ->where('patient_id', $id)
+                    ->orderBy('consultation_date', 'DESC')
+                    ->orderBy('consultation_time', 'DESC')
+                    ->findAll();
             }
         }
-        
-        if (!$patient) {
-            return redirect()->to('/doctor/patients')->with('error', 'Patient not found.');
-        }
 
-        // Verify this patient is assigned to this doctor (double check)
-        if (($patient['doctor_id'] ?? null) != $doctorId) {
-            return redirect()->to('/doctor/patients')->with('error', 'You do not have access to this patient.');
+        // Get admission request if exists
+        $admissionRequest = null;
+        if ($db->tableExists('admission_requests')) {
+            $admissionRequest = $db->table('admission_requests')
+                ->where('patient_id', $id)
+                ->where('status', 'pending_doctor_approval')
+                ->orderBy('created_at', 'DESC')
+                ->get()
+                ->getRowArray();
         }
-
-        // Get patient's consultation history
-        // For patients table, use patient_id; for admin_patients, use id
-        $patientIdForConsultation = ($patientSource === 'patients') ? ($patient['patient_id'] ?? $patient['id']) : $patient['id'];
-        
-        $consultations = $consultationModel
-            ->where('patient_id', $patientIdForConsultation)
-            ->where('doctor_id', $doctorId)
-            ->orderBy('consultation_date', 'DESC')
-            ->orderBy('consultation_time', 'DESC')
-            ->findAll();
 
         $data = [
             'title' => 'Patient Details',
             'patient' => $patient,
-            'patient_source' => $patientSource,
-            'consultations' => $consultations
+            'patientSource' => $patientSource,
+            'consultations' => $consultations,
+            'admissionRequest' => $admissionRequest,
         ];
 
         return view('doctor/patients/view', $data);
@@ -230,12 +348,9 @@ class PatientController extends BaseController
             return redirect()->to('/auth')->with('error', 'You must be logged in as a doctor to access this page.');
         }
 
-        $data = [
-            'title' => 'Create New Patient',
-            'validation' => \Config\Services::validation()
-        ];
-
-        return view('doctor/patients/create', $data);
+        return view('doctor/patients/create', [
+            'title' => 'Register New Patient'
+        ]);
     }
 
     public function store()
@@ -246,14 +361,13 @@ class PatientController extends BaseController
         }
 
         $patientModel = new AdminPatientModel();
+        $doctorId = session()->get('user_id');
 
         $validation = $this->validate([
             'firstname' => 'required|min_length[2]|max_length[100]',
             'lastname' => 'required|min_length[2]|max_length[100]',
             'birthdate' => 'required|valid_date',
             'gender' => 'required|in_list[male,female,other]',
-            'contact' => 'permit_empty|max_length[20]',
-            'address' => 'permit_empty|max_length[255]'
         ]);
 
         if (!$validation) {
@@ -267,14 +381,14 @@ class PatientController extends BaseController
             'gender' => $this->request->getPost('gender'),
             'contact' => $this->request->getPost('contact'),
             'address' => $this->request->getPost('address'),
-            'doctor_id' => session()->get('user_id')
+            'doctor_id' => $doctorId,
         ];
 
         if ($patientModel->insert($data)) {
-            return redirect()->to('/doctor/patients')->with('success', 'Patient created successfully.');
-        } else {
-            return redirect()->back()->withInput()->with('error', 'Failed to create patient.');
+            return redirect()->to('/doctor/patients')->with('success', 'Patient registered successfully.');
         }
+
+        return redirect()->back()->withInput()->with('error', 'Failed to register patient.');
     }
 
     public function edit($id)
@@ -285,76 +399,16 @@ class PatientController extends BaseController
         }
 
         $patientModel = new AdminPatientModel();
-        $doctorId = session()->get('user_id');
-        $db = \Config\Database::connect();
-
-        // Try to find patient in admin_patients table first
         $patient = $patientModel->find($id);
-        $patientSource = 'admin_patients';
-        
-        // If not found in admin_patients, try patients table (receptionist patients)
-        if (!$patient && $db->tableExists('patients')) {
-            $hmsPatient = $db->table('patients')
-                ->where('patient_id', $id)
-                ->get()
-                ->getRowArray();
-            
-            if ($hmsPatient) {
-                // Verify this patient is assigned to this doctor
-                if (($hmsPatient['doctor_id'] ?? null) != $doctorId) {
-                    return redirect()->to('/doctor/patients')->with('error', 'You do not have access to this patient.');
-                }
-                
-                // Format patient data to match admin_patients structure
-                $nameParts = [];
-                if (!empty($hmsPatient['first_name'])) $nameParts[] = $hmsPatient['first_name'];
-                if (!empty($hmsPatient['last_name'])) $nameParts[] = $hmsPatient['last_name'];
-                
-                // If no first_name/last_name, parse full_name
-                if (empty($nameParts) && !empty($hmsPatient['full_name'])) {
-                    $parts = explode(' ', $hmsPatient['full_name'], 2);
-                    $nameParts = [
-                        $parts[0] ?? '',
-                        $parts[1] ?? ''
-                    ];
-                }
-                
-                $patient = [
-                    'id' => $hmsPatient['patient_id'] ?? $hmsPatient['id'] ?? null,
-                    'patient_id' => $hmsPatient['patient_id'] ?? $hmsPatient['id'] ?? null,
-                    'firstname' => $nameParts[0] ?? '',
-                    'lastname' => $nameParts[1] ?? '',
-                    'full_name' => $hmsPatient['full_name'] ?? implode(' ', $nameParts),
-                    'birthdate' => $hmsPatient['date_of_birth'] ?? $hmsPatient['birthdate'] ?? null,
-                    'gender' => strtolower($hmsPatient['gender'] ?? ''),
-                    'contact' => $hmsPatient['contact'] ?? null,
-                    'address' => $hmsPatient['address'] ?? null,
-                    'type' => $hmsPatient['type'] ?? 'Out-Patient',
-                    'visit_type' => $hmsPatient['visit_type'] ?? null,
-                    'doctor_id' => $hmsPatient['doctor_id'] ?? null,
-                    'source' => 'receptionist',
-                ];
-                $patientSource = 'patients';
-            }
-        }
-        
+
         if (!$patient) {
-            return redirect()->to('/doctor/patients')->with('error', 'Patient not found.');
+            return redirect()->back()->with('error', 'Patient not found.');
         }
 
-        // Verify this patient is assigned to this doctor (double check)
-        if (($patient['doctor_id'] ?? null) != $doctorId) {
-            return redirect()->to('/doctor/patients')->with('error', 'You do not have access to this patient.');
-        }
-
-        $data = [
+        return view('doctor/patients/edit', [
             'title' => 'Edit Patient',
-            'patient' => $patient,
-            'patient_source' => $patientSource,
-            'validation' => \Config\Services::validation()
-        ];
-
-        return view('doctor/patients/edit', $data);
+            'patient' => $patient
+        ]);
     }
 
     public function update($id)
@@ -365,89 +419,37 @@ class PatientController extends BaseController
         }
 
         $patientModel = new AdminPatientModel();
-        $doctorId = session()->get('user_id');
-        $db = \Config\Database::connect();
-
-        // Try to find patient in admin_patients table first
         $patient = $patientModel->find($id);
-        $patientSource = 'admin_patients';
-        
-        // If not found in admin_patients, try patients table (receptionist patients)
-        if (!$patient && $db->tableExists('patients')) {
-            $hmsPatient = $db->table('patients')
-                ->where('patient_id', $id)
-                ->get()
-                ->getRowArray();
-            
-            if ($hmsPatient) {
-                $patient = $hmsPatient;
-                $patientSource = 'patients';
-            }
-        }
-        
-        if (!$patient) {
-            return redirect()->to('/doctor/patients')->with('error', 'Patient not found.');
-        }
 
-        // Verify this patient is assigned to this doctor
-        if (($patient['doctor_id'] ?? null) != $doctorId) {
-            return redirect()->to('/doctor/patients')->with('error', 'You do not have access to this patient.');
+        if (!$patient) {
+            return redirect()->back()->with('error', 'Patient not found.');
         }
 
         $validation = $this->validate([
             'firstname' => 'required|min_length[2]|max_length[100]',
             'lastname' => 'required|min_length[2]|max_length[100]',
             'birthdate' => 'required|valid_date',
-            'gender' => 'required|in_list[male,female,other,Male,Female,Other]',
-            'contact' => 'permit_empty|max_length[20]',
-            'address' => 'permit_empty|max_length[500]'
+            'gender' => 'required|in_list[male,female,other]',
         ]);
 
         if (!$validation) {
             return redirect()->back()->withInput()->with('validation', $this->validator);
         }
 
-        if ($patientSource === 'patients') {
-            // Update in patients table
-            $firstname = $this->request->getPost('firstname');
-            $lastname = $this->request->getPost('lastname');
-            $fullName = trim($firstname . ' ' . $lastname);
-            
-            $updateData = [
-                'first_name' => $firstname,
-                'last_name' => $lastname,
-                'full_name' => $fullName,
-                'date_of_birth' => $this->request->getPost('birthdate'),
-                'gender' => $this->request->getPost('gender'),
-                'contact' => $this->request->getPost('contact'),
-                'address' => $this->request->getPost('address'),
-                'updated_at' => date('Y-m-d H:i:s')
-            ];
-            
-            $patientId = $patient['patient_id'] ?? $patient['id'];
-            if ($db->table('patients')->where('patient_id', $patientId)->update($updateData)) {
-                return redirect()->to('/doctor/patients')->with('success', 'Patient updated successfully.');
-            } else {
-                return redirect()->back()->withInput()->with('error', 'Failed to update patient.');
-            }
-        } else {
-            // Update in admin_patients table
-            $data = [
-                'firstname' => $this->request->getPost('firstname'),
-                'lastname' => $this->request->getPost('lastname'),
-                'birthdate' => $this->request->getPost('birthdate'),
-                'gender' => $this->request->getPost('gender'),
-                'contact' => $this->request->getPost('contact'),
-                'address' => $this->request->getPost('address'),
-                'doctor_id' => session()->get('user_id')
-            ];
+        $data = [
+            'firstname' => $this->request->getPost('firstname'),
+            'lastname' => $this->request->getPost('lastname'),
+            'birthdate' => $this->request->getPost('birthdate'),
+            'gender' => $this->request->getPost('gender'),
+            'contact' => $this->request->getPost('contact'),
+            'address' => $this->request->getPost('address'),
+        ];
 
-            if ($patientModel->update($id, $data)) {
-                return redirect()->to('/doctor/patients')->with('success', 'Patient updated successfully.');
-            } else {
-                return redirect()->back()->withInput()->with('error', 'Failed to update patient.');
-            }
+        if ($patientModel->update($id, $data)) {
+            return redirect()->to('/doctor/patients')->with('success', 'Patient updated successfully.');
         }
+
+        return redirect()->back()->withInput()->with('error', 'Failed to update patient.');
     }
 
     public function delete($id)
@@ -458,50 +460,16 @@ class PatientController extends BaseController
         }
 
         $patientModel = new AdminPatientModel();
-        $doctorId = session()->get('user_id');
-        $db = \Config\Database::connect();
-
-        // Try to find patient in admin_patients table first
         $patient = $patientModel->find($id);
-        $patientSource = 'admin_patients';
-        
-        // If not found in admin_patients, try patients table (receptionist patients)
-        if (!$patient && $db->tableExists('patients')) {
-            $hmsPatient = $db->table('patients')
-                ->where('patient_id', $id)
-                ->get()
-                ->getRowArray();
-            
-            if ($hmsPatient) {
-                $patient = $hmsPatient;
-                $patientSource = 'patients';
-            }
-        }
-        
+
         if (!$patient) {
-            return redirect()->to('/doctor/patients')->with('error', 'Patient not found.');
+            return redirect()->back()->with('error', 'Patient not found.');
         }
 
-        // Verify this patient is assigned to this doctor
-        if (($patient['doctor_id'] ?? null) != $doctorId) {
-            return redirect()->to('/doctor/patients')->with('error', 'You do not have access to this patient.');
+        if ($patientModel->delete($id)) {
+            return redirect()->to('/doctor/patients')->with('success', 'Patient deleted successfully.');
         }
 
-        if ($patientSource === 'patients') {
-            // Delete from patients table
-            $patientId = $patient['patient_id'] ?? $patient['id'];
-            if ($db->table('patients')->where('patient_id', $patientId)->delete()) {
-                return redirect()->to('/doctor/patients')->with('success', 'Patient deleted successfully.');
-            } else {
-                return redirect()->back()->with('error', 'Failed to delete patient.');
-            }
-        } else {
-            // Delete from admin_patients table
-            if ($patientModel->delete($id)) {
-                return redirect()->to('/doctor/patients')->with('success', 'Patient deleted successfully.');
-            } else {
-                return redirect()->back()->with('error', 'Failed to delete patient.');
-            }
-        }
+        return redirect()->back()->with('error', 'Failed to delete patient.');
     }
 }

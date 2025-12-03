@@ -91,6 +91,7 @@
                             <th>Interpretation</th>
                             <th>Completed By</th>
                             <th>Completed At</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -140,6 +141,18 @@
                                         <?= esc(date('M d, Y H:i', strtotime($test['completed_at']))) ?>
                                     <?php else: ?>
                                         <span class="text-muted">-</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <?php if (!empty($test['test_result'])): ?>
+                                        <a href="<?= site_url('labstaff/print-result/' . $test['id']) ?>" 
+                                           target="_blank" 
+                                           class="btn-modern" 
+                                           style="background: #2e7d32; color: white; text-decoration: none; display: inline-block; padding: 6px 12px; border-radius: 6px; font-size: 12px;">
+                                            <i class="fas fa-print"></i> Print Result
+                                        </a>
+                                    <?php else: ?>
+                                        <span class="text-muted" style="font-size: 12px;">No result</span>
                                     <?php endif; ?>
                                 </td>
                             </tr>

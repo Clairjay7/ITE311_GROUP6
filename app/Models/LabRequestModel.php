@@ -23,6 +23,8 @@ class LabRequestModel extends Model
         'instructions',
         'status',
         'requested_date',
+        'payment_status',
+        'charge_id',
     ];
 
     protected $useTimestamps = true;
@@ -33,9 +35,9 @@ class LabRequestModel extends Model
         'patient_id' => 'required|integer',
         'test_type' => 'required|max_length[255]',
         'test_name' => 'required|max_length[255]',
-        'requested_by' => 'required|in_list[doctor,nurse]',
+        'requested_by' => 'required|in_list[doctor,nurse,admin]',
         'priority' => 'required|in_list[routine,urgent,stat]',
-        'status' => 'required|in_list[pending,in_progress,completed,cancelled]',
+        'status' => 'required|in_list[pending,specimen_collected,in_progress,completed,cancelled]',
         'requested_date' => 'required|valid_date',
     ];
 }

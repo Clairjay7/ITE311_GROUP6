@@ -106,12 +106,14 @@ class DashboardStats extends BaseController
                 ->limit(5)
                 ->findAll();
 
-            // Get approved/in-progress lab requests (nurse can prepare patient)
+            // Get lab requests ready for specimen collection (payment approved, status pending, assigned to this nurse)
             $approvedLabRequests = $labRequestModel
-                ->select('lab_requests.*, admin_patients.firstname, admin_patients.lastname')
+                ->select('lab_requests.*, admin_patients.firstname, admin_patients.lastname, charges.charge_number, charges.total_amount, charges.status as charge_status')
                 ->join('admin_patients', 'admin_patients.id = lab_requests.patient_id', 'left')
+                ->join('charges', 'charges.id = lab_requests.charge_id', 'left')
                 ->where('lab_requests.nurse_id', $nurseId)
-                ->whereIn('lab_requests.status', ['in_progress', 'pending'])
+                ->whereIn('lab_requests.payment_status', ['approved', 'paid']) // Payment approved or paid - nurse can proceed
+                ->where('lab_requests.status', 'pending') // Ready for nurse to collect specimen
                 ->orderBy('lab_requests.updated_at', 'DESC')
                 ->limit(5)
                 ->findAll();

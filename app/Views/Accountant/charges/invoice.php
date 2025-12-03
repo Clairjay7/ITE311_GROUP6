@@ -1,6 +1,6 @@
 <?= $this->extend('template/header') ?>
 
-<?= $this->section('title') ?>Invoice - <?= esc($charge['charge_number']) ?><?= $this->endSection() ?>
+<?= $this->section('title') ?><?= ($charge['status'] === 'paid') ? 'Receipt' : 'Invoice' ?> - <?= esc($charge['charge_number']) ?><?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
 <style>
@@ -76,13 +76,13 @@
         <i class="fas fa-arrow-left"></i> Back to Charge Details
     </a>
     <button onclick="window.print()" style="float: right; background: #dc2626; color: white; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
-        <i class="fas fa-print"></i> Print Invoice
+        <i class="fas fa-print"></i> Print <?= ($charge['status'] === 'paid') ? 'Receipt' : 'Invoice' ?>
     </button>
 </div>
 
 <div class="invoice-container">
     <div class="invoice-header">
-        <h1 class="invoice-title">INVOICE</h1>
+        <h1 class="invoice-title"><?= ($charge['status'] === 'paid') ? 'RECEIPT' : 'INVOICE' ?></h1>
         <p style="color: #64748b; margin: 5px 0;">Charge Number: <strong><?= esc($charge['charge_number']) ?></strong></p>
         <p style="color: #64748b; margin: 5px 0;">
             Status: <span class="status-badge status-<?= $charge['status'] ?>"><?= ucfirst($charge['status']) ?></span>
@@ -101,7 +101,7 @@
             <?php endif; ?>
         </div>
         <div class="info-section">
-            <h3>Invoice Details</h3>
+            <h3><?= ($charge['status'] === 'paid') ? 'Receipt' : 'Invoice' ?> Details</h3>
             <p style="margin: 5px 0;"><strong>Date:</strong> <?= date('F d, Y', strtotime($charge['created_at'])) ?></p>
             <p style="margin: 5px 0;"><strong>Time:</strong> <?= date('h:i A', strtotime($charge['created_at'])) ?></p>
             <?php if ($charge['doctor_name']): ?>

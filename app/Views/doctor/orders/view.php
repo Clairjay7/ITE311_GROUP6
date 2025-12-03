@@ -182,6 +182,12 @@
                 <i class="fas fa-arrow-left"></i>
                 Back to Orders
             </a>
+            <?php if ($order['order_type'] === 'medication' && ($order['purchase_location'] ?? '') === 'outside'): ?>
+            <a href="<?= site_url('doctor/orders/print-prescription/' . $order['id']) ?>" target="_blank" class="btn-modern" style="background: #3b82f6; color: white;">
+                <i class="fas fa-prescription"></i>
+                Print Prescription
+            </a>
+            <?php endif; ?>
         </div>
     </div>
 
@@ -231,6 +237,23 @@
             
             <?php if ($order['order_type'] === 'medication'): ?>
             <div class="info-item">
+                <div class="info-label">Purchase Location</div>
+                <div class="info-value">
+                    <?php if (($order['purchase_location'] ?? '') === 'outside'): ?>
+                        <span class="badge-modern" style="background: #fef3c7; color: #92400e;">
+                            <i class="fas fa-store"></i> Outside Hospital
+                        </span>
+                        <small style="display: block; margin-top: 4px; color: #64748b; font-weight: normal;">Patient will purchase from external pharmacy</small>
+                    <?php else: ?>
+                        <span class="badge-modern" style="background: #dbeafe; color: #1e40af;">
+                            <i class="fas fa-hospital"></i> Hospital Pharmacy
+                        </span>
+                        <small style="display: block; margin-top: 4px; color: #64748b; font-weight: normal;">Dispensed by hospital pharmacy</small>
+                    <?php endif; ?>
+                </div>
+            </div>
+            <?php if (($order['purchase_location'] ?? '') !== 'outside'): ?>
+            <div class="info-item">
                 <div class="info-label">Pharmacy Status</div>
                 <div class="info-value">
                     <span class="badge-modern" style="background: <?= 
@@ -247,6 +270,7 @@
                     <small style="display: block; margin-top: 4px; color: #64748b; font-weight: normal;">(Managed by Pharmacy)</small>
                 </div>
             </div>
+            <?php endif; ?>
             <?php endif; ?>
             
             <div class="info-item">
@@ -276,19 +300,42 @@
             <?php endif; ?>
             
             <?php if ($order['order_type'] === 'medication' && ($order['status'] ?? 'pending') === 'completed'): ?>
-            <div class="info-item" style="border-left-color: #10b981; background: #d1fae5;">
-                <div class="info-label">Administered Status</div>
-                <div class="info-value" style="color: #065f46;">
-                    <i class="fas fa-check-circle"></i> <strong>ADMINISTERED TO PATIENT</strong>
+                <?php if (($order['purchase_location'] ?? '') === 'outside'): ?>
+                <div class="info-item" style="border-left-color: #3b82f6; background: #dbeafe;">
+                    <div class="info-label">Prescription Status</div>
+                    <div class="info-value" style="color: #1e40af;">
+                        <i class="fas fa-prescription"></i> <strong>PRESCRIPTION COMPLETED</strong>
+                    </div>
                 </div>
-            </div>
+                <?php else: ?>
+                <div class="info-item" style="border-left-color: #10b981; background: #d1fae5;">
+                    <div class="info-label">Administered Status</div>
+                    <div class="info-value" style="color: #065f46;">
+                        <i class="fas fa-check-circle"></i> <strong>ADMINISTERED TO PATIENT</strong>
+                    </div>
+                </div>
+                <?php endif; ?>
             <?php endif; ?>
             
             <?php if ($order['completed_by_name']): ?>
             <div class="info-item">
-                <div class="info-label"><?= $order['order_type'] === 'medication' ? 'Administered By' : 'Completed By' ?></div>
+                <div class="info-label">
+                    <?php 
+                    if ($order['order_type'] === 'medication' && ($order['purchase_location'] ?? '') === 'outside') {
+                        echo 'Prescribed By';
+                    } elseif ($order['order_type'] === 'medication') {
+                        echo 'Administered By';
+                    } else {
+                        echo 'Completed By';
+                    }
+                    ?>
+                </div>
                 <div class="info-value">
-                    <i class="fas fa-user-nurse" style="color: #0288d1; margin-right: 8px;"></i>
+                    <?php if ($order['order_type'] === 'medication' && ($order['purchase_location'] ?? '') === 'outside'): ?>
+                        <i class="fas fa-user-md" style="color: #3b82f6; margin-right: 8px;"></i>
+                    <?php else: ?>
+                        <i class="fas fa-user-nurse" style="color: #0288d1; margin-right: 8px;"></i>
+                    <?php endif; ?>
                     <?= esc($order['completed_by_name']) ?>
                 </div>
             </div>
@@ -296,8 +343,18 @@
             
             <?php if ($order['completed_at']): ?>
             <div class="info-item">
-                <div class="info-label"><?= $order['order_type'] === 'medication' ? 'Administered At' : 'Completed At' ?></div>
-                <div class="info-value" style="color: <?= $order['order_type'] === 'medication' ? '#065f46' : '#1e293b' ?>; font-weight: 700;">
+                <div class="info-label">
+                    <?php 
+                    if ($order['order_type'] === 'medication' && ($order['purchase_location'] ?? '') === 'outside') {
+                        echo 'Prescribed At';
+                    } elseif ($order['order_type'] === 'medication') {
+                        echo 'Administered At';
+                    } else {
+                        echo 'Completed At';
+                    }
+                    ?>
+                </div>
+                <div class="info-value" style="color: <?= ($order['order_type'] === 'medication' && ($order['purchase_location'] ?? '') === 'outside') ? '#1e40af' : ($order['order_type'] === 'medication' ? '#065f46' : '#1e293b') ?>; font-weight: 700;">
                     <i class="fas fa-clock" style="margin-right: 8px;"></i>
                     <?= esc(date('M d, Y h:i A', strtotime($order['completed_at']))) ?>
                 </div>
@@ -368,35 +425,69 @@
 
     <!-- Administration Status (for medication orders) -->
     <?php if ($order['order_type'] === 'medication' && ($order['status'] ?? 'pending') === 'completed'): ?>
-    <div class="section-title" style="margin-top: 32px; color: #065f46;">
-        <i class="fas fa-check-circle"></i>
-        Medication Administration
-    </div>
-    <div style="padding: 20px; background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); border-radius: 12px; border-left: 4px solid #10b981;">
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
-            <div>
-                <div style="font-size: 12px; color: #065f46; font-weight: 600; margin-bottom: 4px;">Status</div>
-                <div style="font-size: 18px; font-weight: 700; color: #065f46;">
-                    <i class="fas fa-check-circle"></i> ADMINISTERED TO PATIENT
-                </div>
-            </div>
-            <?php if ($order['completed_by_name']): ?>
-            <div>
-                <div style="font-size: 12px; color: #065f46; font-weight: 600; margin-bottom: 4px;">Administered By</div>
-                <div style="font-size: 16px; font-weight: 700; color: #065f46;">
-                    <i class="fas fa-user-nurse"></i> <?= esc($order['completed_by_name']) ?>
-                </div>
-            </div>
-            <?php endif; ?>
-            <?php if ($order['completed_at']): ?>
-            <div>
-                <div style="font-size: 12px; color: #065f46; font-weight: 600; margin-bottom: 4px;">Administered At</div>
-                <div style="font-size: 16px; font-weight: 700; color: #065f46;">
-                    <i class="fas fa-clock"></i> <?= esc(date('M d, Y h:i A', strtotime($order['completed_at']))) ?>
-                </div>
-            </div>
-            <?php endif; ?>
+        <?php if (($order['purchase_location'] ?? '') === 'outside'): ?>
+        <div class="section-title" style="margin-top: 32px; color: #1e40af;">
+            <i class="fas fa-prescription"></i>
+            Prescription Status
         </div>
+        <div style="padding: 20px; background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); border-radius: 12px; border-left: 4px solid #3b82f6;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+                <div>
+                    <div style="font-size: 12px; color: #1e40af; font-weight: 600; margin-bottom: 4px;">Status</div>
+                    <div style="font-size: 18px; font-weight: 700; color: #1e40af;">
+                        <i class="fas fa-prescription"></i> PRESCRIPTION COMPLETED
+                    </div>
+                </div>
+                <?php if ($order['completed_by_name']): ?>
+                <div>
+                    <div style="font-size: 12px; color: #1e40af; font-weight: 600; margin-bottom: 4px;">Prescribed By</div>
+                    <div style="font-size: 16px; font-weight: 700; color: #1e40af;">
+                        <i class="fas fa-user-md"></i> <?= esc($order['completed_by_name']) ?>
+                    </div>
+                </div>
+                <?php endif; ?>
+                <?php if ($order['completed_at']): ?>
+                <div>
+                    <div style="font-size: 12px; color: #1e40af; font-weight: 600; margin-bottom: 4px;">Prescribed At</div>
+                    <div style="font-size: 16px; font-weight: 700; color: #1e40af;">
+                        <i class="fas fa-clock"></i> <?= esc(date('M d, Y h:i A', strtotime($order['completed_at']))) ?>
+                    </div>
+                </div>
+                <?php endif; ?>
+            </div>
+        </div>
+        <?php else: ?>
+        <div class="section-title" style="margin-top: 32px; color: #065f46;">
+            <i class="fas fa-check-circle"></i>
+            Medication Administration
+        </div>
+        <div style="padding: 20px; background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); border-radius: 12px; border-left: 4px solid #10b981;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+                <div>
+                    <div style="font-size: 12px; color: #065f46; font-weight: 600; margin-bottom: 4px;">Status</div>
+                    <div style="font-size: 18px; font-weight: 700; color: #065f46;">
+                        <i class="fas fa-check-circle"></i> ADMINISTERED TO PATIENT
+                    </div>
+                </div>
+                <?php if ($order['completed_by_name']): ?>
+                <div>
+                    <div style="font-size: 12px; color: #065f46; font-weight: 600; margin-bottom: 4px;">Administered By</div>
+                    <div style="font-size: 16px; font-weight: 700; color: #065f46;">
+                        <i class="fas fa-user-nurse"></i> <?= esc($order['completed_by_name']) ?>
+                    </div>
+                </div>
+                <?php endif; ?>
+                <?php if ($order['completed_at']): ?>
+                <div>
+                    <div style="font-size: 12px; color: #065f46; font-weight: 600; margin-bottom: 4px;">Administered At</div>
+                    <div style="font-size: 16px; font-weight: 700; color: #065f46;">
+                        <i class="fas fa-clock"></i> <?= esc(date('M d, Y h:i A', strtotime($order['completed_at']))) ?>
+                    </div>
+                </div>
+                <?php endif; ?>
+            </div>
+        </div>
+        <?php endif; ?>
     </div>
     <?php elseif ($order['order_type'] === 'medication' && ($order['pharmacy_status'] ?? 'pending') === 'dispensed'): ?>
     <div class="section-title" style="margin-top: 32px; color: #f59e0b;">

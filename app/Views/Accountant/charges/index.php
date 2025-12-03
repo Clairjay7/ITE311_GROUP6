@@ -190,10 +190,17 @@
                                class="btn-action btn-view">
                                 <i class="fas fa-eye"></i> View
                             </a>
-                            <a href="<?= site_url('accounting/charges/invoice/' . $charge['id']) ?>" 
-                               class="btn-action btn-invoice" target="_blank">
-                                <i class="fas fa-file-invoice"></i> Invoice
-                            </a>
+                            <?php if ($charge['status'] === 'paid'): ?>
+                                <a href="<?= site_url('accounting/charges/invoice/' . $charge['id']) ?>" 
+                                   class="btn-action btn-invoice" target="_blank">
+                                    <i class="fas fa-receipt"></i> Print Receipt
+                                </a>
+                            <?php else: ?>
+                                <a href="<?= site_url('accounting/charges/invoice/' . $charge['id']) ?>" 
+                                   class="btn-action btn-invoice" target="_blank">
+                                    <i class="fas fa-file-invoice"></i> Invoice
+                                </a>
+                            <?php endif; ?>
                             <?php if ($charge['status'] === 'pending'): ?>
                                 <button onclick="approveCharge(<?= $charge['id'] ?>)" 
                                         class="btn-action btn-approve">
@@ -273,7 +280,10 @@ async function processPayment(chargeId) {
         const data = await response.json();
 
         if (data.success) {
-            alert(data.message || 'Payment processed successfully!');
+            const message = data.message || 'Payment processed successfully! Receipt can now be printed.';
+            if (confirm(message + '\n\nDo you want to print the receipt now?')) {
+                window.open(`<?= site_url('accounting/charges/invoice/') ?>${chargeId}`, '_blank');
+            }
             location.reload();
         } else {
             alert('Error: ' + (data.message || 'Failed to process payment'));

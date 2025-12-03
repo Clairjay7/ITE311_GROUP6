@@ -180,16 +180,11 @@ class AdmissionOrdersController extends BaseController
                 ->getResultArray();
         }
 
-        // Get all active lab tests
+        // Get all active lab tests grouped by category
         $labTests = [];
         if ($db->tableExists('lab_tests')) {
-            $labTests = $db->table('lab_tests')
-                ->where('is_active', 1)
-                ->where('deleted_at', null)
-                ->orderBy('test_type', 'ASC')
-                ->orderBy('test_name', 'ASC')
-                ->get()
-                ->getResultArray();
+            $labTestModel = new \App\Models\LabTestModel();
+            $labTests = $labTestModel->getActiveTestsGroupedByCategory();
         }
 
         // Get all active nurses

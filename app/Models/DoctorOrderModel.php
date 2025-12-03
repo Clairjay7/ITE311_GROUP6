@@ -32,6 +32,7 @@ class DoctorOrderModel extends Model
         'pharmacy_approved_at',
         'pharmacy_prepared_at',
         'pharmacy_dispensed_at',
+        'purchase_location',
         'completed_by',
         'completed_at',
     ];

@@ -10,12 +10,16 @@ use App\Models\DoctorNotificationModel;
 use App\Models\ChargeModel;
 use App\Models\BillingItemModel;
 use App\Models\NurseNotificationModel;
+use App\Models\LabTestModel;
 
 class LabStaffController extends BaseController
 {
     protected $labRequestModel;
     protected $labResultModel;
     protected $patientModel;
+    protected $chargeModel;
+    protected $billingItemModel;
+    protected $labTestModel;
 
     public function __construct()
     {
@@ -23,6 +27,9 @@ class LabStaffController extends BaseController
         $this->labRequestModel = new LabRequestModel();
         $this->labResultModel = new LabResultModel();
         $this->patientModel = new AdminPatientModel();
+        $this->chargeModel = new ChargeModel();
+        $this->billingItemModel = new BillingItemModel();
+        $this->labTestModel = new LabTestModel();
     }
 
     /**
@@ -41,9 +48,10 @@ class LabStaffController extends BaseController
         $today = date('Y-m-d');
         $monthStart = date('Y-m-01');
 
-        // Get pending test requests
+        // Get pending test requests (only after payment is paid - accountant must process payment first)
         $pendingTests = $this->labRequestModel
             ->where('status', 'pending')
+            ->where('payment_status', 'paid') // ONLY count after payment is PAID
             ->countAllResults();
 
         // Get completed tests today
@@ -58,9 +66,10 @@ class LabStaffController extends BaseController
             ->where('DATE(updated_at) >=', $monthStart)
             ->countAllResults();
 
-        // Get pending specimens (lab requests with status pending or in_progress)
+        // Get pending specimens (lab requests with status pending or in_progress, only after payment is paid)
         $pendingSpecimens = $this->labRequestModel
-            ->whereIn('status', ['pending', 'in_progress'])
+            ->whereIn('status', ['specimen_collected', 'in_progress'])
+            ->where('payment_status', 'paid') // ONLY count after payment is PAID
             ->countAllResults();
 
         $data = [
@@ -89,18 +98,35 @@ class LabStaffController extends BaseController
         $db = \Config\Database::connect();
 
         // Get all test requests with patient and doctor/nurse info
-        // Lab staff can see ALL lab requests (from doctors and nurses)
+        // Lab staff can ONLY see lab requests AFTER payment is processed (paid)
+        // Payment must be approved and processed by accountant first
         $testRequests = $db->table('lab_requests')
             ->select('lab_requests.*, 
                 admin_patients.firstname as patient_firstname, 
                 admin_patients.lastname as patient_lastname,
                 admin_patients.contact as patient_contact,
                 doctor.username as doctor_name,
-                nurse.username as nurse_name')
+                nurse.username as nurse_name,
+                charges.charge_number,
+                charges.total_amount as charge_amount,
+                charges.status as charge_status')
             ->join('admin_patients', 'admin_patients.id = lab_requests.patient_id', 'left')
             ->join('users as doctor', 'doctor.id = lab_requests.doctor_id', 'left')
             ->join('users as nurse', 'nurse.id = lab_requests.nurse_id', 'left')
+            ->join('charges', 'charges.id = lab_requests.charge_id', 'inner') // INNER JOIN - must have charge
             ->where('lab_requests.status !=', 'cancelled')
+            ->where('lab_requests.payment_status', 'paid') // ONLY show after payment is PAID (accountant must process payment first)
+            ->where('charges.status', 'paid') // ALSO verify charge status is paid (double check)
+            ->where('lab_requests.charge_id IS NOT NULL') // Must have charge_id
+            ->groupStart()
+                // Include requests that are ready for testing:
+                // 1. Status = 'pending' with payment paid (without_specimen tests - no specimen needed)
+                // 2. Status = 'specimen_collected' or 'in_progress' (with_specimen tests that have been collected)
+                ->where('lab_requests.status', 'pending')
+                ->groupEnd()
+            ->orGroupStart()
+                ->whereIn('lab_requests.status', ['specimen_collected', 'in_progress'])
+                ->groupEnd()
             ->orderBy('lab_requests.priority', 'ASC') // Urgent/Stat first
             ->orderBy('lab_requests.requested_date', 'ASC')
             ->orderBy('lab_requests.created_at', 'DESC')
@@ -136,11 +162,18 @@ class LabStaffController extends BaseController
                 admin_patients.lastname as patient_lastname,
                 admin_patients.contact as patient_contact,
                 doctor.username as doctor_name,
-                nurse.username as nurse_name')
+                nurse.username as nurse_name,
+                charges.charge_number,
+                charges.total_amount as charge_amount,
+                charges.status as charge_status')
             ->join('admin_patients', 'admin_patients.id = lab_requests.patient_id', 'left')
             ->join('users as doctor', 'doctor.id = lab_requests.doctor_id', 'left')
             ->join('users as nurse', 'nurse.id = lab_requests.nurse_id', 'left')
-            ->whereIn('lab_requests.status', ['pending', 'in_progress'])
+            ->join('charges', 'charges.id = lab_requests.charge_id', 'inner') // INNER JOIN - must have charge
+            ->whereIn('lab_requests.status', ['specimen_collected', 'in_progress'])
+            ->where('lab_requests.payment_status', 'paid') // ONLY show after payment is PAID (accountant must process payment first)
+            ->where('charges.status', 'paid') // ALSO verify charge status is paid (double check)
+            ->where('lab_requests.charge_id IS NOT NULL') // Must have charge_id
             ->orderBy('lab_requests.priority', 'ASC') // Urgent/Stat first
             ->orderBy('lab_requests.requested_date', 'ASC')
             ->get()
@@ -222,7 +255,24 @@ class LabStaffController extends BaseController
             ])->setStatusCode(404);
         }
 
-        // Update status to in_progress
+        // Check if status is 'specimen_collected' (nurse has already collected specimen)
+        if (($request['status'] ?? 'pending') !== 'specimen_collected') {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Specimen must be collected by nurse first. Current status: ' . ucfirst(str_replace('_', ' ', $request['status'] ?? 'pending'))
+            ])->setStatusCode(400);
+        }
+
+        // Check payment status - Payment must be paid before processing
+        $paymentStatus = $request['payment_status'] ?? 'unpaid';
+        if ($paymentStatus !== 'paid') {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Payment required before processing test. Please ensure payment is completed first.'
+            ])->setStatusCode(400);
+        }
+
+        // Update status to in_progress (lab staff is now testing)
         $this->labRequestModel->update($requestId, [
             'status' => 'in_progress',
             'updated_at' => date('Y-m-d H:i:s')
@@ -237,6 +287,23 @@ class LabStaffController extends BaseController
                 'changed_by' => session()->get('user_id'),
                 'notes' => 'Specimen collected by lab staff',
                 'created_at' => date('Y-m-d H:i:s')
+            ]);
+        }
+
+        // Notify assigned nurse that specimen has been received by lab
+        if (!empty($request['nurse_id']) && $db->tableExists('nurse_notifications')) {
+            $patient = $this->patientModel->find($request['patient_id']);
+            $patientName = ($patient ? $patient['firstname'] . ' ' . $patient['lastname'] : 'Patient');
+            
+            $nurseNotificationModel = new NurseNotificationModel();
+            $nurseNotificationModel->insert([
+                'nurse_id' => $request['nurse_id'],
+                'type' => 'lab_result_ready',
+                'title' => 'Lab Specimen Received',
+                'message' => 'Lab specimen for ' . $patientName . ' (' . ($request['test_name'] ?? 'Lab Test') . ') has been received by the laboratory and is now being processed. Payment is required before testing.',
+                'related_id' => $requestId,
+                'related_type' => 'lab_request',
+                'is_read' => 0,
             ]);
         }
 
@@ -267,6 +334,29 @@ class LabStaffController extends BaseController
                 'success' => false,
                 'message' => 'Test request not found'
             ])->setStatusCode(404);
+        }
+
+        // Check payment status - Payment must be PAID (processed by accountant) before completing test
+        $paymentStatus = $request['payment_status'] ?? 'unpaid';
+        if ($paymentStatus !== 'paid') {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Payment must be processed by accountant first before completing test. Current payment status: ' . ucfirst($paymentStatus)
+            ])->setStatusCode(400);
+        }
+        
+        // For "without_specimen" tests, if status is 'pending', update to 'in_progress' first
+        $currentStatus = $request['status'] ?? 'pending';
+        if ($currentStatus === 'pending') {
+            // Check if this is a without_specimen test (no nurse_id)
+            $isWithoutSpecimen = empty($request['nurse_id']);
+            if ($isWithoutSpecimen) {
+                // Update status to in_progress before completing
+                $this->labRequestModel->update($requestId, [
+                    'status' => 'in_progress',
+                    'updated_at' => date('Y-m-d H:i:s')
+                ]);
+            }
         }
 
         $result = $this->request->getPost('result');
@@ -365,91 +455,7 @@ class LabStaffController extends BaseController
         $patient = $patientModel->find($request['patient_id']);
         $patientName = ($patient ? $patient['firstname'] . ' ' . $patient['lastname'] : 'patient');
         
-        // Get lab test price from lab_tests table
-        $labTestPrice = 300.00; // Default price
-        if ($db->tableExists('lab_tests')) {
-            $labTestInfo = $db->table('lab_tests')
-                ->where('test_name', $request['test_name'])
-                ->where('is_active', 1)
-                ->get()
-                ->getRowArray();
-            if ($labTestInfo && isset($labTestInfo['price'])) {
-                $labTestPrice = floatval($labTestInfo['price']);
-            }
-        }
-        
-        // AUTO-GENERATE BILLING: Create charge and billing item for completed lab test
-        if ($db->tableExists('charges') && $db->tableExists('billing_items')) {
-            $chargeModel = new ChargeModel();
-            $billingItemModel = new BillingItemModel();
-            
-            // Check if charge already exists for this lab request
-            $existingCharge = $db->table('billing_items')
-                ->where('related_type', 'lab_request')
-                ->where('related_id', $requestId)
-                ->get()
-                ->getRowArray();
-            
-            if (!$existingCharge) {
-                // Generate charge number
-                $chargeNumber = $chargeModel->generateChargeNumber();
-                
-                // Create charge record
-                $chargeData = [
-                    'patient_id' => $request['patient_id'],
-                    'charge_number' => $chargeNumber,
-                    'total_amount' => $labTestPrice,
-                    'status' => 'pending',
-                    'notes' => 'Auto-generated charge for completed lab test: ' . $request['test_name'],
-                ];
-                
-                // Add consultation_id if available (for outpatient consultations)
-                if ($db->tableExists('consultations')) {
-                    $consultation = $db->table('consultations')
-                        ->where('patient_id', $request['patient_id'])
-                        ->where('doctor_id', $request['doctor_id'])
-                        ->orderBy('consultation_date', 'DESC')
-                        ->limit(1)
-                        ->get()
-                        ->getRowArray();
-                    if ($consultation) {
-                        $chargeData['consultation_id'] = $consultation['id'];
-                    }
-                }
-                
-                if ($chargeModel->insert($chargeData)) {
-                    $chargeId = $chargeModel->getInsertID();
-                    
-                    // Create billing item
-                    $billingItemData = [
-                        'charge_id' => $chargeId,
-                        'item_type' => 'lab_test',
-                        'item_name' => $request['test_name'],
-                        'description' => 'Lab Test: ' . ($request['test_type'] ?? 'Laboratory') . ' - Completed on ' . date('Y-m-d'),
-                        'quantity' => 1.00,
-                        'unit_price' => $labTestPrice,
-                        'total_price' => $labTestPrice,
-                        'related_id' => $requestId,
-                        'related_type' => 'lab_request',
-                    ];
-                    
-                    $billingItemModel->insert($billingItemData);
-                    
-                    // Notify Accountant about new charge
-                    if ($db->tableExists('accountant_notifications')) {
-                        $db->table('accountant_notifications')->insert([
-                            'type' => 'new_charge',
-                            'title' => 'New Lab Test Charge',
-                            'message' => 'Lab test charge ' . $chargeNumber . ' generated for patient: ' . $patientName . '. Test: ' . $request['test_name'] . '. Amount: ₱' . number_format($labTestPrice, 2),
-                            'related_id' => $chargeId,
-                            'related_type' => 'charge',
-                            'is_read' => 0,
-                            'created_at' => date('Y-m-d H:i:s'),
-                        ]);
-                    }
-                }
-            }
-        }
+        // Note: Billing is handled during payment, not after completion
         
         // Notify doctor when lab result is uploaded
         if ($request['doctor_id']) {
@@ -498,6 +504,280 @@ class LabStaffController extends BaseController
             'success' => true,
             'message' => 'Test marked as completed. Billing charge created and notifications sent.'
         ]);
+    }
+
+    /**
+     * Process Payment for Lab Test
+     */
+    public function processPayment($requestId)
+    {
+        // Check if user is logged in and is lab staff
+        $isLoggedIn = session()->get('isLoggedIn') || session()->get('logged_in');
+        $userRole = session()->get('role');
+        if (!$isLoggedIn || !in_array($userRole, ['labstaff', 'lab_staff', 'admin', 'finance'])) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Unauthorized. Please log in as lab staff or accountant.'
+            ])->setStatusCode(401);
+        }
+
+        $request = $this->labRequestModel->find($requestId);
+        if (!$request) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Test request not found'
+            ])->setStatusCode(404);
+        }
+
+        // Check if already paid
+        if (($request['payment_status'] ?? 'unpaid') === 'paid') {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Payment already processed for this test.'
+            ])->setStatusCode(400);
+        }
+
+        $db = \Config\Database::connect();
+        $userId = session()->get('user_id');
+
+        // Get lab test price from lab_tests table
+        $testPrice = 0.00;
+        if ($db->tableExists('lab_tests')) {
+            $labTest = $db->table('lab_tests')
+                ->where('test_name', $request['test_name'])
+                ->where('is_active', 1)
+                ->get()
+                ->getRowArray();
+            
+            if ($labTest && isset($labTest['price'])) {
+                $testPrice = (float) $labTest['price'];
+            } else {
+                // Default price if not found
+                $testPrice = 300.00;
+            }
+        } else {
+            $testPrice = 300.00; // Default price
+        }
+
+        $db->transStart();
+
+        try {
+            // Generate charge number
+            $chargeNumber = $this->chargeModel->generateChargeNumber();
+
+            // Create charge record - status is 'pending' until accountant approves
+            $chargeData = [
+                'patient_id' => $request['patient_id'],
+                'charge_number' => $chargeNumber,
+                'total_amount' => $testPrice,
+                'status' => 'pending', // Pending until accountant approves and processes payment
+                'notes' => 'Lab test payment: ' . $request['test_name'] . ' - Requires accountant approval',
+            ];
+            
+            // Add optional fields only if columns exist in the table
+            $db = \Config\Database::connect();
+            if ($db->fieldExists('processed_by', 'charges') && $userId) {
+                $chargeData['processed_by'] = $userId;
+            }
+            if ($db->fieldExists('paid_at', 'charges')) {
+                $chargeData['paid_at'] = date('Y-m-d H:i:s');
+            }
+
+            // Insert charge
+            if (!$this->chargeModel->insert($chargeData)) {
+                $errors = $this->chargeModel->errors();
+                $errorMsg = !empty($errors) ? implode(', ', $errors) : 'Database insert failed';
+                log_message('error', 'Charge insert failed: ' . $errorMsg . ' | Data: ' . json_encode($chargeData));
+                throw new \Exception('Failed to create charge: ' . $errorMsg);
+            }
+            $chargeId = $this->chargeModel->getInsertID();
+            
+            if (!$chargeId) {
+                throw new \Exception('Failed to get charge ID after insert');
+            }
+
+                // Create billing item
+                $billingItemData = [
+                    'charge_id' => $chargeId,
+                    'item_type' => 'lab_test',
+                    'item_name' => $request['test_name'],
+                    'description' => 'Lab Test: ' . ($request['test_type'] ?? 'Laboratory') . ' - ' . $request['test_name'],
+                    'quantity' => 1.00,
+                    'unit_price' => $testPrice,
+                    'total_price' => $testPrice,
+                    'related_id' => $requestId,
+                    'related_type' => 'lab_request',
+                ];
+
+                if (!$this->billingItemModel->insert($billingItemData)) {
+                    $errors = $this->billingItemModel->errors();
+                    $errorMsg = !empty($errors) ? implode(', ', $errors) : 'Billing item insert failed';
+                    log_message('error', 'Billing item insert failed: ' . $errorMsg);
+                    throw new \Exception('Failed to create billing item: ' . $errorMsg);
+                }
+
+                // Update lab request with charge_id (payment_status stays 'pending' until accountant processes)
+                if (!$this->labRequestModel->update($requestId, [
+                    'payment_status' => 'pending', // Will be updated to 'paid' by accountant
+                    'charge_id' => $chargeId,
+                    'updated_at' => date('Y-m-d H:i:s')
+                ])) {
+                    $errors = $this->labRequestModel->errors();
+                    $errorMsg = !empty($errors) ? implode(', ', $errors) : 'Lab request update failed';
+                    log_message('error', 'Lab request update failed: ' . $errorMsg);
+                    throw new \Exception('Failed to update lab request: ' . $errorMsg);
+                }
+
+                // Notify Accountant about new payment request (needs approval)
+                if ($db->tableExists('accountant_notifications')) {
+                    $patient = $this->patientModel->find($request['patient_id']);
+                    $patientName = ($patient ? $patient['firstname'] . ' ' . $patient['lastname'] : 'Patient');
+                    
+                    $db->table('accountant_notifications')->insert([
+                        'type' => 'lab_payment',
+                        'title' => 'Lab Test Payment Pending Approval',
+                        'message' => 'Payment request for lab test: ' . $request['test_name'] . ' - Patient: ' . $patientName . ' - Amount: ₱' . number_format($testPrice, 2) . ' - Please approve and process payment.',
+                        'related_id' => $chargeId,
+                        'related_type' => 'charge',
+                        'is_read' => 0,
+                        'created_at' => date('Y-m-d H:i:s'),
+                    ]);
+                }
+
+                $db->transComplete();
+
+                if ($db->transStatus() === false) {
+                    throw new \Exception('Transaction failed');
+                }
+
+                return $this->response->setJSON([
+                    'success' => true,
+                    'message' => 'Payment processed successfully',
+                    'charge_id' => $chargeId,
+                    'charge_number' => $chargeNumber,
+                    'amount' => $testPrice
+                ]);
+        } catch (\Exception $e) {
+            $db->transRollback();
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Payment processing failed: ' . $e->getMessage()
+            ])->setStatusCode(500);
+        }
+    }
+
+    /**
+     * Print Receipt for Lab Test Payment
+     */
+    public function printReceipt($requestId)
+    {
+        // Check if user is logged in
+        $isLoggedIn = session()->get('isLoggedIn') || session()->get('logged_in');
+        if (!$isLoggedIn) {
+            return redirect()->to('/auth')->with('error', 'You must be logged in to access this page.');
+        }
+
+        $request = $this->labRequestModel->find($requestId);
+        if (!$request) {
+            return redirect()->back()->with('error', 'Test request not found.');
+        }
+
+        // Check if payment is processed
+        if (($request['payment_status'] ?? 'unpaid') !== 'paid' || empty($request['charge_id'])) {
+            return redirect()->back()->with('error', 'Payment not yet processed for this test.');
+        }
+
+        $db = \Config\Database::connect();
+
+        // Get charge and billing items
+        $charge = $this->chargeModel->find($request['charge_id']);
+        if (!$charge) {
+            return redirect()->back()->with('error', 'Charge not found.');
+        }
+
+        $billingItems = $this->billingItemModel
+            ->where('charge_id', $request['charge_id'])
+            ->findAll();
+
+        // Get patient info
+        $patient = $this->patientModel->find($request['patient_id']);
+
+        $data = [
+            'title' => 'Receipt - ' . $charge['charge_number'],
+            'charge' => $charge,
+            'billingItems' => $billingItems,
+            'patient' => $patient,
+            'labRequest' => $request,
+        ];
+
+        return view('labstaff/receipt', $data);
+    }
+
+    /**
+     * Print Lab Result
+     */
+    public function printResult($requestId)
+    {
+        // Check if user is logged in and is lab staff
+        $isLoggedIn = session()->get('isLoggedIn') || session()->get('logged_in');
+        $userRole = session()->get('role');
+        if (!$isLoggedIn || !in_array($userRole, ['labstaff', 'lab_staff', 'admin'])) {
+            return redirect()->to('/auth')->with('error', 'You must be logged in as lab staff to access this page.');
+        }
+
+        $request = $this->labRequestModel->find($requestId);
+        if (!$request) {
+            return redirect()->back()->with('error', 'Test request not found.');
+        }
+
+        // Check if test is completed
+        if ($request['status'] !== 'completed') {
+            return redirect()->back()->with('error', 'Test is not yet completed.');
+        }
+
+        $db = \Config\Database::connect();
+
+        // Get lab result
+        $labResult = $this->labResultModel
+            ->where('lab_request_id', $requestId)
+            ->first();
+
+        if (!$labResult) {
+            return redirect()->back()->with('error', 'Lab result not found.');
+        }
+
+        // Get patient info
+        $patient = $this->patientModel->find($request['patient_id']);
+
+        // Get completed by user
+        $completedBy = null;
+        if (!empty($labResult['completed_by'])) {
+            $completedBy = $db->table('users')
+                ->where('id', $labResult['completed_by'])
+                ->get()
+                ->getRowArray();
+        }
+
+        // Get test info from lab_tests table
+        $testInfo = null;
+        if ($db->tableExists('lab_tests')) {
+            $testInfo = $db->table('lab_tests')
+                ->where('test_name', $request['test_name'])
+                ->where('is_active', 1)
+                ->get()
+                ->getRowArray();
+        }
+
+        $data = [
+            'title' => 'Lab Result - ' . $request['test_name'],
+            'labRequest' => $request,
+            'labResult' => $labResult,
+            'patient' => $patient,
+            'completedBy' => $completedBy,
+            'testInfo' => $testInfo,
+        ];
+
+        return view('labstaff/print_result', $data);
     }
 
     /**

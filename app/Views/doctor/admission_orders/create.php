@@ -230,26 +230,39 @@
                             <label class="form-label">Test Name</label>
                             <select name="lab_tests[0][test_name]" class="form-control" onchange="updateLabTestInfo(0, this)">
                                 <option value="">-- Select Lab Test --</option>
+                                <?php
+                                $categoryLabels = [
+                                    'with_specimen' => '🔬 With Specimen (Requires Physical Specimen)',
+                                    'without_specimen' => '📋 Without Specimen (No Physical Specimen Needed)'
+                                ];
+                                
+                                // Ensure both categories are shown, even if empty
+                                $allCategories = ['with_specimen', 'without_specimen'];
+                                ?>
                                 <?php if (!empty($labTests)): ?>
-                                    <?php 
-                                    $groupedTests = [];
-                                    foreach ($labTests as $test) {
-                                        $groupedTests[$test['test_type']][] = $test;
-                                    }
-                                    ?>
-                                    <?php foreach ($groupedTests as $testType => $tests): ?>
-                                        <optgroup label="<?= esc($testType) ?>">
-                                            <?php foreach ($tests as $test): ?>
-                                                <option value="<?= esc($test['test_name']) ?>" 
-                                                    data-type="<?= esc($test['test_type']) ?>"
-                                                    data-description="<?= esc($test['description'] ?? '') ?>"
-                                                    data-normal-range="<?= esc($test['normal_range'] ?? '') ?>"
-                                                    data-price="<?= esc($test['price']) ?>">
-                                                    <?= esc($test['test_name']) ?> 
-                                                    <span style="color: #64748b;">(₱<?= number_format($test['price'], 2) ?>)</span>
-                                                </option>
-                                            <?php endforeach; ?>
-                                        </optgroup>
+                                    <?php foreach ($allCategories as $category): ?>
+                                        <?php if (isset($labTests[$category]) && is_array($labTests[$category]) && !empty($labTests[$category])): ?>
+                                            <optgroup label="<?= esc($categoryLabels[$category] ?? ucfirst(str_replace('_', ' ', $category))) ?>">
+                                                <?php foreach ($labTests[$category] as $testType => $tests): ?>
+                                                    <?php if (is_array($tests)): ?>
+                                                        <?php foreach ($tests as $test): ?>
+                                                            <?php if (is_array($test)): ?>
+                                                                <option value="<?= esc($test['test_name']) ?>" 
+                                                                    data-type="<?= esc($test['test_type']) ?>"
+                                                                    data-specimen-category="<?= esc($test['specimen_category'] ?? 'with_specimen') ?>"
+                                                                    data-description="<?= esc($test['description'] ?? '') ?>"
+                                                                    data-normal-range="<?= esc($test['normal_range'] ?? '') ?>"
+                                                                    data-price="<?= esc($test['price']) ?>">
+                                                                    <?= esc($test['test_name']) ?> 
+                                                                    <span style="color: #64748b;">(<?= esc($test['test_type']) ?>)</span>
+                                                                    <span style="color: #64748b;"> - ₱<?= number_format($test['price'], 2) ?></span>
+                                                                </option>
+                                                            <?php endif; ?>
+                                                        <?php endforeach; ?>
+                                                    <?php endif; ?>
+                                                <?php endforeach; ?>
+                                            </optgroup>
+                                        <?php endif; ?>
                                     <?php endforeach; ?>
                                 <?php else: ?>
                                     <option value="" disabled>No lab tests available</option>
@@ -450,29 +463,39 @@ const labTestsData = <?= json_encode($labTests ?? []) ?>;
 
 function buildLabTestsOptions() {
     let options = '<option value="">-- Select Lab Test --</option>';
-    if (labTestsData && labTestsData.length > 0) {
-        // Group by test type
-        const grouped = {};
-        labTestsData.forEach(test => {
-            if (!grouped[test.test_type]) {
-                grouped[test.test_type] = [];
-            }
-            grouped[test.test_type].push(test);
-        });
+    if (labTestsData && Object.keys(labTestsData).length > 0) {
+        const categoryLabels = {
+            'with_specimen': '🔬 With Specimen (Requires Physical Specimen)',
+            'without_specimen': '📋 Without Specimen (No Physical Specimen Needed)'
+        };
         
-        // Build optgroups
-        Object.keys(grouped).sort().forEach(testType => {
-            options += `<optgroup label="${escapeHtml(testType)}">`;
-            grouped[testType].forEach(test => {
-                options += `<option value="${escapeHtml(test.test_name)}" 
-                    data-type="${escapeHtml(test.test_type)}"
-                    data-description="${escapeHtml(test.description || '')}"
-                    data-normal-range="${escapeHtml(test.normal_range || '')}"
-                    data-price="${test.price}">
-                    ${escapeHtml(test.test_name)} <span style="color: #64748b;">(₱${parseFloat(test.price).toFixed(2)})</span>
-                </option>`;
-            });
-            options += `</optgroup>`;
+        // Ensure both categories are shown in order
+        const allCategories = ['with_specimen', 'without_specimen'];
+        
+        allCategories.forEach(category => {
+            if (labTestsData[category] && Object.keys(labTestsData[category]).length > 0) {
+                const categoryLabel = categoryLabels[category] || category.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+                options += `<optgroup label="${escapeHtml(categoryLabel)}">`;
+                
+                Object.keys(labTestsData[category]).sort().forEach(testType => {
+                    if (Array.isArray(labTestsData[category][testType])) {
+                        labTestsData[category][testType].forEach(test => {
+                            if (test && typeof test === 'object') {
+                                options += `<option value="${escapeHtml(test.test_name)}" 
+                                    data-type="${escapeHtml(test.test_type)}"
+                                    data-specimen-category="${escapeHtml(test.specimen_category || 'with_specimen')}"
+                                    data-description="${escapeHtml(test.description || '')}"
+                                    data-normal-range="${escapeHtml(test.normal_range || '')}"
+                                    data-price="${test.price}">
+                                    ${escapeHtml(test.test_name)} <span style="color: #64748b;">(${escapeHtml(test.test_type)})</span> <span style="color: #64748b;"> - ₱${parseFloat(test.price).toFixed(2)}</span>
+                                </option>`;
+                            }
+                        });
+                    }
+                });
+                
+                options += `</optgroup>`;
+            }
         });
     } else {
         options += '<option value="" disabled>No lab tests available</option>';

@@ -14,6 +14,20 @@
     <?php if (session()->getFlashdata('success')): ?>
         <div class="alert alert-success"><?= session()->getFlashdata('success') ?></div>
     <?php endif; ?>
+    
+    <?php if (session()->getFlashdata('error')): ?>
+        <div class="alert alert-danger"><?= session()->getFlashdata('error') ?></div>
+    <?php endif; ?>
+    
+    <?php if (session()->getFlashdata('errors')): ?>
+        <div class="alert alert-danger">
+            <ul style="margin: 0; padding-left: 20px;">
+                <?php foreach (session()->getFlashdata('errors') as $error): ?>
+                    <li><?= esc($error) ?></li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
+    <?php endif; ?>
 
     <div class="table-container">
         <table class="data-table">
@@ -64,6 +78,7 @@
 .text-center { text-align: center; }
 .alert { padding: 12px; border-radius: 6px; margin-bottom: 16px; }
 .alert-success { background: #d1fae5; color: #047857; }
+.alert-danger { background: #fee2e2; color: #991b1b; padding: 12px; border-radius: 6px; margin-bottom: 16px; }
 </style>
 <?= $this->endSection() ?>
 

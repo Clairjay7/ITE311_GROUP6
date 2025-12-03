@@ -15,6 +15,8 @@ class RoomModel extends Model
     protected $allowedFields = [
         'ward',
         'room_number',
+        'room_type',
+        'bed_count',
         'status',
         'current_patient_id',
         'created_at',

@@ -386,8 +386,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initial fetch
     refreshLabDashboard();
     
-    // Refresh every 15 seconds
-    setInterval(refreshLabDashboard, 15000);
+    // Refresh every 10 seconds for real-time updates
+    setInterval(refreshLabDashboard, 10000);
     
     // Refresh when page becomes visible again
     document.addEventListener('visibilitychange', () => {

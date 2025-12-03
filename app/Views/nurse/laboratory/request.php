@@ -182,27 +182,40 @@
                             <label for="test_name" class="form-label">Test Name *</label>
                             <select class="form-select" id="test_name" name="test_name" required onchange="updateLabTestInfo(this)">
                                 <option value="">-- Select Lab Test --</option>
+                                <?php
+                                $categoryLabels = [
+                                    'with_specimen' => '🔬 With Specimen (Requires Physical Specimen)',
+                                    'without_specimen' => '📋 Without Specimen (No Physical Specimen Needed)'
+                                ];
+                                
+                                // Ensure both categories are shown, even if empty
+                                $allCategories = ['with_specimen', 'without_specimen'];
+                                ?>
                                 <?php if (!empty($labTests)): ?>
-                                    <?php 
-                                    $groupedTests = [];
-                                    foreach ($labTests as $test) {
-                                        $groupedTests[$test['test_type']][] = $test;
-                                    }
-                                    ?>
-                                    <?php foreach ($groupedTests as $testType => $tests): ?>
-                                        <optgroup label="<?= esc($testType) ?>">
-                                            <?php foreach ($tests as $test): ?>
-                                                <option value="<?= esc($test['test_name']) ?>" 
-                                                    data-type="<?= esc($test['test_type']) ?>"
-                                                    data-description="<?= esc($test['description'] ?? '') ?>"
-                                                    data-normal-range="<?= esc($test['normal_range'] ?? '') ?>"
-                                                    data-price="<?= esc($test['price']) ?>"
-                                                    <?= old('test_name') == $test['test_name'] ? 'selected' : '' ?>>
-                                                    <?= esc($test['test_name']) ?> 
-                                                    <span style="color: #64748b;">(₱<?= number_format($test['price'], 2) ?>)</span>
-                                                </option>
-                                            <?php endforeach; ?>
-                                        </optgroup>
+                                    <?php foreach ($allCategories as $category): ?>
+                                        <?php if (isset($labTests[$category]) && is_array($labTests[$category]) && !empty($labTests[$category])): ?>
+                                            <optgroup label="<?= esc($categoryLabels[$category] ?? ucfirst(str_replace('_', ' ', $category))) ?>">
+                                                <?php foreach ($labTests[$category] as $testType => $tests): ?>
+                                                    <?php if (is_array($tests)): ?>
+                                                        <?php foreach ($tests as $test): ?>
+                                                            <?php if (is_array($test)): ?>
+                                                                <option value="<?= esc($test['test_name']) ?>" 
+                                                                    data-type="<?= esc($test['test_type']) ?>"
+                                                                    data-specimen-category="<?= esc($test['specimen_category'] ?? 'with_specimen') ?>"
+                                                                    data-description="<?= esc($test['description'] ?? '') ?>"
+                                                                    data-normal-range="<?= esc($test['normal_range'] ?? '') ?>"
+                                                                    data-price="<?= esc($test['price']) ?>"
+                                                                    <?= old('test_name') == $test['test_name'] ? 'selected' : '' ?>>
+                                                                    <?= esc($test['test_name']) ?> 
+                                                                    <span style="color: #64748b;">(<?= esc($test['test_type']) ?>)</span>
+                                                                    <span style="color: #64748b;"> - ₱<?= number_format($test['price'], 2) ?></span>
+                                                                </option>
+                                                            <?php endif; ?>
+                                                        <?php endforeach; ?>
+                                                    <?php endif; ?>
+                                                <?php endforeach; ?>
+                                            </optgroup>
+                                        <?php endif; ?>
                                     <?php endforeach; ?>
                                 <?php else: ?>
                                     <option value="" disabled>No lab tests available</option>

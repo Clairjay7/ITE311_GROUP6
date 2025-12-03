@@ -313,7 +313,94 @@ class LabTestsSeeder extends Seeder
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s'),
             ],
+            
+            // Tests WITHOUT Specimen (No Physical Specimen Required)
+            [
+                'test_name' => 'ECG (Electrocardiogram)',
+                'test_type' => 'Cardiology',
+                'specimen_category' => 'without_specimen',
+                'description' => 'Electrocardiogram to measure heart electrical activity',
+                'normal_range' => 'Normal sinus rhythm',
+                'price' => 500.00,
+                'is_active' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ],
+            [
+                'test_name' => 'Chest X-Ray',
+                'test_type' => 'Radiology',
+                'specimen_category' => 'without_specimen',
+                'description' => 'Chest X-ray examination',
+                'normal_range' => 'Normal chest findings',
+                'price' => 600.00,
+                'is_active' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ],
+            [
+                'test_name' => 'Ultrasound (Abdomen)',
+                'test_type' => 'Radiology',
+                'specimen_category' => 'without_specimen',
+                'description' => 'Abdominal ultrasound examination',
+                'normal_range' => 'Normal abdominal structures',
+                'price' => 800.00,
+                'is_active' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ],
+            [
+                'test_name' => 'CT Scan (Head)',
+                'test_type' => 'Radiology',
+                'specimen_category' => 'without_specimen',
+                'description' => 'Computed tomography scan of the head',
+                'normal_range' => 'Normal brain structures',
+                'price' => 2500.00,
+                'is_active' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ],
+            [
+                'test_name' => 'MRI (Brain)',
+                'test_type' => 'Radiology',
+                'specimen_category' => 'without_specimen',
+                'description' => 'Magnetic resonance imaging of the brain',
+                'normal_range' => 'Normal brain structures',
+                'price' => 5000.00,
+                'is_active' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ],
+            [
+                'test_name' => 'Echocardiogram',
+                'test_type' => 'Cardiology',
+                'specimen_category' => 'without_specimen',
+                'description' => 'Ultrasound of the heart',
+                'normal_range' => 'Normal heart function',
+                'price' => 1500.00,
+                'is_active' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ],
+            [
+                'test_name' => 'Pulmonary Function Test (PFT)',
+                'test_type' => 'Pulmonology',
+                'specimen_category' => 'without_specimen',
+                'description' => 'Lung function test',
+                'normal_range' => 'Normal lung function',
+                'price' => 800.00,
+                'is_active' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ],
         ];
+        
+        // Add specimen_category to existing tests (if not set, default to with_specimen)
+        foreach ($labTests as &$test) {
+            if (!isset($test['specimen_category'])) {
+                $test['specimen_category'] = 'with_specimen';
+            }
+        }
+        unset($test);
         
         // Insert lab tests
         $db->table('lab_tests')->insertBatch($labTests);

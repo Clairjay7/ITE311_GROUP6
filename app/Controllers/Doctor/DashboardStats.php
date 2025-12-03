@@ -382,7 +382,8 @@ class DashboardStats extends BaseController
             $admittedPatients = [];
             if ($db->tableExists('admissions')) {
                 $admittedPatients = $db->table('admissions a')
-                    ->select('a.*, ap.firstname, ap.lastname, r.room_number, r.ward,
+                    ->select('a.id, a.patient_id, a.admission_date, a.admission_reason, a.diagnosis, a.status, a.discharge_status,
+                             ap.firstname, ap.lastname, r.room_number, r.ward,
                              (SELECT COUNT(*) FROM doctor_orders WHERE admission_id = a.id AND status != "completed" AND status != "cancelled") as pending_orders_count')
                     ->join('admin_patients ap', 'ap.id = a.patient_id', 'left')
                     ->join('rooms r', 'r.id = a.room_id', 'left')

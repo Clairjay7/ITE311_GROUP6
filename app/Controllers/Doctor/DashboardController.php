@@ -129,7 +129,7 @@ class DashboardController extends BaseController
                 ->join('patients', 'patients.patient_id = consultations.patient_id', 'left')
                 ->where('consultations.doctor_id', $doctorId)
                 ->where('consultations.type', 'upcoming')
-                ->where('consultations.status', 'approved')
+                ->whereIn('consultations.status', ['approved', 'pending']) // Include both approved and pending
                 ->where('consultations.consultation_date >=', $today)
                 ->orderBy('consultations.consultation_date', 'ASC')
                 ->orderBy('consultations.consultation_time', 'ASC')
@@ -153,7 +153,7 @@ class DashboardController extends BaseController
                 ->join('admin_patients', 'admin_patients.id = consultations.patient_id', 'left')
                 ->where('consultations.doctor_id', $doctorId)
                 ->where('consultations.type', 'upcoming')
-                ->where('consultations.status', 'approved')
+                ->whereIn('consultations.status', ['approved', 'pending']) // Include both approved and pending
                 ->where('consultations.consultation_date >=', $today)
                 ->where('admin_patients.id IS NOT NULL') // Only get records that actually have admin_patient
                 ->orderBy('consultations.consultation_date', 'ASC')
@@ -172,6 +172,74 @@ class DashboardController extends BaseController
                 }
                 if (!$exists) {
                     $awaitingConsultation[] = $consult;
+                }
+            }
+        }
+        
+        // Also add patients from triage that were sent to this doctor but may not have consultation record
+        // This handles cases where FK constraint prevents consultation creation
+        if ($db->tableExists('triage')) {
+            $triageForDoctor = $triageModel
+                ->where('doctor_id', $doctorId)
+                ->where('status', 'completed')
+                ->where('sent_to_doctor', 1)
+                ->where('triage_level !=', 'Critical') // Critical cases are in emergencyCases
+                ->orderBy('created_at', 'DESC')
+                ->findAll();
+            
+            foreach ($triageForDoctor as $triage) {
+                // Check if this patient already has a consultation in the list
+                $hasConsultation = false;
+                foreach ($awaitingConsultation as $consult) {
+                    if (($consult['patient_id'] ?? null) == $triage['patient_id']) {
+                        $hasConsultation = true;
+                        break;
+                    }
+                }
+                
+                // If no consultation exists, add triage info to awaiting consultation
+                if (!$hasConsultation) {
+                    // Get patient info
+                    $patientName = 'Unknown Patient';
+                    $patientId = $triage['patient_id'];
+                    
+                    if ($db->tableExists('patients')) {
+                        $patient = $db->table('patients')
+                            ->where('patient_id', $triage['patient_id'])
+                            ->get()
+                            ->getRowArray();
+                        if ($patient) {
+                            $patientName = $patient['full_name'] ?? ($patient['first_name'] . ' ' . $patient['last_name']);
+                        }
+                    }
+                    
+                    if ($db->tableExists('admin_patients') && empty($patient)) {
+                        $patient = $db->table('admin_patients')
+                            ->where('id', $triage['patient_id'])
+                            ->get()
+                            ->getRowArray();
+                        if ($patient) {
+                            $patientName = ($patient['firstname'] ?? '') . ' ' . ($patient['lastname'] ?? '');
+                        }
+                    }
+                    
+                    // Add to awaiting consultation
+                    $nameParts = explode(' ', $patientName, 2);
+                    $awaitingConsultation[] = [
+                        'id' => 'triage_' . $triage['id'],
+                        'patient_id' => $patientId,
+                        'full_name' => $patientName,
+                        'firstname' => $nameParts[0] ?? '',
+                        'lastname' => $nameParts[1] ?? '',
+                        'consultation_date' => date('Y-m-d'),
+                        'consultation_time' => date('H:i:s'),
+                        'type' => 'upcoming',
+                        'status' => 'pending',
+                        'notes' => "From Triage - Level: {$triage['triage_level']}. " . ($triage['chief_complaint'] ?? ''),
+                        'triage_id' => $triage['id'],
+                        'triage_level' => $triage['triage_level'],
+                        'from_triage' => true,
+                    ];
                 }
             }
         }
@@ -232,13 +300,15 @@ class DashboardController extends BaseController
         $totalUnreadNotifications = count($unreadNotifications);
 
         // Get emergency cases assigned to this doctor (Critical triage)
+        // Also get non-critical triage cases that were sent to this doctor
         $triageModel = new \App\Models\TriageModel();
         $emergencyCases = [];
         if ($db->tableExists('triage')) {
-            // Get critical triage cases assigned to this doctor
+            // Get all triage cases assigned to this doctor (Critical, Moderate, Minor)
             $triageRecords = $triageModel
                 ->where('doctor_id', $doctorId)
-                ->where('triage_level', 'Critical')
+                ->where('status', 'completed')
+                ->where('sent_to_doctor', 1)
                 ->orderBy('created_at', 'DESC')
                 ->findAll();
             
@@ -283,7 +353,82 @@ class DashboardController extends BaseController
                 }
                 
                 if ($patientInfo) {
+                    // Include all triage data (disposition, opd_queue_number, etc.)
                     $emergencyCases[] = array_merge($triage, $patientInfo);
+                }
+            }
+        }
+        
+        // Also get triage patients that were sent to this doctor but not critical
+        // These should appear in awaiting consultation but with triage info
+        if ($db->tableExists('triage')) {
+            $nonCriticalTriage = $triageModel
+                ->where('doctor_id', $doctorId)
+                ->where('status', 'completed')
+                ->where('sent_to_doctor', 1)
+                ->whereIn('triage_level', ['Moderate', 'Minor'])
+                ->orderBy('created_at', 'DESC')
+                ->findAll();
+            
+            foreach ($nonCriticalTriage as $triage) {
+                // Check if already in awaitingConsultation
+                $alreadyInList = false;
+                foreach ($awaitingConsultation as $consult) {
+                    if (($consult['patient_id'] ?? null) == $triage['patient_id'] && 
+                        !empty($consult['from_triage'])) {
+                        // Update with triage info
+                        $consult['disposition'] = $triage['disposition'] ?? null;
+                        $consult['triage_level'] = $triage['triage_level'] ?? null;
+                        $consult['opd_queue_number'] = $triage['opd_queue_number'] ?? null;
+                        $alreadyInList = true;
+                        break;
+                    }
+                }
+                
+                if (!$alreadyInList) {
+                    // Get patient info
+                    $patientName = 'Unknown Patient';
+                    $patientId = $triage['patient_id'];
+                    
+                    if ($db->tableExists('patients')) {
+                        $patient = $db->table('patients')
+                            ->where('patient_id', $triage['patient_id'])
+                            ->get()
+                            ->getRowArray();
+                        if ($patient) {
+                            $patientName = $patient['full_name'] ?? ($patient['first_name'] . ' ' . $patient['last_name']);
+                        }
+                    }
+                    
+                    if ($db->tableExists('admin_patients') && empty($patient)) {
+                        $patient = $db->table('admin_patients')
+                            ->where('id', $triage['patient_id'])
+                            ->get()
+                            ->getRowArray();
+                        if ($patient) {
+                            $patientName = ($patient['firstname'] ?? '') . ' ' . ($patient['lastname'] ?? '');
+                        }
+                    }
+                    
+                    // Add to awaiting consultation with triage info
+                    $nameParts = explode(' ', $patientName, 2);
+                    $awaitingConsultation[] = [
+                        'id' => 'triage_' . $triage['id'],
+                        'patient_id' => $patientId,
+                        'full_name' => $patientName,
+                        'firstname' => $nameParts[0] ?? '',
+                        'lastname' => $nameParts[1] ?? '',
+                        'consultation_date' => date('Y-m-d'),
+                        'consultation_time' => date('H:i:s'),
+                        'type' => 'upcoming',
+                        'status' => 'pending',
+                        'notes' => "From Triage - Level: {$triage['triage_level']}. " . ($triage['chief_complaint'] ?? ''),
+                        'triage_id' => $triage['id'],
+                        'triage_level' => $triage['triage_level'],
+                        'disposition' => $triage['disposition'] ?? null,
+                        'opd_queue_number' => $triage['opd_queue_number'] ?? null,
+                        'from_triage' => true,
+                    ];
                 }
             }
         }

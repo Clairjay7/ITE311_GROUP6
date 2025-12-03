@@ -63,6 +63,24 @@ class Patients extends BaseController
         }
 
         $availableRoomsByWard = [];
+        $erRooms = [];
+        
+        // Get ER rooms for Emergency In-Patient registration
+        $db = \Config\Database::connect();
+        if ($db->tableExists('rooms')) {
+            $erRooms = $db->table('rooms')
+                ->groupStart()
+                    ->where('room_type', 'ER')
+                    ->orWhere('ward', 'Emergency')
+                    ->orWhere('ward', 'ER')
+                ->groupEnd()
+                ->where('status', 'available')
+                ->orderBy('ward', 'ASC')
+                ->orderBy('room_number', 'ASC')
+                ->get()
+                ->getResultArray();
+        }
+        
         if ($prefType === 'In-Patient') {
             $wardNames = ['Pedia Ward', 'Male Ward', 'Female Ward'];
             foreach ($wardNames as $wardName) {
@@ -135,6 +153,7 @@ class Patients extends BaseController
             'validation' => \Config\Services::validation(),
             'initialType' => $prefType,
             'availableRoomsByWard' => $availableRoomsByWard,
+            'erRooms' => $erRooms, // Pass ER rooms to view
         ]);
     }
 
@@ -206,11 +225,44 @@ class Patients extends BaseController
         }
 
         $visitType = $this->request->getPost('visit_type');
+        $type = $this->request->getPost('type'); // In-Patient | Out-Patient
         $doctorId = $this->request->getPost('doctor_id') ?: null;
         
         // Only allow doctor assignment for Consultation, Check-up, Follow-up
         if ($visitType === 'Emergency') {
             $doctorId = null; // Emergency cases go to triage first
+        }
+
+        // For Emergency In-Patient: Require ER room selection (NO AUTO-ASSIGN)
+        $erRoomId = null;
+        $erRoomNumber = null;
+        if ($visitType === 'Emergency' && $type === 'In-Patient') {
+            $selectedERRoomId = $this->request->getPost('er_room_id');
+            
+            // Validate that ER room is selected
+            if (empty($selectedERRoomId)) {
+                return redirect()->back()->withInput()->with('error', 'ER Room assignment is REQUIRED for Emergency In-Patient cases. Please select an ER room.');
+            }
+            
+            // Get and validate selected ER room
+            $erRoom = $this->roomModel->find($selectedERRoomId);
+            if (!$erRoom) {
+                return redirect()->back()->withInput()->with('error', 'Selected ER room not found.');
+            }
+            
+            // Verify it's actually an ER room
+            $isERRoom = ($erRoom['room_type'] === 'ER' || $erRoom['ward'] === 'Emergency' || $erRoom['ward'] === 'ER');
+            if (!$isERRoom) {
+                return redirect()->back()->withInput()->with('error', 'Selected room is not an ER room. Please select a room from Emergency/ER ward.');
+            }
+            
+            // Check if room is available
+            if (($erRoom['status'] ?? '') !== 'available' && ($erRoom['status'] ?? '') !== 'Available') {
+                return redirect()->back()->withInput()->with('error', 'Selected ER room is not available. Please select another ER room.');
+            }
+            
+            $erRoomId = $selectedERRoomId;
+            $erRoomNumber = $erRoom['room_number'];
         }
 
         $data = [
@@ -228,11 +280,11 @@ class Patients extends BaseController
             'address' => $composedAddress ?: null,
             'type' => $this->request->getPost('type'),
             'visit_type' => $visitType,
-            'triage_status' => $visitType === 'Emergency' ? 'pending' : null,
+            'triage_status' => $visitType === 'Emergency' ? 'pending' : null, // Pending triage for vital signs check
             'doctor_id' => $doctorId,
             'purpose' => $this->request->getPost('purpose') ?: null,
             'admission_date' => $this->request->getPost('type') === 'In-Patient' ? $this->request->getPost('admission_date') : null,
-            'room_number' => $this->request->getPost('type') === 'In-Patient' ? $this->request->getPost('room_number') : null,
+            'room_number' => $erRoomNumber ?: ($this->request->getPost('type') === 'In-Patient' ? $this->request->getPost('room_number') : null),
             'registration_date' => date('Y-m-d'),
         ];
 
@@ -240,7 +292,6 @@ class Patients extends BaseController
 
         // Get the inserted patient_id (primary key is 'patient_id', not 'id')
         $patientId = $this->patientModel->getInsertID();
-        $type = $this->request->getPost('type');
         
         // If getInsertID() returns 0 or null, try to get it from the saved data
         if (empty($patientId) && !empty($data['patient_id'])) {
@@ -262,27 +313,47 @@ class Patients extends BaseController
         // Log for debugging
         log_message('debug', "Patient registered - patient_id: {$patientId}, doctor_id: {$doctorId}, type: {$type}, visit_type: {$visitType}");
         
-        // Handle room assignment ONLY for Emergency cases
+        // Handle ER room assignment for Emergency In-Patient cases
         if ($patientId && $type === 'In-Patient' && $visitType === 'Emergency') {
-            $ward = trim((string)$this->request->getPost('ward'));
-            $roomNumber = trim((string)$this->request->getPost('room_number'));
-            if ($ward !== '' && $roomNumber !== '') {
-                $room = $this->roomModel
-                    ->where('ward', $ward)
-                    ->where('room_number', $roomNumber)
-                    ->first();
+            $db = \Config\Database::connect();
+            
+            // Use the ER room that was auto-assigned or selected
+            if ($erRoomId) {
+                $room = $this->roomModel->find($erRoomId);
                 if ($room && ($room['status'] ?? '') !== 'Occupied') {
-                    $this->roomModel->update((int)$room['id'], [
+                    // Update room status
+                    $this->roomModel->update($erRoomId, [
                         'current_patient_id' => $patientId,
                         'status' => 'Occupied',
                     ]);
+                    
+                    // Update patient with ER room info
+                    $this->patientModel->update($patientId, [
+                        'room_number' => $erRoomNumber,
+                        'triage_status' => 'pending', // Pending triage for vital signs check
+                    ]);
+                    
+                    // Create bed assignment if beds table exists
+                    if ($db->tableExists('beds')) {
+                        $bed = $db->table('beds')
+                            ->where('room_id', $erRoomId)
+                            ->where('status', 'available')
+                            ->limit(1)
+                            ->get()
+                            ->getRowArray();
+                        
+                        if ($bed) {
+                            $db->table('beds')
+                                ->where('id', $bed['id'])
+                                ->update([
+                                    'current_patient_id' => $patientId,
+                                    'status' => 'occupied',
+                                ]);
+                        }
+                    }
+                    
+                    log_message('info', "ER room {$erRoomNumber} (ID: {$erRoomId}) assigned to Emergency patient {$patientId}");
                 }
-            }
-        } else {
-            // For non-emergency cases, clear room assignment
-            $data['room_number'] = null;
-            if ($patientId) {
-                $this->patientModel->update($patientId, ['room_number' => null]);
             }
         }
 

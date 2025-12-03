@@ -10,7 +10,7 @@ class PatientModel extends Model
     protected $primaryKey = 'patient_id';
     protected $useAutoIncrement = true;
     protected $returnType = 'array';
-    protected $useSoftDeletes = true;
+    protected $useSoftDeletes = false; // patients table doesn't have deleted_at column
     protected $deletedField = 'deleted_at';
 
     protected $allowedFields = [

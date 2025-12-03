@@ -606,6 +606,44 @@
         </div>
     </div>
 
+    <!-- ER Bed Management -->
+    <div class="section-card" style="border-left: 4px solid #ef4444;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h3 style="color: #ef4444; margin: 0;">
+                <i class="fas fa-bed"></i>
+                ER Bed Management
+            </h3>
+            <a href="<?= site_url('nurse/er-beds') ?>" class="btn-sm" style="background: #ef4444; color: white; text-decoration: none; padding: 8px 16px; border-radius: 8px;">
+                Manage ER Beds <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+        <div style="background: #fef2f2; padding: 16px; border-radius: 8px;">
+            <p style="color: #991b1b; font-size: 14px; margin: 0;">
+                <i class="fas fa-info-circle"></i> 
+                Manage ER bed assignments for critical patients. Assign beds, monitor occupancy, and release beds when patients are transferred or discharged.
+            </p>
+        </div>
+    </div>
+    
+    <!-- Doctor Schedules -->
+    <div class="section-card" style="border-left: 4px solid #0288d1;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h3 style="color: #0288d1; margin: 0;">
+                <i class="fas fa-calendar-alt"></i>
+                Doctor Schedules
+            </h3>
+            <a href="<?= site_url('nurse/doctor-schedules') ?>" class="btn-sm" style="background: #0288d1; color: white; text-decoration: none; padding: 8px 16px; border-radius: 8px;">
+                View Schedules <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+        <div style="background: #eff6ff; padding: 16px; border-radius: 8px;">
+            <p style="color: #1e40af; font-size: 14px; margin: 0;">
+                <i class="fas fa-info-circle"></i> 
+                View all doctor schedules and availability. Check when doctors are available, busy, or have full schedules to avoid conflicts when assigning patients.
+            </p>
+        </div>
+    </div>
+
     <!-- Pending Doctor Orders -->
     <div class="section-card">
         <h3>
@@ -731,15 +769,27 @@
                 <div id="approvedLabRequestsContainer">
                     <?php if (!empty($approvedLabRequests)): ?>
                         <?php foreach ($approvedLabRequests as $request): ?>
-                            <div style="background: #d1fae5; padding: 12px; border-radius: 8px; margin-bottom: 8px;">
+                            <div style="background: #d1fae5; padding: 12px; border-radius: 8px; margin-bottom: 8px; border-left: 4px solid #10b981;">
                                 <div style="font-weight: 600; color: #065f46;">
                                     <?= esc($request['test_name']) ?>
                                 </div>
                                 <div style="font-size: 12px; color: #047857; margin-top: 4px;">
                                     Patient: <?= esc(ucfirst($request['firstname']) . ' ' . ucfirst($request['lastname'])) ?>
                                 </div>
-                                <div style="font-size: 11px; color: #065f46; margin-top: 4px;">
-                                    In progress
+                                <?php if (!empty($request['charge_number'])): ?>
+                                    <div style="font-size: 11px; color: #047857; margin-top: 4px;">
+                                        <i class="fas fa-receipt"></i> Charge: <?= esc($request['charge_number']) ?>
+                                        <?php if (!empty($request['total_amount'])): ?>
+                                            - ₱<?= number_format($request['total_amount'], 2) ?>
+                                        <?php endif; ?>
+                                    </div>
+                                <?php endif; ?>
+                                <div style="margin-top: 8px;">
+                                    <button onclick="markSpecimenCollected(<?= $request['id'] ?>)" 
+                                            class="btn btn-sm" 
+                                            style="background: #10b981; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600;">
+                                        <i class="fas fa-check-circle"></i> Mark Specimen Collected
+                                    </button>
                                 </div>
                             </div>
                         <?php endforeach; ?>
@@ -1072,16 +1122,32 @@ function updateLabRequests(containerId, requests, isApproved = false) {
             const bg = isApproved ? '#d1fae5' : '#fef3c7';
             const color = isApproved ? '#065f46' : '#92400e';
             html += `
-                <div style="background: ${bg}; padding: 12px; border-radius: 8px; margin-bottom: 8px;">
+                <div style="background: ${bg}; padding: 12px; border-radius: 8px; margin-bottom: 8px; border-left: 4px solid ${isApproved ? '#10b981' : '#f59e0b'};">
                     <div style="font-weight: 600; color: ${color};">
                         ${req.test_name}
                     </div>
                     <div style="font-size: 12px; color: ${isApproved ? '#047857' : '#78350f'}; margin-top: 4px;">
                         Patient: ${req.firstname} ${req.lastname}
                     </div>
-                    <div style="font-size: 11px; color: ${color}; margin-top: 4px;">
-                        ${isApproved ? 'In progress' : 'Waiting for doctor confirmation'}
-                    </div>
+                    ${req.charge_number ? `
+                        <div style="font-size: 11px; color: ${isApproved ? '#047857' : '#78350f'}; margin-top: 4px;">
+                            <i class="fas fa-receipt"></i> Charge: ${req.charge_number}
+                            ${req.total_amount ? ` - ₱${parseFloat(req.total_amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : ''}
+                        </div>
+                    ` : ''}
+                    ${isApproved ? `
+                        <div style="margin-top: 8px;">
+                            <button onclick="markSpecimenCollected(${req.id})" 
+                                    class="btn btn-sm" 
+                                    style="background: #10b981; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600;">
+                                <i class="fas fa-check-circle"></i> Mark Specimen Collected
+                            </button>
+                        </div>
+                    ` : `
+                        <div style="font-size: 11px; color: ${color}; margin-top: 4px;">
+                            Waiting for doctor confirmation
+                        </div>
+                    `}
                 </div>
             `;
         });
@@ -1194,6 +1260,35 @@ function updatePendingDischarges(containerId, discharges) {
         container.innerHTML = html;
     } else {
         container.innerHTML = '<div style="text-align: center; padding: 20px; color: #94a3b8;"><i class="fas fa-check-circle" style="font-size: 32px; margin-bottom: 8px; opacity: 0.5;"></i><p style="margin: 0; font-size: 14px;">No pending discharges</p></div>';
+    }
+}
+
+// Mark Specimen as Collected (Nurse)
+async function markSpecimenCollected(requestId) {
+    if (!confirm('Mark this specimen as collected? This will send it to the laboratory for testing.')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`<?= site_url('nurse/laboratory/request/mark-specimen-collected/') ?>${requestId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            alert('Specimen marked as collected! Request is now ready for laboratory testing.');
+            refreshDashboard(); // Refresh to update the list
+        } else {
+            alert('Error: ' + (data.message || 'Failed to mark specimen as collected'));
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred while marking specimen as collected. Please try again.');
     }
 }
 

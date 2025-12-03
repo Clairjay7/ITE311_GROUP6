@@ -40,15 +40,20 @@ $routes->get('patient/dashboard', 'Dashboard::index', ['filter' => 'auth:patient
 $routes->get('accounting/dashboard', 'Dashboard::index', ['filter' => 'auth:finance,admin']);
 $routes->get('itstaff/dashboard', 'Dashboard::index', ['filter' => 'auth:itstaff,admin']);
 // Lab Staff Routes
-$routes->group('labstaff', ['filter' => 'auth:labstaff,lab_staff,admin'], function($routes) {
+$routes->group('labstaff', ['filter' => 'auth:labstaff,lab_staff,admin,finance'], function($routes) {
     $routes->get('dashboard', 'LabStaff\LabStaffController::dashboard');
     $routes->get('test-requests', 'LabStaff\LabStaffController::testRequests');
     $routes->get('pending-specimens', 'LabStaff\LabStaffController::pendingSpecimens');
     $routes->get('completed-tests', 'LabStaff\LabStaffController::completedTests');
+    $routes->get('print-result/(:num)', 'LabStaff\LabStaffController::printResult/$1', ['as' => 'labstaff_print_result']);
     $routes->post('test-requests/mark-collected/(:num)', 'LabStaff\LabStaffController::markCollected/$1');
     $routes->post('test-requests/mark-completed/(:num)', 'LabStaff\LabStaffController::markCompleted/$1');
+    $routes->post('test-requests/process-payment/(:num)', 'LabStaff\LabStaffController::processPayment/$1');
+    $routes->get('test-requests/receipt/(:num)', 'LabStaff\LabStaffController::printReceipt/$1');
     $routes->post('pending-specimens/mark-collected/(:num)', 'LabStaff\LabStaffController::markCollected/$1');
     $routes->post('pending-specimens/mark-completed/(:num)', 'LabStaff\LabStaffController::markCompleted/$1');
+    $routes->post('pending-specimens/process-payment/(:num)', 'LabStaff\LabStaffController::processPayment/$1');
+    $routes->get('pending-specimens/receipt/(:num)', 'LabStaff\LabStaffController::printReceipt/$1');
     $routes->get('logout', 'LabStaff\LabStaffController::logout');
     $routes->get('labstaff/logout', 'LabStaff\LabStaffController::logout');
 });
@@ -104,6 +109,7 @@ $routes->group('admin', ['namespace' => 'App\\Controllers\\Admin', 'filter' => '
         $routes->get('edit/(:num)', 'LabController::edit/$1');
         $routes->post('update/(:num)', 'LabController::update/$1');
         $routes->get('delete/(:num)', 'LabController::delete/$1');
+        $routes->get('get-available-doctors', 'LabController::getAvailableDoctors');
     });
     
     // Pharmacy
@@ -361,6 +367,13 @@ $routes->group('receptionist/admission', ['namespace' => 'App\\Controllers', 'fi
 
 // Doctor routes
 $routes->group('doctor', ['namespace' => 'App\\Controllers', 'filter' => 'auth:doctor,admin'], function($routes) {
+    // ER Bed Management Routes (for doctors after triage)
+    $routes->group('er-beds', ['namespace' => 'App\\Controllers\\Nurse'], function($routes) {
+        $routes->get('/', 'ERBedController::index');
+        $routes->post('assign', 'ERBedController::assign');
+        $routes->post('release', 'ERBedController::release');
+        $routes->get('get-available-beds', 'ERBedController::getAvailableBeds');
+    });
     $routes->get('dashboard', 'Doctor\DashboardController::index');
     $routes->get('dashboard/stats', 'Doctor\DashboardStats::stats');
 
@@ -373,6 +386,7 @@ $routes->group('doctor', ['namespace' => 'App\\Controllers', 'filter' => 'auth:d
         $routes->get('edit/(:num)', 'Doctor\PatientController::edit/$1');
         $routes->post('update/(:num)', 'Doctor\PatientController::update/$1');
         $routes->get('delete/(:num)', 'Doctor\PatientController::delete/$1');
+        $routes->post('approve-admission', 'Doctor\PatientController::approveAdmission'); // Approve admission request
     });
 
     // Consultation Schedule
@@ -401,6 +415,7 @@ $routes->group('doctor', ['namespace' => 'App\\Controllers', 'filter' => 'auth:d
         $routes->get('create', 'Doctor\OrderController::create');
         $routes->post('store', 'Doctor\OrderController::store');
         $routes->get('view/(:num)', 'Doctor\OrderController::view/$1');
+        $routes->get('print-prescription/(:num)', 'Doctor\OrderController::printPrescription/$1');
         $routes->get('edit/(:num)', 'Doctor\OrderController::edit/$1');
         $routes->post('update/(:num)', 'Doctor\OrderController::update/$1');
         $routes->post('cancel/(:num)', 'Doctor\OrderController::cancel/$1');
@@ -421,6 +436,12 @@ $routes->group('doctor', ['namespace' => 'App\\Controllers', 'filter' => 'auth:d
         $routes->post('store', 'Doctor\DischargeController::store');
         $routes->get('view/(:num)', 'Doctor\DischargeController::view/$1');
     });
+    
+    // Doctor Notifications
+    $routes->group('notifications', function($routes) {
+        $routes->post('mark-read/(:num)', 'Doctor\NotificationController::markRead/$1');
+        $routes->post('mark-all-read', 'Doctor\NotificationController::markAllRead');
+    });
 });
 
 // Admission Routes (Nurse, Receptionist ONLY - Doctor can only mark "For Admission" but cannot process)
@@ -435,6 +456,25 @@ $routes->group('admission', ['namespace' => 'App\\Controllers', 'filter' => 'aut
 
 // Nurse routes
 $routes->group('nurse', ['namespace' => 'App\\Controllers\\Nurse', 'filter' => 'auth:nurse,admin'], function($routes) {
+    // Laboratory routes
+    $routes->group('laboratory', function($routes) {
+        $routes->get('request', 'LaboratoryController::request');
+        $routes->post('request/store', 'LaboratoryController::storeRequest');
+        $routes->post('request/update-status/(:num)', 'LaboratoryController::updateRequestStatus/$1');
+        $routes->post('request/mark-specimen-collected/(:num)', 'LaboratoryController::markSpecimenCollected/$1');
+        $routes->get('testresult', 'LaboratoryController::testresult');
+    });
+    // ER Bed Management Routes
+    $routes->group('er-beds', function($routes) {
+        $routes->get('/', 'ERBedController::index');
+        $routes->post('assign', 'ERBedController::assign');
+        $routes->post('release', 'ERBedController::release');
+        $routes->get('get-available-beds', 'ERBedController::getAvailableBeds');
+    });
+    
+    // Doctor Schedule View
+    $routes->get('doctor-schedules', 'DoctorScheduleController::index');
+    
     // Nurse Discharge (Secondary role - prepare patient, print instructions)
     $routes->get('discharge', 'DischargeController::index');
     $routes->get('discharge/view/(:num)', 'DischargeController::view/$1');
@@ -479,18 +519,13 @@ $routes->group('nurse', ['namespace' => 'App\\Controllers\\Nurse', 'filter' => '
     $routes->group('triage', function($routes) {
         $routes->get('/', 'TriageController::index');
         $routes->get('triage/(:num)/(:any)', 'TriageController::triage/$1/$2'); // patient_id, source
+        $routes->get('get-doctors', 'TriageController::getAvailableDoctors');
         $routes->post('save', 'TriageController::save');
         $routes->post('send-to-doctor', 'TriageController::sendToDoctor');
     });
     
-    // Lab Assistance
-    $routes->group('laboratory', function($routes) {
-        $routes->get('request', 'LaboratoryController::request');
-        $routes->post('store-request', 'LaboratoryController::storeRequest');
-        $routes->post('update-request-status/(:num)', 'LaboratoryController::updateRequestStatus/$1');
-        $routes->get('testresult', 'LaboratoryController::testresult');
-        $routes->post('upload-result/(:num)', 'LaboratoryController::uploadResult/$1');
-    });
+    // Lab Assistance - upload result route
+    $routes->post('laboratory/upload-result/(:num)', 'LaboratoryController::uploadResult/$1');
     
     // Admission (Nurse can process admissions)
     $routes->group('admission', function($routes) {

@@ -310,6 +310,57 @@
         <p>Here's what's happening with your patients today</p>
     </div>
 
+    <!-- Notifications Section -->
+    <?php if (!empty($unreadNotifications ?? []) && $totalUnreadNotifications > 0): ?>
+        <div class="patients-section" style="background: #fef3c7; border-left: 4px solid #f59e0b;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h3 style="color: #92400e; margin: 0;">
+                    <i class="fas fa-bell"></i>
+                    Notifications
+                    <span style="background: #f59e0b; color: white; padding: 4px 12px; border-radius: 20px; font-size: 14px; margin-left: 12px;">
+                        <?= $totalUnreadNotifications ?> Unread
+                    </span>
+                </h3>
+                <button onclick="markAllNotificationsRead()" class="btn btn-warning" style="padding: 8px 16px; font-size: 13px;">
+                    <i class="fas fa-check-double"></i> Mark All as Read
+                </button>
+            </div>
+            <div style="display: grid; gap: 12px;">
+                <?php foreach ($unreadNotifications as $notification): ?>
+                    <div class="notification-item" data-notification-id="<?= $notification['id'] ?>" 
+                         style="background: white; border-radius: 8px; padding: 16px; border-left: 4px solid #f59e0b; cursor: pointer;"
+                         onclick="markNotificationRead(<?= $notification['id'] ?>)">
+                        <div style="display: flex; justify-content: space-between; align-items: start;">
+                            <div style="flex: 1;">
+                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                                    <i class="fas fa-<?= 
+                                        $notification['type'] === 'lab_result_ready' ? 'flask' : 
+                                        ($notification['type'] === 'lab_request_pending' ? 'vial' : 
+                                        ($notification['type'] === 'order_completed' ? 'check-circle' : 'bell'))
+                                    ?>" style="color: #f59e0b;"></i>
+                                    <strong style="color: #92400e; font-size: 14px;"><?= esc($notification['title']) ?></strong>
+                                    <span style="background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600;">
+                                        New
+                                    </span>
+                                </div>
+                                <p style="margin: 0; color: #64748b; font-size: 13px; line-height: 1.5;">
+                                    <?= esc($notification['message']) ?>
+                                </p>
+                                <div style="margin-top: 8px; font-size: 11px; color: #94a3b8;">
+                                    <i class="fas fa-clock"></i> <?= esc(date('M d, Y h:i A', strtotime($notification['created_at']))) ?>
+                                </div>
+                            </div>
+                            <button onclick="event.stopPropagation(); markNotificationRead(<?= $notification['id'] ?>)" 
+                                    style="background: #f59e0b; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px;">
+                                <i class="fas fa-check"></i> Mark Read
+                            </button>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    <?php endif; ?>
+
     <!-- Stats Grid -->
     <div class="stats-container">
         <div class="stats-grid">
@@ -519,15 +570,22 @@
 
     <!-- Emergency Cases Section -->
     <div class="patients-section" id="emergencyCasesSection" data-section="emergency" style="margin-top: 24px; background: #fee2e2; border-left: 4px solid #ef4444; padding: 20px; border-radius: 8px; <?= empty($emergencyCases ?? []) ? 'display: none;' : '' ?>">
-        <h3 style="color: #991b1b; margin-bottom: 16px;">
-            <i class="fas fa-exclamation-triangle"></i> Emergency Cases (Critical Triage)
-        </h3>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h3 style="color: #991b1b; margin: 0;">
+                <i class="fas fa-exclamation-triangle"></i> Emergency Cases (Critical Triage)
+            </h3>
+            <a href="<?= site_url('doctor/er-beds') ?>" class="btn btn-danger" style="padding: 8px 16px; font-size: 13px; text-decoration: none;">
+                <i class="fas fa-bed"></i> ER Bed Management
+            </a>
+        </div>
         <div class="table-container">
             <table class="data-table">
                 <thead>
                     <tr>
                         <th>Patient Name</th>
                         <th>Triage Level</th>
+                        <th>Destination</th>
+                        <th>Status</th>
                         <th>Chief Complaint</th>
                         <th>Triage Time</th>
                         <th>Actions</th>
@@ -536,12 +594,53 @@
                 <tbody>
                     <?php if (!empty($emergencyCases ?? [])): ?>
                         <?php foreach ($emergencyCases as $case): ?>
+                            <?php
+                            $disposition = $case['disposition'] ?? 'ER';
+                            $triageLevel = $case['triage_level'] ?? 'Critical';
+                            $forAdmission = $case['for_admission'] ?? 0;
+                            $opdQueueNumber = $case['opd_queue_number'] ?? null;
+                            
+                            // Determine destination
+                            $destination = 'Emergency Room (ER)';
+                            $destinationIcon = 'fas fa-hospital';
+                            $destinationBadge = 'badge-danger';
+                            
+                            if ($disposition === 'OPD') {
+                                $destination = 'Out-Patient Department (OPD)';
+                                $destinationIcon = 'fas fa-clinic-medical';
+                                $destinationBadge = 'badge-warning';
+                            } elseif ($disposition === 'Admission' || $forAdmission) {
+                                $destination = 'For Admission';
+                                $destinationIcon = 'fas fa-bed';
+                                $destinationBadge = 'badge-success';
+                            }
+                            
+                            // Status
+                            $statusText = 'Assigned to You';
+                            if ($opdQueueNumber) {
+                                $statusText = "OPD Queue #{$opdQueueNumber}";
+                            }
+                            ?>
                             <tr>
                                 <td><strong><?= esc($case['patient_name'] ?? 'N/A') ?></strong></td>
                                 <td>
                                     <span style="background: #ef4444; color: white; padding: 4px 12px; border-radius: 8px; font-size: 12px; font-weight: 600;">
-                                        <?= esc($case['triage_level']) ?>
+                                        <?= esc($triageLevel) ?>
                                     </span>
+                                </td>
+                                <td>
+                                    <span class="badge-modern <?= $destinationBadge ?>" style="display: inline-flex; align-items: center; gap: 6px;">
+                                        <i class="<?= $destinationIcon ?>"></i>
+                                        <?= esc($destination) ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <span style="font-size: 12px; color: #64748b; font-weight: 500;">
+                                        <?= esc($statusText) ?>
+                                    </span>
+                                    <?php if ($opdQueueNumber): ?>
+                                        <br><small style="color: #0288d1; font-weight: 600;">Queue #<?= $opdQueueNumber ?></small>
+                                    <?php endif; ?>
                                 </td>
                                 <td><?= esc($case['chief_complaint'] ?? 'N/A') ?></td>
                                 <td><?= esc(date('M d, Y H:i', strtotime($case['created_at']))) ?></td>
@@ -560,17 +659,23 @@
 
     <!-- Awaiting Consultation Section -->
     <div class="patients-section" id="awaitingConsultationSection" data-section="awaiting" style="margin-top: 24px; background: #fef3c7; border-left: 4px solid #f59e0b; padding: 20px; border-radius: 8px; <?= empty($awaitingConsultation ?? []) ? 'display: none;' : '' ?>">
-        <h3 style="color: #92400e; margin-bottom: 16px;">
-            <i class="fas fa-clock"></i> Awaiting Consultation
-        </h3>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h3 style="color: #92400e; margin: 0;">
+                <i class="fas fa-clock"></i> Awaiting Consultation
+            </h3>
+            <a href="<?= site_url('doctor/er-beds') ?>" class="btn btn-warning" style="padding: 8px 16px; font-size: 13px; text-decoration: none;">
+                <i class="fas fa-bed"></i> ER Bed Management
+            </a>
+        </div>
         <div class="table-container">
             <table class="data-table">
                 <thead>
                     <tr>
                         <th>Patient Name</th>
+                        <th>Destination</th>
+                        <th>Triage Level</th>
                         <th>Consultation Date</th>
                         <th>Consultation Time</th>
-                        <th>Visit Type</th>
                         <th>Status</th>
                         <th>Actions</th>
                     </tr>
@@ -578,36 +683,76 @@
                 <tbody>
                     <?php if (!empty($awaitingConsultation ?? [])): ?>
                         <?php foreach ($awaitingConsultation as $consultation): ?>
+                            <?php
+                            $triageLevel = $consultation['triage_level'] ?? null;
+                            $disposition = $consultation['disposition'] ?? null;
+                            
+                            // Determine destination from triage info
+                            $destination = 'Consultation';
+                            $destinationIcon = 'fas fa-user-md';
+                            $destinationBadge = 'badge-info';
+                            
+                            if ($disposition === 'ER' || $triageLevel === 'Critical') {
+                                $destination = 'Emergency Room (ER)';
+                                $destinationIcon = 'fas fa-hospital';
+                                $destinationBadge = 'badge-danger';
+                            } elseif ($disposition === 'OPD') {
+                                $destination = 'Out-Patient Department (OPD)';
+                                $destinationIcon = 'fas fa-clinic-medical';
+                                $destinationBadge = 'badge-warning';
+                            } elseif ($disposition === 'Admission') {
+                                $destination = 'For Admission';
+                                $destinationIcon = 'fas fa-bed';
+                                $destinationBadge = 'badge-success';
+                            }
+                            ?>
                             <tr>
-                                <td><strong><?= esc(($consultation['firstname'] ?? '') . ' ' . ($consultation['lastname'] ?? '')) ?></strong></td>
-                                <td><?= esc(date('M d, Y', strtotime($consultation['consultation_date']))) ?></td>
-                                <td><?= esc(date('h:i A', strtotime($consultation['consultation_time']))) ?></td>
                                 <td>
-                                    <?php if (!empty($consultation['visit_type'])): ?>
-                                        <span style="background: <?= 
-                                            $consultation['visit_type'] === 'Emergency' ? '#fee2e2' : 
-                                            ($consultation['visit_type'] === 'Consultation' ? '#dbeafe' : 
-                                            ($consultation['visit_type'] === 'Check-up' ? '#fef3c7' : '#d1fae5')); 
-                                        ?>; color: <?= 
-                                            $consultation['visit_type'] === 'Emergency' ? '#991b1b' : 
-                                            ($consultation['visit_type'] === 'Consultation' ? '#1e40af' : 
-                                            ($consultation['visit_type'] === 'Check-up' ? '#92400e' : '#065f46')); 
-                                        ?>; padding: 4px 12px; border-radius: 8px; font-size: 12px; font-weight: 600;">
-                                            <?= esc($consultation['visit_type']) ?>
+                                    <strong><?= esc(($consultation['firstname'] ?? '') . ' ' . ($consultation['lastname'] ?? '')) ?></strong>
+                                    <?php if (!empty($consultation['from_triage'])): ?>
+                                        <span style="background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-left: 8px;">
+                                            <i class="fas fa-stethoscope"></i> From Triage
                                         </span>
-                                    <?php else: ?>
-                                        <span style="background: #f1f5f9; color: #64748b; padding: 4px 12px; border-radius: 8px; font-size: 12px;">N/A</span>
                                     <?php endif; ?>
                                 </td>
+                                <td>
+                                    <span class="badge-modern <?= $destinationBadge ?>" style="display: inline-flex; align-items: center; gap: 6px; font-size: 11px;">
+                                        <i class="<?= $destinationIcon ?>"></i>
+                                        <?= esc($destination) ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <?php if ($triageLevel): ?>
+                                        <?php
+                                        $levelBadge = 'badge-info';
+                                        if ($triageLevel === 'Critical') $levelBadge = 'badge-danger';
+                                        elseif ($triageLevel === 'Moderate') $levelBadge = 'badge-warning';
+                                        ?>
+                                        <span class="badge-modern <?= $levelBadge ?>" style="font-size: 11px;">
+                                            <?= esc($triageLevel) ?>
+                                        </span>
+                                    <?php else: ?>
+                                        <span style="color: #64748b; font-size: 12px;">N/A</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td><?= esc(date('M d, Y', strtotime($consultation['consultation_date']))) ?></td>
+                                <td><?= esc(date('h:i A', strtotime($consultation['consultation_time']))) ?></td>
                                 <td>
                                     <span style="background: #fef3c7; color: #92400e; padding: 4px 12px; border-radius: 8px; font-size: 12px; font-weight: 600;">
                                         Awaiting Consultation
                                     </span>
                                 </td>
                                 <td>
-                                    <a href="<?= site_url('doctor/consultations/view/' . $consultation['id']) ?>" class="btn btn-info" style="padding: 6px 12px; font-size: 12px;">
-                                        <i class="fas fa-eye"></i> View
-                                    </a>
+                                    <?php if (!empty($consultation['from_triage']) && !empty($consultation['triage_id'])): ?>
+                                        <!-- For triage cases without consultation, link to patient directly -->
+                                        <a href="<?= site_url('doctor/consultations/view/' . ($consultation['patient_id'] ?? '')) ?>" class="btn btn-info" style="padding: 6px 12px; font-size: 12px;">
+                                            <i class="fas fa-user-md"></i> Attend Patient
+                                        </a>
+                                    <?php else: ?>
+                                        <a href="<?= site_url('doctor/consultations/view/' . ($consultation['id'] ?? $consultation['patient_id'] ?? '')) ?>" class="btn btn-info" style="padding: 6px 12px; font-size: 12px;">
+                                            <i class="fas fa-eye"></i> View
+                                        </a>
+                                    <?php endif; ?>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -1021,6 +1166,29 @@ async function refreshDashboard() {
                             minute: '2-digit',
                             hour12: true
                         });
+                        const disposition = case_.disposition || 'ER';
+                        const forAdmission = case_.for_admission || 0;
+                        const opdQueueNumber = case_.opd_queue_number || null;
+                        
+                        let destination = 'Emergency Room (ER)';
+                        let destinationIcon = 'fas fa-hospital';
+                        let destinationBadge = 'badge-danger';
+                        
+                        if (disposition === 'OPD') {
+                            destination = 'Out-Patient Department (OPD)';
+                            destinationIcon = 'fas fa-clinic-medical';
+                            destinationBadge = 'badge-warning';
+                        } else if (disposition === 'Admission' || forAdmission) {
+                            destination = 'For Admission';
+                            destinationIcon = 'fas fa-bed';
+                            destinationBadge = 'badge-success';
+                        }
+                        
+                        let statusText = 'Assigned to You';
+                        if (opdQueueNumber) {
+                            statusText = `OPD Queue #${opdQueueNumber}`;
+                        }
+                        
                         html += `
                             <tr>
                                 <td><strong>${case_.patient_name || 'N/A'}</strong></td>
@@ -1028,6 +1196,18 @@ async function refreshDashboard() {
                                     <span style="background: #ef4444; color: white; padding: 4px 12px; border-radius: 8px; font-size: 12px; font-weight: 600;">
                                         ${case_.triage_level || 'Critical'}
                                     </span>
+                                </td>
+                                <td>
+                                    <span class="badge-modern ${destinationBadge}" style="display: inline-flex; align-items: center; gap: 6px;">
+                                        <i class="${destinationIcon}"></i>
+                                        ${destination}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span style="font-size: 12px; color: #64748b; font-weight: 500;">
+                                        ${statusText}
+                                    </span>
+                                    ${opdQueueNumber ? `<br><small style="color: #0288d1; font-weight: 600;">Queue #${opdQueueNumber}</small>` : ''}
                                 </td>
                                 <td>${case_.chief_complaint || 'N/A'}</td>
                                 <td>${triageTime}</td>
@@ -1046,6 +1226,11 @@ async function refreshDashboard() {
             emergencySection.style.display = 'none';
         }
         
+        // Update notifications if available
+        if (data.unread_notifications !== undefined) {
+            updateNotifications(data.unread_notifications, data.total_unread_notifications || 0);
+        }
+        
         // Update last refresh time
         const now = new Date();
         lastUpdate.textContent = `Updated: ${now.toLocaleTimeString()}`;
@@ -1056,6 +1241,139 @@ async function refreshDashboard() {
     } finally {
         spinner.style.display = 'none';
     }
+}
+
+function updateNotifications(notifications, totalUnread) {
+    const notificationsSection = document.querySelector('.patients-section:has(.notification-item)');
+    if (!notificationsSection && totalUnread > 0) {
+        // Create notifications section if it doesn't exist
+        const welcomeSection = document.querySelector('.welcome-section');
+        if (welcomeSection && welcomeSection.nextElementSibling) {
+            const newSection = document.createElement('div');
+            newSection.className = 'patients-section';
+            newSection.style.cssText = 'background: #fef3c7; border-left: 4px solid #f59e0b;';
+            newSection.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <h3 style="color: #92400e; margin: 0;">
+                        <i class="fas fa-bell"></i>
+                        Notifications
+                        <span style="background: #f59e0b; color: white; padding: 4px 12px; border-radius: 20px; font-size: 14px; margin-left: 12px;">
+                            ${totalUnread} Unread
+                        </span>
+                    </h3>
+                    <button onclick="markAllNotificationsRead()" class="btn btn-warning" style="padding: 8px 16px; font-size: 13px;">
+                        <i class="fas fa-check-double"></i> Mark All as Read
+                    </button>
+                </div>
+                <div id="notificationsContainer" style="display: grid; gap: 12px;"></div>
+            `;
+            welcomeSection.parentNode.insertBefore(newSection, welcomeSection.nextElementSibling);
+        }
+    }
+    
+    const container = document.getElementById('notificationsContainer') || notificationsSection?.querySelector('div[style*="grid"]');
+    if (container && notifications && notifications.length > 0) {
+        let html = '';
+        notifications.forEach(notif => {
+            const icon = notif.type === 'lab_result_ready' ? 'flask' : 
+                       (notif.type === 'lab_request_pending' ? 'vial' : 
+                       (notif.type === 'order_completed' ? 'check-circle' : 'bell'));
+            const date = new Date(notif.created_at).toLocaleString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true
+            });
+            html += `
+                <div class="notification-item" data-notification-id="${notif.id}" 
+                     style="background: white; border-radius: 8px; padding: 16px; border-left: 4px solid #f59e0b; cursor: pointer;"
+                     onclick="markNotificationRead(${notif.id})">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <div style="flex: 1;">
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                                <i class="fas fa-${icon}" style="color: #f59e0b;"></i>
+                                <strong style="color: #92400e; font-size: 14px;">${notif.title || 'Notification'}</strong>
+                                <span style="background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600;">
+                                    New
+                                </span>
+                            </div>
+                            <p style="margin: 0; color: #64748b; font-size: 13px; line-height: 1.5;">
+                                ${notif.message || ''}
+                            </p>
+                            <div style="margin-top: 8px; font-size: 11px; color: #94a3b8;">
+                                <i class="fas fa-clock"></i> ${date}
+                            </div>
+                        </div>
+                        <button onclick="event.stopPropagation(); markNotificationRead(${notif.id})" 
+                                style="background: #f59e0b; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px;">
+                            <i class="fas fa-check"></i> Mark Read
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    } else if (container && (!notifications || notifications.length === 0)) {
+        container.innerHTML = '<p style="text-align: center; color: #94a3b8; padding: 20px;">No unread notifications</p>';
+    }
+}
+
+function markNotificationRead(notificationId) {
+    fetch('<?= site_url('doctor/notifications/mark-read') ?>/' + notificationId, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            '<?= csrf_header() ?>': '<?= csrf_hash() ?>'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Remove notification from UI
+            const notificationItem = document.querySelector(`[data-notification-id="${notificationId}"]`);
+            if (notificationItem) {
+                notificationItem.style.opacity = '0.5';
+                notificationItem.style.textDecoration = 'line-through';
+                setTimeout(() => {
+                    notificationItem.remove();
+                    // Refresh notifications count
+                    refreshDashboard();
+                }, 500);
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error marking notification as read:', error);
+    });
+}
+
+function markAllNotificationsRead() {
+    if (!confirm('Mark all notifications as read?')) return;
+    
+    fetch('<?= site_url('doctor/notifications/mark-all-read') ?>', {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            '<?= csrf_header() ?>': '<?= csrf_hash() ?>'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Remove all notifications from UI
+            document.querySelectorAll('.notification-item').forEach(item => {
+                item.style.opacity = '0.5';
+                setTimeout(() => item.remove(), 500);
+            });
+            // Refresh dashboard
+            refreshDashboard();
+        }
+    })
+    .catch(error => {
+        console.error('Error marking all notifications as read:', error);
+    });
 }
 
 // Initialize on page load
