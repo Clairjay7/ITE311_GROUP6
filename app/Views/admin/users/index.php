@@ -234,15 +234,20 @@
                                 <td><?= esc($user['created_at'] ? date('M d, Y h:i A', strtotime($user['created_at'])) : 'N/A') ?></td>
                                 <td>
                                     <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                                        <a href="<?= site_url('admin/users/edit/' . $user['id']) ?>" class="btn-sm-modern btn-warning">
-                                            <i class="fas fa-edit"></i>
-                                            Edit
-                                        </a>
                                         <?php if ($user['id'] != session()->get('user_id')): ?>
+                                            <a href="<?= site_url('admin/users/edit/' . $user['id']) ?>" class="btn-sm-modern btn-warning">
+                                                <i class="fas fa-edit"></i>
+                                                Edit
+                                            </a>
                                             <a href="<?= site_url('admin/users/delete/' . $user['id']) ?>" class="btn-sm-modern btn-danger" onclick="return confirm('Are you sure you want to delete this user?')">
                                                 <i class="fas fa-trash"></i>
                                                 Delete
                                             </a>
+                                        <?php else: ?>
+                                            <span class="badge-modern" style="background: #f1f5f9; color: #64748b;">
+                                                <i class="fas fa-info-circle"></i>
+                                                Current User
+                                            </span>
                                         <?php endif; ?>
                                     </div>
                                 </td>

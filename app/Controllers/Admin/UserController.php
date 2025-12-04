@@ -85,6 +85,11 @@ class UserController extends BaseController
 
     public function edit($id)
     {
+        // Prevent editing yourself
+        if ($id == session()->get('user_id')) {
+            return redirect()->to('/admin/users')->with('error', 'You cannot edit your own account.');
+        }
+
         $user = $this->userModel->find($id);
         
         if (!$user) {
@@ -116,6 +121,11 @@ class UserController extends BaseController
 
     public function update($id)
     {
+        // Prevent updating yourself
+        if ($id == session()->get('user_id')) {
+            return redirect()->to('/admin/users')->with('error', 'You cannot edit your own account.');
+        }
+
         $user = $this->userModel->find($id);
         
         if (!$user) {
