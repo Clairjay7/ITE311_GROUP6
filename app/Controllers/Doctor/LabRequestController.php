@@ -28,30 +28,81 @@ class LabRequestController extends BaseController
             ->findAll();
         $patientIds = array_column($assignedPatientIds, 'id');
 
-        // Get pending lab requests from nurses for assigned patients
+        // Get pending lab requests from nurses AND doctors for assigned patients
+        $db = \Config\Database::connect();
+        
+        // Also get patient IDs from patients table (receptionist-registered)
+        $hmsPatientIds = [];
+        if ($db->tableExists('patients')) {
+            $hmsPatientsRaw = $db->table('patients')
+                ->select('patients.patient_id')
+                ->where('patients.doctor_id', $doctorId)
+                ->where('patients.doctor_id IS NOT NULL')
+                ->where('patients.doctor_id !=', 0)
+                ->get()
+                ->getResultArray();
+            $hmsPatientIds = array_column($hmsPatientsRaw, 'patient_id');
+        }
+        
+        // Find corresponding admin_patients IDs for hms patients
+        $allPatientIds = $patientIds;
+        if (!empty($hmsPatientIds)) {
+            foreach ($hmsPatientIds as $hmsPatientId) {
+                $hmsPatient = $db->table('patients')
+                    ->where('patient_id', $hmsPatientId)
+                    ->get()
+                    ->getRowArray();
+                
+                if ($hmsPatient) {
+                    $nameParts = [];
+                    if (!empty($hmsPatient['first_name'])) $nameParts[] = $hmsPatient['first_name'];
+                    if (!empty($hmsPatient['last_name'])) $nameParts[] = $hmsPatient['last_name'];
+                    if (empty($nameParts) && !empty($hmsPatient['full_name'])) {
+                        $parts = explode(' ', $hmsPatient['full_name'], 2);
+                        $nameParts = [$parts[0] ?? '', $parts[1] ?? ''];
+                    }
+                    
+                    if (!empty($nameParts[0]) && !empty($nameParts[1])) {
+                        $adminPatient = $db->table('admin_patients')
+                            ->where('firstname', $nameParts[0])
+                            ->where('lastname', $nameParts[1])
+                            ->where('doctor_id', $doctorId)
+                            ->get()
+                            ->getRowArray();
+                        
+                        if ($adminPatient && !in_array($adminPatient['id'], $allPatientIds)) {
+                            $allPatientIds[] = $adminPatient['id'];
+                        }
+                    }
+                }
+            }
+        }
+        
         $pendingRequests = [];
-        if (!empty($patientIds)) {
+        if (!empty($allPatientIds)) {
             $pendingRequests = $labRequestModel
-                ->select('lab_requests.*, admin_patients.firstname, admin_patients.lastname, users.username as nurse_name')
+                ->select('lab_requests.*, admin_patients.firstname, admin_patients.lastname, users.username as nurse_name, doctor_users.username as doctor_name')
                 ->join('admin_patients', 'admin_patients.id = lab_requests.patient_id', 'left')
                 ->join('users', 'users.id = lab_requests.nurse_id', 'left')
-                ->whereIn('lab_requests.patient_id', $patientIds)
+                ->join('users as doctor_users', 'doctor_users.id = lab_requests.doctor_id', 'left')
+                ->whereIn('lab_requests.patient_id', $allPatientIds)
                 ->where('lab_requests.status', 'pending')
-                ->where('lab_requests.requested_by', 'nurse')
+                ->whereIn('lab_requests.requested_by', ['nurse', 'doctor'])
                 ->orderBy('lab_requests.created_at', 'DESC')
                 ->findAll();
         }
 
         // Get confirmed/in-progress requests
         $confirmedRequests = [];
-        if (!empty($patientIds)) {
+        if (!empty($allPatientIds)) {
             $confirmedRequests = $labRequestModel
-                ->select('lab_requests.*, admin_patients.firstname, admin_patients.lastname, users.username as nurse_name')
+                ->select('lab_requests.*, admin_patients.firstname, admin_patients.lastname, users.username as nurse_name, doctor_users.username as doctor_name')
                 ->join('admin_patients', 'admin_patients.id = lab_requests.patient_id', 'left')
                 ->join('users', 'users.id = lab_requests.nurse_id', 'left')
-                ->whereIn('lab_requests.patient_id', $patientIds)
+                ->join('users as doctor_users', 'doctor_users.id = lab_requests.doctor_id', 'left')
+                ->whereIn('lab_requests.patient_id', $allPatientIds)
                 ->whereIn('lab_requests.status', ['in_progress', 'completed'])
-                ->where('lab_requests.requested_by', 'nurse')
+                ->whereIn('lab_requests.requested_by', ['nurse', 'doctor'])
                 ->orderBy('lab_requests.updated_at', 'DESC')
                 ->limit(20)
                 ->findAll();

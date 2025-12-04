@@ -221,7 +221,7 @@
     <div class="page-header">
         <h1>
             <i class="fas fa-vial"></i>
-            Lab Requests from Nurses
+            Lab Requests
         </h1>
     </div>
     
@@ -288,7 +288,15 @@
                                             <?= esc(ucfirst($request['priority'])) ?>
                                         </span>
                                     </td>
-                                    <td><?= esc($request['nurse_name'] ?? 'N/A') ?></td>
+                                    <td>
+                                        <?php if (($request['requested_by'] ?? '') === 'doctor'): ?>
+                                            <span style="color: #0288d1; font-weight: 600;">
+                                                <i class="fas fa-user-md"></i> <?= esc($request['doctor_name'] ?? 'Doctor') ?>
+                                            </span>
+                                        <?php else: ?>
+                                            <?= esc($request['nurse_name'] ?? 'N/A') ?>
+                                        <?php endif; ?>
+                                    </td>
                                     <td><?= esc(date('M d, Y', strtotime($request['created_at']))) ?></td>
                                     <td><?= esc(substr($request['instructions'] ?? 'N/A', 0, 50)) ?><?= strlen($request['instructions'] ?? '') > 50 ? '...' : '' ?></td>
                                     <td>
@@ -399,7 +407,15 @@
                                             <?= esc(ucfirst($request['priority'])) ?>
                                         </span>
                                     </td>
-                                    <td><?= esc($request['nurse_name'] ?? 'N/A') ?></td>
+                                    <td>
+                                        <?php if (($request['requested_by'] ?? '') === 'doctor'): ?>
+                                            <span style="color: #0288d1; font-weight: 600;">
+                                                <i class="fas fa-user-md"></i> <?= esc($request['doctor_name'] ?? 'Doctor') ?>
+                                            </span>
+                                        <?php else: ?>
+                                            <?= esc($request['nurse_name'] ?? 'N/A') ?>
+                                        <?php endif; ?>
+                                    </td>
                                     <td>
                                         <span class="badge-modern" style="background: <?= 
                                             $request['status'] == 'completed' ? '#d1fae5' : '#fef3c7'; 

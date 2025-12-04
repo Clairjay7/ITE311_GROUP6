@@ -324,7 +324,8 @@
                                 <th>Time</th>
                                 <th>Type</th>
                                 <th>Status</th>
-                                <th>Notes</th>
+                                <th>Details</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -348,7 +349,103 @@
                                             <?= esc(ucfirst($consultation['status'])) ?>
                                         </span>
                                     </td>
-                                    <td><?= esc(substr($consultation['notes'] ?? 'No notes', 0, 100)) ?></td>
+                                    <td>
+                                        <div style="max-width: 400px;">
+                                            <?php if (!empty($consultation['diagnosis'])): ?>
+                                                <div style="margin-bottom: 6px;">
+                                                    <strong style="color: #1e293b; font-size: 12px;">Diagnosis:</strong> 
+                                                    <div style="color: #475569; margin-top: 2px;">
+                                                        <?= esc(substr($consultation['diagnosis'], 0, 100)) ?><?= strlen($consultation['diagnosis']) > 100 ? '...' : '' ?>
+                                                    </div>
+                                                </div>
+                                            <?php endif; ?>
+                                            
+                                            <!-- Lab Tests -->
+                                            <?php if (!empty($consultation['lab_tests'])): ?>
+                                                <div style="margin-bottom: 6px; padding: 8px; background: #eff6ff; border-radius: 6px; border-left: 3px solid #3b82f6;">
+                                                    <strong style="color: #1e40af; font-size: 12px; display: flex; align-items: center; gap: 4px;">
+                                                        <i class="fas fa-vial"></i> Lab Tests (<?= count($consultation['lab_tests']) ?>):
+                                                    </strong>
+                                                    <div style="margin-top: 4px;">
+                                                        <?php foreach ($consultation['lab_tests'] as $labTest): ?>
+                                                            <div style="font-size: 11px; color: #475569; margin-bottom: 2px;">
+                                                                • <?= esc($labTest['test_name'] ?? $labTest['test_type'] ?? 'Lab Test') ?>
+                                                                <?php if (!empty($labTest['status'])): ?>
+                                                                    <span style="background: <?= 
+                                                                        $labTest['status'] == 'completed' ? '#d1fae5' : 
+                                                                        ($labTest['status'] == 'in_progress' ? '#fef3c7' : '#fee2e2'); 
+                                                                    ?>; color: <?= 
+                                                                        $labTest['status'] == 'completed' ? '#065f46' : 
+                                                                        ($labTest['status'] == 'in_progress' ? '#92400e' : '#991b1b'); 
+                                                                    ?>; padding: 2px 6px; border-radius: 4px; font-size: 10px; margin-left: 4px;">
+                                                                        <?= esc(ucfirst($labTest['status'])) ?>
+                                                                    </span>
+                                                                <?php endif; ?>
+                                                            </div>
+                                                        <?php endforeach; ?>
+                                                    </div>
+                                                </div>
+                                            <?php endif; ?>
+                                            
+                                            <!-- Prescriptions -->
+                                            <?php if (!empty($consultation['prescriptions'])): ?>
+                                                <div style="margin-bottom: 6px; padding: 8px; background: #f0fdf4; border-radius: 6px; border-left: 3px solid #22c55e;">
+                                                    <strong style="color: #166534; font-size: 12px; display: flex; align-items: center; gap: 4px;">
+                                                        <i class="fas fa-prescription"></i> Prescriptions (<?= count($consultation['prescriptions']) ?>):
+                                                    </strong>
+                                                    <div style="margin-top: 4px;">
+                                                        <?php foreach ($consultation['prescriptions'] as $prescription): ?>
+                                                            <div style="font-size: 11px; color: #475569; margin-bottom: 2px;">
+                                                                • <strong><?= esc($prescription['medicine_name'] ?? 'Medication') ?></strong>
+                                                                <?php if (!empty($prescription['dosage'])): ?>
+                                                                    - <?= esc($prescription['dosage']) ?>
+                                                                <?php endif; ?>
+                                                                <?php if (!empty($prescription['frequency'])): ?>
+                                                                    (<?= esc($prescription['frequency']) ?>)
+                                                                <?php endif; ?>
+                                                                <?php if (!empty($prescription['pharmacy_status'])): ?>
+                                                                    <span style="background: <?= 
+                                                                        $prescription['pharmacy_status'] == 'dispensed' ? '#d1fae5' : 
+                                                                        ($prescription['pharmacy_status'] == 'prepared' ? '#fef3c7' : '#fee2e2'); 
+                                                                    ?>; color: <?= 
+                                                                        $prescription['pharmacy_status'] == 'dispensed' ? '#065f46' : 
+                                                                        ($prescription['pharmacy_status'] == 'prepared' ? '#92400e' : '#991b1b'); 
+                                                                    ?>; padding: 2px 6px; border-radius: 4px; font-size: 10px; margin-left: 4px;">
+                                                                        <?= esc(ucfirst($prescription['pharmacy_status'])) ?>
+                                                                    </span>
+                                                                <?php endif; ?>
+                                                            </div>
+                                                        <?php endforeach; ?>
+                                                    </div>
+                                                </div>
+                                            <?php endif; ?>
+                                            
+                                            <?php if (!empty($consultation['observations'])): ?>
+                                                <div style="margin-bottom: 4px; color: #64748b; font-size: 12px;">
+                                                    <strong>Observations:</strong> 
+                                                    <?= esc(substr($consultation['observations'], 0, 80)) ?><?= strlen($consultation['observations']) > 80 ? '...' : '' ?>
+                                                </div>
+                                            <?php endif; ?>
+                                            
+                                            <?php if (!empty($consultation['notes'])): ?>
+                                                <div style="color: #64748b; font-size: 12px;">
+                                                    <strong>Notes:</strong> 
+                                                    <?= esc(substr($consultation['notes'], 0, 80)) ?><?= strlen($consultation['notes']) > 80 ? '...' : '' ?>
+                                                </div>
+                                            <?php endif; ?>
+                                            
+                                            <?php if (empty($consultation['diagnosis']) && empty($consultation['observations']) && empty($consultation['notes']) && empty($consultation['lab_tests']) && empty($consultation['prescriptions'])): ?>
+                                                <span style="color: #94a3b8;">No details</span>
+                                            <?php endif; ?>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <a href="<?= site_url('doctor/consultations/view/' . $consultation['id']) ?>" 
+                                           class="btn-sm-modern btn-info" 
+                                           title="View Consultation Details">
+                                            <i class="fas fa-eye"></i> View
+                                        </a>
+                                    </td>
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>

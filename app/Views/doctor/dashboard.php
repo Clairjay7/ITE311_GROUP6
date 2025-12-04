@@ -266,10 +266,26 @@ document.addEventListener('DOMContentLoaded', function() {
                                         ${pendingCount} Pending Orders
                                     </span>
                                 ` : ''}
-                                <a href="<?= site_url('doctor/admission-orders/view/') ?>${admissionId}" 
-                                   style="background: #2e7d32; color: white; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 600; white-space: nowrap;">
-                                    <i class="fas fa-eye"></i> View & Manage Orders
-                                </a>
+                                ${patient.source === 'receptionist' ? 
+                                    `<a href="<?= site_url('doctor/consultations/start/') ?>${patient.patient_id}/patients" 
+                                       style="background: #0288d1; color: white; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 600; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; margin-right: 8px;">
+                                        <i class="fas fa-stethoscope"></i> Start Consultation
+                                    </a>
+                                    <a href="<?= site_url('doctor/patients/view/') ?>${patient.patient_id}" 
+                                       style="background: #0288d1; color: white; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 600; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px;">
+                                        <i class="fas fa-eye"></i> View Patient
+                                    </a>
+                                    <span style="background: #dbeafe; color: #1e40af; padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 600; margin-left: 8px;">
+                                        <i class="fas fa-info-circle"></i> Direct Admission
+                                    </span>` :
+                                    `<a href="<?= site_url('doctor/consultations/start/') ?>${patient.patient_id}/admin_patients" 
+                                       style="background: #0288d1; color: white; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 600; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; margin-right: 8px;">
+                                        <i class="fas fa-stethoscope"></i> Start Consultation
+                                    </a>
+                                    <a href="<?= site_url('doctor/admission-orders/view/') ?>${admissionId}" 
+                                       style="background: #2e7d32; color: white; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 600; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px;">
+                                        <i class="fas fa-eye"></i> View & Manage Orders
+                                    </a>`}
                             </div>
                         </div>
                     </div>

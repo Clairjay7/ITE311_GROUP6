@@ -81,7 +81,46 @@ class Patients extends BaseController
                 ->getResultArray();
         }
         
-        if ($prefType === 'In-Patient') {
+        // Get all available rooms grouped by room type for In-Patient registration
+        $availableRoomsByType = [];
+        $availableBedsByRoom = [];
+        
+        if ($prefType === 'In-Patient' && $db->tableExists('rooms')) {
+            $roomTypes = ['Private', 'Semi-Private', 'Ward', 'ICU', 'Isolation'];
+            foreach ($roomTypes as $roomType) {
+                // Get available rooms for this type (case-insensitive status check)
+                $rooms = $db->table('rooms')
+                    ->select('id, room_number, room_type, ward, bed_count, price, status')
+                    ->where('room_type', $roomType)
+                    ->where('(status = "available" OR status = "Available" OR status = "AVAILABLE")', null, false)
+                    ->where('current_patient_id IS NULL', null, false)
+                    ->orderBy('room_number', 'ASC')
+                    ->get()
+                    ->getResultArray();
+                
+                // For each room, get available beds
+                foreach ($rooms as &$room) {
+                    if ($db->tableExists('beds')) {
+                        $beds = $db->table('beds')
+                            ->select('id, bed_number, status')
+                            ->where('room_id', $room['id'])
+                            ->where('(status = "available" OR status = "Available" OR status = "AVAILABLE")', null, false)
+                            ->where('current_patient_id IS NULL', null, false)
+                            ->orderBy('bed_number', 'ASC')
+                            ->get()
+                            ->getResultArray();
+                        
+                        $room['available_beds'] = $beds;
+                        $availableBedsByRoom[$room['id']] = $beds;
+                    } else {
+                        $room['available_beds'] = [];
+                    }
+                }
+                
+                $availableRoomsByType[$roomType] = $rooms;
+            }
+            
+            // Also get rooms by ward for backward compatibility
             $wardNames = ['Pedia Ward', 'Male Ward', 'Female Ward'];
             foreach ($wardNames as $wardName) {
                 $availableRoomsByWard[$wardName] = $this->roomModel->getAvailableByWard($wardName);
@@ -153,25 +192,62 @@ class Patients extends BaseController
             'validation' => \Config\Services::validation(),
             'initialType' => $prefType,
             'availableRoomsByWard' => $availableRoomsByWard,
+            'availableRoomsByType' => $availableRoomsByType ?? [],
+            'availableBedsByRoom' => $availableBedsByRoom ?? [],
             'erRooms' => $erRooms, // Pass ER rooms to view
         ]);
     }
 
     public function store()
     {
-        $rules = [
-            'first_name' => 'required|min_length[2]|max_length[60]',
-            'last_name' => 'required|min_length[2]|max_length[60]',
-            'gender' => 'required|in_list[male,female,other,Male,Female,Other]',
-            'civil_status' => 'permit_empty|in_list[Single,Married,Widowed,Divorced,Separated,Annulled,Other]',
-            'date_of_birth' => 'permit_empty|valid_date',
-            'type' => 'required|in_list[In-Patient,Out-Patient]',
-            'visit_type' => 'required|in_list[Consultation,Check-up,Follow-up,Emergency]',
-            'payment_type' => 'permit_empty|in_list[Cash,Insurance,Credit]',
-            'blood_type' => 'permit_empty|in_list[A+,A-,B+,B-,AB+,AB-,O+,O-]'
-        ];
+        $type = $this->request->getPost('type');
+        
+        // Different validation rules for In-Patient vs Out-Patient
+        if ($type === 'In-Patient') {
+            $rules = [
+                'first_name' => 'required|min_length[2]|max_length[60]',
+                'last_name' => 'required|min_length[2]|max_length[60]',
+                'gender' => 'required|in_list[male,female,other,Male,Female,Other]',
+                'date_of_birth' => 'required|valid_date',
+                'contact' => 'required|min_length[7]|max_length[20]',
+                'address' => 'required|min_length[5]',
+                'doctor_id' => 'required|integer',
+                'purpose' => 'required|min_length[3]',
+                'room_number' => 'required',
+                'admission_date' => 'required|valid_date',
+                'emergency_name' => 'required|min_length[2]',
+                'emergency_relationship' => 'required',
+                'emergency_contact' => 'required|min_length[7]',
+            ];
+        } else {
+            $rules = [
+                'first_name' => 'required|min_length[2]|max_length[60]',
+                'last_name' => 'required|min_length[2]|max_length[60]',
+                'gender' => 'required|in_list[male,female,other,Male,Female,Other]',
+                'civil_status' => 'permit_empty|in_list[Single,Married,Widowed,Divorced,Separated,Annulled,Other]',
+                'date_of_birth' => 'permit_empty|valid_date',
+                'type' => 'required|in_list[In-Patient,Out-Patient]',
+                'visit_type' => 'required|in_list[Consultation,Check-up,Follow-up,Emergency]',
+                'payment_type' => 'permit_empty|in_list[Cash,Insurance,Credit]',
+                'blood_type' => 'permit_empty|in_list[A+,A-,B+,B-,AB+,AB-,O+,O-]'
+            ];
+        }
+        
         if (!$this->validate($rules)) {
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+        }
+
+        // Additional validation for In-Patient: admission_date must not be in the past
+        if ($type === 'In-Patient') {
+            $admissionDate = $this->request->getPost('admission_date');
+            if (!empty($admissionDate)) {
+                $today = date('Y-m-d');
+                if ($admissionDate < $today) {
+                    return redirect()->back()->withInput()->with('errors', [
+                        'admission_date' => 'Ang admission date ay hindi maaaring nasa nakaraan. Dapat ngayon o sa hinaharap.'
+                    ]);
+                }
+            }
         }
 
         $first = trim((string)$this->request->getPost('first_name'));
@@ -224,8 +300,7 @@ class Patients extends BaseController
             return redirect()->back()->withInput()->with('error', 'Duplicate patient detected.');
         }
 
-        $visitType = $this->request->getPost('visit_type');
-        $type = $this->request->getPost('type'); // In-Patient | Out-Patient
+        $visitType = $this->request->getPost('visit_type') ?: 'Consultation';
         $doctorId = $this->request->getPost('doctor_id') ?: null;
         
         // Only allow doctor assignment for Consultation, Check-up, Follow-up
@@ -278,20 +353,34 @@ class Patients extends BaseController
             'age' => $age,
             'contact' => $this->request->getPost('contact') ?: null,
             'address' => $composedAddress ?: null,
-            'type' => $this->request->getPost('type'),
+            'type' => $type,
             'visit_type' => $visitType,
-            'triage_status' => $visitType === 'Emergency' ? 'pending' : null, // Pending triage for vital signs check
+            'triage_status' => $visitType === 'Emergency' ? 'pending' : null,
             'doctor_id' => $doctorId,
             'purpose' => $this->request->getPost('purpose') ?: null,
-            'admission_date' => $this->request->getPost('type') === 'In-Patient' ? $this->request->getPost('admission_date') : null,
-            'room_number' => $erRoomNumber ?: ($this->request->getPost('type') === 'In-Patient' ? $this->request->getPost('room_number') : null),
+            'admission_date' => $type === 'In-Patient' ? $this->request->getPost('admission_date') : null,
+            'room_number' => $erRoomNumber ?: ($type === 'In-Patient' ? $this->request->getPost('room_number') : null),
+            'room_id' => $erRoomId ?: ($type === 'In-Patient' ? $this->request->getPost('room_id') : null),
             'registration_date' => date('Y-m-d'),
+            // Medical Information
+            'existing_conditions' => $this->request->getPost('existing_conditions') ?: null,
+            'allergies' => $this->request->getPost('allergies') ?: null,
+            // Insurance Information
+            'insurance_provider' => $this->request->getPost('insurance_provider') ?: null,
+            'insurance_number' => $this->request->getPost('insurance_number') ?: null,
+            // Emergency Contact
+            'emergency_name' => $this->request->getPost('emergency_name') ?: null,
+            'emergency_relationship' => $this->request->getPost('emergency_relationship') ?: null,
+            'emergency_contact' => $this->request->getPost('emergency_contact') ?: null,
         ];
 
         $this->patientModel->save($data);
 
         // Get the inserted patient_id (primary key is 'patient_id', not 'id')
         $patientId = $this->patientModel->getInsertID();
+        
+        // Debug: Log patient registration details
+        log_message('info', "In-Patient Registration - patient_id: {$patientId}, doctor_id: {$doctorId}, type: {$type}, visit_type: {$visitType}");
         
         // If getInsertID() returns 0 or null, try to get it from the saved data
         if (empty($patientId) && !empty($data['patient_id'])) {
@@ -330,6 +419,7 @@ class Patients extends BaseController
                     // Update patient with ER room info
                     $this->patientModel->update($patientId, [
                         'room_number' => $erRoomNumber,
+                        'room_id' => $erRoomId,
                         'triage_status' => 'pending', // Pending triage for vital signs check
                     ]);
                     
@@ -354,6 +444,74 @@ class Patients extends BaseController
                     
                     log_message('info', "ER room {$erRoomNumber} (ID: {$erRoomId}) assigned to Emergency patient {$patientId}");
                 }
+            }
+        }
+        
+        // Handle regular room assignment for In-Patient cases (non-emergency)
+        if ($patientId && $type === 'In-Patient' && $visitType !== 'Emergency') {
+            $selectedRoomId = $this->request->getPost('room_id');
+            $selectedRoomNumber = $this->request->getPost('room_number');
+            $selectedBedId = $this->request->getPost('bed_id');
+            $selectedBedNumber = $this->request->getPost('bed_number');
+            
+            // If room_id is not in POST, try to get it from room_number
+            if (empty($selectedRoomId) && !empty($selectedRoomNumber)) {
+                $db = \Config\Database::connect();
+                $roomByNumber = $db->table('rooms')
+                    ->where('room_number', $selectedRoomNumber)
+                    ->get()
+                    ->getRowArray();
+                if ($roomByNumber) {
+                    $selectedRoomId = $roomByNumber['id'];
+                }
+            }
+            
+            if ($selectedRoomId) {
+                $db = \Config\Database::connect();
+                $room = $this->roomModel->find($selectedRoomId);
+                
+                if ($room) {
+                    // AUTOMATIC ASSIGNMENT: Always assign the selected room to the patient
+                    // This ensures the patient appears in the room management immediately after registration
+                    $this->roomModel->update($selectedRoomId, [
+                        'current_patient_id' => $patientId,
+                        'status' => 'Occupied',
+                    ]);
+                    
+                    // Update patient with room info (ensure both room_id and room_number are set)
+                    $this->patientModel->update($patientId, [
+                        'room_number' => $selectedRoomNumber ?: $room['room_number'],
+                        'room_id' => $selectedRoomId,
+                    ]);
+                    
+                    // Handle bed assignment if bed is selected
+                    if ($selectedBedId && $db->tableExists('beds')) {
+                        $bed = $db->table('beds')
+                            ->where('id', $selectedBedId)
+                            ->where('room_id', $selectedRoomId)
+                            ->get()
+                            ->getRowArray();
+                        
+                        if ($bed) {
+                            // Update bed status (assign bed to patient)
+                            $db->table('beds')
+                                ->where('id', $selectedBedId)
+                                ->update([
+                                    'current_patient_id' => $patientId,
+                                    'status' => 'occupied',
+                                    'updated_at' => date('Y-m-d H:i:s'),
+                                ]);
+                            
+                            log_message('info', "Bed {$selectedBedNumber} (ID: {$selectedBedId}) in Room {$selectedRoomNumber} assigned to patient {$patientId}");
+                        }
+                    }
+                    
+                    log_message('info', "Room {$selectedRoomNumber} (ID: {$selectedRoomId}) automatically assigned to patient {$patientId} during registration");
+                } else {
+                    log_message('error', "Room ID {$selectedRoomId} not found when trying to assign to patient {$patientId}");
+                }
+            } else {
+                log_message('warning', "No room selected for In-Patient registration - patient {$patientId} registered without room assignment");
             }
         }
 
@@ -508,6 +666,21 @@ class Patients extends BaseController
         if (!$this->validate($rules)) {
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
+        
+        // Additional validation for In-Patient: admission_date must not be in the past
+        $patientType = $this->request->getPost('type');
+        if ($patientType === 'In-Patient') {
+            $admissionDate = $this->request->getPost('admission_date');
+            if (!empty($admissionDate)) {
+                $today = date('Y-m-d');
+                if ($admissionDate < $today) {
+                    return redirect()->back()->withInput()->with('errors', [
+                        'admission_date' => 'Ang admission date ay hindi maaaring nasa nakaraan. Dapat ngayon o sa hinaharap.'
+                    ]);
+                }
+            }
+        }
+        
         $first  = trim((string)$this->request->getPost('first_name'));
         $middle = trim((string)$this->request->getPost('middle_name'));
         $last   = trim((string)$this->request->getPost('last_name'));

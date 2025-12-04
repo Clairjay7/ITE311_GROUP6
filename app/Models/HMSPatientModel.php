@@ -14,7 +14,7 @@ class HMSPatientModel extends Model
 
     protected $allowedFields = [
         // Existing
-        'full_name', 'gender', 'age', 'contact', 'address', 'type', 'doctor_id', 'department_id', 'purpose', 'admission_date', 'room_number',
+        'full_name', 'gender', 'age', 'contact', 'address', 'type', 'doctor_id', 'department_id', 'purpose', 'admission_date', 'room_number', 'room_id',
         'created_at', 'updated_at',
         // New personal info
         'patient_reg_no', 'first_name', 'middle_name', 'last_name', 'extension_name', 'date_of_birth', 'civil_status',

@@ -354,6 +354,7 @@
                     <?php endif; ?>
                 </div>
 
+                <?php if (!($is_already_admitted ?? false)): ?>
                 <div class="form-group-modern" style="margin-bottom: 24px;">
                     <div style="display: flex; align-items: center; gap: 12px; padding: 16px; background: #f8fafc; border-radius: 10px; border: 2px solid #e5e7eb;">
                         <input type="checkbox" 
@@ -372,6 +373,37 @@
                         Check this box if the patient needs to be admitted to the hospital. A Nurse or Receptionist will process the admission and assign a room/bed.
                     </p>
                 </div>
+                <?php else: ?>
+                <!-- Patient is already admitted - show admission info instead -->
+                <div class="form-group-modern" style="margin-bottom: 24px;">
+                    <div style="padding: 16px; background: linear-gradient(135deg, #d1fae5 0%, #ecfdf5 100%); border-radius: 10px; border: 2px solid #10b981;">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                            <i class="fas fa-check-circle" style="color: #10b981; font-size: 20px;"></i>
+                            <label style="margin: 0; font-weight: 700; color: #065f46; font-size: 16px;">
+                                Patient Already Admitted
+                            </label>
+                        </div>
+                        <?php if (!empty($admission_info)): ?>
+                            <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #a7f3d0;">
+                                <?php if (!empty($admission_info['room_number'])): ?>
+                                    <div style="font-size: 14px; color: #047857; margin-bottom: 4px;">
+                                        <i class="fas fa-bed"></i> <strong>Room:</strong> <?= esc($admission_info['room_number']) ?>
+                                    </div>
+                                <?php endif; ?>
+                                <?php if (!empty($admission_info['admission_date'])): ?>
+                                    <div style="font-size: 14px; color: #047857;">
+                                        <i class="fas fa-calendar"></i> <strong>Admission Date:</strong> <?= date('M d, Y', strtotime($admission_info['admission_date'])) ?>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                    <p style="margin-top: 8px; font-size: 13px; color: #64748b;">
+                        <i class="fas fa-info-circle me-2"></i>
+                        This patient is already admitted. You can proceed with the consultation and create orders for the admitted patient.
+                    </p>
+                </div>
+                <?php endif; ?>
 
                 <!-- Lab Test Request Section -->
                 <div class="form-group-modern" style="margin-bottom: 24px; padding-top: 24px; border-top: 2px solid #e5e7eb;">

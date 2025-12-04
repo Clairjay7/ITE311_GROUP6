@@ -25,8 +25,8 @@ class AdmissionOrdersController extends BaseController
         $doctorId = session()->get('user_id');
         $db = \Config\Database::connect();
 
-        // Get all active admissions where this doctor is the attending physician
-        $admittedPatients = $db->table('admissions a')
+        // Get all active admissions where this doctor is the attending physician (from admin_patients)
+        $admittedFromAdmin = $db->table('admissions a')
             ->select('a.*, ap.firstname, ap.lastname, ap.contact, ap.birthdate, ap.gender,
                      r.room_number, r.ward, r.room_type,
                      c.consultation_date, c.diagnosis, c.observations,
@@ -41,6 +41,67 @@ class AdmissionOrdersController extends BaseController
             ->orderBy('a.admission_date', 'DESC')
             ->get()
             ->getResultArray();
+        
+        // Get In-Patients directly from patients table (registered by receptionist)
+        // These are automatically "admitted" when registered as In-Patient
+        $inPatientsFromReceptionist = [];
+        if ($db->tableExists('patients')) {
+            $inPatientsRaw = $db->table('patients p')
+                ->select('p.*, 
+                         r.room_number, r.ward, r.room_type,
+                         (SELECT COUNT(*) FROM doctor_orders WHERE patient_id = p.patient_id AND status != "completed" AND status != "cancelled") as pending_orders_count')
+                ->join('rooms r', 'r.id = p.room_id', 'left')
+                ->where('p.doctor_id', $doctorId)
+                ->where('p.type', 'In-Patient')
+                ->where('p.doctor_id IS NOT NULL')
+                ->where('p.doctor_id !=', 0)
+                ->orderBy('p.admission_date', 'DESC')
+                ->orderBy('p.created_at', 'DESC')
+                ->get()
+                ->getResultArray();
+            
+            // Format In-Patients to match admissions structure
+            foreach ($inPatientsRaw as $patient) {
+                $nameParts = [];
+                if (!empty($patient['first_name'])) $nameParts[] = $patient['first_name'];
+                if (!empty($patient['last_name'])) $nameParts[] = $patient['last_name'];
+                if (empty($nameParts) && !empty($patient['full_name'])) {
+                    $parts = explode(' ', $patient['full_name'], 2);
+                    $nameParts = [$parts[0] ?? '', $parts[1] ?? ''];
+                }
+                
+                $inPatientsFromReceptionist[] = [
+                    'id' => 'patient_' . $patient['patient_id'], // Prefix to distinguish from admission IDs
+                    'admission_id' => null, // No admission record yet
+                    'patient_id' => $patient['patient_id'],
+                    'firstname' => $nameParts[0] ?? '',
+                    'lastname' => $nameParts[1] ?? '',
+                    'contact' => $patient['contact'] ?? null,
+                    'birthdate' => $patient['date_of_birth'] ?? null,
+                    'gender' => $patient['gender'] ?? null,
+                    'room_number' => $patient['room_number'] ?? null,
+                    'ward' => $patient['ward'] ?? $patient['room_type'] ?? null,
+                    'room_type' => $patient['room_type'] ?? null,
+                    'admission_date' => $patient['admission_date'] ?? $patient['created_at'] ?? date('Y-m-d'),
+                    'admission_reason' => $patient['purpose'] ?? 'In-Patient Admission',
+                    'diagnosis' => null,
+                    'observations' => null,
+                    'consultation_date' => null,
+                    'pending_orders_count' => $patient['pending_orders_count'] ?? 0,
+                    'source' => 'receptionist', // Flag to identify source
+                ];
+            }
+        }
+        
+        // Merge both lists
+        $admittedPatients = array_merge($admittedFromAdmin, $inPatientsFromReceptionist);
+        
+        // Sort by admission date (most recent first)
+        usort($admittedPatients, function($a, $b) {
+            $dateA = strtotime($a['admission_date'] ?? '1970-01-01');
+            $dateB = strtotime($b['admission_date'] ?? '1970-01-01');
+            return $dateB <=> $dateA;
+        });
 
         $data = [
             'title' => 'Admitted Patients',

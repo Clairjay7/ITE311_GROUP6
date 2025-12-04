@@ -454,7 +454,7 @@
         <div class="patients-section">
             <h3>
                 <i class="fas fa-vial"></i>
-                Pending Lab Requests from Nurses
+                Pending Lab Requests
             </h3>
             <div class="table-container">
                 <div id="labRequestsTableContainer">
@@ -489,7 +489,15 @@
                                             <?= esc(ucfirst($request['priority'])) ?>
                                         </span>
                                     </td>
-                                    <td><?= esc($request['nurse_name'] ?? 'N/A') ?></td>
+                                    <td>
+                                        <?php if ($request['requested_by'] === 'doctor'): ?>
+                                            <span style="color: #0288d1; font-weight: 600;">
+                                                <i class="fas fa-user-md"></i> <?= esc($request['doctor_name'] ?? 'Doctor') ?>
+                                            </span>
+                                        <?php else: ?>
+                                            <?= esc($request['nurse_name'] ?? 'N/A') ?>
+                                        <?php endif; ?>
+                                    </td>
                                     <td><?= esc(date('M d, Y', strtotime($request['created_at']))) ?></td>
                                     <td>
                                         <a href="<?= site_url('doctor/lab-requests') ?>" class="btn btn-primary" style="padding: 6px 12px; font-size: 12px;">
@@ -784,9 +792,11 @@
                             <tr>
                                 <th>ID</th>
                                 <th>Name</th>
+                                <th>Type</th>
                                 <th>Birthdate</th>
                                 <th>Gender</th>
                                 <th>Visit Type</th>
+                                <th>Room</th>
                                 <th>Contact</th>
                                 <th>Source</th>
                                 <th>Actions</th>
@@ -821,16 +831,39 @@
                                                  ($visitType === 'Follow-up' ? '#065f46' : '#64748b')));
                                 $isReceptionist = isset($patient['source']) && $patient['source'] === 'receptionist';
                                 $birthdate = $patient['birthdate'] ?? $patient['date_of_birth'] ?? null;
+                                $patientType = $patient['type'] ?? 'Out-Patient';
+                                $isInPatient = ($patientType === 'In-Patient');
+                                $roomNumber = $patient['room_number'] ?? null;
                                 ?>
                                 <tr style="<?= $isReceptionist ? 'background: #f0fdf4;' : '' ?>">
                                     <td>#<?= esc($patientId) ?></td>
                                     <td><strong><?= esc($patientName) ?></strong></td>
+                                    <td>
+                                        <?php if ($isInPatient): ?>
+                                            <span style="background: #0288d1; color: white; padding: 4px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
+                                                <i class="fas fa-bed"></i> In-Patient
+                                            </span>
+                                        <?php else: ?>
+                                            <span style="background: #10b981; color: white; padding: 4px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
+                                                <i class="fas fa-user-md"></i> Out-Patient
+                                            </span>
+                                        <?php endif; ?>
+                                    </td>
                                     <td><?= !empty($birthdate) ? esc(date('M d, Y', strtotime($birthdate))) : 'N/A' ?></td>
                                     <td><?= esc(ucfirst($patient['gender'] ?? 'N/A')) ?></td>
                                     <td>
                                         <span style="background: <?= $visitTypeBg ?>; color: <?= $visitTypeColor ?>; padding: 4px 12px; border-radius: 8px; font-size: 12px; font-weight: 600;">
                                             <?= esc($visitType) ?>
                                         </span>
+                                    </td>
+                                    <td>
+                                        <?php if ($isInPatient && !empty($roomNumber)): ?>
+                                            <span style="background: #e0f2fe; color: #0288d1; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600;">
+                                                <i class="fas fa-door-open"></i> <?= esc($roomNumber) ?>
+                                            </span>
+                                        <?php else: ?>
+                                            <span style="color: #94a3b8;">—</span>
+                                        <?php endif; ?>
                                     </td>
                                     <td><?= esc($patient['contact'] ?? 'N/A') ?></td>
                                     <td>
@@ -1046,7 +1079,12 @@ async function refreshDashboard() {
                                 ${request.priority.charAt(0).toUpperCase() + request.priority.slice(1)}
                             </span>
                         </td>
-                        <td>${request.nurse_name || 'N/A'}</td>
+                        <td>
+                            ${request.requested_by === 'doctor' 
+                                ? `<span style="color: #0288d1; font-weight: 600;"><i class="fas fa-user-md"></i> ${request.doctor_name || 'Doctor'}</span>`
+                                : (request.nurse_name || 'N/A')
+                            }
+                        </td>
                         <td>${date}</td>
                         <td>
                             <a href="<?= site_url('doctor/lab-requests') ?>" class="btn btn-primary" style="padding: 6px 12px; font-size: 12px;">
@@ -1080,7 +1118,7 @@ async function refreshDashboard() {
                     labSection.innerHTML = `
                         <h3>
                             <i class="fas fa-vial"></i>
-                            Pending Lab Requests from Nurses
+                            Pending Lab Requests
                         </h3>
                         <div class="table-container">
                             <div id="labRequestsTableContainer"></div>

@@ -211,27 +211,77 @@ class DashboardStats extends BaseController
                 ->findAll();
             $patientIds = array_column($assignedPatientIds, 'id');
 
-            // Get pending lab requests from nurses for assigned patients
+            // Get pending lab requests from nurses AND doctors for assigned patients
             $labRequestModel = new LabRequestModel();
             $pendingLabRequestsCount = 0;
             $pendingLabRequests = [];
             
-            if (!empty($patientIds)) {
+            // Also get patient IDs from patients table (receptionist-registered)
+            $hmsPatientIds = [];
+            if ($db->tableExists('patients')) {
+                $hmsPatientsRaw = $db->table('patients')
+                    ->select('patients.patient_id')
+                    ->where('patients.doctor_id', $doctorId)
+                    ->where('patients.doctor_id IS NOT NULL')
+                    ->where('patients.doctor_id !=', 0)
+                    ->get()
+                    ->getResultArray();
+                $hmsPatientIds = array_column($hmsPatientsRaw, 'patient_id');
+            }
+            
+            // Find corresponding admin_patients IDs for hms patients
+            $allPatientIds = $patientIds;
+            if (!empty($hmsPatientIds)) {
+                foreach ($hmsPatientIds as $hmsPatientId) {
+                    $hmsPatient = $db->table('patients')
+                        ->where('patient_id', $hmsPatientId)
+                        ->get()
+                        ->getRowArray();
+                    
+                    if ($hmsPatient) {
+                        $nameParts = [];
+                        if (!empty($hmsPatient['first_name'])) $nameParts[] = $hmsPatient['first_name'];
+                        if (!empty($hmsPatient['last_name'])) $nameParts[] = $hmsPatient['last_name'];
+                        if (empty($nameParts) && !empty($hmsPatient['full_name'])) {
+                            $parts = explode(' ', $hmsPatient['full_name'], 2);
+                            $nameParts = [$parts[0] ?? '', $parts[1] ?? ''];
+                        }
+                        
+                        if (!empty($nameParts[0]) && !empty($nameParts[1])) {
+                            $adminPatient = $db->table('admin_patients')
+                                ->where('firstname', $nameParts[0])
+                                ->where('lastname', $nameParts[1])
+                                ->where('doctor_id', $doctorId)
+                                ->get()
+                                ->getRowArray();
+                            
+                            if ($adminPatient && !in_array($adminPatient['id'], $allPatientIds)) {
+                                $allPatientIds[] = $adminPatient['id'];
+                            }
+                        }
+                    }
+                }
+            }
+            
+            if (!empty($allPatientIds)) {
+                // Count all pending lab requests (from both nurses and doctors)
                 $pendingLabRequestsCount = $labRequestModel
-                    ->whereIn('patient_id', $patientIds)
+                    ->whereIn('patient_id', $allPatientIds)
                     ->where('status', 'pending')
-                    ->where('requested_by', 'nurse')
+                    ->whereIn('requested_by', ['nurse', 'doctor'])
                     ->countAllResults();
                 
+                // Get pending lab requests (from both nurses and doctors)
                 $pendingLabRequests = $labRequestModel
-                    ->select('lab_requests.*, admin_patients.firstname, admin_patients.lastname, users.username as nurse_name')
+                    ->select('lab_requests.*, admin_patients.firstname, admin_patients.lastname, users.username as nurse_name, doctor_users.username as doctor_name')
                     ->join('admin_patients', 'admin_patients.id = lab_requests.patient_id', 'left')
                     ->join('users', 'users.id = lab_requests.nurse_id', 'left')
-                    ->whereIn('lab_requests.patient_id', $patientIds)
+                    ->join('users as doctor_users', 'doctor_users.id = lab_requests.doctor_id', 'left')
+                    ->whereIn('lab_requests.patient_id', $allPatientIds)
                     ->where('lab_requests.status', 'pending')
-                    ->where('lab_requests.requested_by', 'nurse')
+                    ->whereIn('lab_requests.requested_by', ['nurse', 'doctor'])
                     ->orderBy('lab_requests.created_at', 'DESC')
-                    ->limit(5)
+                    ->limit(10)
                     ->findAll();
             }
 
@@ -270,6 +320,89 @@ class DashboardStats extends BaseController
                         ->getResultArray();
                 }
             }
+
+            // Get admitted patients (including In-Patients from receptionist)
+            $admittedPatients = [];
+            if ($db->tableExists('admissions')) {
+                // Get from admissions table
+                $admittedFromAdmin = $db->table('admissions a')
+                    ->select('a.*, ap.firstname, ap.lastname, ap.contact, ap.birthdate, ap.gender,
+                             r.room_number, r.ward, r.room_type,
+                             (SELECT COUNT(*) FROM doctor_orders WHERE admission_id = a.id AND status != "completed" AND status != "cancelled") as pending_orders_count')
+                    ->join('admin_patients ap', 'ap.id = a.patient_id', 'left')
+                    ->join('rooms r', 'r.id = a.room_id', 'left')
+                    ->where('a.attending_physician_id', $doctorId)
+                    ->where('a.status', 'admitted')
+                    ->where('a.discharge_status', 'admitted')
+                    ->where('a.deleted_at', null)
+                    ->orderBy('a.admission_date', 'DESC')
+                    ->limit(10)
+                    ->get()
+                    ->getResultArray();
+                
+                foreach ($admittedFromAdmin as $adm) {
+                    $admittedPatients[] = [
+                        'id' => $adm['id'],
+                        'admission_id' => $adm['id'],
+                        'patient_id' => $adm['patient_id'],
+                        'firstname' => $adm['firstname'] ?? '',
+                        'lastname' => $adm['lastname'] ?? '',
+                        'room_number' => $adm['room_number'] ?? null,
+                        'ward' => $adm['ward'] ?? null,
+                        'admission_date' => $adm['admission_date'] ?? null,
+                        'admission_reason' => $adm['admission_reason'] ?? null,
+                        'pending_orders_count' => $adm['pending_orders_count'] ?? 0,
+                        'source' => 'admin',
+                    ];
+                }
+            }
+            
+            // Get In-Patients from patients table (direct admissions)
+            if ($db->tableExists('patients')) {
+                $inPatientsRaw = $db->table('patients p')
+                    ->select('p.*, r.room_number, r.ward, r.room_type')
+                    ->join('rooms r', 'r.id = p.room_id', 'left')
+                    ->where('p.doctor_id', $doctorId)
+                    ->where('p.type', 'In-Patient')
+                    ->where('p.doctor_id IS NOT NULL')
+                    ->where('p.doctor_id !=', 0)
+                    ->orderBy('p.admission_date', 'DESC')
+                    ->orderBy('p.created_at', 'DESC')
+                    ->limit(10)
+                    ->get()
+                    ->getResultArray();
+                
+                foreach ($inPatientsRaw as $patient) {
+                    $nameParts = [];
+                    if (!empty($patient['first_name'])) $nameParts[] = $patient['first_name'];
+                    if (!empty($patient['last_name'])) $nameParts[] = $patient['last_name'];
+                    if (empty($nameParts) && !empty($patient['full_name'])) {
+                        $parts = explode(' ', $patient['full_name'], 2);
+                        $nameParts = [$parts[0] ?? '', $parts[1] ?? ''];
+                    }
+                    
+                    $admittedPatients[] = [
+                        'id' => 'patient_' . $patient['patient_id'],
+                        'admission_id' => null,
+                        'patient_id' => $patient['patient_id'],
+                        'firstname' => $nameParts[0] ?? '',
+                        'lastname' => $nameParts[1] ?? '',
+                        'room_number' => $patient['room_number'] ?? null,
+                        'ward' => $patient['ward'] ?? $patient['room_type'] ?? null,
+                        'admission_date' => $patient['admission_date'] ?? $patient['created_at'] ?? date('Y-m-d'),
+                        'admission_reason' => $patient['purpose'] ?? 'In-Patient Admission',
+                        'pending_orders_count' => 0,
+                        'source' => 'receptionist',
+                    ];
+                }
+            }
+            
+            // Sort by admission date
+            usort($admittedPatients, function($a, $b) {
+                $dateA = strtotime($a['admission_date'] ?? '1970-01-01');
+                $dateB = strtotime($b['admission_date'] ?? '1970-01-01');
+                return $dateB <=> $dateA;
+            });
 
             // Get unread notifications
             $notificationModel = new DoctorNotificationModel();
@@ -378,24 +511,7 @@ class DashboardStats extends BaseController
                 return $updatedB <=> $updatedA; // Descending order
             });
 
-            // Get admitted patients
-            $admittedPatients = [];
-            if ($db->tableExists('admissions')) {
-                $admittedPatients = $db->table('admissions a')
-                    ->select('a.id, a.patient_id, a.admission_date, a.admission_reason, a.diagnosis, a.status, a.discharge_status,
-                             ap.firstname, ap.lastname, r.room_number, r.ward,
-                             (SELECT COUNT(*) FROM doctor_orders WHERE admission_id = a.id AND status != "completed" AND status != "cancelled") as pending_orders_count')
-                    ->join('admin_patients ap', 'ap.id = a.patient_id', 'left')
-                    ->join('rooms r', 'r.id = a.room_id', 'left')
-                    ->where('a.attending_physician_id', $doctorId)
-                    ->where('a.status', 'admitted')
-                    ->where('a.discharge_status', 'admitted')
-                    ->where('a.deleted_at', null)
-                    ->orderBy('a.admission_date', 'DESC')
-                    ->limit(5)
-                    ->get()
-                    ->getResultArray();
-            }
+            // Admitted patients are already fetched above (includes In-Patients from receptionist)
 
             $data = [
                 'appointments_count' => $appointmentsCount,

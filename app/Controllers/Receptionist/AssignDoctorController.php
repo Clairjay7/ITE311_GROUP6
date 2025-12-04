@@ -144,6 +144,7 @@ class AssignDoctorController extends BaseController
 
         $db = \Config\Database::connect();
         $date = $this->request->getGet('date') ?: date('Y-m-d');
+        $time = $this->request->getGet('time'); // Optional time parameter
 
         // Get doctors from users table (primary source - used by consultations/appointments)
         $availableDoctors = [];
@@ -157,6 +158,43 @@ class AssignDoctorController extends BaseController
                 ->getResultArray();
 
             foreach ($userDoctors as $userDoctor) {
+                // If time is provided, check if doctor is already booked at that time
+                if (!empty($time)) {
+                    $hasConflict = false;
+                    
+                    // Check for appointment conflict
+                    if ($db->tableExists('appointments')) {
+                        $appointmentConflict = $db->table('appointments')
+                            ->where('doctor_id', $userDoctor['id'])
+                            ->where('appointment_date', $date)
+                            ->where('appointment_time', $time)
+                            ->whereNotIn('status', ['cancelled', 'no_show'])
+                            ->countAllResults();
+                        
+                        if ($appointmentConflict > 0) {
+                            $hasConflict = true;
+                        }
+                    }
+                    
+                    // Check for consultation conflict
+                    if (!$hasConflict && $db->tableExists('consultations')) {
+                        $consultationConflict = $db->table('consultations')
+                            ->where('doctor_id', $userDoctor['id'])
+                            ->where('consultation_date', $date)
+                            ->where('consultation_time', $time)
+                            ->whereNotIn('status', ['cancelled'])
+                            ->countAllResults();
+                        
+                        if ($consultationConflict > 0) {
+                            $hasConflict = true;
+                        }
+                    }
+                    
+                    // Skip this doctor if they have a conflict at the requested time
+                    if ($hasConflict) {
+                        continue;
+                    }
+                }
                 // Get doctor details from doctors table if exists (for specialization)
                 $doctorDetails = null;
                 if ($db->tableExists('doctors')) {
@@ -239,6 +277,44 @@ class AssignDoctorController extends BaseController
                 }
 
                 if (!$alreadyAdded) {
+                    // If time is provided, check if doctor is already booked at that time
+                    if (!empty($time)) {
+                        $hasConflict = false;
+                        
+                        // Check for appointment conflict
+                        if ($db->tableExists('appointments')) {
+                            $appointmentConflict = $db->table('appointments')
+                                ->where('doctor_id', $doctor['id'])
+                                ->where('appointment_date', $date)
+                                ->where('appointment_time', $time)
+                                ->whereNotIn('status', ['cancelled', 'no_show'])
+                                ->countAllResults();
+                            
+                            if ($appointmentConflict > 0) {
+                                $hasConflict = true;
+                            }
+                        }
+                        
+                        // Check for consultation conflict
+                        if (!$hasConflict && $db->tableExists('consultations')) {
+                            $consultationConflict = $db->table('consultations')
+                                ->where('doctor_id', $doctor['id'])
+                                ->where('consultation_date', $date)
+                                ->where('consultation_time', $time)
+                                ->whereNotIn('status', ['cancelled'])
+                                ->countAllResults();
+                            
+                            if ($consultationConflict > 0) {
+                                $hasConflict = true;
+                            }
+                        }
+                        
+                        // Skip this doctor if they have a conflict at the requested time
+                        if ($hasConflict) {
+                            continue;
+                        }
+                    }
+                    
                     // Get schedule
                     $schedules = [];
                     if ($db->tableExists('doctor_schedules')) {

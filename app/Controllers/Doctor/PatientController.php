@@ -309,15 +309,99 @@ class PatientController extends BaseController
 
         // Get patient consultations
         $consultations = [];
+        $adminPatientIdForQueries = $id; // Default to $id for admin_patients
+        
         if ($db->tableExists('consultations')) {
             if ($patientSource === 'admin_patients') {
+                // For admin_patients, use patient_id directly
                 $consultations = $consultationModel
                     ->where('patient_id', $id)
+                    ->where('doctor_id', $doctorId)
                     ->orderBy('consultation_date', 'DESC')
                     ->orderBy('consultation_time', 'DESC')
                     ->findAll();
+            } else {
+                // For patients table (receptionist-registered), find admin_patients record first
+                // Consultations are saved with admin_patients.id
+                $nameParts = [];
+                if (!empty($patient['first_name'])) $nameParts[] = $patient['first_name'];
+                if (!empty($patient['last_name'])) $nameParts[] = $patient['last_name'];
+                if (empty($nameParts) && !empty($patient['full_name'])) {
+                    $parts = explode(' ', $patient['full_name'], 2);
+                    $nameParts = [$parts[0] ?? '', $parts[1] ?? ''];
+                }
+                
+                // Find admin_patients record
+                $adminPatient = null;
+                if (!empty($nameParts[0]) && !empty($nameParts[1])) {
+                    $adminPatient = $db->table('admin_patients')
+                        ->where('firstname', $nameParts[0])
+                        ->where('lastname', $nameParts[1])
+                        ->where('doctor_id', $doctorId)
+                        ->get()
+                        ->getRowArray();
+                }
+                
+                // If admin_patients record found, get consultations using that ID
+                if ($adminPatient) {
+                    $adminPatientIdForQueries = $adminPatient['id'];
+                    $consultations = $consultationModel
+                        ->where('patient_id', $adminPatient['id'])
+                        ->where('doctor_id', $doctorId)
+                        ->orderBy('consultation_date', 'DESC')
+                        ->orderBy('consultation_time', 'DESC')
+                        ->findAll();
+                }
+                
+                // Also check consultations directly with patients.patient_id (fallback)
+                if (empty($consultations)) {
+                    $directConsultations = $db->table('consultations')
+                        ->where('patient_id', $id)
+                        ->where('doctor_id', $doctorId)
+                        ->orderBy('consultation_date', 'DESC')
+                        ->orderBy('consultation_time', 'DESC')
+                        ->get()
+                        ->getResultArray();
+                    
+                    if (!empty($directConsultations)) {
+                        $consultations = $directConsultations;
+                    }
+                }
             }
         }
+        
+        // For each consultation, fetch related lab tests and prescriptions
+        foreach ($consultations as &$consultation) {
+            $consultationDate = $consultation['consultation_date'];
+            
+            // Get lab requests for this consultation (by patient_id, doctor_id, and requested_date)
+            $labRequests = [];
+            if ($db->tableExists('lab_requests')) {
+                $labRequests = $db->table('lab_requests')
+                    ->where('patient_id', $adminPatientIdForQueries)
+                    ->where('doctor_id', $doctorId)
+                    ->where('requested_date', $consultationDate)
+                    ->orderBy('created_at', 'ASC')
+                    ->get()
+                    ->getResultArray();
+            }
+            $consultation['lab_tests'] = $labRequests;
+            
+            // Get prescriptions/medications for this consultation (by patient_id, doctor_id, and created_at date)
+            $prescriptions = [];
+            if ($db->tableExists('doctor_orders')) {
+                $prescriptions = $db->table('doctor_orders')
+                    ->where('patient_id', $adminPatientIdForQueries)
+                    ->where('doctor_id', $doctorId)
+                    ->where('order_type', 'medication')
+                    ->where('DATE(created_at)', $consultationDate)
+                    ->orderBy('created_at', 'ASC')
+                    ->get()
+                    ->getResultArray();
+            }
+            $consultation['prescriptions'] = $prescriptions;
+        }
+        unset($consultation); // Unset reference
 
         // Get admission request if exists
         $admissionRequest = null;

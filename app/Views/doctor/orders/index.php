@@ -336,7 +336,11 @@
                                     <td><strong>#<?= esc($order['id']) ?></strong></td>
                                     <td>
                                         <strong style="color: #1e293b;">
-                                            <?= esc(ucfirst($order['firstname']) . ' ' . ucfirst($order['lastname'])) ?>
+                                            <?php 
+                                                $firstName = !empty($order['firstname']) ? ucfirst($order['firstname']) : 'Unknown';
+                                                $lastName = !empty($order['lastname']) ? ucfirst($order['lastname']) : 'Patient';
+                                                echo esc($firstName . ' ' . $lastName);
+                                            ?>
                                         </strong>
                                     </td>
                                     <td>

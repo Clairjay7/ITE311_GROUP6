@@ -61,6 +61,23 @@
     </div>
 </div>
 
+<!-- Doctor Schedules Quick Access -->
+<div style="margin-top: 32px; background: linear-gradient(135deg, #0288d1 0%, #03a9f4 100%); border-radius: 12px; padding: 24px; box-shadow: 0 4px 12px rgba(2, 136, 209, 0.2);">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+        <div>
+            <h2 style="margin: 0 0 8px; color: white; font-size: 24px;">
+                <i class="fas fa-calendar-alt"></i> Doctor Schedules
+            </h2>
+            <p style="margin: 0; color: rgba(255, 255, 255, 0.9); font-size: 14px;">
+                View all doctor working schedules for the year
+            </p>
+        </div>
+        <a href="<?= site_url('receptionist/doctor-schedules') ?>" style="background: white; color: #0288d1; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; transition: all 0.3s ease;">
+            <i class="fas fa-eye"></i> View Schedules
+        </a>
+    </div>
+</div>
+
 <!-- Waiting List Section -->
 <div style="margin-top: 32px; background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px; box-shadow: 0 2px 6px rgba(15,23,42,.08);">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">

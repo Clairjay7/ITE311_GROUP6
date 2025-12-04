@@ -84,86 +84,195 @@
         transform: translateY(-2px);
     }
     
-    .btn-modern-info {
-        background: #0288d1;
-        color: white;
+    .alert-modern {
+        border-radius: 12px;
+        padding: 16px 20px;
+        margin-bottom: 24px;
+        border: none;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
     
-    .btn-modern-info:hover {
-        background: #0277bd;
-        color: white;
-        transform: translateY(-2px);
+    .alert-modern-success {
+        background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+        color: #065f46;
+        border-left: 4px solid #10b981;
     }
     
-    .btn-modern-warning {
-        background: #f59e0b;
-        color: white;
+    .alert-modern-danger {
+        background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+        color: #991b1b;
+        border-left: 4px solid #ef4444;
     }
     
-    .btn-modern-warning:hover {
-        background: #d97706;
-        color: white;
-        transform: translateY(-2px);
-    }
-    
-    .btn-modern-danger {
-        background: #ef4444;
-        color: white;
-    }
-    
-    .btn-modern-danger:hover {
-        background: #dc2626;
-        color: white;
-        transform: translateY(-2px);
-    }
-    
-    .btn-sm-modern {
-        padding: 6px 12px;
-        font-size: 13px;
-    }
-    
-    .table-modern {
-        width: 100%;
-        border-collapse: collapse;
-    }
-    
-    .table-modern thead {
-        background: linear-gradient(135deg, #e8f5e9 0%, #f1f8f4 100%);
-    }
-    
-    .table-modern th {
+    /* Month Navigation */
+    .month-nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 24px;
         padding: 16px;
+        background: #f8fafc;
+        border-radius: 12px;
+    }
+    
+    .month-btn {
+        padding: 10px 16px;
+        border: 2px solid #e5e7eb;
+        background: white;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 13px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        color: #64748b;
+    }
+    
+    .month-btn:hover {
+        border-color: #2e7d32;
+        color: #2e7d32;
+    }
+    
+    .month-btn.active {
+        background: linear-gradient(135deg, #2e7d32 0%, #4caf50 100%);
+        border-color: #2e7d32;
+        color: white;
+    }
+    
+    /* Schedule Table */
+    .schedule-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    
+    .schedule-table thead {
+        background: linear-gradient(135deg, #2e7d32 0%, #4caf50 100%);
+    }
+    
+    .schedule-table th {
+        padding: 16px 12px;
         text-align: left;
         font-weight: 700;
-        color: #2e7d32;
+        color: white;
         font-size: 13px;
         text-transform: uppercase;
         letter-spacing: 0.5px;
-        border-bottom: 2px solid #c8e6c9;
     }
     
-    .table-modern td {
-        padding: 16px;
+    .schedule-table td {
+        padding: 14px 12px;
         border-bottom: 1px solid #f1f5f9;
-        color: #475569;
+        font-size: 14px;
     }
     
-    .table-modern tbody tr {
+    .schedule-table tbody tr {
         transition: all 0.2s ease;
     }
     
-    .table-modern tbody tr:hover {
-        background: #f8fafc;
-        transform: scale(1.01);
+    .schedule-table tbody tr:hover {
+        background: #f0fdf4;
     }
     
-    .badge-modern {
+    .schedule-table tbody tr.weekend {
+        background: #fef2f2;
+    }
+    
+    .schedule-table tbody tr.weekend:hover {
+        background: #fee2e2;
+    }
+    
+    .day-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        font-weight: 700;
+        font-size: 15px;
+        margin-right: 8px;
+    }
+    
+    .day-badge.working {
+        background: #d1fae5;
+        color: #065f46;
+    }
+    
+    .day-badge.weekend {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+    
+    .time-slot {
+        display: inline-block;
         padding: 6px 12px;
-        border-radius: 8px;
+        background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+        border: 1px solid #a7f3d0;
+        border-radius: 6px;
+        color: #065f46;
+        font-weight: 600;
+        font-size: 13px;
+        margin: 2px 4px 2px 0;
+    }
+    
+    .rest-badge {
+        display: inline-block;
+        padding: 6px 12px;
+        background: #fef3c7;
+        border-radius: 6px;
+        color: #92400e;
         font-weight: 600;
         font-size: 12px;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
+    }
+    
+    .status-working {
+        color: #065f46;
+        font-weight: 600;
+    }
+    
+    .status-rest {
+        color: #991b1b;
+        font-weight: 600;
+    }
+    
+    .month-section {
+        display: none;
+    }
+    
+    .month-section.active {
+        display: block;
+    }
+    
+    .info-box {
+        padding: 16px 20px;
+        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+        border-radius: 12px;
+        border-left: 4px solid #0288d1;
+        margin-bottom: 24px;
+    }
+    
+    .info-box h4 {
+        margin: 0 0 8px;
+        color: #0288d1;
+        font-size: 16px;
+    }
+    
+    .info-box p {
+        margin: 0;
+        color: #64748b;
+        font-size: 14px;
+    }
+    
+    .info-box .highlight {
+        display: inline-block;
+        padding: 2px 8px;
+        background: white;
+        border-radius: 4px;
+        font-weight: 600;
+        margin: 0 4px;
     }
     
     .empty-state {
@@ -192,37 +301,53 @@
         font-size: 15px;
     }
     
-    .alert-modern {
-        border-radius: 12px;
-        padding: 16px 20px;
+    /* Summary Stats */
+    .schedule-summary {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 16px;
         margin-bottom: 24px;
-        border: none;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
     
-    .alert-modern-success {
-        background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-        color: #065f46;
-        border-left: 4px solid #10b981;
+    .summary-card {
+        background: white;
+        border: 2px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 16px;
+        text-align: center;
+        transition: all 0.2s ease;
     }
     
-    .alert-modern-danger {
-        background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
-        color: #991b1b;
-        border-left: 4px solid #ef4444;
+    .summary-card:hover {
+        border-color: #2e7d32;
+        transform: translateY(-2px);
+    }
+    
+    .summary-card .number {
+        font-size: 28px;
+        font-weight: 800;
+        color: #2e7d32;
+    }
+    
+    .summary-card .label {
+        font-size: 12px;
+        color: #64748b;
+        text-transform: uppercase;
+        font-weight: 600;
+        margin-top: 4px;
     }
 </style>
 
 <div class="doctor-page-container">
     <div class="page-header">
         <h1>
-            <i class="fas fa-calendar"></i>
-            My Complete Schedule
+            <i class="fas fa-calendar-alt"></i>
+            My Working Schedule - <?= $currentYear ?? date('Y') ?>
         </h1>
         <div style="display: flex; gap: 12px; flex-wrap: wrap;">
             <a href="<?= site_url('doctor/consultations/upcoming') ?>" class="btn-modern btn-modern-success">
                 <i class="fas fa-clock"></i>
-                Upcoming Only
+                Upcoming Consultations
             </a>
             <a href="<?= site_url('doctor/consultations/create') ?>" class="btn-modern btn-modern-primary">
                 <i class="fas fa-plus"></i>
@@ -249,152 +374,202 @@
                 </div>
             <?php endif; ?>
 
-            <?php if (!empty($consultations)): ?>
-                <div class="table-responsive">
-                    <table class="table-modern">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Time</th>
-                                <th>Patient</th>
-                                <th>Type</th>
-                                <th>Status</th>
-                                <th>Notes</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($consultations as $consultation): ?>
-                                <tr>
-                                    <td><strong><?= date('M d, Y', strtotime($consultation['consultation_date'])) ?></strong></td>
-                                    <td><?= date('h:i A', strtotime($consultation['consultation_time'])) ?></td>
-                                    <td>
-                                        <strong style="color: #1e293b;">
-                                            <?= esc(ucfirst($consultation['firstname']) . ' ' . ucfirst($consultation['lastname'])) ?>
-                                        </strong>
-                                    </td>
-                                    <td>
-                                        <span class="badge-modern" style="background: <?= $consultation['type'] == 'upcoming' ? '#dbeafe' : '#d1fae5'; ?>; color: <?= $consultation['type'] == 'upcoming' ? '#1e40af' : '#065f46'; ?>;">
-                                            <?= esc(ucfirst($consultation['type'])) ?>
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span class="badge-modern" style="background: <?= 
-                                            $consultation['status'] == 'approved' ? '#d1fae5' : 
-                                            ($consultation['status'] == 'pending' ? '#fef3c7' : '#fee2e2'); 
-                                        ?>; color: <?= 
-                                            $consultation['status'] == 'approved' ? '#065f46' : 
-                                            ($consultation['status'] == 'pending' ? '#92400e' : '#991b1b'); 
-                                        ?>;">
-                                            <?= esc(ucfirst($consultation['status'])) ?>
-                                        </span>
-                                    </td>
-                                    <td><?= esc(substr($consultation['notes'] ?? 'No notes', 0, 50)) ?><?= strlen($consultation['notes'] ?? '') > 50 ? '...' : '' ?></td>
-                                    <td>
-                                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                                            <?php if ($consultation['type'] == 'completed' && !empty($consultation['for_admission'])): ?>
-                                                <?php
-                                                // Check if already admitted
-                                                $db = \Config\Database::connect();
-                                                $existingAdmission = $db->table('admissions')
-                                                    ->where('consultation_id', $consultation['id'])
-                                                    ->where('status !=', 'discharged')
-                                                    ->where('status !=', 'cancelled')
-                                                    ->where('deleted_at', null)
-                                                    ->get()
-                                                    ->getRowArray();
-                                                ?>
-                                                <?php if ($existingAdmission): ?>
-                                                    <span class="badge-modern" style="background: #d1fae5; color: #065f46;">
-                                                        <i class="fas fa-check"></i> Admitted
+            <?php if (!empty($scheduleByMonth ?? [])): ?>
+                <!-- Info Box -->
+                <div class="info-box">
+                    <h4><i class="fas fa-info-circle"></i> Working Schedule Information</h4>
+                    <p>
+                        <span class="highlight"><i class="fas fa-calendar-week"></i> Monday - Friday</span>
+                        <span class="highlight"><i class="fas fa-sun"></i> 9:00 AM - 12:00 PM</span>
+                        <span class="highlight"><i class="fas fa-cloud-sun"></i> 1:00 PM - 4:00 PM</span>
+                        <span class="highlight" style="background: #fef3c7;"><i class="fas fa-moon"></i> Sat & Sun - Rest</span>
+                    </p>
+                </div>
+
+                <!-- Summary Stats -->
+                <?php 
+                $totalWorkingDays = 0;
+                $totalRestDays = 0;
+                foreach ($scheduleByMonth as $month => $days) {
+                    foreach ($days as $day => $dayData) {
+                        if (in_array($dayData['day_name'], ['Saturday', 'Sunday'])) {
+                            $totalRestDays++;
+                        } else {
+                            $totalWorkingDays++;
+                        }
+                    }
+                }
+                ?>
+                <div class="schedule-summary">
+                    <div class="summary-card">
+                        <div class="number"><?= $totalWorkingDays ?></div>
+                        <div class="label">Working Days</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="number" style="color: #f59e0b;"><?= $totalRestDays ?></div>
+                        <div class="label">Rest Days</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="number" style="color: #0288d1;">6</div>
+                        <div class="label">Hours/Day</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="number" style="color: #7c3aed;">12</div>
+                        <div class="label">Months</div>
+                    </div>
+                </div>
+
+                <!-- Month Navigation -->
+                <div class="month-nav">
+                    <?php 
+                    $monthIndex = 0;
+                    $currentMonth = date('F Y');
+                    foreach ($scheduleByMonth as $month => $days): 
+                        $isCurrentMonth = ($month === $currentMonth);
+                    ?>
+                        <button class="month-btn <?= $isCurrentMonth ? 'active' : '' ?>" onclick="showMonth('month-<?= $monthIndex ?>', this)">
+                            <?= esc(substr($month, 0, 3)) ?>
+                        </button>
+                    <?php 
+                        $monthIndex++;
+                    endforeach; 
+                    ?>
+                </div>
+
+                <!-- Month Sections -->
+                <?php 
+                $monthIndex = 0;
+                foreach ($scheduleByMonth as $month => $days): 
+                    $isCurrentMonth = ($month === $currentMonth);
+                    ksort($days);
+                ?>
+                    <div id="month-<?= $monthIndex ?>" class="month-section <?= $isCurrentMonth ? 'active' : '' ?>">
+                        <h2 style="color: #2e7d32; margin-bottom: 20px; font-size: 22px; display: flex; align-items: center; gap: 10px;">
+                            <i class="fas fa-calendar-alt"></i> <?= esc($month) ?>
+                        </h2>
+                        
+                        <div style="overflow-x: auto;">
+                            <table class="schedule-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 80px;">Day</th>
+                                        <th style="width: 120px;">Date</th>
+                                        <th style="width: 100px;">Status</th>
+                                        <th>Working Hours</th>
+                                        <th style="min-width: 250px;">Admitted Patients</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($days as $day => $dayData): 
+                                        $isWeekend = in_array($dayData['day_name'], ['Saturday', 'Sunday']);
+                                        $admittedPatients = $dayData['admitted_patients'] ?? [];
+                                    ?>
+                                        <tr class="<?= $isWeekend ? 'weekend' : '' ?>">
+                                            <td>
+                                                <span class="day-badge <?= $isWeekend ? 'weekend' : 'working' ?>">
+                                                    <?= esc($day) ?>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <strong><?= esc($dayData['day_name']) ?></strong>
+                                            </td>
+                                            <td>
+                                                <?php if ($isWeekend): ?>
+                                                    <span class="status-rest"><i class="fas fa-moon"></i> Rest</span>
+                                                <?php else: ?>
+                                                    <span class="status-working"><i class="fas fa-check-circle"></i> Working</span>
+                                                <?php endif; ?>
+                                            </td>
+                                            <td>
+                                                <?php if (!$isWeekend && !empty($dayData['time_slots'])): ?>
+                                                    <?php foreach ($dayData['time_slots'] as $timeSlot): ?>
+                                                        <span class="time-slot">
+                                                            <i class="fas fa-clock"></i> <?= esc($timeSlot) ?>
+                                                        </span>
+                                                    <?php endforeach; ?>
+                                                <?php elseif ($isWeekend): ?>
+                                                    <span class="rest-badge">
+                                                        <i class="fas fa-bed"></i> No Schedule - Rest Day
                                                     </span>
                                                 <?php else: ?>
-                                                    <span class="badge-modern" style="background: #fee2e2; color: #991b1b;">
-                                                        <i class="fas fa-hospital"></i> For Admission
-                                                    </span>
-                                                    <small style="display: block; color: #64748b; font-size: 11px; margin-top: 4px;">
-                                                        Nurse/Receptionist will process
-                                                    </small>
+                                                    <span style="color: #94a3b8;">No schedule</span>
                                                 <?php endif; ?>
-                                            <?php endif; ?>
-                                            <a href="<?= site_url('doctor/consultations/edit/' . $consultation['id']) ?>" 
-                                               class="btn-modern btn-modern-warning btn-sm-modern" title="Edit Consultation">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                            <a href="<?= site_url('doctor/patients/view/' . $consultation['patient_id']) ?>" 
-                                               class="btn-modern btn-modern-info btn-sm-modern" title="View Patient">
-                                                <i class="fas fa-user"></i>
-                                            </a>
-                                            <?php
-                                            // Check if consultation has related records (for warning message)
-                                            $db = \Config\Database::connect();
-                                            $hasCharges = $db->table('charges')
-                                                ->where('consultation_id', $consultation['id'])
-                                                ->where('deleted_at', null)
-                                                ->countAllResults() > 0;
-                                            
-                                            $hasAdmission = $db->table('admissions')
-                                                ->where('consultation_id', $consultation['id'])
-                                                ->where('status !=', 'cancelled')
-                                                ->where('deleted_at', null)
-                                                ->countAllResults() > 0;
-                                            
-                                            // Check for discharge orders through admission
-                                            $hasDischargeOrder = false;
-                                            if ($hasAdmission) {
-                                                $admission = $db->table('admissions')
-                                                    ->where('consultation_id', $consultation['id'])
-                                                    ->where('status !=', 'cancelled')
-                                                    ->where('deleted_at', null)
-                                                    ->get()
-                                                    ->getRowArray();
-                                                
-                                                if ($admission) {
-                                                    $hasDischargeOrder = $db->table('discharge_orders')
-                                                        ->where('admission_id', $admission['id'])
-                                                        ->countAllResults() > 0;
-                                                }
-                                            }
-                                            
-                                            $hasRelatedRecords = $hasCharges || $hasAdmission || $hasDischargeOrder;
-                                            
-                                            // Build warning message
-                                            $warningMsg = 'Are you sure you want to delete this consultation? This action cannot be undone.';
-                                            if ($hasRelatedRecords) {
-                                                $warnings = [];
-                                                if ($hasCharges) $warnings[] = 'billing charges';
-                                                if ($hasAdmission) $warnings[] = 'admission record';
-                                                if ($hasDischargeOrder) $warnings[] = 'discharge order';
-                                                $warningMsg = 'WARNING: This consultation has associated ' . implode(', ', $warnings) . 
-                                                            '. Deleting it may affect related records. Are you sure you want to proceed?';
-                                            }
-                                            $warningMsgJs = addslashes($warningMsg);
-                                            ?>
-                                            <a href="<?= site_url('doctor/consultations/delete/' . $consultation['id']) ?>" 
-                                               class="btn-modern btn-modern-danger btn-sm-modern" 
-                                               onclick="return confirm('<?= $warningMsgJs ?>')" 
-                                               title="<?= $hasRelatedRecords ? 'Delete Consultation (has related records)' : 'Delete Consultation' ?>">
-                                                <i class="fas fa-trash"></i>
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
+                                            </td>
+                                            <td>
+                                                <?php if (!empty($admittedPatients)): ?>
+                                                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                                                        <?php foreach ($admittedPatients as $admitted): ?>
+                                                            <div style="background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%); padding: 10px 12px; border-radius: 8px; border-left: 3px solid #0288d1;">
+                                                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                                                                    <i class="fas fa-user-injured" style="color: #0288d1;"></i>
+                                                                    <strong style="color: #1e293b; font-size: 13px;">
+                                                                        <?= esc($admitted['name']) ?>
+                                                                    </strong>
+                                                                </div>
+                                                                <div style="font-size: 12px; color: #64748b; margin-left: 24px;">
+                                                                    <i class="fas fa-bed"></i> Room: <?= esc($admitted['room_number']) ?>
+                                                                    <?php if (!empty($admitted['ward']) && $admitted['ward'] !== 'N/A'): ?>
+                                                                        - <?= esc($admitted['ward']) ?>
+                                                                    <?php endif; ?>
+                                                                </div>
+                                                            </div>
+                                                        <?php endforeach; ?>
+                                                    </div>
+                                                <?php else: ?>
+                                                    <span style="color: #94a3b8; font-size: 13px;">—</span>
+                                                <?php endif; ?>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                <?php 
+                    $monthIndex++;
+                endforeach; 
+                ?>
+
             <?php else: ?>
                 <div class="empty-state">
-                    <i class="fas fa-calendar-check"></i>
-                    <h5>No Consultations Found</h5>
-                    <p>You haven't scheduled any consultations yet.</p>
-                    <a href="<?= site_url('doctor/consultations/create') ?>" class="btn-modern btn-modern-primary">
-                        <i class="fas fa-plus"></i>
-                        Schedule First Consultation
-                    </a>
+                    <i class="fas fa-calendar-times"></i>
+                    <h5>No Schedule Found</h5>
+                    <p>Your working schedule for this year has not been generated yet.</p>
+                    <p style="color: #94a3b8; font-size: 13px; margin-top: 8px;">
+                        Please refresh the page to generate your schedule automatically.
+                    </p>
                 </div>
             <?php endif; ?>
         </div>
     </div>
 </div>
+
+<script>
+function showMonth(monthId, button) {
+    // Hide all month sections
+    document.querySelectorAll('.month-section').forEach(section => {
+        section.classList.remove('active');
+    });
+    
+    // Remove active class from all buttons
+    document.querySelectorAll('.month-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Show selected month
+    document.getElementById(monthId).classList.add('active');
+    
+    // Add active class to clicked button
+    button.classList.add('active');
+}
+
+// Auto-scroll to current month button if exists
+document.addEventListener('DOMContentLoaded', function() {
+    const activeBtn = document.querySelector('.month-btn.active');
+    if (activeBtn) {
+        activeBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+});
+</script>
+
 <?= $this->endSection() ?>

@@ -77,6 +77,9 @@ class AppointmentModel extends Model
 
     public function checkAppointmentConflict($doctorId, string $date, string $time, ?int $ignoreId = null): bool
     {
+        $db = \Config\Database::connect();
+        
+        // Check for appointment conflicts
         $builder = $this->builder()
             ->where('doctor_id', $doctorId)
             ->where('appointment_date', $date)
@@ -87,7 +90,25 @@ class AppointmentModel extends Model
             $builder->where('id !=', $ignoreId);
         }
 
-        return $builder->countAllResults() > 0;
+        $hasAppointmentConflict = $builder->countAllResults() > 0;
+        
+        // Also check for consultation conflicts
+        $hasConsultationConflict = false;
+        if ($db->tableExists('consultations')) {
+            $consultationBuilder = $db->table('consultations')
+                ->where('doctor_id', $doctorId)
+                ->where('consultation_date', $date)
+                ->where('consultation_time', $time)
+                ->whereNotIn('status', ['cancelled']);
+            
+            if ($ignoreId !== null) {
+                $consultationBuilder->where('id !=', $ignoreId);
+            }
+            
+            $hasConsultationConflict = $consultationBuilder->countAllResults() > 0;
+        }
+
+        return $hasAppointmentConflict || $hasConsultationConflict;
     }
 
     public function updateAppointmentStatus(int $id, string $status, ?string $notes = null): bool

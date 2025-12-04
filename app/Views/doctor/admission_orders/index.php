@@ -147,10 +147,139 @@
                             </div>
                         </div>
                         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                            <a href="<?= site_url('doctor/admission-orders/view/' . $patient['id']) ?>" 
-                               class="btn-modern btn-primary">
-                                <i class="fas fa-eye"></i> View & Manage Orders
-                            </a>
+                            <?php
+                            // Check if there's already a completed consultation for this patient today
+                            $db = \Config\Database::connect();
+                            $doctorId = session()->get('user_id');
+                            $today = date('Y-m-d');
+                            
+                            // Determine patient source and ID for consultation
+                            $patientSource = $patient['source'] ?? 'admin';
+                            $consultationPatientId = null;
+                            $consultationSource = 'admin_patients';
+                            
+                            if ($patientSource === 'receptionist') {
+                                // In-Patient from patients table
+                                $consultationPatientId = $patient['patient_id'];
+                                $consultationSource = 'patients';
+                                
+                                // Check for completed consultation using patient_id
+                                $checkPatientId = $consultationPatientId;
+                            } else {
+                                // From admin_patients via admissions
+                                $consultationPatientId = $patient['patient_id'];
+                                $consultationSource = 'admin_patients';
+                                $checkPatientId = $consultationPatientId;
+                            }
+                            
+                            // Check if consultation already completed today
+                            $hasCompletedConsultation = false;
+                            if ($checkPatientId) {
+                                if ($patientSource === 'receptionist') {
+                                    // For patients table, consultations are saved with admin_patients.id
+                                    // So we need to find the admin_patients record first
+                                    $hmsPatient = $db->table('patients')
+                                        ->where('patient_id', $checkPatientId)
+                                        ->get()
+                                        ->getRowArray();
+                                    
+                                    if ($hmsPatient) {
+                                        // Extract name parts
+                                        $nameParts = [];
+                                        if (!empty($hmsPatient['first_name'])) $nameParts[] = $hmsPatient['first_name'];
+                                        if (!empty($hmsPatient['last_name'])) $nameParts[] = $hmsPatient['last_name'];
+                                        if (empty($nameParts) && !empty($hmsPatient['full_name'])) {
+                                            $parts = explode(' ', $hmsPatient['full_name'], 2);
+                                            $nameParts = [$parts[0] ?? '', $parts[1] ?? ''];
+                                        }
+                                        
+                                        // Find admin_patients record
+                                        $adminPatient = null;
+                                        if (!empty($nameParts[0]) && !empty($nameParts[1])) {
+                                            $adminPatient = $db->table('admin_patients')
+                                                ->where('firstname', $nameParts[0])
+                                                ->where('lastname', $nameParts[1])
+                                                ->where('doctor_id', $doctorId)
+                                                ->get()
+                                                ->getRowArray();
+                                        }
+                                        
+                                        // Check consultations using admin_patients.id if found
+                                        if ($adminPatient) {
+                                            $existingConsultation = $db->table('consultations')
+                                                ->where('patient_id', $adminPatient['id'])
+                                                ->where('doctor_id', $doctorId)
+                                                ->where('consultation_date', $today)
+                                                ->where('type', 'completed')
+                                                ->where('status', 'approved')
+                                                ->where('deleted_at', null)
+                                                ->get()
+                                                ->getRowArray();
+                                            
+                                            $hasCompletedConsultation = !empty($existingConsultation);
+                                        }
+                                        
+                                        // Also check directly with patients.patient_id (in case consultation was saved differently)
+                                        if (!$hasCompletedConsultation) {
+                                            $existingConsultation = $db->table('consultations')
+                                                ->where('patient_id', $checkPatientId)
+                                                ->where('doctor_id', $doctorId)
+                                                ->where('consultation_date', $today)
+                                                ->where('type', 'completed')
+                                                ->where('status', 'approved')
+                                                ->where('deleted_at', null)
+                                                ->get()
+                                                ->getRowArray();
+                                            
+                                            $hasCompletedConsultation = !empty($existingConsultation);
+                                        }
+                                    }
+                                } else {
+                                    // For admin_patients
+                                    $existingConsultation = $db->table('consultations')
+                                        ->where('patient_id', $checkPatientId)
+                                        ->where('doctor_id', $doctorId)
+                                        ->where('consultation_date', $today)
+                                        ->where('type', 'completed')
+                                        ->where('status', 'approved')
+                                        ->where('deleted_at', null)
+                                        ->get()
+                                        ->getRowArray();
+                                    
+                                    $hasCompletedConsultation = !empty($existingConsultation);
+                                }
+                            }
+                            ?>
+                            
+                            <?php if (!$hasCompletedConsultation && $consultationPatientId): ?>
+                                <a href="<?= site_url('doctor/consultations/start/' . $consultationPatientId . '/' . $consultationSource) ?>" 
+                                   class="btn-modern btn-primary" style="background: #0288d1;">
+                                    <i class="fas fa-stethoscope"></i> Start Consultation
+                                </a>
+                            <?php elseif ($hasCompletedConsultation): ?>
+                                <span class="btn-modern" 
+                                      style="background: #d1fae5; color: #065f46; cursor: default;" 
+                                      title="Consultation already completed today">
+                                    <i class="fas fa-check-circle"></i> Consultation Done
+                                </span>
+                            <?php endif; ?>
+                            
+                            <?php if (isset($patient['source']) && $patient['source'] === 'receptionist'): ?>
+                                <!-- In-Patient from receptionist - link to patient view instead -->
+                                <a href="<?= site_url('doctor/patients/view/' . $patient['patient_id']) ?>" 
+                                   class="btn-modern btn-primary">
+                                    <i class="fas fa-eye"></i> View Patient
+                                </a>
+                                <span style="background: #dbeafe; color: #1e40af; padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: 600;">
+                                    <i class="fas fa-info-circle"></i> Direct Admission
+                                </span>
+                            <?php else: ?>
+                                <!-- Regular admission with orders -->
+                                <a href="<?= site_url('doctor/admission-orders/view/' . $patient['id']) ?>" 
+                                   class="btn-modern btn-primary">
+                                    <i class="fas fa-eye"></i> View & Manage Orders
+                                </a>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>

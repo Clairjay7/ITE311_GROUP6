@@ -19,17 +19,84 @@ class OrderController extends BaseController
         }
 
         $doctorId = session()->get('user_id');
-        $orderModel = new DoctorOrderModel();
+        $db = \Config\Database::connect();
 
-        // Get all orders by this doctor (including pharmacy status)
-        $allOrders = $orderModel
-            ->select('doctor_orders.*, admin_patients.firstname, admin_patients.lastname, users.username as completed_by_name, nurse_users.username as nurse_name')
+        // Get all orders by this doctor
+        // Need to check both admin_patients and patients tables for patient names
+        // Also check orders linked via admission_id
+        $allOrdersRaw = $db->table('doctor_orders')
+            ->select('doctor_orders.*, 
+                     admin_patients.firstname as ap_firstname,
+                     admin_patients.lastname as ap_lastname,
+                     patients.first_name as p_firstname,
+                     patients.last_name as p_lastname,
+                     patients.full_name as p_fullname,
+                     admission_patients.firstname as adm_ap_firstname,
+                     admission_patients.lastname as adm_ap_lastname,
+                     admission_hms_patients.first_name as adm_p_firstname,
+                     admission_hms_patients.last_name as adm_p_lastname,
+                     admission_hms_patients.full_name as adm_p_fullname,
+                     users.username as completed_by_name, 
+                     nurse_users.username as nurse_name')
             ->join('admin_patients', 'admin_patients.id = doctor_orders.patient_id', 'left')
+            ->join('patients', 'patients.patient_id = doctor_orders.patient_id', 'left')
+            ->join('admissions', 'admissions.id = doctor_orders.admission_id', 'left')
+            ->join('admin_patients as admission_patients', 'admission_patients.id = admissions.patient_id', 'left')
+            ->join('patients as admission_hms_patients', 'admission_hms_patients.patient_id = admissions.patient_id', 'left')
             ->join('users', 'users.id = doctor_orders.completed_by', 'left')
             ->join('users as nurse_users', 'nurse_users.id = doctor_orders.nurse_id', 'left')
             ->where('doctor_orders.doctor_id', $doctorId)
             ->orderBy('doctor_orders.created_at', 'DESC')
-            ->findAll();
+            ->get()
+            ->getResultArray();
+        
+        // Process orders to get patient names from multiple sources
+        $allOrders = [];
+        foreach ($allOrdersRaw as $order) {
+            // Get firstname from various sources
+            $firstname = $order['ap_firstname'] ?? 
+                        $order['p_firstname'] ?? 
+                        $order['adm_ap_firstname'] ?? 
+                        $order['adm_p_firstname'] ?? 
+                        null;
+            
+            // If no firstname found, try to extract from full_name
+            if (empty($firstname)) {
+                $fullName = $order['p_fullname'] ?? $order['adm_p_fullname'] ?? null;
+                if (!empty($fullName)) {
+                    $nameParts = explode(' ', trim($fullName), 2);
+                    $firstname = $nameParts[0] ?? null;
+                }
+            }
+            
+            // Get lastname from various sources
+            $lastname = $order['ap_lastname'] ?? 
+                       $order['p_lastname'] ?? 
+                       $order['adm_ap_lastname'] ?? 
+                       $order['adm_p_lastname'] ?? 
+                       null;
+            
+            // If no lastname found, try to extract from full_name
+            if (empty($lastname)) {
+                $fullName = $order['p_fullname'] ?? $order['adm_p_fullname'] ?? null;
+                if (!empty($fullName)) {
+                    $nameParts = explode(' ', trim($fullName), 2);
+                    $lastname = $nameParts[1] ?? null;
+                }
+            }
+            
+            // Add firstname and lastname to order array
+            $order['firstname'] = $firstname ?? 'Unknown';
+            $order['lastname'] = $lastname ?? 'Patient';
+            
+            // Remove temporary fields
+            unset($order['ap_firstname'], $order['ap_lastname'], 
+                  $order['p_firstname'], $order['p_lastname'], $order['p_fullname'],
+                  $order['adm_ap_firstname'], $order['adm_ap_lastname'],
+                  $order['adm_p_firstname'], $order['adm_p_lastname'], $order['adm_p_fullname']);
+            
+            $allOrders[] = $order;
+        }
 
         // Get orders by status
         $pendingOrders = array_filter($allOrders, fn($order) => $order['status'] === 'pending');

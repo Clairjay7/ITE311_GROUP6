@@ -17,6 +17,7 @@ class RoomModel extends Model
         'room_number',
         'room_type',
         'bed_count',
+        'price',
         'status',
         'current_patient_id',
         'created_at',

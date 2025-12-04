@@ -34,6 +34,14 @@
                 </a>
             </li>
 
+            <!-- Nurse Schedules -->
+            <li class="nav-item">
+                <a href="<?= base_url('admin/nurse-schedules') ?>">
+                    <i class="fa-solid fa-user-nurse sidebar-icon"></i>
+                    <span class="text">Nurse Schedules</span>
+                </a>
+            </li>
+
             <!-- Billing -->
             <li class="nav-item">
                 <a href="<?= base_url('admin/billing') ?>">
@@ -244,10 +252,19 @@
                     <span class="arrow">›</span>
                 </a>
                 <ul class="submenu">
-                    <li><a href="<?= site_url('receptionist/rooms/ward/pedia') ?>"><span class="text">Pedia Ward</span></a></li>
-                    <li><a href="<?= site_url('receptionist/rooms/ward/male') ?>"><span class="text">Male Ward</span></a></li>
-                    <li><a href="<?= site_url('receptionist/rooms/ward/female') ?>"><span class="text">Female Ward</span></a></li>
+                    <li><a href="<?= site_url('receptionist/rooms/type/private') ?>"><span class="text">🏠 Private Room</span></a></li>
+                    <li><a href="<?= site_url('receptionist/rooms/type/semi-private') ?>"><span class="text">🏘️ Semi-Private Room</span></a></li>
+                    <li><a href="<?= site_url('receptionist/rooms/type/ward') ?>"><span class="text">🏥 Ward (General Ward)</span></a></li>
+                    <li><a href="<?= site_url('receptionist/rooms/type/icu') ?>"><span class="text">🚨 ICU (Intensive Care Unit)</span></a></li>
+                    <li><a href="<?= site_url('receptionist/rooms/type/isolation') ?>"><span class="text">🔒 Isolation Room</span></a></li>
                 </ul>
+            </li>
+
+            <li class="nav-item">
+                <a href="<?= site_url('receptionist/doctor-schedules') ?>">
+                    <i class="fa-solid fa-calendar-alt sidebar-icon"></i>
+                    <span class="text">Doctor Schedules</span>
+                </a>
             </li>
         <?php endif; ?>
 

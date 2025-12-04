@@ -1128,6 +1128,44 @@ class TriageController extends BaseController
                 ->getResultArray();
 
             foreach ($userDoctors as $userDoctor) {
+                // If time is provided, check if doctor is already booked at that time
+                if (!empty($time)) {
+                    $hasConflict = false;
+                    
+                    // Check for appointment conflict
+                    if ($db->tableExists('appointments')) {
+                        $appointmentConflict = $db->table('appointments')
+                            ->where('doctor_id', $userDoctor['id'])
+                            ->where('appointment_date', $date)
+                            ->where('appointment_time', $time)
+                            ->whereNotIn('status', ['cancelled', 'no_show'])
+                            ->countAllResults();
+                        
+                        if ($appointmentConflict > 0) {
+                            $hasConflict = true;
+                        }
+                    }
+                    
+                    // Check for consultation conflict
+                    if (!$hasConflict && $db->tableExists('consultations')) {
+                        $consultationConflict = $db->table('consultations')
+                            ->where('doctor_id', $userDoctor['id'])
+                            ->where('consultation_date', $date)
+                            ->where('consultation_time', $time)
+                            ->whereNotIn('status', ['cancelled'])
+                            ->countAllResults();
+                        
+                        if ($consultationConflict > 0) {
+                            $hasConflict = true;
+                        }
+                    }
+                    
+                    // Skip this doctor if they have a conflict at the requested time
+                    if ($hasConflict) {
+                        continue;
+                    }
+                }
+                
                 // Get specialization from doctors table if exists
                 $specialization = 'General Practice';
                 if ($db->tableExists('doctors')) {
@@ -1169,6 +1207,44 @@ class TriageController extends BaseController
                 }
 
                 if (!$alreadyAdded) {
+                    // If time is provided, check if doctor is already booked at that time
+                    if (!empty($time)) {
+                        $hasConflict = false;
+                        
+                        // Check for appointment conflict
+                        if ($db->tableExists('appointments')) {
+                            $appointmentConflict = $db->table('appointments')
+                                ->where('doctor_id', $doctor['id'])
+                                ->where('appointment_date', $date)
+                                ->where('appointment_time', $time)
+                                ->whereNotIn('status', ['cancelled', 'no_show'])
+                                ->countAllResults();
+                            
+                            if ($appointmentConflict > 0) {
+                                $hasConflict = true;
+                            }
+                        }
+                        
+                        // Check for consultation conflict
+                        if (!$hasConflict && $db->tableExists('consultations')) {
+                            $consultationConflict = $db->table('consultations')
+                                ->where('doctor_id', $doctor['id'])
+                                ->where('consultation_date', $date)
+                                ->where('consultation_time', $time)
+                                ->whereNotIn('status', ['cancelled'])
+                                ->countAllResults();
+                            
+                            if ($consultationConflict > 0) {
+                                $hasConflict = true;
+                            }
+                        }
+                        
+                        // Skip this doctor if they have a conflict at the requested time
+                        if ($hasConflict) {
+                            continue;
+                        }
+                    }
+                    
                     // Check schedule availability
                     $scheduleInfo = $this->getDoctorScheduleInfo($doctor['id'], $date, $time, $db);
                     

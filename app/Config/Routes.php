@@ -91,6 +91,18 @@ $routes->group('admin', ['namespace' => 'App\\Controllers\\Admin', 'filter' => '
         $routes->get('delete/(:num)', 'ScheduleController::delete/$1');
     });
     
+    // Nurse Schedules
+    $routes->group('nurse-schedules', function($routes) {
+        $routes->get('/', 'NurseScheduleController::index');
+        $routes->get('create', 'NurseScheduleController::create');
+        $routes->post('store', 'NurseScheduleController::store');
+        $routes->get('edit/(:num)', 'NurseScheduleController::edit/$1');
+        $routes->post('update/(:num)', 'NurseScheduleController::update/$1');
+        $routes->get('delete/(:num)', 'NurseScheduleController::delete/$1');
+        $routes->get('bulk-assign', 'NurseScheduleController::bulkAssign');
+        $routes->post('bulk-assign-store', 'NurseScheduleController::bulkAssignStore');
+    });
+    
     // Billing
     $routes->group('billing', function($routes) {
         $routes->get('/', 'BillingController::index');
@@ -353,11 +365,16 @@ $routes->group('receptionist/assign-doctor', ['namespace' => 'App\\Controllers\\
     $routes->post('assign', 'AssignDoctorController::assign');
 });
 
+// Receptionist - Doctor Schedules
+$routes->get('receptionist/doctor-schedules', 'Receptionist\DoctorScheduleController::index', ['filter' => 'auth:receptionist,admin']);
+
 $routes->group('receptionist/rooms', ['namespace' => 'App\\Controllers\\Receptionist', 'filter' => 'auth:receptionist,admin'], function($routes) {
     $routes->get('ward/(:segment)', 'Rooms::ward/$1');
+    $routes->get('type/(:segment)', 'Rooms::type/$1');
     $routes->get('assign/(:num)', 'Rooms::assignForm/$1');
     $routes->post('assign/(:num)', 'Rooms::assignStore/$1');
     $routes->post('vacate/(:num)', 'Rooms::vacate/$1');
+    $routes->get('get-beds/(:num)', 'Rooms::getBeds/$1'); // AJAX endpoint for beds
 });
 
 // Receptionist - Admission (can assign rooms/beds)
