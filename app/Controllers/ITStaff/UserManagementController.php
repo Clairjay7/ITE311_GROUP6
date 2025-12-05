@@ -24,10 +24,11 @@ class UserManagementController extends BaseController
 
         $db = \Config\Database::connect();
         
-        // Get all users with their roles
+        // Get all users with their roles (including deleted users)
         $users = $db->table('users')
             ->select('users.*, roles.name as role_name, roles.description as role_description')
             ->join('roles', 'roles.id = users.role_id', 'left')
+            ->orderBy('users.deleted_at', 'ASC') // Show non-deleted first
             ->orderBy('users.created_at', 'DESC')
             ->get()->getResultArray();
 
@@ -222,17 +223,28 @@ class UserManagementController extends BaseController
             return redirect()->to('/it/users')->with('error', 'You cannot delete your own account.');
         }
 
-        $user = $this->userModel->find($id);
+        $user = $this->userModel->withDeleted()->find($id);
         
         if (!$user) {
             return redirect()->to('/it/users')->with('error', 'User not found.');
         }
 
-        if ($this->userModel->delete($id)) {
+        // Check if already deleted
+        if (!empty($user['deleted_at'])) {
+            return redirect()->to('/it/users')->with('error', 'User is already deleted.');
+        }
+
+        // Mark as deleted (soft delete) instead of hard delete
+        $data = [
+            'deleted_at' => date('Y-m-d H:i:s'),
+            'status' => 'inactive', // Also set status to inactive
+        ];
+
+        if ($this->userModel->update($id, $data)) {
             // Log the user deletion
             $this->logUserAction('User deleted', $id);
             
-            return redirect()->to('/it/users')->with('success', 'User deleted successfully.');
+            return redirect()->to('/it/users')->with('success', 'User marked as deleted successfully.');
         } else {
             return redirect()->to('/it/users')->with('error', 'Failed to delete user.');
         }

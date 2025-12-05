@@ -193,7 +193,7 @@
                 <select name="role_id" id="role_id" class="form-control-modern" required>
                     <option value="">Select Role</option>
                     <?php foreach ($roles as $role): ?>
-                        <option value="<?= esc($role['id']) ?>" <?= old('role_id') == $role['id'] ? 'selected' : '' ?>>
+                        <option value="<?= esc($role['id']) ?>" data-role-name="<?= esc(strtolower($role['name'])) ?>" <?= old('role_id') == $role['id'] ? 'selected' : '' ?>>
                             <?= esc(ucfirst(str_replace('_', ' ', $role['name']))) ?>
                             <?php if (!empty($role['description'])): ?>
                                 - <?= esc($role['description']) ?>
@@ -203,6 +203,22 @@
                 </select>
                 <?php if (session()->getFlashdata('errors') && isset(session()->getFlashdata('errors')['role_id'])): ?>
                     <div class="text-danger"><?= esc(session()->getFlashdata('errors')['role_id']) ?></div>
+                <?php endif; ?>
+            </div>
+            
+            <div class="form-group-modern" id="shift_preference_group" style="display: none;">
+                <label class="form-label-modern" for="shift_preference">
+                    <i class="fas fa-clock me-2"></i>
+                    Shift Preference <span class="text-danger">*</span>
+                </label>
+                <select name="shift_preference" id="shift_preference" class="form-control-modern">
+                    <option value="">Select Shift Preference</option>
+                    <option value="morning" <?= old('shift_preference') == 'morning' ? 'selected' : '' ?>>Morning Shift</option>
+                    <option value="night" <?= old('shift_preference') == 'night' ? 'selected' : '' ?>>Night Shift</option>
+                    <option value="bulk" <?= old('shift_preference') == 'bulk' ? 'selected' : '' ?>>Bulk (Both Shifts)</option>
+                </select>
+                <?php if (session()->getFlashdata('errors') && isset(session()->getFlashdata('errors')['shift_preference'])): ?>
+                    <div class="text-danger"><?= esc(session()->getFlashdata('errors')['shift_preference']) ?></div>
                 <?php endif; ?>
             </div>
             
@@ -234,5 +250,33 @@
         </form>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const roleSelect = document.getElementById('role_id');
+    const shiftPreferenceGroup = document.getElementById('shift_preference_group');
+    const shiftPreference = document.getElementById('shift_preference');
+    
+    function toggleShiftPreference() {
+        const selectedOption = roleSelect.options[roleSelect.selectedIndex];
+        const roleName = selectedOption ? selectedOption.getAttribute('data-role-name') : '';
+        
+        if (roleName === 'nurse') {
+            shiftPreferenceGroup.style.display = 'block';
+            shiftPreference.setAttribute('required', 'required');
+        } else {
+            shiftPreferenceGroup.style.display = 'none';
+            shiftPreference.removeAttribute('required');
+            shiftPreference.value = '';
+        }
+    }
+    
+    // Check on page load if nurse is already selected
+    toggleShiftPreference();
+    
+    // Listen for changes
+    roleSelect.addEventListener('change', toggleShiftPreference);
+});
+</script>
 <?= $this->endSection() ?>
 

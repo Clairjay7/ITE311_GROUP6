@@ -456,6 +456,7 @@
                                         <th style="width: 120px;">Date</th>
                                         <th style="width: 100px;">Status</th>
                                         <th>Working Hours</th>
+                                        <th style="min-width: 250px;">Appointments</th>
                                         <th style="min-width: 250px;">Admitted Patients</th>
                                     </tr>
                                 </thead>
@@ -463,6 +464,12 @@
                                     <?php foreach ($days as $day => $dayData): 
                                         $isWeekend = in_array($dayData['day_name'], ['Saturday', 'Sunday']);
                                         $admittedPatients = $dayData['admitted_patients'] ?? [];
+                                        $consultations = $dayData['consultations'] ?? [];
+                                        
+                                        // Debug: Log consultations for this day
+                                        if (!empty($consultations)) {
+                                            log_message('debug', "Day {$day} has " . count($consultations) . " consultations");
+                                        }
                                     ?>
                                         <tr class="<?= $isWeekend ? 'weekend' : '' ?>">
                                             <td>
@@ -493,6 +500,52 @@
                                                     </span>
                                                 <?php else: ?>
                                                     <span style="color: #94a3b8;">No schedule</span>
+                                                <?php endif; ?>
+                                            </td>
+                                            <td>
+                                                <?php if (!empty($consultations)): ?>
+                                                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                                                        <?php foreach ($consultations as $consult): ?>
+                                                            <div style="padding: 8px 12px; background: #e0f2fe; border-left: 3px solid #0288d1; border-radius: 6px;">
+                                                                <div style="font-weight: 600; color: #0288d1; font-size: 13px; margin-bottom: 4px;">
+                                                                    <i class="fas fa-user-md"></i> <?= esc($consult['patient_name']) ?>
+                                                                </div>
+                                                                <div style="font-size: 12px; color: #64748b;">
+                                                                    <i class="fas fa-clock"></i> <?= date('g:i A', strtotime($consult['consultation_time'])) ?>
+                                                                </div>
+                                                                <?php if (!empty($consult['notes'])): ?>
+                                                                    <div style="font-size: 11px; color: #94a3b8; margin-top: 4px; font-style: italic;">
+                                                                        <?= esc(substr($consult['notes'], 0, 50)) ?><?= strlen($consult['notes']) > 50 ? '...' : '' ?>
+                                                                    </div>
+                                                                <?php endif; ?>
+                                                            </div>
+                                                        <?php endforeach; ?>
+                                                    </div>
+                                                <?php else: ?>
+                                                    <span style="color: #94a3b8; font-size: 13px;">No appointments</span>
+                                                <?php endif; ?>
+                                            </td>
+                                            <td>
+                                                <?php if (!empty($consultations)): ?>
+                                                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                                                        <?php foreach ($consultations as $consult): ?>
+                                                            <div style="padding: 8px 12px; background: #e0f2fe; border-left: 3px solid #0288d1; border-radius: 6px;">
+                                                                <div style="font-weight: 600; color: #0288d1; font-size: 13px; margin-bottom: 4px;">
+                                                                    <i class="fas fa-user-md"></i> <?= esc($consult['patient_name']) ?>
+                                                                </div>
+                                                                <div style="font-size: 12px; color: #64748b;">
+                                                                    <i class="fas fa-clock"></i> <?= date('g:i A', strtotime($consult['consultation_time'])) ?>
+                                                                </div>
+                                                                <?php if (!empty($consult['notes'])): ?>
+                                                                    <div style="font-size: 11px; color: #94a3b8; margin-top: 4px; font-style: italic;">
+                                                                        <?= esc(substr($consult['notes'], 0, 50)) ?><?= strlen($consult['notes']) > 50 ? '...' : '' ?>
+                                                                    </div>
+                                                                <?php endif; ?>
+                                                            </div>
+                                                        <?php endforeach; ?>
+                                                    </div>
+                                                <?php else: ?>
+                                                    <span style="color: #94a3b8; font-size: 13px;">No appointments</span>
                                                 <?php endif; ?>
                                             </td>
                                             <td>

@@ -250,6 +250,104 @@ class ConsultationController extends BaseController
                 }
             }
         }
+        
+        // Get consultations/appointments for this doctor to show in schedule
+        $consultations = [];
+        if ($db->tableExists('consultations')) {
+            // consultations.patient_id references patients.patient_id
+            // Get all upcoming consultations for this doctor (not just current year, but also future dates)
+            $startDate = $currentYear . '-01-01';
+            $endDate = ($currentYear + 1) . '-12-31'; // Include next year too
+            
+            // First, let's check all consultations for this doctor (for debugging)
+            $allConsultations = $db->table('consultations')
+                ->where('doctor_id', $doctorId)
+                ->where('deleted_at IS NULL', null, false)
+                ->get()
+                ->getResultArray();
+            
+            log_message('info', "🔍 Total consultations for doctor {$doctorId} (all statuses): " . count($allConsultations));
+            foreach ($allConsultations as $c) {
+                log_message('info', "  - Consultation ID: {$c['id']}, patient_id: {$c['patient_id']}, date: {$c['consultation_date']}, time: {$c['consultation_time']}, type: {$c['type']}, status: {$c['status']}");
+            }
+            
+            $consultationsRaw = $db->table('consultations c')
+                ->select('c.*, p.full_name, p.patient_id, p.first_name, p.last_name')
+                ->join('patients p', 'p.patient_id = c.patient_id', 'left')
+                ->where('c.doctor_id', $doctorId)
+                ->where('c.type', 'upcoming')
+                ->whereIn('c.status', ['approved', 'pending'])
+                ->where('c.deleted_at IS NULL', null, false)
+                ->where('c.consultation_date >=', $startDate)
+                ->where('c.consultation_date <=', $endDate)
+                ->orderBy('c.consultation_date', 'ASC')
+                ->orderBy('c.consultation_time', 'ASC')
+                ->get()
+                ->getResultArray();
+            
+            log_message('info', "🔍 Querying consultations for doctor {$doctorId} from {$startDate} to {$endDate}");
+            log_message('info', "✅ Found " . count($consultationsRaw) . " upcoming consultations for doctor {$doctorId}");
+            
+            // Debug: Log each consultation found
+            foreach ($consultationsRaw as $idx => $consult) {
+                log_message('info', "  Consultation #{$idx}: ID={$consult['id']}, patient_id={$consult['patient_id']}, date={$consult['consultation_date']}, time={$consult['consultation_time']}, status={$consult['status']}, patient_name=" . ($consult['full_name'] ?? 'N/A'));
+            }
+            
+            foreach ($consultationsRaw as $consult) {
+                $consultDate = $consult['consultation_date'];
+                try {
+                    $dateObj = new \DateTime($consultDate);
+                    $month = $dateObj->format('F Y');
+                    $day = $dateObj->format('d');
+                    $consultYear = (int)$dateObj->format('Y');
+                    
+                    // Include consultations from current year and next year
+                    if ($consultYear >= $currentYear) {
+                        log_message('debug', "Processing consultation for date: {$consultDate}, month: {$month}, day: {$day}");
+                        // Ensure the day exists in scheduleByMonth
+                        if (!isset($scheduleByMonth[$month])) {
+                            $scheduleByMonth[$month] = [];
+                        }
+                        if (!isset($scheduleByMonth[$month][$day])) {
+                            $scheduleByMonth[$month][$day] = [
+                                'date' => $consultDate,
+                                'day_name' => $dateObj->format('l'),
+                                'time_slots' => [],
+                                'admitted_patients' => [],
+                                'consultations' => []
+                            ];
+                        }
+                        
+                        // Initialize consultations array if not exists
+                        if (!isset($scheduleByMonth[$month][$day]['consultations'])) {
+                            $scheduleByMonth[$month][$day]['consultations'] = [];
+                        }
+                        
+                        // Get patient name
+                        $patientName = $consult['full_name'] ?? '';
+                        if (empty($patientName)) {
+                            $patientName = trim(($consult['first_name'] ?? '') . ' ' . ($consult['last_name'] ?? ''));
+                        }
+                        if (empty($patientName)) {
+                            $patientName = 'Patient #' . ($consult['patient_id'] ?? 'Unknown');
+                        }
+                        
+                        $scheduleByMonth[$month][$day]['consultations'][] = [
+                            'id' => $consult['id'],
+                            'patient_name' => $patientName,
+                            'patient_id' => $consult['patient_id'],
+                            'consultation_time' => $consult['consultation_time'],
+                            'consultation_date' => $consultDate,
+                            'status' => $consult['status'],
+                            'notes' => $consult['notes'] ?? ''
+                        ];
+                    }
+                } catch (\Exception $e) {
+                    // Skip invalid dates
+                    continue;
+                }
+            }
+        }
 
         $data = [
             'title' => 'My Working Schedule',
@@ -730,6 +828,44 @@ class ConsultationController extends BaseController
         // Verify this patient is assigned to this doctor
         if (($patient['doctor_id'] ?? null) != $doctorId) {
             return redirect()->to('/doctor/patients')->with('error', 'You do not have access to this patient.');
+        }
+
+        // Check if there's an upcoming appointment and if the time has arrived
+        if ($db->tableExists('consultations')) {
+            // For receptionist patients, consultations use patients.patient_id
+            // For admin patients, consultations use admin_patients.id
+            $patientIdForConsultation = $patientId;
+            
+            // Try to find upcoming consultation
+            $upcomingConsultation = $db->table('consultations')
+                ->where('patient_id', $patientIdForConsultation)
+                ->where('doctor_id', $doctorId)
+                ->where('type', 'upcoming')
+                ->whereIn('status', ['approved', 'pending'])
+                ->where('consultation_date >=', date('Y-m-d'))
+                ->orderBy('consultation_date', 'ASC')
+                ->orderBy('consultation_time', 'ASC')
+                ->get()
+                ->getRowArray();
+            
+            // If not found and patient is from admin_patients, try to find by matching name
+            if (!$upcomingConsultation && $patientSourceActual === 'admin_patients') {
+                // Consultations might be linked to patients table, so try finding by name match
+                // This is a fallback for edge cases
+            }
+            
+            if ($upcomingConsultation) {
+                // Check if appointment time has arrived
+                $appointmentDateTime = $upcomingConsultation['consultation_date'] . ' ' . $upcomingConsultation['consultation_time'];
+                $appointmentTimestamp = strtotime($appointmentDateTime);
+                $currentTimestamp = time();
+                
+                if ($currentTimestamp < $appointmentTimestamp) {
+                    $formattedDate = date('M d, Y', strtotime($upcomingConsultation['consultation_date']));
+                    $formattedTime = date('g:i A', strtotime($upcomingConsultation['consultation_time']));
+                    return redirect()->to('/doctor/patients')->with('error', "Cannot start consultation yet. Appointment is scheduled for {$formattedDate} at {$formattedTime}.");
+                }
+            }
         }
 
         // Calculate age if not already calculated

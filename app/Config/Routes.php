@@ -356,6 +356,8 @@ $routes->group('receptionist/patients', ['namespace' => 'App\\Controllers\\Recep
     $routes->get('edit/(:num)', 'Patients::edit/$1');
     $routes->post('update/(:num)', 'Patients::update/$1');
     $routes->post('delete/(:num)', 'Patients::delete/$1');
+    $routes->get('get-doctor-schedule-dates', 'Patients::getDoctorScheduleDates');
+    $routes->get('get-available-times', 'Patients::getAvailableTimes');
 });
 
 // Receptionist - Assign Doctor Routes

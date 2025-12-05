@@ -403,12 +403,44 @@
                                                 
                                                 $hasCompletedConsultation = !empty($existingConsultation);
                                             }
+                                            
+                                            // Check if appointment time has arrived
+                                            $canStartConsultation = true;
+                                            $appointmentInfo = '';
+                                            $appointmentDate = $patient['appointment_date'] ?? null;
+                                            $appointmentTime = $patient['appointment_time'] ?? null;
+                                            
+                                            if ($appointmentDate && $appointmentTime) {
+                                                // Combine date and time
+                                                $appointmentDateTime = $appointmentDate . ' ' . $appointmentTime;
+                                                $appointmentTimestamp = strtotime($appointmentDateTime);
+                                                $currentTimestamp = time();
+                                                
+                                                // Check if current time is before appointment time
+                                                if ($currentTimestamp < $appointmentTimestamp) {
+                                                    $canStartConsultation = false;
+                                                    $formattedDate = date('M d, Y', strtotime($appointmentDate));
+                                                    $formattedTime = date('g:i A', strtotime($appointmentTime));
+                                                    $appointmentInfo = "Appointment scheduled for {$formattedDate} at {$formattedTime}";
+                                                }
+                                            }
                                             ?>
                                             <?php if (!$hasCompletedConsultation): ?>
-                                                <a href="<?= site_url('doctor/consultations/start/' . $consultationPatientId . '/' . $consultationSource) ?>" 
-                                                   class="btn-modern btn-modern-primary btn-sm-modern" title="Start Consultation">
-                                                    <i class="fas fa-stethoscope"></i> Start Consultation
-                                                </a>
+                                                <?php if ($canStartConsultation): ?>
+                                                    <a href="<?= site_url('doctor/consultations/start/' . $consultationPatientId . '/' . $consultationSource) ?>" 
+                                                       class="btn-modern btn-modern-primary btn-sm-modern" title="Start Consultation">
+                                                        <i class="fas fa-stethoscope"></i> Start Consultation
+                                                    </a>
+                                                <?php else: ?>
+                                                    <span class="btn-modern btn-sm-modern" 
+                                                          style="background: #fef3c7; color: #92400e; cursor: not-allowed; opacity: 0.7;" 
+                                                          title="<?= esc($appointmentInfo) ?>">
+                                                        <i class="fas fa-clock"></i> Not Yet
+                                                    </span>
+                                                    <span style="font-size: 11px; color: #92400e; display: block; margin-top: 4px;" title="<?= esc($appointmentInfo) ?>">
+                                                        <?= esc($appointmentInfo) ?>
+                                                    </span>
+                                                <?php endif; ?>
                                             <?php else: ?>
                                                 <span class="btn-modern btn-sm-modern" 
                                                       style="background: #d1fae5; color: #065f46; cursor: default;" 

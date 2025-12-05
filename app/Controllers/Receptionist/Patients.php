@@ -231,6 +231,16 @@ class Patients extends BaseController
                 'payment_type' => 'permit_empty|in_list[Cash,Insurance,Credit]',
                 'blood_type' => 'permit_empty|in_list[A+,A-,B+,B-,AB+,AB-,O+,O-]'
             ];
+            
+            // Make doctor_id required only for Consultation
+            $visitType = $this->request->getPost('visit_type');
+            if ($visitType === 'Consultation') {
+                $rules['doctor_id'] = 'required|integer|greater_than[0]';
+            }
+            
+            // Validate appointment_date is not in the past
+            $rules['appointment_date'] = 'permit_empty|valid_date';
+            $rules['appointment_time'] = 'permit_empty|regex_match[/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/]';
         }
         
         if (!$this->validate($rules)) {
@@ -246,6 +256,86 @@ class Patients extends BaseController
                     return redirect()->back()->withInput()->with('errors', [
                         'admission_date' => 'Ang admission date ay hindi maaaring nasa nakaraan. Dapat ngayon o sa hinaharap.'
                     ]);
+                }
+            }
+        }
+        
+        // Additional validation for Out-Patient: appointment_date must not be in the past
+        if ($type === 'Out-Patient') {
+            $appointmentDate = $this->request->getPost('appointment_date');
+            $appointmentTime = $this->request->getPost('appointment_time');
+            $doctorId = $this->request->getPost('doctor_id');
+            
+            // Always ensure appointment_date is set and starts from today
+            if (empty($appointmentDate)) {
+                $appointmentDate = date('Y-m-d');
+            }
+            
+            $today = date('Y-m-d');
+            if ($appointmentDate < $today) {
+                return redirect()->back()->withInput()->with('error', 'Ang appointment date ay dapat magsimula sa ngayon. Hindi maaaring pumili ng nakaraang petsa.');
+            }
+            
+            if (!empty($appointmentDate)) {
+                
+                // Validate appointment time is within doctor's available schedule
+                if (!empty($appointmentTime) && !empty($doctorId) && !empty($appointmentDate)) {
+                    $db = \Config\Database::connect();
+                    
+                    // Get doctor's schedule for the selected date
+                    if ($db->tableExists('doctor_schedules')) {
+                        $schedules = $db->table('doctor_schedules')
+                            ->select('start_time, end_time')
+                            ->where('doctor_id', $doctorId)
+                            ->where('shift_date', $appointmentDate)
+                            ->where('status !=', 'cancelled')
+                            ->get()
+                            ->getResultArray();
+                        
+                        if (empty($schedules)) {
+                            return redirect()->back()->withInput()->with('error', 'Ang doctor ay walang available schedule para sa napiling petsa. Paki-pili ng ibang petsa o doctor.');
+                        }
+                        
+                        // Check if selected time is within any schedule block
+                        $timeValid = false;
+                        $appointmentTimeObj = new \DateTime($appointmentDate . ' ' . $appointmentTime . ':00');
+                        
+                        foreach ($schedules as $schedule) {
+                            $start = new \DateTime($appointmentDate . ' ' . $schedule['start_time']);
+                            $end = new \DateTime($appointmentDate . ' ' . $schedule['end_time']);
+                            
+                            // Handle end time that might be next day
+                            if ($end <= $start) {
+                                $end->modify('+1 day');
+                            }
+                            
+                            if ($appointmentTimeObj >= $start && $appointmentTimeObj < $end) {
+                                $timeValid = true;
+                                break;
+                            }
+                        }
+                        
+                        if (!$timeValid) {
+                            // Get available hours for error message
+                            $availableHours = [];
+                            foreach ($schedules as $schedule) {
+                                $startTime = date('g:i A', strtotime($schedule['start_time']));
+                                $endTime = date('g:i A', strtotime($schedule['end_time']));
+                                $availableHours[] = "{$startTime} - {$endTime}";
+                            }
+                            $hoursText = implode(' at ', $availableHours);
+                            
+                            return redirect()->back()->withInput()->with('error', "Ang napiling oras ay wala sa available schedule ng doctor. Available hours: {$hoursText}");
+                        }
+                    }
+                }
+                
+                // If appointment date is today, validate that time is not in the past
+                if ($appointmentDate === $today && !empty($appointmentTime)) {
+                    $currentTime = date('H:i');
+                    if ($appointmentTime < $currentTime) {
+                        return redirect()->back()->withInput()->with('error', 'Kung ang appointment date ay ngayon, ang appointment time ay hindi maaaring nasa nakaraan.');
+                    }
                 }
             }
         }
@@ -302,6 +392,11 @@ class Patients extends BaseController
 
         $visitType = $this->request->getPost('visit_type') ?: 'Consultation';
         $doctorId = $this->request->getPost('doctor_id') ?: null;
+        
+        // For Consultation, doctor_id is required
+        if ($visitType === 'Consultation' && empty($doctorId)) {
+            return redirect()->back()->withInput()->with('error', 'Doctor assignment is required for Consultation. Please select a doctor.');
+        }
         
         // Only allow doctor assignment for Consultation, Check-up, Follow-up
         if ($visitType === 'Emergency') {
@@ -515,6 +610,7 @@ class Patients extends BaseController
             }
         }
 
+        // For Consultation, ensure patient is immediately assigned to doctor and appears in doctor's patient list
         // Create admin_patients record if doctor is assigned (for doctor orders compatibility)
         if ($patientId && $doctorId && in_array($visitType, ['Consultation', 'Check-up', 'Follow-up'])) {
             $db = \Config\Database::connect();
@@ -579,20 +675,124 @@ class Patients extends BaseController
             }
             
             // Create consultation record (uses admin_patients.id)
-            $appointmentDate = $this->request->getPost('appointment_date') ?: date('Y-m-d');
+            // Get appointment_date from hidden field (set by JavaScript from appointment_day dropdown)
+            $appointmentDate = $this->request->getPost('appointment_date');
+            // If appointment_date is empty, try to get from appointment_day (which is now the actual date)
+            if (empty($appointmentDate)) {
+                $appointmentDay = $this->request->getPost('appointment_day');
+                if (!empty($appointmentDay)) {
+                    // appointment_day is now the actual date (YYYY-MM-DD format)
+                    $appointmentDate = $appointmentDay;
+                } else {
+                    $appointmentDate = date('Y-m-d');
+                }
+            }
+            $appointmentTimeInput = $this->request->getPost('appointment_time') ?: '09:00';
+            // Convert time format from HH:MM to HH:MM:SS
+            $appointmentTime = $appointmentTimeInput . ':00';
             
-            if ($db->tableExists('consultations') && !empty($adminPatientId)) {
+            // Create consultation record - use patients.patient_id (not admin_patients.id)
+            // consultations table has foreign key to patients.patient_id
+            if ($db->tableExists('consultations') && !empty($patientId) && !empty($doctorId) && !empty($appointmentDate) && !empty($appointmentTime)) {
                 $consultationModel = new \App\Models\ConsultationModel();
-                $consultationModel->insert([
+                try {
+                    $consultationData = [
+                        'doctor_id' => $doctorId,
+                        'patient_id' => $patientId, // Use patients.patient_id (from patients table)
+                        'consultation_date' => $appointmentDate,
+                        'consultation_time' => $appointmentTime,
+                        'type' => 'upcoming',
+                        'status' => 'approved',
+                        'notes' => $this->request->getPost('purpose') ?: "Visit Type: {$visitType}",
+                        'created_at' => date('Y-m-d H:i:s'),
+                    ];
+                    
+                    log_message('info', "Attempting to create consultation with data: " . json_encode($consultationData));
+                    
+                    $inserted = $consultationModel->insert($consultationData);
+                    
+                    if ($inserted) {
+                        $consultationId = $consultationModel->getInsertID();
+                        log_message('info', "✅ Consultation created successfully! ID: {$consultationId}, patient_id: {$patientId}, doctor_id: {$doctorId}, date: {$appointmentDate}, time: {$appointmentTime}");
+                    } else {
+                        $errors = $consultationModel->errors();
+                        log_message('error', "❌ Failed to create consultation. Errors: " . json_encode($errors));
+                    }
+                } catch (\Exception $e) {
+                    log_message('error', "❌ Exception creating consultation: " . $e->getMessage());
+                    log_message('error', "Stack trace: " . $e->getTraceAsString());
+                }
+            } else {
+                $missing = [];
+                if (empty($patientId)) $missing[] = 'patientId';
+                if (empty($doctorId)) $missing[] = 'doctorId';
+                if (empty($appointmentDate)) $missing[] = 'appointmentDate';
+                if (empty($appointmentTime)) $missing[] = 'appointmentTime';
+                log_message('warning', "Cannot create consultation - missing: " . implode(', ', $missing) . ". patientId: {$patientId}, doctorId: {$doctorId}, appointmentDate: {$appointmentDate}, appointmentTime: {$appointmentTime}");
+            }
+            
+            // Create schedule entry in schedules table for doctor's schedule
+            // This ensures the appointment appears immediately in the doctor's schedule
+            if ($db->tableExists('schedules') && !empty($adminPatientId) && $doctorId && $appointmentDate) {
+                // Get doctor's name from users table
+                $doctorUser = $db->table('users')
+                    ->where('id', $doctorId)
+                    ->get()
+                    ->getRowArray();
+                
+                $doctorName = 'Dr. ' . ($doctorUser['username'] ?? $doctorUser['name'] ?? 'Unknown');
+                
+                // Also try to get from doctors table if available
+                // Note: doctors table has its own id, not related to users.id
+                // We'll try to match by doctor_name if it matches the username
+                if ($db->tableExists('doctors') && !empty($doctorUser['username'])) {
+                    // Try to find doctor by matching doctor_name with username
+                    $doctorFromTable = $db->table('doctors')
+                        ->where('doctor_name', $doctorUser['username'])
+                        ->orLike('doctor_name', $doctorUser['username'])
+                        ->get()
+                        ->getRowArray();
+                    
+                    if ($doctorFromTable && !empty($doctorFromTable['doctor_name'])) {
+                        $doctorName = $doctorFromTable['doctor_name'];
+                    }
+                }
+                
+                // Check if schedule already exists for this patient and date
+                $existingSchedule = $db->table('schedules')
+                    ->where('patient_id', $adminPatientId)
+                    ->where('date', $appointmentDate)
+                    ->where('deleted_at IS NULL', null, false)
+                    ->get()
+                    ->getRowArray();
+                
+                if (!$existingSchedule) {
+                    $scheduleModel = new \App\Models\ScheduleModel();
+                    $scheduleModel->insert([
+                        'patient_id' => $adminPatientId, // Use admin_patients.id
+                        'date' => $appointmentDate,
+                        'time' => $appointmentTime,
+                        'doctor' => $doctorName,
+                        'status' => 'confirmed', // Set as confirmed since it's from registration
+                        'created_at' => date('Y-m-d H:i:s'),
+                        'updated_at' => date('Y-m-d H:i:s'),
+                    ]);
+                    
+                    log_message('info', "Schedule created for patient {$adminPatientId} with doctor {$doctorName} on {$appointmentDate} at {$appointmentTime}");
+                } else {
+                    log_message('info', "Schedule already exists for patient {$adminPatientId} on {$appointmentDate} - skipping");
+                }
+            }
+            
+            // For Consultation, ensure patient record is updated with doctor_id and timestamp
+            // This ensures the patient appears immediately in doctor's patient list
+            if ($visitType === 'Consultation' && $doctorId) {
+                $this->patientModel->update($patientId, [
                     'doctor_id' => $doctorId,
-                    'patient_id' => $adminPatientId, // Use admin_patients.id for consultations table
-                    'consultation_date' => $appointmentDate,
-                    'consultation_time' => date('H:i:s'),
-                    'type' => 'upcoming',
-                    'status' => 'approved',
-                    'notes' => $this->request->getPost('purpose') ?: "Visit Type: {$visitType}",
-                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'), // Force update timestamp for immediate visibility
                 ]);
+                
+                log_message('info', "Consultation patient {$patientId} immediately assigned to doctor {$doctorId} - should appear in doctor's patient list");
             }
 
             // Audit log
@@ -618,6 +818,328 @@ class Patients extends BaseController
         }
 
         return redirect()->to('/receptionist/patients')->with('success', 'Patient registered successfully.');
+    }
+    
+    /**
+     * Get doctor's available schedule dates (AJAX)
+     */
+    public function getDoctorScheduleDates()
+    {
+        if (!$this->request->isAJAX()) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Invalid request'])->setStatusCode(400);
+        }
+        
+        $doctorId = $this->request->getGet('doctor_id');
+        
+        if (!$doctorId) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Doctor ID is required']);
+        }
+        
+        $db = \Config\Database::connect();
+        $today = date('Y-m-d');
+        
+        // Auto-generate schedule for doctor if they don't have any
+        $this->ensureDoctorHasSchedule($doctorId);
+        
+        // Get doctor's schedule dates (from today onwards, next 30 days)
+        $scheduleDates = [];
+        $defaultSchedule = [
+            ['start' => '9:00 AM', 'end' => '12:00 PM', 'start_time' => '09:00:00', 'end_time' => '12:00:00'],
+            ['start' => '1:00 PM', 'end' => '4:00 PM', 'start_time' => '13:00:00', 'end_time' => '16:00:00']
+        ];
+        
+        if ($db->tableExists('doctor_schedules')) {
+            // Get doctor's actual schedules from database
+            $schedules = $db->table('doctor_schedules')
+                ->select('shift_date, start_time, end_time')
+                ->where('doctor_id', $doctorId)
+                ->where('shift_date >=', $today)
+                ->where('shift_date <=', date('Y-m-d', strtotime('+60 days'))) // Get more days to have enough options
+                ->where('status', 'active') // Only active schedules
+                ->orderBy('shift_date', 'ASC')
+                ->orderBy('start_time', 'ASC')
+                ->get()
+                ->getResultArray();
+            
+            // Group by date
+            $datesGrouped = [];
+            foreach ($schedules as $schedule) {
+                $date = $schedule['shift_date'];
+                $dayOfWeek = (int)date('w', strtotime($date));
+                
+                // Only include Monday-Friday (follow doctor's actual schedule)
+                if ($dayOfWeek >= 1 && $dayOfWeek <= 5) {
+                    if (!isset($datesGrouped[$date])) {
+                        $datesGrouped[$date] = [];
+                    }
+                    $datesGrouped[$date][] = [
+                        'start' => date('g:i A', strtotime($schedule['start_time'])),
+                        'end' => date('g:i A', strtotime($schedule['end_time'])),
+                        'start_time' => $schedule['start_time'],
+                        'end_time' => $schedule['end_time']
+                    ];
+                }
+            }
+            
+            // Only use dates that exist in doctor_schedules table (follow actual schedule)
+            // Format for response - only include dates from doctor's schedule
+            foreach ($datesGrouped as $date => $times) {
+                $dayName = date('l', strtotime($date)); // Monday, Tuesday, etc.
+                $monthDay = date('M d', strtotime($date)); // Jan 15, Feb 20, etc.
+                $fullDate = date('Y-m-d', strtotime($date)); // 2025-01-15
+                
+                $scheduleDates[] = [
+                    'date' => $fullDate,
+                    'date_formatted' => date('M d, Y (l)', strtotime($date)),
+                    'day_name' => $dayName,
+                    'month_day' => $monthDay,
+                    'display_text' => $dayName . ', ' . $monthDay, // "Monday, Jan 15"
+                    'times' => $times,
+                    'available_hours' => array_map(function($t) {
+                        return $t['start'] . ' - ' . $t['end'];
+                    }, $times)
+                ];
+            }
+            
+            // Sort by date
+            usort($scheduleDates, function($a, $b) {
+                return strcmp($a['date'], $b['date']);
+            });
+            
+            // Limit to next 30 weekdays for display
+            $scheduleDates = array_slice($scheduleDates, 0, 30);
+        } else {
+            // If table doesn't exist, return default schedule for next 30 weekdays
+            $currentDate = new \DateTime($today);
+            $endDate = new \DateTime(date('Y-m-d', strtotime('+30 days')));
+            $count = 0;
+            
+            while ($currentDate <= $endDate && $count < 30) {
+                $dayOfWeek = (int)$currentDate->format('w');
+                
+                if ($dayOfWeek >= 1 && $dayOfWeek <= 5) {
+                    $dateStr = $currentDate->format('Y-m-d');
+                    $dayName = date('l', strtotime($dateStr)); // Monday, Tuesday, etc.
+                    $monthDay = date('M d', strtotime($dateStr)); // Jan 15, Feb 20, etc.
+                    
+                    $scheduleDates[] = [
+                        'date' => $dateStr,
+                        'date_formatted' => date('M d, Y (l)', strtotime($dateStr)),
+                        'day_name' => $dayName,
+                        'month_day' => $monthDay,
+                        'display_text' => $dayName . ', ' . $monthDay, // "Monday, Jan 15"
+                        'times' => $defaultSchedule,
+                        'available_hours' => ['9:00 AM - 12:00 PM', '1:00 PM - 4:00 PM']
+                    ];
+                    $count++;
+                }
+                
+                $currentDate->modify('+1 day');
+            }
+        }
+        
+        return $this->response->setJSON([
+            'success' => true,
+            'schedule_dates' => $scheduleDates,
+            'message' => count($scheduleDates) > 0 ? '' : 'Doctor has no available schedule'
+        ]);
+    }
+    
+    /**
+     * Get available appointment times for a doctor on a specific date (AJAX)
+     */
+    public function getAvailableTimes()
+    {
+        if (!$this->request->isAJAX()) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Invalid request'])->setStatusCode(400);
+        }
+        
+        $doctorId = $this->request->getGet('doctor_id');
+        $date = $this->request->getGet('date');
+        
+        if (!$doctorId || !$date) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Doctor ID and date are required']);
+        }
+        
+        // Auto-generate schedule for doctor if they don't have any
+        $this->ensureDoctorHasSchedule($doctorId);
+        
+        $db = \Config\Database::connect();
+        
+        // Get doctor's actual schedule for the selected date from database
+        $schedules = [];
+        if ($db->tableExists('doctor_schedules')) {
+            $schedules = $db->table('doctor_schedules')
+                ->select('start_time, end_time')
+                ->where('doctor_id', $doctorId)
+                ->where('shift_date', $date)
+                ->where('status', 'active') // Only active schedules
+                ->orderBy('start_time', 'ASC')
+                ->get()
+                ->getResultArray();
+        }
+        
+        // If no schedule found in database, doctor is not available on this date
+        if (empty($schedules)) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Doctor has no available schedule for this date. Please select a date from the doctor\'s schedule.',
+                'times' => [],
+                'available_hours' => []
+            ]);
+        }
+        
+        // Get already booked appointments/consultations
+        $bookedTimes = [];
+        $bookedDetails = []; // Store details of booked appointments
+        
+        if ($db->tableExists('appointments')) {
+            $booked = $db->table('appointments')
+                ->select('appointment_time, patient_id')
+                ->where('doctor_id', $doctorId)
+                ->where('appointment_date', $date)
+                ->whereNotIn('status', ['cancelled', 'no_show'])
+                ->get()
+                ->getResultArray();
+            
+            foreach ($booked as $b) {
+                $timeKey = substr($b['appointment_time'], 0, 5); // HH:MM format
+                $bookedTimes[] = $timeKey;
+                $bookedDetails[$timeKey] = [
+                    'time' => $timeKey,
+                    'type' => 'appointment',
+                    'patient_id' => $b['patient_id'] ?? null
+                ];
+            }
+        }
+        
+        if ($db->tableExists('consultations')) {
+            $bookedConsultations = $db->table('consultations')
+                ->select('consultation_time, patient_id')
+                ->where('doctor_id', $doctorId)
+                ->where('consultation_date', $date)
+                ->whereNotIn('status', ['cancelled'])
+                ->get()
+                ->getResultArray();
+            
+            foreach ($bookedConsultations as $c) {
+                $timeKey = substr($c['consultation_time'], 0, 5); // HH:MM format
+                if (!in_array($timeKey, $bookedTimes)) {
+                    $bookedTimes[] = $timeKey;
+                }
+                $bookedDetails[$timeKey] = [
+                    'time' => $timeKey,
+                    'type' => 'consultation',
+                    'patient_id' => $c['patient_id'] ?? null
+                ];
+            }
+        }
+        
+        // Also check schedules table for booked times
+        if ($db->tableExists('schedules')) {
+            $bookedSchedules = $db->table('schedules')
+                ->select('time, patient_id')
+                ->where('date', $date)
+                ->where('deleted_at IS NULL', null, false)
+                ->get()
+                ->getResultArray();
+            
+            // Get doctor name to match with schedules
+            $doctorUser = $db->table('users')
+                ->where('id', $doctorId)
+                ->get()
+                ->getRowArray();
+            
+            $doctorName = 'Dr. ' . ($doctorUser['username'] ?? 'Unknown');
+            
+            // Try to get from doctors table
+            if ($db->tableExists('doctors') && !empty($doctorUser['username'])) {
+                $doctorFromTable = $db->table('doctors')
+                    ->where('doctor_name', $doctorUser['username'])
+                    ->orLike('doctor_name', $doctorUser['username'])
+                    ->get()
+                    ->getRowArray();
+                
+                if ($doctorFromTable && !empty($doctorFromTable['doctor_name'])) {
+                    $doctorName = $doctorFromTable['doctor_name'];
+                }
+            }
+            
+            foreach ($bookedSchedules as $s) {
+                // Check if schedule is for this doctor (by matching doctor name)
+                if (stripos($s['doctor'] ?? '', $doctorName) !== false || 
+                    stripos($s['doctor'] ?? '', $doctorUser['username'] ?? '') !== false) {
+                    $timeKey = substr($s['time'], 0, 5); // HH:MM format
+                    if (!in_array($timeKey, $bookedTimes)) {
+                        $bookedTimes[] = $timeKey;
+                    }
+                    $bookedDetails[$timeKey] = [
+                        'time' => $timeKey,
+                        'type' => 'schedule',
+                        'patient_id' => $s['patient_id'] ?? null
+                    ];
+                }
+            }
+        }
+        
+        // Generate available time slots (hourly intervals)
+        $availableTimes = [];
+        $availableHours = [];
+        
+        foreach ($schedules as $schedule) {
+            $start = new \DateTime($date . ' ' . $schedule['start_time']);
+            $end = new \DateTime($date . ' ' . $schedule['end_time']);
+            
+            // Handle end time that might be next day (e.g., 00:00:00)
+            if ($end <= $start) {
+                $end->modify('+1 day');
+            }
+            
+            $current = clone $start;
+            while ($current < $end) {
+                $timeValue = $current->format('H:i');
+                $timeLabel = $current->format('g:i A');
+                
+                // Check if this time slot is already booked
+                if (!in_array($timeValue, $bookedTimes)) {
+                    $availableTimes[] = [
+                        'value' => $timeValue,
+                        'label' => $timeLabel
+                    ];
+                }
+                
+                $availableHours[] = [
+                    'start' => $schedule['start_time'],
+                    'end' => $schedule['end_time']
+                ];
+                
+                $current->modify('+1 hour');
+            }
+        }
+        
+        // Remove duplicate hours info
+        $availableHours = array_unique($availableHours, SORT_REGULAR);
+        
+        // Get doctor schedule info for display
+        $scheduleInfo = [];
+        foreach ($schedules as $schedule) {
+            $scheduleInfo[] = [
+                'start' => date('g:i A', strtotime($schedule['start_time'])),
+                'end' => date('g:i A', strtotime($schedule['end_time'])),
+                'start_time' => $schedule['start_time'],
+                'end_time' => $schedule['end_time']
+            ];
+        }
+        
+        return $this->response->setJSON([
+            'success' => true,
+            'times' => $availableTimes,
+            'available_hours' => array_values($availableHours),
+            'schedule_info' => $scheduleInfo,
+            'booked_times' => array_values($bookedTimes),
+            'booked_details' => $bookedDetails,
+            'message' => count($availableTimes) > 0 ? '' : 'No available time slots for this date'
+        ]);
     }
 
     public function show($id)
@@ -765,10 +1287,129 @@ class Patients extends BaseController
             'signature_staff' => $this->request->getPost('signature_staff') ?: null,
             'date_signed' => $this->request->getPost('date_signed') ?: null,
         ];
+        
+        // Get current patient data to check if type is changing from In-Patient to Out-Patient
+        $currentPatient = $this->patientModel->find($id);
+        $newType = $this->request->getPost('type');
+        
+        // If changing from In-Patient to Out-Patient, automatically vacate room and bed
+        if ($currentPatient && ($currentPatient['type'] ?? '') === 'In-Patient' && $newType === 'Out-Patient') {
+            $db = \Config\Database::connect();
+            
+            // Vacate room if patient has a room assigned
+            if (!empty($currentPatient['room_id'])) {
+                $roomId = $currentPatient['room_id'];
+                
+                // Update room status
+                if ($db->tableExists('rooms')) {
+                    $db->table('rooms')
+                        ->where('id', $roomId)
+                        ->update([
+                            'status' => 'Available',
+                            'current_patient_id' => null,
+                        ]);
+                }
+                
+                // Vacate bed if patient has a bed assigned
+                if ($db->tableExists('beds')) {
+                    $db->table('beds')
+                        ->where('room_id', $roomId)
+                        ->where('current_patient_id', $id)
+                        ->update([
+                            'status' => 'available',
+                            'current_patient_id' => null,
+                        ]);
+                }
+            }
+        }
+        
         $this->patientModel->save($data);
         return redirect()->to('/receptionist/patients')->with('success', 'Patient updated successfully.');
     }
 
+    /**
+     * Ensure doctor has schedule in database, generate if missing
+     */
+    private function ensureDoctorHasSchedule($doctorId)
+    {
+        $db = \Config\Database::connect();
+        
+        if (!$db->tableExists('doctor_schedules')) {
+            log_message('warning', 'doctor_schedules table does not exist');
+            return;
+        }
+        
+        // Check if doctor has any schedule for the current year
+        $currentYear = date('Y');
+        $startDate = $currentYear . '-01-01';
+        $endDate = $currentYear . '-12-31';
+        
+        $existingCount = $db->table('doctor_schedules')
+            ->where('doctor_id', $doctorId)
+            ->where('shift_date >=', $startDate)
+            ->where('shift_date <=', $endDate)
+            ->where('status !=', 'cancelled')
+            ->countAllResults();
+        
+        // If schedule already exists, return
+        if ($existingCount > 0) {
+            log_message('info', "Doctor {$doctorId} already has schedule for {$currentYear}");
+            return;
+        }
+        
+        // Generate schedule for the entire year
+        log_message('info', "Generating schedule for doctor {$doctorId} for year {$currentYear}");
+        
+        $startDateObj = new \DateTime($startDate);
+        $endDateObj = new \DateTime($endDate);
+        $endDateObj->modify('+1 day'); // Include the end date
+        
+        $currentDate = clone $startDateObj;
+        $schedulesToInsert = [];
+        
+        while ($currentDate < $endDateObj) {
+            $dayOfWeek = (int)$currentDate->format('w'); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+            
+            // Only generate schedule for Monday (1) to Friday (5)
+            if ($dayOfWeek >= 1 && $dayOfWeek <= 5) {
+                $dateStr = $currentDate->format('Y-m-d');
+                
+                // Morning shift: 9:00 AM - 12:00 PM
+                $schedulesToInsert[] = [
+                    'doctor_id' => $doctorId,
+                    'shift_date' => $dateStr,
+                    'start_time' => '09:00:00',
+                    'end_time' => '12:00:00',
+                    'status' => 'active',
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s')
+                ];
+                
+                // Afternoon shift: 1:00 PM - 4:00 PM
+                $schedulesToInsert[] = [
+                    'doctor_id' => $doctorId,
+                    'shift_date' => $dateStr,
+                    'start_time' => '13:00:00',
+                    'end_time' => '16:00:00',
+                    'status' => 'active',
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s')
+                ];
+            }
+            
+            $currentDate->modify('+1 day');
+        }
+        
+        // Batch insert schedules (insert in chunks of 100 to avoid memory issues)
+        if (!empty($schedulesToInsert)) {
+            $chunks = array_chunk($schedulesToInsert, 100);
+            foreach ($chunks as $chunk) {
+                $db->table('doctor_schedules')->insertBatch($chunk);
+            }
+            log_message('info', "Generated " . count($schedulesToInsert) . " schedule entries for doctor {$doctorId}");
+        }
+    }
+    
     public function delete($id)
     {
         $patient = $this->patientModel->find($id);

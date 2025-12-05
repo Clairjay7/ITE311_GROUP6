@@ -216,7 +216,9 @@
                 </thead>
                 <tbody>
                     <?php if (!empty($users)): ?>
-                        <?php foreach ($users as $user): ?>
+                        <?php foreach ($users as $user): 
+                            $isDeleted = !empty($user['deleted_at']);
+                        ?>
                             <tr>
                                 <td><strong>#<?= esc($user['id']) ?></strong></td>
                                 <td><strong><?= esc($user['username']) ?></strong></td>
@@ -235,14 +237,16 @@
                                 <td>
                                     <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                                         <?php if ($user['id'] != session()->get('user_id')): ?>
-                                            <a href="<?= site_url('admin/users/edit/' . $user['id']) ?>" class="btn-sm-modern btn-warning">
-                                                <i class="fas fa-edit"></i>
-                                                Edit
-                                            </a>
-                                            <a href="<?= site_url('admin/users/delete/' . $user['id']) ?>" class="btn-sm-modern btn-danger" onclick="return confirm('Are you sure you want to delete this user?')">
-                                                <i class="fas fa-trash"></i>
-                                                Delete
-                                            </a>
+                                            <?php if (!$isDeleted): ?>
+                                                <a href="<?= site_url('admin/users/edit/' . $user['id']) ?>" class="btn-sm-modern btn-warning">
+                                                    <i class="fas fa-edit"></i>
+                                                    Edit
+                                                </a>
+                                                <a href="<?= site_url('admin/users/delete/' . $user['id']) ?>" class="btn-sm-modern btn-danger" onclick="return confirm('Are you sure you want to mark this user as deleted? The user will be hidden from the system but data will be preserved.')">
+                                                    <i class="fas fa-user-slash"></i>
+                                                    Mark as Deleted
+                                                </a>
+                                            <?php endif; ?>
                                         <?php else: ?>
                                             <span class="badge-modern" style="background: #f1f5f9; color: #64748b;">
                                                 <i class="fas fa-info-circle"></i>

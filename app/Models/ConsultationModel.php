@@ -38,7 +38,7 @@ class ConsultationModel extends Model
         'doctor_id' => 'required|integer|greater_than[0]',
         'patient_id' => 'required|integer|greater_than[0]',
         'consultation_date' => 'required|valid_date',
-        'consultation_time' => 'required|regex_match[/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/]',
+        'consultation_time' => 'required|regex_match[/^([01]?[0-9]|2[0-3]):[0-5][0-9](:00)?$/]',
         'type' => 'required|in_list[upcoming,completed]',
         'status' => 'required|in_list[pending,approved,cancelled]',
         'notes' => 'permit_empty|max_length[2000]',

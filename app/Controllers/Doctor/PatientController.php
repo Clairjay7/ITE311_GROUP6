@@ -123,6 +123,67 @@ class PatientController extends BaseController
             return $lastA <=> $lastB;
         });
 
+        // Fetch upcoming consultations for each patient to get appointment date/time
+        if ($db->tableExists('consultations')) {
+            foreach ($patients as &$patient) {
+                $patientId = $patient['id'] ?? $patient['patient_id'] ?? null;
+                $patientSource = $patient['source'] ?? 'admin';
+                
+                // Find the correct patient ID for consultations table
+                $consultationPatientId = null;
+                
+                if ($patientSource === 'admin' || $patientSource === 'admin_patients') {
+                    // For admin_patients, use the ID directly
+                    $consultationPatientId = $patientId;
+                } else {
+                    // For patients table (receptionist), consultations use patients.patient_id
+                    $consultationPatientId = $patient['patient_id'] ?? $patientId;
+                }
+                
+                // Get upcoming consultation for this patient
+                $upcomingConsultation = null;
+                if ($consultationPatientId) {
+                    if ($patientSource === 'receptionist') {
+                        // For receptionist patients, consultations table uses patients.patient_id
+                        $upcomingConsultation = $db->table('consultations')
+                            ->where('patient_id', $consultationPatientId)
+                            ->where('doctor_id', $doctorId)
+                            ->where('type', 'upcoming')
+                            ->whereIn('status', ['approved', 'pending'])
+                            ->where('consultation_date >=', date('Y-m-d'))
+                            ->orderBy('consultation_date', 'ASC')
+                            ->orderBy('consultation_time', 'ASC')
+                            ->get()
+                            ->getRowArray();
+                    } else {
+                        // For admin patients, consultations table uses admin_patients.id
+                        $upcomingConsultation = $db->table('consultations')
+                            ->where('patient_id', $consultationPatientId)
+                            ->where('doctor_id', $doctorId)
+                            ->where('type', 'upcoming')
+                            ->whereIn('status', ['approved', 'pending'])
+                            ->where('consultation_date >=', date('Y-m-d'))
+                            ->orderBy('consultation_date', 'ASC')
+                            ->orderBy('consultation_time', 'ASC')
+                            ->get()
+                            ->getRowArray();
+                    }
+                }
+                
+                // Attach appointment info to patient
+                if ($upcomingConsultation) {
+                    $patient['appointment_date'] = $upcomingConsultation['consultation_date'];
+                    $patient['appointment_time'] = $upcomingConsultation['consultation_time'];
+                    $patient['appointment_datetime'] = $upcomingConsultation['consultation_date'] . ' ' . $upcomingConsultation['consultation_time'];
+                } else {
+                    $patient['appointment_date'] = null;
+                    $patient['appointment_time'] = null;
+                    $patient['appointment_datetime'] = null;
+                }
+            }
+            unset($patient); // Break reference
+        }
+
         // Get patients marked for admission by nurse (pending doctor approval)
         $patientsForAdmission = [];
         if ($db->tableExists('admission_requests')) {

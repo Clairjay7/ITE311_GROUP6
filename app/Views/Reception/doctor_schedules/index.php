@@ -517,11 +517,13 @@
                                                     <th style="width: 100px;">Date</th>
                                                     <th style="width: 80px;">Status</th>
                                                     <th>Working Hours</th>
+                                                    <th>Appointments</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 <?php foreach ($days as $day => $dayData): 
                                                     $isWeekend = in_array($dayData['day_name'], ['Saturday', 'Sunday']);
+                                                    $appointments = $dayData['appointments'] ?? [];
                                                 ?>
                                                     <tr class="<?= $isWeekend ? 'weekend' : '' ?>">
                                                         <td>
@@ -552,6 +554,24 @@
                                                                 </span>
                                                             <?php else: ?>
                                                                 <span style="color: #94a3b8;">No schedule</span>
+                                                            <?php endif; ?>
+                                                        </td>
+                                                        <td>
+                                                            <?php if (!empty($appointments)): ?>
+                                                                <div style="display: flex; flex-direction: column; gap: 6px;">
+                                                                    <?php foreach ($appointments as $appt): ?>
+                                                                        <div style="padding: 6px 10px; background: #e0f2fe; border-left: 3px solid #0288d1; border-radius: 6px;">
+                                                                            <div style="font-weight: 600; color: #0288d1; font-size: 12px; margin-bottom: 2px;">
+                                                                                <i class="fas fa-user"></i> <?= esc($appt['patient_name']) ?>
+                                                                            </div>
+                                                                            <div style="font-size: 11px; color: #64748b;">
+                                                                                <i class="fas fa-clock"></i> <?= esc($appt['time']) ?>
+                                                                            </div>
+                                                                        </div>
+                                                                    <?php endforeach; ?>
+                                                                </div>
+                                                            <?php else: ?>
+                                                                <span style="color: #94a3b8; font-size: 13px;">No appointments</span>
                                                             <?php endif; ?>
                                                         </td>
                                                     </tr>

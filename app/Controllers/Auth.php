@@ -43,7 +43,7 @@ class Auth extends Controller
             return redirect()->back()->withInput()->with('errors', $validation->getErrors());
         }
 
-        // Try to find user by username
+        // Try to find user by username (soft deletes will automatically exclude deleted users)
         $user = $model->where('username', $username)->first();
 
         if (!$user) {
@@ -51,6 +51,13 @@ class Auth extends Controller
                            ->withInput()
                            ->with('error', 'Invalid username or password.')
                            ->with('errors', ['username' => 'Invalid username or password']);
+        }
+
+        // Check if user is deleted (additional safety check)
+        if (!empty($user['deleted_at'])) {
+            return redirect()->back()
+                           ->withInput()
+                           ->with('error', 'Your account has been deleted. Please contact the administrator.');
         }
 
         // Check if account is active

@@ -93,7 +93,8 @@ class DoctorScheduleController extends BaseController
                 $scheduleByDoctor[$doctorId]['months'][$month][$day] = [
                     'date' => $schedule['shift_date'],
                     'day_name' => $dayName,
-                    'time_slots' => []
+                    'time_slots' => [],
+                    'appointments' => []
                 ];
             }
             
@@ -107,6 +108,57 @@ class DoctorScheduleController extends BaseController
                 $scheduleByDoctor[$doctorId]['months'][$month][$day]['time_slots'][] = $timeSlot;
             }
         }
+        
+        // Fetch appointments/consultations for each doctor
+        foreach ($scheduleByDoctor as $doctorId => &$doctorData) {
+            // Get consultations for this doctor
+            if ($db->tableExists('consultations')) {
+                $consultations = $db->table('consultations c')
+                    ->select('c.*, p.full_name, p.first_name, p.last_name, p.patient_id')
+                    ->join('patients p', 'p.patient_id = c.patient_id', 'left')
+                    ->where('c.doctor_id', $doctorId)
+                    ->where('c.type', 'upcoming')
+                    ->whereIn('c.status', ['approved', 'pending'])
+                    ->where('c.deleted_at IS NULL', null, false)
+                    ->where('c.consultation_date >=', $startDate)
+                    ->where('c.consultation_date <=', $endDate)
+                    ->orderBy('c.consultation_date', 'ASC')
+                    ->orderBy('c.consultation_time', 'ASC')
+                    ->get()
+                    ->getResultArray();
+                
+                // Add consultations to the appropriate day
+                foreach ($consultations as $consult) {
+                    $consultDate = new \DateTime($consult['consultation_date']);
+                    $consultMonth = $consultDate->format('F Y');
+                    $consultDay = $consultDate->format('d');
+                    
+                    if (isset($doctorData['months'][$consultMonth][$consultDay])) {
+                        // Get patient name
+                        $patientName = $consult['full_name'] ?? '';
+                        if (empty($patientName)) {
+                            $patientName = trim(($consult['first_name'] ?? '') . ' ' . ($consult['last_name'] ?? ''));
+                        }
+                        if (empty($patientName)) {
+                            $patientName = 'Patient #' . ($consult['patient_id'] ?? 'Unknown');
+                        }
+                        
+                        if (!isset($doctorData['months'][$consultMonth][$consultDay]['appointments'])) {
+                            $doctorData['months'][$consultMonth][$consultDay]['appointments'] = [];
+                        }
+                        
+                        $doctorData['months'][$consultMonth][$consultDay]['appointments'][] = [
+                            'patient_name' => $patientName,
+                            'time' => date('g:i A', strtotime($consult['consultation_time'])),
+                            'time_24h' => substr($consult['consultation_time'], 0, 5), // HH:MM format
+                            'status' => $consult['status'],
+                            'notes' => $consult['notes'] ?? ''
+                        ];
+                    }
+                }
+            }
+        }
+        unset($doctorData); // Break reference
 
         $data = [
             'title' => 'Doctor Schedules',

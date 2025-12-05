@@ -543,8 +543,8 @@ $errors = session('errors') ?? [];
         
                     <div class="form-row">
                         <div class="form-group">
-                            <label class="form-label">Attending Doctor <span class="required">*</span></label>
-              <select name="doctor_id" id="doctor_id" class="form-select" required>
+                            <label class="form-label">Attending Doctor <span class="required" id="doctor_required_indicator">*</span></label>
+              <select name="doctor_id" id="doctor_id" class="form-select" onchange="enableAppointmentDayDropdown(this.value)">
                                 <option value="">-- Choose Doctor --</option>
                 <?php if (!empty($doctors)): ?>
                   <?php foreach ($doctors as $doctor): ?>
@@ -559,13 +559,43 @@ $errors = session('errors') ?? [];
                                     <option value="" disabled>No doctors available</option>
                 <?php endif; ?>
               </select>
-                            <div class="form-hint">Please choose the doctor assigned for this visit</div>
+                            <div class="form-hint" id="doctor_hint">Please choose the doctor assigned for this visit</div>
+                            
+                            <!-- Doctor Schedule Display -->
+                            <div id="doctor_schedule_display" style="display: none; margin-top: 12px; padding: 12px; background: #f8fafc; border-radius: 8px; border-left: 4px solid #0288d1;">
+                                <div style="font-weight: 600; color: #0288d1; margin-bottom: 8px;">
+                                    <i class="fas fa-calendar-alt"></i> Doctor's Schedule for Selected Date:
+                                </div>
+                                <div id="schedule_times" style="color: #475569; font-size: 13px;"></div>
+                                <div id="booked_slots" style="margin-top: 8px; color: #ef4444; font-size: 12px; font-weight: 600;"></div>
+                            </div>
             </div>
                         
                         <div class="form-group">
-              <label class="form-label">Appointment Date</label>
-                            <input type="date" name="appointment_date" class="form-control" 
-                                   value="<?= set_value('appointment_date', date('Y-m-d')) ?>">
+              <label class="form-label">Appointment Day <span class="required">*</span></label>
+                            <select name="appointment_day" id="appointment_day" class="form-select" required disabled style="pointer-events: none; opacity: 0.6;">
+                                <option value="">-- Select Day --</option>
+                                <!-- Options will be populated dynamically via JavaScript -->
+                            </select>
+                            <input type="hidden" name="appointment_date" id="appointment_date" value="">
+                            <div class="form-hint" id="date_hint">Please select a doctor first, then choose a day (Monday-Friday)</div>
+                            
+                            <!-- Doctor Schedule Display -->
+                            <div id="doctor_schedule_display" style="display: none; margin-top: 12px; padding: 12px; background: #e8f5e9; border-radius: 8px; border-left: 4px solid #2e7d32;">
+                                <div style="font-weight: 600; color: #2e7d32; margin-bottom: 8px;">
+                                    <i class="fas fa-calendar-check"></i> Doctor's Schedule:
+                                </div>
+                                <div id="schedule_info" style="color: #475569; font-size: 13px;"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+              <label class="form-label">Appointment Time <span class="required">*</span></label>
+                            <select name="appointment_time" id="appointment_time" class="form-select" required disabled style="pointer-events: none; opacity: 0.6;">
+                                <option value="">-- Select Time --</option>
+                            </select>
+                            <div class="form-hint" id="time_hint">Please select doctor and date first to see available times</div>
+                            <div id="time_error" class="text-danger" style="display: none; margin-top: 8px; font-size: 13px;"></div>
                         </div>
                     </div>
                     
@@ -804,6 +834,502 @@ document.addEventListener('DOMContentLoaded', function() {
   
     // Initialize
     toggleInsuranceFields();
+    
+    // Make doctor_id required only when Consultation is selected
+    const visitTypeRadios = document.querySelectorAll('input[name="visit_type"]');
+    const doctorSelect = document.getElementById('doctor_id');
+    const doctorRequiredIndicator = document.getElementById('doctor_required_indicator');
+    const doctorHint = document.getElementById('doctor_hint');
+    
+    function toggleDoctorRequirement() {
+        const selectedVisitType = document.querySelector('input[name="visit_type"]:checked');
+        const isConsultation = selectedVisitType && selectedVisitType.value === 'Consultation';
+        
+        if (isConsultation) {
+            // Make doctor required for Consultation
+            doctorSelect.setAttribute('required', 'required');
+            if (doctorRequiredIndicator) {
+                doctorRequiredIndicator.style.display = 'inline';
+            }
+            if (doctorHint) {
+                doctorHint.textContent = 'Doctor assignment is required for Consultation. Patient will be immediately assigned to selected doctor.';
+                doctorHint.style.color = '#2e7d32';
+                doctorHint.style.fontWeight = '600';
+            }
+        } else {
+            // Make doctor optional for other visit types
+            doctorSelect.removeAttribute('required');
+            if (doctorRequiredIndicator) {
+                doctorRequiredIndicator.style.display = 'none';
+            }
+            if (doctorHint) {
+                doctorHint.textContent = 'Please choose the doctor assigned for this visit (optional for Follow-up and Check-up)';
+                doctorHint.style.color = '';
+                doctorHint.style.fontWeight = '';
+            }
+        }
+    }
+    
+    // Add event listeners to visit type radios
+    visitTypeRadios.forEach(radio => {
+        radio.addEventListener('change', toggleDoctorRequirement);
+    });
+    
+    // Initialize on page load
+    toggleDoctorRequirement();
+    
+    // Load available times based on doctor and day selection
+    // Note: doctorSelect is already declared above, no need to redeclare
+    const appointmentDaySelect = document.getElementById('appointment_day');
+    const appointmentDateInput = document.getElementById('appointment_date'); // Hidden field
+    const appointmentTimeSelect = document.getElementById('appointment_time');
+    const timeHint = document.getElementById('time_hint');
+    const timeError = document.getElementById('time_error');
+    const doctorScheduleDisplay = document.getElementById('doctor_schedule_display');
+    const scheduleInfo = document.getElementById('schedule_info');
+    const dateHint = document.getElementById('date_hint');
+    
+    // Store doctor's schedule information
+    let doctorScheduleInfo = null;
+    const today = new Date();
+    
+    // Function to get next occurrence of a day (Monday-Friday)
+    function getNextDayOfWeek(dayName) {
+        const days = {
+            'monday': 1,
+            'tuesday': 2,
+            'wednesday': 3,
+            'thursday': 4,
+            'friday': 5
+        };
+        
+        const targetDay = days[dayName.toLowerCase()];
+        if (!targetDay) return null;
+        
+        const currentDay = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
+        let daysUntilTarget = targetDay - currentDay;
+        
+        // If target day has passed this week, get next week's occurrence
+        if (daysUntilTarget <= 0) {
+            daysUntilTarget += 7;
+        }
+        
+        const nextDate = new Date(today);
+        nextDate.setDate(today.getDate() + daysUntilTarget);
+        
+        return nextDate.toISOString().split('T')[0]; // Return YYYY-MM-DD format
+    }
+    
+    function loadAvailableTimes() {
+        const doctorId = doctorSelect.value;
+        const selectedDate = appointmentDaySelect.value; // This is now the actual date (YYYY-MM-DD)
+        
+        // Clear previous options
+        appointmentTimeSelect.innerHTML = '<option value="">-- Select Time --</option>';
+        timeError.style.display = 'none';
+        
+        if (!doctorId) {
+            timeHint.textContent = 'Please select a doctor first';
+            timeHint.style.color = '#ef4444';
+            appointmentTimeSelect.disabled = true;
+            return;
+        }
+        
+        if (!selectedDate) {
+            timeHint.textContent = 'Please select a day';
+            timeHint.style.color = '#ef4444';
+            appointmentTimeSelect.disabled = true;
+            return;
+        }
+        
+        // The selectedDate is already in YYYY-MM-DD format, so use it directly
+        const actualDate = selectedDate;
+        
+        // Set the hidden date field - CRITICAL for form submission
+        if (appointmentDateInput) {
+            appointmentDateInput.value = actualDate;
+            console.log('Set appointment_date hidden field to:', actualDate);
+        } else {
+            console.error('appointment_date hidden field not found!');
+        }
+        
+        // Enable time select immediately
+        appointmentTimeSelect.removeAttribute('disabled');
+        appointmentTimeSelect.disabled = false;
+        appointmentTimeSelect.style.pointerEvents = 'auto';
+        appointmentTimeSelect.style.opacity = '1';
+        appointmentTimeSelect.style.cursor = 'pointer';
+        appointmentTimeSelect.style.backgroundColor = '#fff';
+        appointmentTimeSelect.removeAttribute('readonly');
+        
+        timeHint.textContent = 'Loading available times...';
+        timeHint.style.color = '#0288d1';
+        
+        // Fetch available times via AJAX using the calculated date
+        fetch(`<?= site_url('receptionist/patients/get-available-times') ?>?doctor_id=${doctorId}&date=${actualDate}`, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.times && data.times.length > 0) {
+                // Populate time select with available times only
+                data.times.forEach(time => {
+                    const option = document.createElement('option');
+                    option.value = time.value;
+                    option.textContent = time.label + ' (Available)';
+                    appointmentTimeSelect.appendChild(option);
+                });
+                
+                // Ensure time select is enabled and clickable
+                appointmentTimeSelect.removeAttribute('disabled');
+                appointmentTimeSelect.disabled = false;
+                appointmentTimeSelect.style.pointerEvents = 'auto';
+                appointmentTimeSelect.style.opacity = '1';
+                appointmentTimeSelect.style.cursor = 'pointer';
+                appointmentTimeSelect.style.backgroundColor = '#fff';
+                appointmentTimeSelect.removeAttribute('readonly');
+                
+                // Show available hours info
+                if (data.available_hours && data.available_hours.length > 0) {
+                    const hours = data.available_hours.map(h => {
+                        const start = new Date('2000-01-01 ' + h.start).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+                        const end = new Date('2000-01-01 ' + h.end).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+                        return `${start} - ${end}`;
+                    }).join(', ');
+                    timeHint.textContent = `Available time slots: ${data.times.length} slots available`;
+                    timeHint.style.color = '#2e7d32';
+                } else {
+                    timeHint.textContent = 'Available times loaded';
+                    timeHint.style.color = '#2e7d32';
+                }
+            } else {
+                appointmentTimeSelect.disabled = false; // Still enable it even if no times
+                timeError.textContent = data.message || 'No available time slots for this doctor and date. Please select another day or doctor.';
+                timeError.style.display = 'block';
+                timeHint.textContent = 'No available times';
+                timeHint.style.color = '#ef4444';
+            }
+        })
+        .catch(error => {
+            console.error('Error loading available times:', error);
+            appointmentTimeSelect.disabled = false; // Enable on error too
+            timeError.textContent = 'Error loading available times. Please try again.';
+            timeError.style.display = 'block';
+            timeHint.textContent = 'Error loading times';
+            timeHint.style.color = '#ef4444';
+        });
+    }
+    
+    // Load doctor's schedule when doctor is selected
+    function loadDoctorSchedule() {
+        const doctorId = doctorSelect.value;
+        
+        // Hide schedule if no doctor selected
+        if (!doctorId) {
+            doctorScheduleDisplay.style.display = 'none';
+            appointmentDaySelect.disabled = true;
+            appointmentDaySelect.value = '';
+            appointmentTimeSelect.disabled = true;
+            appointmentTimeSelect.innerHTML = '<option value="">-- Select Time --</option>';
+            dateHint.textContent = 'Please select a doctor first to see schedule';
+            dateHint.style.color = '';
+            return;
+        }
+        
+        // Enable day select immediately
+        appointmentDaySelect.removeAttribute('disabled');
+        appointmentDaySelect.disabled = false;
+        appointmentDaySelect.style.pointerEvents = 'auto';
+        appointmentDaySelect.style.opacity = '1';
+        appointmentDaySelect.style.cursor = 'pointer';
+        appointmentDaySelect.style.backgroundColor = '#fff';
+        
+        // Show loading state
+        dateHint.textContent = 'Loading doctor schedule...';
+        dateHint.style.color = '#0288d1';
+        
+        // Fetch doctor's schedule dates to get schedule info
+        fetch(`<?= site_url('receptionist/patients/get-doctor-schedule-dates') ?>?doctor_id=${doctorId}`, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.schedule_dates && data.schedule_dates.length > 0) {
+                // Store schedule info
+                doctorScheduleInfo = data.schedule_dates;
+                
+                // Populate Appointment Day dropdown with actual dates
+                appointmentDaySelect.innerHTML = '<option value="">-- Select Day --</option>';
+                data.schedule_dates.forEach(schedule => {
+                    const option = document.createElement('option');
+                    // Use display_text if available, otherwise use date_formatted
+                    const displayText = schedule.display_text || schedule.date_formatted || schedule.date;
+                    option.value = schedule.date; // Store the actual date (YYYY-MM-DD)
+                    option.textContent = displayText; // Display: "Monday, Jan 15" or "Jan 15, 2025 (Monday)"
+                    option.setAttribute('data-date', schedule.date);
+                    appointmentDaySelect.appendChild(option);
+                });
+                
+                // Show doctor's schedule
+                doctorScheduleDisplay.style.display = 'block';
+                
+                // Get unique schedule hours (usually same for all weekdays)
+                const scheduleHours = [];
+                data.schedule_dates.forEach(schedule => {
+                    schedule.available_hours.forEach(hour => {
+                        if (!scheduleHours.includes(hour)) {
+                            scheduleHours.push(hour);
+                        }
+                    });
+                });
+                
+                // Format schedule hours for display
+                let formattedHours = scheduleHours.join(', ');
+                if (scheduleHours.length === 0) {
+                    // Default schedule if not found
+                    formattedHours = '9:00 AM - 12:00 PM, 1:00 PM - 4:00 PM';
+                }
+                
+                scheduleInfo.innerHTML = `
+                    <div style="margin-bottom: 4px;"><strong>Available Hours:</strong> ${formattedHours}</div>
+                    <div style="font-size: 12px; color: #64748b;">Schedule available Monday to Friday (Saturday & Sunday are rest days)</div>
+                `;
+                
+                dateHint.textContent = 'Select a day to see available times';
+                dateHint.style.color = '#2e7d32';
+                
+                // Ensure day dropdown is enabled and clickable
+                appointmentDaySelect.removeAttribute('disabled');
+                appointmentDaySelect.disabled = false;
+                appointmentDaySelect.style.pointerEvents = 'auto';
+                appointmentDaySelect.style.opacity = '1';
+                appointmentDaySelect.style.cursor = 'pointer';
+                appointmentDaySelect.style.backgroundColor = '#fff';
+                appointmentDaySelect.removeAttribute('readonly');
+                
+                // Show that Monday-Friday are available
+                console.log('Doctor schedule loaded. Available days: Monday-Friday');
+            } else {
+                doctorScheduleDisplay.style.display = 'none';
+                appointmentDaySelect.setAttribute('disabled', 'disabled');
+                appointmentDaySelect.disabled = true;
+                appointmentDaySelect.value = '';
+                appointmentTimeSelect.setAttribute('disabled', 'disabled');
+                appointmentTimeSelect.disabled = true;
+                appointmentTimeSelect.innerHTML = '<option value="">-- Select Time --</option>';
+                dateHint.textContent = 'Doctor has no available schedule. Please select another doctor.';
+                dateHint.style.color = '#ef4444';
+            }
+        })
+        .catch(error => {
+            console.error('Error loading doctor schedule:', error);
+            doctorScheduleDisplay.style.display = 'none';
+            appointmentDaySelect.disabled = true;
+        });
+    }
+    
+    // Function to enable appointment day dropdown (global function for inline handler)
+    function enableAppointmentDayDropdown(doctorId) {
+        const appointmentDaySelect = document.getElementById('appointment_day');
+        if (!appointmentDaySelect) {
+            console.error('appointmentDaySelect element not found!');
+            return;
+        }
+        
+        if (doctorId && doctorId !== '' && doctorId !== '0') {
+            try {
+                appointmentDaySelect.removeAttribute('disabled');
+                appointmentDaySelect.disabled = false;
+                appointmentDaySelect.removeAttribute('readonly');
+                appointmentDaySelect.classList.remove('disabled');
+                appointmentDaySelect.style.cssText = 'pointer-events: auto !important; opacity: 1 !important; cursor: pointer !important; background-color: #fff !important;';
+                
+                console.log('✅ Appointment Day ENABLED via inline handler - disabled:', appointmentDaySelect.disabled);
+                
+                // Also trigger the schedule load if the function exists
+                if (typeof loadDoctorSchedule === 'function') {
+                    loadDoctorSchedule();
+                }
+            } catch (e) {
+                console.error('Error enabling appointment day:', e);
+            }
+        } else {
+            appointmentDaySelect.setAttribute('disabled', 'disabled');
+            appointmentDaySelect.disabled = true;
+            appointmentDaySelect.style.cssText = 'pointer-events: none !important; opacity: 0.6 !important;';
+        }
+    }
+    
+    // Function to enable appointment day dropdown (local function)
+    function enableAppointmentDay() {
+        if (!appointmentDaySelect) {
+            console.error('appointmentDaySelect element not found!');
+            return;
+        }
+        
+        try {
+            appointmentDaySelect.removeAttribute('disabled');
+            appointmentDaySelect.disabled = false;
+            appointmentDaySelect.removeAttribute('readonly');
+            appointmentDaySelect.classList.remove('disabled');
+            appointmentDaySelect.style.cssText = 'pointer-events: auto !important; opacity: 1 !important; cursor: pointer !important; background-color: #fff !important;';
+            
+            console.log('✅ Appointment Day ENABLED - disabled:', appointmentDaySelect.disabled, 'pointer-events:', appointmentDaySelect.style.pointerEvents);
+        } catch (e) {
+            console.error('Error enabling appointment day:', e);
+        }
+    }
+    
+    // Function to disable appointment day dropdown
+    function disableAppointmentDay() {
+        if (!appointmentDaySelect) return;
+        
+        appointmentDaySelect.setAttribute('disabled', 'disabled');
+        appointmentDaySelect.disabled = true;
+        appointmentDaySelect.style.cssText = 'pointer-events: none !important; opacity: 0.6 !important;';
+    }
+    
+    // Load schedule when doctor changes
+    if (doctorSelect && appointmentDaySelect) {
+        console.log('Setting up doctor select event listener...');
+        
+        // Use both change and input events to catch all changes
+        doctorSelect.addEventListener('change', function() {
+            const selectedDoctorId = this.value;
+            console.log('🔵 Doctor CHANGE event - selected:', selectedDoctorId);
+            
+            if (selectedDoctorId && selectedDoctorId !== '' && selectedDoctorId !== '0') {
+                // IMMEDIATELY enable day dropdown
+                enableAppointmentDay();
+                
+                // Load schedule
+                loadDoctorSchedule();
+                
+                // Reset day and time selections
+                appointmentDaySelect.value = '';
+                appointmentTimeSelect.innerHTML = '<option value="">-- Select Time --</option>';
+                appointmentTimeSelect.setAttribute('disabled', 'disabled');
+                appointmentTimeSelect.disabled = true;
+                appointmentTimeSelect.style.cssText = 'pointer-events: none !important; opacity: 0.6 !important;';
+            } else {
+                // Disable if no doctor selected
+                disableAppointmentDay();
+                appointmentDaySelect.value = '';
+                appointmentTimeSelect.setAttribute('disabled', 'disabled');
+                appointmentTimeSelect.disabled = true;
+                appointmentTimeSelect.innerHTML = '<option value="">-- Select Time --</option>';
+                if (doctorScheduleDisplay) {
+                    doctorScheduleDisplay.style.display = 'none';
+                }
+            }
+        });
+        
+        // Also listen to input event (for some browsers)
+        doctorSelect.addEventListener('input', function() {
+            const selectedDoctorId = this.value;
+            console.log('🟢 Doctor INPUT event - selected:', selectedDoctorId);
+            
+            if (selectedDoctorId && selectedDoctorId !== '' && selectedDoctorId !== '0') {
+                enableAppointmentDay();
+            } else {
+                disableAppointmentDay();
+            }
+        });
+        
+        // Also load schedule if doctor is already selected on page load
+        setTimeout(function() {
+            if (doctorSelect && doctorSelect.value && doctorSelect.value !== '' && doctorSelect.value !== '0') {
+                console.log('🟡 Doctor already selected on page load, enabling dropdowns...');
+                enableAppointmentDay();
+                if (typeof loadDoctorSchedule === 'function') {
+                    loadDoctorSchedule();
+                }
+            }
+        }, 100);
+    } else {
+        console.error('❌ Doctor select or appointment day select not found!', {
+            doctorSelect: !!doctorSelect,
+            appointmentDaySelect: !!appointmentDaySelect
+        });
+    }
+    
+    // Load times when day changes
+        if (appointmentDaySelect) {
+        appointmentDaySelect.addEventListener('change', function() {
+            const selectedDate = this.value; // This is the actual date (YYYY-MM-DD)
+            
+            // CRITICAL: Set the hidden appointment_date field immediately when day is selected
+            if (appointmentDateInput && selectedDate) {
+                appointmentDateInput.value = selectedDate;
+                console.log('✅ Set appointment_date to:', selectedDate);
+            } else {
+                console.error('❌ Cannot set appointment_date - input field or date missing');
+            }
+            
+            if (selectedDate && selectedDate !== '') {
+                appointmentTimeSelect.removeAttribute('disabled');
+                appointmentTimeSelect.disabled = false;
+                appointmentTimeSelect.style.pointerEvents = 'auto';
+                appointmentTimeSelect.style.opacity = '1';
+                appointmentTimeSelect.style.cursor = 'pointer';
+                appointmentTimeSelect.style.backgroundColor = '#fff';
+                appointmentTimeSelect.removeAttribute('readonly');
+                loadAvailableTimes();
+            } else {
+                appointmentTimeSelect.setAttribute('disabled', 'disabled');
+                appointmentTimeSelect.disabled = true;
+                appointmentTimeSelect.style.pointerEvents = 'none';
+                appointmentTimeSelect.style.opacity = '0.6';
+                appointmentTimeSelect.innerHTML = '<option value="">-- Select Time --</option>';
+                if (appointmentDateInput) {
+                    appointmentDateInput.value = '';
+                }
+            }
+        });
+    }
+    
+    // Validate selected time on form submit
+    const outpatientForm = document.getElementById('outpatientForm');
+    if (outpatientForm) {
+        outpatientForm.addEventListener('submit', function(e) {
+            const selectedTime = appointmentTimeSelect.value;
+            const selectedDay = appointmentDaySelect.value;
+            const doctorId = doctorSelect.value;
+            
+            if (!doctorId) {
+                e.preventDefault();
+                alert('Please select a doctor.');
+                return false;
+            }
+            
+            if (!selectedDay) {
+                e.preventDefault();
+                alert('Please select an appointment day (Monday-Friday).');
+                return false;
+            }
+            
+            if (!selectedTime) {
+                e.preventDefault();
+                alert('Please select an available appointment time.');
+                return false;
+            }
+            
+            // Ensure the hidden date field is set
+            const actualDate = getNextDayOfWeek(selectedDay);
+            if (actualDate) {
+                appointmentDateInput.value = actualDate;
+            }
+            
+            // Additional validation: check if time is still available
+            // This is a client-side check, server-side validation will also be done
+        });
+    }
 });
 </script>
 

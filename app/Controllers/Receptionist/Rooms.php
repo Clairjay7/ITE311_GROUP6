@@ -5,16 +5,19 @@ namespace App\Controllers\Receptionist;
 use App\Controllers\BaseController;
 use App\Models\RoomModel;
 use App\Models\HMSPatientModel;
+use App\Models\BedModel;
 
 class Rooms extends BaseController
 {
     protected $roomModel;
     protected $patientModel;
+    protected $bedModel;
 
     public function __construct()
     {
         $this->roomModel = new RoomModel();
         $this->patientModel = new HMSPatientModel();
+        $this->bedModel = new BedModel();
         helper('form'); // Load form helper for set_value() and other form functions
     }
 
@@ -37,6 +40,23 @@ class Rooms extends BaseController
             ->join('patients', 'patients.patient_id = rooms.current_patient_id', 'left')
             ->orderBy('rooms.room_number', 'ASC')
             ->findAll();
+
+        // Fetch beds for each room
+        $db = \Config\Database::connect();
+        foreach ($rooms as &$room) {
+            $beds = [];
+            if ($db->tableExists('beds')) {
+                $beds = $db->table('beds')
+                    ->select('beds.*, patients.full_name AS patient_name')
+                    ->where('beds.room_id', $room['id'])
+                    ->join('patients', 'patients.patient_id = beds.current_patient_id', 'left')
+                    ->orderBy('beds.bed_number', 'ASC')
+                    ->get()
+                    ->getResultArray();
+            }
+            $room['beds'] = $beds;
+        }
+        unset($room);
 
         return view('Reception/rooms/ward', [
             'title' => $wardName . ' Rooms',
@@ -72,6 +92,22 @@ class Rooms extends BaseController
             ->orderBy('rooms.room_number', 'ASC')
             ->get()
             ->getResultArray();
+
+        // Fetch beds for each room
+        foreach ($rooms as &$room) {
+            $beds = [];
+            if ($db->tableExists('beds')) {
+                $beds = $db->table('beds')
+                    ->select('beds.*, patients.full_name AS patient_name')
+                    ->where('beds.room_id', $room['id'])
+                    ->join('patients', 'patients.patient_id = beds.current_patient_id', 'left')
+                    ->orderBy('beds.bed_number', 'ASC')
+                    ->get()
+                    ->getResultArray();
+            }
+            $room['beds'] = $beds;
+        }
+        unset($room);
 
         // Get room type display name
         $displayNames = [

@@ -292,6 +292,7 @@
                             <tr>
                                 <th>Room Number</th>
                                 <th>Ward</th>
+                                <th>Beds</th>
                                 <th>Price</th>
                                 <th>Status</th>
                                 <th>Patient</th>
@@ -308,6 +309,27 @@
                                     </td>
                                     <td>
                                         <?= esc($room['ward'] ?? 'N/A') ?>
+                                    </td>
+                                    <td>
+                                        <?php if (!empty($room['beds']) && is_array($room['beds'])): ?>
+                                            <div style="display: flex; flex-direction: column; gap: 4px;">
+                                                <?php foreach ($room['beds'] as $bed): ?>
+                                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                                        <span style="font-weight: 600; color: #1e293b;">Bed <?= esc($bed['bed_number']) ?>:</span>
+                                                        <?php if (!empty($bed['current_patient_id'])): ?>
+                                                            <span class="badge badge-danger" style="font-size: 11px;">Occupied</span>
+                                                            <?php if (!empty($bed['patient_name'])): ?>
+                                                                <span style="font-size: 12px; color: #64748b;">(<?= esc($bed['patient_name']) ?>)</span>
+                                                            <?php endif; ?>
+                                                        <?php else: ?>
+                                                            <span class="badge badge-success" style="font-size: 11px;">Available</span>
+                                                        <?php endif; ?>
+                                                    </div>
+                                                <?php endforeach; ?>
+                                            </div>
+                                        <?php else: ?>
+                                            <span style="color: #94a3b8;">No beds</span>
+                                        <?php endif; ?>
                                     </td>
                                     <td>
                                         <?php if (!empty($room['price']) && $room['price'] > 0): ?>
@@ -344,12 +366,6 @@
                                                         <i class="fas fa-user"></i> View Patient
                                                     </a>
                                                 <?php endif; ?>
-                                                <form method="post" action="<?= site_url('receptionist/rooms/vacate/' . $room['id']) ?>" style="display: inline;">
-                                                    <?= csrf_field() ?>
-                                                    <button type="submit" class="btn btn-outline-warning" onclick="return confirm('Mark this room as available?');">
-                                                        <i class="fas fa-door-open"></i> Vacate Room
-                                                    </button>
-                                                </form>
                                             <?php else: ?>
                                                 <a href="<?= site_url('receptionist/rooms/assign/' . $room['id']) ?>" class="btn btn-primary">
                                                     <i class="fas fa-user-plus"></i> Assign Patient

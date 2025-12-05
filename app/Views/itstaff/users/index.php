@@ -205,7 +205,9 @@
                 </thead>
                 <tbody>
                     <?php if (!empty($users)): ?>
-                        <?php foreach ($users as $user): ?>
+                        <?php foreach ($users as $user): 
+                            $isDeleted = !empty($user['deleted_at']);
+                        ?>
                             <tr>
                                 <td><strong>#<?= esc($user['id']) ?></strong></td>
                                 <td><strong><?= esc($user['username']) ?></strong></td>
@@ -223,15 +225,17 @@
                                 <td><?= esc($user['created_at'] ? date('M d, Y h:i A', strtotime($user['created_at'])) : 'N/A') ?></td>
                                 <td>
                                     <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                                        <a href="<?= site_url('it/users/edit/' . $user['id']) ?>" class="btn-sm-modern btn-warning">
-                                            <i class="fas fa-edit"></i>
-                                            Edit
-                                        </a>
-                                        <?php if ($user['id'] != session()->get('user_id')): ?>
-                                            <a href="<?= site_url('it/users/delete/' . $user['id']) ?>" class="btn-sm-modern btn-danger" onclick="return confirm('Are you sure you want to delete this user?')">
-                                                <i class="fas fa-trash"></i>
-                                                Delete
+                                        <?php if (!$isDeleted): ?>
+                                            <a href="<?= site_url('it/users/edit/' . $user['id']) ?>" class="btn-sm-modern btn-warning">
+                                                <i class="fas fa-edit"></i>
+                                                Edit
                                             </a>
+                                            <?php if ($user['id'] != session()->get('user_id')): ?>
+                                                <a href="<?= site_url('it/users/delete/' . $user['id']) ?>" class="btn-sm-modern btn-danger" onclick="return confirm('Are you sure you want to mark this user as deleted? The user will be hidden from the system but data will be preserved.')">
+                                                    <i class="fas fa-user-slash"></i>
+                                                    Mark as Deleted
+                                                </a>
+                                            <?php endif; ?>
                                         <?php endif; ?>
                                     </div>
                                 </td>
