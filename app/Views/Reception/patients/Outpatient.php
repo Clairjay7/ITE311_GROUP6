@@ -14,11 +14,11 @@ $errors = session('errors') ?? [];
     }
     
     .page-header {
-        background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+        background: linear-gradient(135deg, var(--gradient-1) 0%, var(--gradient-2) 100%);
         border-radius: 16px;
         padding: 24px 32px;
         margin-bottom: 24px;
-        box-shadow: 0 4px 20px rgba(16, 185, 129, 0.2);
+        box-shadow: 0 4px 20px rgba(46, 125, 50, 0.2);
         color: white;
         display: flex;
         justify-content: space-between;
@@ -80,10 +80,10 @@ $errors = session('errors') ?? [];
     .section-title {
         font-size: 18px;
         font-weight: 700;
-        color: #10b981;
+        color: var(--primary-color);
         margin: 0 0 20px;
         padding-bottom: 12px;
-        border-bottom: 2px solid #d1fae5;
+        border-bottom: 2px solid #c8e6c9;
         display: flex;
         align-items: center;
         gap: 10px;
@@ -145,8 +145,8 @@ $errors = session('errors') ?? [];
     
     .form-control:focus, .form-select:focus {
         outline: none;
-        border-color: #10b981;
-        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
     }
     
     .form-control.is-invalid, .form-select.is-invalid {
@@ -184,9 +184,9 @@ $errors = session('errors') ?? [];
     }
     
     .alert-info {
-        background: #ecfdf5;
-        color: #065f46;
-        border-left: 4px solid #10b981;
+        background: #e8f5e9;
+        color: #1b5e20;
+        border-left: 4px solid var(--primary-color);
     }
     
     /* Insurance Toggle */
@@ -213,12 +213,12 @@ $errors = session('errors') ?? [];
     .insurance-toggle input[type="checkbox"] {
         width: 18px;
         height: 18px;
-        accent-color: #10b981;
+        accent-color: var(--primary-color);
     }
     
     .insurance-toggle label:has(input:checked) {
-        border-color: #10b981;
-        background: #ecfdf5;
+        border-color: var(--primary-color);
+        background: #e8f5e9;
     }
     
     .insurance-fields {
@@ -252,7 +252,7 @@ $errors = session('errors') ?? [];
     }
     
     .visit-type-card:hover {
-        border-color: #10b981;
+        border-color: var(--primary-color);
     }
     
     .visit-type-card input[type="radio"] {
@@ -261,13 +261,13 @@ $errors = session('errors') ?? [];
     }
     
     .visit-type-card:has(input:checked) {
-        border-color: #10b981;
-        background: #ecfdf5;
+        border-color: var(--primary-color);
+        background: #e8f5e9;
     }
     
     .visit-type-card i {
         font-size: 28px;
-        color: #10b981;
+        color: var(--primary-color);
         margin-bottom: 8px;
         display: block;
     }
@@ -351,7 +351,7 @@ $errors = session('errors') ?? [];
     }
     
     .btn-submit {
-        background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+        background: linear-gradient(135deg, var(--gradient-1) 0%, var(--gradient-2) 100%);
         color: white;
         padding: 14px 32px;
         border: none;
@@ -367,7 +367,7 @@ $errors = session('errors') ?? [];
     
     .btn-submit:hover {
         transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
+        box-shadow: 0 6px 20px rgba(46, 125, 50, 0.3);
     }
     
     .btn-cancel {
@@ -394,7 +394,7 @@ $errors = session('errors') ?? [];
     .type-badge {
         display: inline-block;
         padding: 8px 16px;
-        background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+        background: linear-gradient(135deg, var(--gradient-1) 0%, var(--gradient-2) 100%);
         color: white;
         border-radius: 20px;
         font-weight: 600;
@@ -562,8 +562,8 @@ $errors = session('errors') ?? [];
                             <div class="form-hint" id="doctor_hint">Please choose the doctor assigned for this visit</div>
                             
                             <!-- Doctor Schedule Display -->
-                            <div id="doctor_schedule_display" style="display: none; margin-top: 12px; padding: 12px; background: #f8fafc; border-radius: 8px; border-left: 4px solid #0288d1;">
-                                <div style="font-weight: 600; color: #0288d1; margin-bottom: 8px;">
+                            <div id="doctor_schedule_display" style="display: none; margin-top: 12px; padding: 12px; background: #f8fafc; border-radius: 8px; border-left: 4px solid #10b981;">
+                                <div style="font-weight: 600; color: #10b981; margin-bottom: 8px;">
                                     <i class="fas fa-calendar-alt"></i> Doctor's Schedule for Selected Date:
                                 </div>
                                 <div id="schedule_times" style="color: #475569; font-size: 13px;"></div>
@@ -963,7 +963,7 @@ document.addEventListener('DOMContentLoaded', function() {
         appointmentTimeSelect.removeAttribute('readonly');
         
         timeHint.textContent = 'Loading available times...';
-        timeHint.style.color = '#0288d1';
+        timeHint.style.color = '#10b981';
         
         // Fetch available times via AJAX using the calculated date
         fetch(`<?= site_url('receptionist/patients/get-available-times') ?>?doctor_id=${doctorId}&date=${actualDate}`, {
@@ -1049,7 +1049,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Show loading state
         dateHint.textContent = 'Loading doctor schedule...';
-        dateHint.style.color = '#0288d1';
+        dateHint.style.color = '#10b981';
         
         // Fetch doctor's schedule dates to get schedule info
         fetch(`<?= site_url('receptionist/patients/get-doctor-schedule-dates') ?>?doctor_id=${doctorId}`, {

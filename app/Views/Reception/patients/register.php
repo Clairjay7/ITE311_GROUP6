@@ -14,11 +14,11 @@ $errors = session('errors') ?? [];
     }
     
     .page-header {
-        background: linear-gradient(135deg, #0288d1 0%, #03a9f4 100%);
+        background: linear-gradient(135deg, var(--gradient-1) 0%, var(--gradient-2) 100%);
         border-radius: 16px;
         padding: 24px 32px;
         margin-bottom: 24px;
-        box-shadow: 0 4px 20px rgba(2, 136, 209, 0.2);
+        box-shadow: 0 4px 20px rgba(46, 125, 50, 0.2);
         color: white;
         display: flex;
         justify-content: space-between;
@@ -74,10 +74,10 @@ $errors = session('errors') ?? [];
     .section-title {
         font-size: 18px;
         font-weight: 700;
-        color: #0288d1;
+        color: var(--primary-color);
         margin: 0 0 20px;
         padding-bottom: 12px;
-        border-bottom: 2px solid #e0f2fe;
+        border-bottom: 2px solid #c8e6c9;
         display: flex;
         align-items: center;
         gap: 10px;
@@ -132,8 +132,8 @@ $errors = session('errors') ?? [];
     
     .form-control:focus, .form-select:focus {
         outline: none;
-        border-color: #0288d1;
-        box-shadow: 0 0 0 3px rgba(2, 136, 209, 0.1);
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
     }
     
     .form-control.is-invalid, .form-select.is-invalid {
@@ -171,9 +171,9 @@ $errors = session('errors') ?? [];
     }
     
     .alert-info {
-        background: #e0f2fe;
-        color: #0369a1;
-        border-left: 4px solid #0288d1;
+        background: #e8f5e9;
+        color: #1b5e20;
+        border-left: 4px solid var(--primary-color);
     }
     
     /* Insurance Toggle */
@@ -197,12 +197,12 @@ $errors = session('errors') ?? [];
     .insurance-toggle input[type="radio"] {
         width: 18px;
         height: 18px;
-        accent-color: #0288d1;
+        accent-color: var(--primary-color);
     }
     
     .insurance-toggle label:has(input:checked) {
-        border-color: #0288d1;
-        background: #e0f2fe;
+        border-color: var(--primary-color);
+        background: #e8f5e9;
     }
     
     .insurance-fields {
@@ -227,7 +227,7 @@ $errors = session('errors') ?? [];
     }
     
     .btn-submit {
-        background: linear-gradient(135deg, #0288d1 0%, #03a9f4 100%);
+        background: linear-gradient(135deg, var(--gradient-1) 0%, var(--gradient-2) 100%);
         color: white;
         padding: 14px 32px;
         border: none;
@@ -243,7 +243,7 @@ $errors = session('errors') ?? [];
     
     .btn-submit:hover {
         transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(2, 136, 209, 0.3);
+        box-shadow: 0 6px 20px rgba(46, 125, 50, 0.3);
     }
     
     .btn-cancel {
@@ -285,8 +285,8 @@ $errors = session('errors') ?? [];
     }
     
     .room-type-card:hover {
-        border-color: #0288d1;
-        box-shadow: 0 4px 12px rgba(2, 136, 209, 0.1);
+        border-color: var(--primary-color);
+        box-shadow: 0 4px 12px rgba(46, 125, 50, 0.1);
     }
     
     .room-type-card input[type="radio"] {
@@ -295,9 +295,9 @@ $errors = session('errors') ?? [];
     }
     
     .room-type-card:has(input:checked) {
-        border-color: #0288d1;
-        background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%);
-        box-shadow: 0 4px 12px rgba(2, 136, 209, 0.15);
+        border-color: var(--primary-color);
+        background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+        box-shadow: 0 4px 12px rgba(46, 125, 50, 0.15);
     }
     
     .room-type-card .room-icon {
@@ -339,7 +339,7 @@ $errors = session('errors') ?? [];
     }
     
     .room-type-card.semi-private .room-rate {
-        color: #0288d1;
+        color: var(--primary-color);
     }
     
     .room-type-card.ward .room-rate {
@@ -544,8 +544,8 @@ $errors = session('errors') ?? [];
                                 <span class="room-icon">🏘️</span>
                                 <div class="room-title">Semi-Private Room</div>
                                 <ul class="room-details">
-                                    <li><i class="fas fa-users" style="color: #0288d1;"></i> 2 pasyente sa isang kwarto</li>
-                                    <li><i class="fas fa-bath" style="color: #0288d1;"></i> May shared CR</li>
+                                    <li><i class="fas fa-users" style="color: #10b981;"></i> 2 pasyente sa isang kwarto</li>
+                                    <li><i class="fas fa-bath" style="color: #10b981;"></i> May shared CR</li>
                                 </ul>
                                 <div class="room-rate">
                                     <i class="fas fa-peso-sign"></i> <span class="price-display" id="price-semi-private">₱3,000</span>/day

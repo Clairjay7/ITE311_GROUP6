@@ -16,11 +16,11 @@ $errors = session()->getFlashdata('errors') ?? [];
     }
     
     .page-header {
-        background: linear-gradient(135deg, #0288d1 0%, #03a9f4 100%);
+        background: linear-gradient(135deg, var(--gradient-1) 0%, var(--gradient-2) 100%);
         border-radius: 16px;
         padding: 24px 32px;
         margin-bottom: 24px;
-        box-shadow: 0 4px 20px rgba(2, 136, 209, 0.2);
+        box-shadow: 0 4px 20px rgba(46, 125, 50, 0.2);
         color: white;
         display: flex;
         justify-content: space-between;
@@ -70,16 +70,16 @@ $errors = session()->getFlashdata('errors') ?? [];
     }
     
     .room-info-box {
-        background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%);
+        background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
         border-radius: 12px;
         padding: 16px 20px;
         margin-bottom: 24px;
-        border-left: 4px solid #0288d1;
+        border-left: 4px solid var(--primary-color);
     }
     
     .room-info-box h4 {
         margin: 0 0 8px;
-        color: #0288d1;
+        color: var(--primary-color);
         font-size: 18px;
     }
     
@@ -125,8 +125,8 @@ $errors = session()->getFlashdata('errors') ?? [];
     }
     
     .toggle-btn.active {
-        background: linear-gradient(135deg, #0288d1 0%, #03a9f4 100%);
-        border-color: #0288d1;
+        background: linear-gradient(135deg, var(--gradient-1) 0%, var(--gradient-2) 100%);
+        border-color: var(--primary-color);
         color: white;
     }
     
@@ -168,8 +168,8 @@ $errors = session()->getFlashdata('errors') ?? [];
     
     .form-control:focus, .form-select:focus {
         outline: none;
-        border-color: #0288d1;
-        box-shadow: 0 0 0 3px rgba(2, 136, 209, 0.1);
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
     }
     
     .form-control.is-invalid, .form-select.is-invalid {
@@ -205,13 +205,13 @@ $errors = session()->getFlashdata('errors') ?? [];
     }
     
     .btn-primary {
-        background: linear-gradient(135deg, #0288d1 0%, #03a9f4 100%);
+        background: linear-gradient(135deg, var(--gradient-1) 0%, var(--gradient-2) 100%);
         color: white;
     }
     
     .btn-primary:hover {
         transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(2, 136, 209, 0.3);
+        box-shadow: 0 6px 20px rgba(46, 125, 50, 0.3);
     }
     
     .btn-secondary {
@@ -379,7 +379,7 @@ $errors = session()->getFlashdata('errors') ?? [];
                 <input type="hidden" name="admission_date" value="<?= date('Y-m-d') ?>">
                 
                 <!-- Patient Information -->
-                <h4 style="color: #0288d1; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #e0f2fe;">
+                <h4 style="color: var(--primary-color); margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #c8e6c9;">
                     <i class="fas fa-user"></i> Patient Information
                 </h4>
                 
@@ -442,7 +442,7 @@ $errors = session()->getFlashdata('errors') ?? [];
                 </div>
                 
                 <!-- Admission Details -->
-                <h4 style="color: #0288d1; margin: 24px 0 16px; padding-top: 20px; border-top: 2px solid #e5e7eb; padding-bottom: 12px; border-bottom: 2px solid #e0f2fe;">
+                <h4 style="color: var(--primary-color); margin: 24px 0 16px; padding-top: 20px; border-top: 2px solid #e5e7eb; padding-bottom: 12px; border-bottom: 2px solid #c8e6c9;">
                     <i class="fas fa-hospital"></i> Admission Details
                 </h4>
                 
@@ -512,7 +512,7 @@ $errors = session()->getFlashdata('errors') ?? [];
                 </div>
                 
                 <!-- Emergency Contact -->
-                <h4 style="color: #0288d1; margin: 24px 0 16px; padding-top: 20px; border-top: 2px solid #e5e7eb; padding-bottom: 12px; border-bottom: 2px solid #e0f2fe;">
+                <h4 style="color: var(--primary-color); margin: 24px 0 16px; padding-top: 20px; border-top: 2px solid #e5e7eb; padding-bottom: 12px; border-bottom: 2px solid #c8e6c9;">
                     <i class="fas fa-phone-alt"></i> Emergency Contact
                 </h4>
                 

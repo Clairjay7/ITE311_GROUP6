@@ -13,11 +13,11 @@
     }
     
     .page-header {
-        background: linear-gradient(135deg, #0288d1 0%, #03a9f4 100%);
+        background: linear-gradient(135deg, var(--gradient-1) 0%, var(--gradient-2) 100%);
         border-radius: 16px;
         padding: 24px 32px;
         margin-bottom: 24px;
-        box-shadow: 0 4px 20px rgba(2, 136, 209, 0.2);
+        box-shadow: 0 4px 20px rgba(46, 125, 50, 0.2);
         color: white;
         display: flex;
         justify-content: space-between;
@@ -72,7 +72,7 @@
     }
     
     .room-type-badge.semi-private {
-        background: linear-gradient(135deg, #0288d1 0%, #03a9f4 100%);
+        background: linear-gradient(135deg, var(--gradient-1) 0%, var(--gradient-2) 100%);
         color: white;
     }
     
@@ -117,9 +117,9 @@
     }
     
     .alert-success {
-        background: #d1fae5;
-        color: #065f46;
-        border-left: 4px solid #10b981;
+        background: #e8f5e9;
+        color: #1b5e20;
+        border-left: 4px solid var(--primary-color);
     }
     
     .table-modern {
@@ -192,12 +192,12 @@
     
     .btn-outline-primary {
         background: white;
-        color: #0288d1;
-        border: 2px solid #0288d1;
+        color: var(--primary-color);
+        border: 2px solid var(--primary-color);
     }
     
     .btn-outline-primary:hover {
-        background: #0288d1;
+        background: var(--primary-color);
         color: white;
     }
     
@@ -213,13 +213,13 @@
     }
     
     .btn-primary {
-        background: linear-gradient(135deg, #0288d1 0%, #03a9f4 100%);
+        background: linear-gradient(135deg, var(--gradient-1) 0%, var(--gradient-2) 100%);
         color: white;
     }
     
     .btn-primary:hover {
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(2, 136, 209, 0.3);
+        box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
     }
     
     .empty-state {
@@ -333,7 +333,7 @@
                                     </td>
                                     <td>
                                         <?php if (!empty($room['price']) && $room['price'] > 0): ?>
-                                            <strong style="color: #0288d1;">
+                                            <strong style="color: var(--primary-color);">
                                                 ₱<?= number_format((float)$room['price'], 2) ?>/day
                                             </strong>
                                         <?php else: ?>
