@@ -35,4 +35,12 @@ class RoomModel extends Model
             ->orderBy('room_number', 'ASC')
             ->findAll();
     }
+
+    public function getAvailableByType(string $roomType): array
+    {
+        return $this->where('room_type', $roomType)
+            ->where('status', 'Available')
+            ->orderBy('room_number', 'ASC')
+            ->findAll();
+    }
 }

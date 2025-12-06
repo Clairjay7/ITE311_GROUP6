@@ -24,13 +24,58 @@ class UserManagementController extends BaseController
 
         $db = \Config\Database::connect();
         
-        // Get all users with their roles (including deleted users)
-        $users = $db->table('users')
+        // Check if doctors table has user_id column
+        $hasUserIdColumn = false;
+        if ($db->tableExists('doctors')) {
+            $fields = $db->getFieldData('doctors');
+            foreach ($fields as $field) {
+                if ($field->name === 'user_id') {
+                    $hasUserIdColumn = true;
+                    break;
+                }
+            }
+        }
+        
+        // Get all users with their roles and doctor specialization (including deleted users)
+        $query = $db->table('users')
             ->select('users.*, roles.name as role_name, roles.description as role_description')
-            ->join('roles', 'roles.id = users.role_id', 'left')
-            ->orderBy('users.deleted_at', 'ASC') // Show non-deleted first
+            ->join('roles', 'roles.id = users.role_id', 'left');
+        
+        // Join with doctors table if user_id column exists
+        if ($hasUserIdColumn) {
+            $query->select('doctors.specialization as doctor_specialization, doctors.doctor_name')
+                  ->join('doctors', 'doctors.user_id = users.id', 'left');
+        }
+        
+        $users = $query->orderBy('users.deleted_at', 'ASC') // Show non-deleted first
             ->orderBy('users.created_at', 'DESC')
             ->get()->getResultArray();
+        
+        // If user_id column doesn't exist, try to match by doctor name from username
+        if (!$hasUserIdColumn && $db->tableExists('doctors')) {
+            foreach ($users as &$user) {
+                if (strtolower($user['role_name'] ?? '') === 'doctor') {
+                    // Try to find doctor by matching username pattern
+                    $username = strtolower($user['username']);
+                    // Remove 'dr.' prefix if present
+                    $namePart = preg_replace('/^dr\./', '', $username);
+                    $namePart = str_replace('.', ' ', $namePart);
+                    
+                    // Try to find matching doctor
+                    $doctor = $db->table('doctors')
+                        ->where('LOWER(REPLACE(REPLACE(doctor_name, "Dr. ", ""), " ", ""))', str_replace(' ', '', $namePart))
+                        ->orLike('doctor_name', $namePart)
+                        ->get()
+                        ->getRowArray();
+                    
+                    if ($doctor) {
+                        $user['doctor_specialization'] = $doctor['specialization'] ?? null;
+                        $user['doctor_name'] = $doctor['doctor_name'] ?? null;
+                    }
+                }
+            }
+            unset($user);
+        }
 
         $data = [
             'title' => 'User Management',
@@ -54,10 +99,42 @@ class UserManagementController extends BaseController
             ->whereNotIn('name', ['patient'])
             ->orderBy('name', 'ASC')
             ->get()->getResultArray();
+        
+        // Get doctor role ID for JavaScript
+        $doctorRole = $db->table('roles')
+            ->where('LOWER(name)', 'doctor')
+            ->get()->getRowArray();
+        
+        // Get available specializations from doctors table
+        $specializations = [];
+        if ($db->tableExists('doctors')) {
+            $specializations = $db->table('doctors')
+                ->select('specialization')
+                ->distinct()
+                ->where('specialization IS NOT NULL')
+                ->where('specialization !=', '')
+                ->orderBy('specialization', 'ASC')
+                ->get()
+                ->getResultArray();
+            $specializations = array_column($specializations, 'specialization');
+        }
+        
+        // If no specializations found, use default ones from seeder
+        if (empty($specializations)) {
+            $specializations = [
+                'Internal Medicine',
+                'Pediatrics',
+                'Family Medicine',
+                'Obstetrics and Gynecology',
+                'General Surgery'
+            ];
+        }
 
         $data = [
             'title' => 'Add New User',
             'roles' => $roles,
+            'doctorRoleId' => $doctorRole ? $doctorRole['id'] : null,
+            'specializations' => $specializations,
         ];
 
         return view('itstaff/users/create', $data);
@@ -70,15 +147,27 @@ class UserManagementController extends BaseController
             return redirect()->to('/auth')->with('error', 'You must be logged in as IT staff to access this page.');
         }
 
-        $validation = $this->validate([
+        $db = \Config\Database::connect();
+        
+        // Get role name to check if it's doctor
+        $roleId = $this->request->getPost('role_id');
+        $role = $db->table('roles')->where('id', $roleId)->get()->getRowArray();
+        $isDoctor = $role && strtolower($role['name']) === 'doctor';
+        
+        $validationRules = [
             'username' => 'required|min_length[3]|max_length[100]|is_unique[users.username]',
             'email' => 'required|valid_email|is_unique[users.email]',
             'password' => 'required|min_length[6]',
             'role_id' => 'required|integer|greater_than[0]',
             'status' => 'required|in_list[active,inactive]',
-        ]);
+        ];
+        
+        // Add specialization validation if role is doctor
+        if ($isDoctor) {
+            $validationRules['specialization'] = 'required';
+        }
 
-        if (!$validation) {
+        if (!$this->validate($validationRules)) {
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
@@ -93,8 +182,33 @@ class UserManagementController extends BaseController
         ];
 
         if ($this->userModel->insert($data)) {
+            $userId = $this->userModel->getInsertID();
+            
+            // If doctor role, create doctor record
+            if ($isDoctor && $db->tableExists('doctors')) {
+                $specialization = $this->request->getPost('specialization');
+                $doctorName = 'Dr. ' . ucwords(strtolower($this->request->getPost('username')));
+                
+                // Try to extract name from username (remove 'dr.' prefix and format)
+                $username = strtolower($this->request->getPost('username'));
+                $namePart = preg_replace('/^dr\./', '', $username);
+                $namePart = str_replace('.', ' ', $namePart);
+                $namePart = ucwords($namePart);
+                $doctorName = 'Dr. ' . $namePart;
+                
+                $doctorData = [
+                    'doctor_name' => $doctorName,
+                    'specialization' => $specialization,
+                    'user_id' => $userId,
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ];
+                
+                $db->table('doctors')->insert($doctorData);
+            }
+            
             // Log the user creation
-            $this->logUserAction('User created', $this->userModel->getInsertID());
+            $this->logUserAction('User created', $userId);
             
             return redirect()->to('/it/users')->with('success', 'User created successfully.');
         } else {

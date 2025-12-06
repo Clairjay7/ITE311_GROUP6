@@ -170,6 +170,52 @@
         color: #991b1b;
         border-left: 4px solid #ef4444;
     }
+    
+    /* Role Filter Buttons */
+    .role-filter-btn {
+        padding: 10px 20px;
+        border: 2px solid #e5e7eb;
+        border-radius: 10px;
+        background: white;
+        color: #475569;
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .role-filter-btn:hover {
+        border-color: #2e7d32;
+        color: #2e7d32;
+        background: #f0fdf4;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(46, 125, 50, 0.2);
+    }
+    
+    .role-filter-btn.active {
+        background: linear-gradient(135deg, #2e7d32 0%, #4caf50 100%);
+        color: white;
+        border-color: #2e7d32;
+        box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
+    }
+    
+    .role-filter-btn.active:hover {
+        background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+        border-color: #2563eb;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    }
+    
+    /* Hide rows by default, show via JavaScript */
+    .user-row {
+        display: table-row;
+    }
+    
+    .user-row.hidden {
+        display: none;
+    }
 </style>
 
 <div class="admin-page-container">
@@ -200,6 +246,40 @@
         </div>
     <?php endif; ?>
 
+    <!-- Role Filter Buttons -->
+    <div class="modern-card" style="margin-bottom: 24px; padding: 20px;">
+        <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center;">
+            <span style="font-weight: 600; color: #1e293b; margin-right: 8px;">Filter by Role:</span>
+            <button type="button" class="role-filter-btn active" data-role="all">
+                <i class="fas fa-users"></i> All Users
+            </button>
+            <button type="button" class="role-filter-btn" data-role="doctor">
+                <i class="fas fa-user-md"></i> Doctors
+            </button>
+            <button type="button" class="role-filter-btn" data-role="nurse">
+                <i class="fas fa-user-nurse"></i> Nurses
+            </button>
+            <button type="button" class="role-filter-btn" data-role="receptionist">
+                <i class="fas fa-user-tie"></i> Receptionists
+            </button>
+            <button type="button" class="role-filter-btn" data-role="admin">
+                <i class="fas fa-user-shield"></i> Admin
+            </button>
+            <button type="button" class="role-filter-btn" data-role="itstaff">
+                <i class="fas fa-user-cog"></i> IT Staff
+            </button>
+            <button type="button" class="role-filter-btn" data-role="finance">
+                <i class="fas fa-dollar-sign"></i> Finance
+            </button>
+            <button type="button" class="role-filter-btn" data-role="lab-staff">
+                <i class="fas fa-flask"></i> Lab Staff
+            </button>
+            <button type="button" class="role-filter-btn" data-role="pharmacy">
+                <i class="fas fa-pills"></i> Pharmacy
+            </button>
+        </div>
+    </div>
+
     <div class="modern-card">
         <div class="table-responsive">
             <table class="table-modern">
@@ -219,7 +299,7 @@
                         <?php foreach ($users as $user): 
                             $isDeleted = !empty($user['deleted_at']);
                         ?>
-                            <tr>
+                            <tr class="user-row" data-role="<?= esc(strtolower(str_replace('_', '-', $user['role_name'] ?? 'all'))) ?>">
                                 <td><strong>#<?= esc($user['id']) ?></strong></td>
                                 <td><strong><?= esc($user['username']) ?></strong></td>
                                 <td><?= esc($user['email']) ?></td>
@@ -227,6 +307,12 @@
                                     <span class="badge-modern" style="background: #e0f2fe; color: #0369a1;">
                                         <?= esc(ucfirst(str_replace('_', ' ', $user['role_name'] ?? 'N/A'))) ?>
                                     </span>
+                                    <?php if (!empty($user['doctor_specialization'])): ?>
+                                        <br>
+                                        <small style="color: #64748b; font-size: 12px; margin-top: 4px; display: block;">
+                                            <i class="fas fa-stethoscope"></i> <?= esc($user['doctor_specialization']) ?>
+                                        </small>
+                                    <?php endif; ?>
                                 </td>
                                 <td>
                                     <span class="badge-modern" style="background: <?= $user['status'] == 'active' ? '#d1fae5' : '#fee2e2'; ?>; color: <?= $user['status'] == 'active' ? '#065f46' : '#991b1b'; ?>;">
@@ -270,5 +356,52 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const filterButtons = document.querySelectorAll('.role-filter-btn');
+    const userRows = document.querySelectorAll('.user-row');
+    
+    filterButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const selectedRole = this.getAttribute('data-role');
+            
+            // Update active button
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Filter rows
+            userRows.forEach(row => {
+                const rowRole = row.getAttribute('data-role');
+                
+                if (selectedRole === 'all') {
+                    row.classList.remove('hidden');
+                } else {
+                    // Normalize both roles for comparison (handle both underscore and hyphen)
+                    const normalizedRowRole = rowRole.replace(/_/g, '-');
+                    const normalizedSelectedRole = selectedRole.replace(/_/g, '-');
+                    
+                    if (normalizedRowRole === normalizedSelectedRole) {
+                        row.classList.remove('hidden');
+                    } else {
+                        row.classList.add('hidden');
+                    }
+                }
+            });
+            
+            // Show/hide empty message
+            const visibleRows = Array.from(userRows).filter(row => !row.classList.contains('hidden'));
+            const emptyRow = document.querySelector('tbody tr:not(.user-row)');
+            if (emptyRow) {
+                if (visibleRows.length === 0) {
+                    emptyRow.style.display = 'table-row';
+                } else {
+                    emptyRow.style.display = 'none';
+                }
+            }
+        });
+    });
+});
+</script>
 <?= $this->endSection() ?>
 

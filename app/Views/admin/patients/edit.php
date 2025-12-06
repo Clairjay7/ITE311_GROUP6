@@ -60,7 +60,10 @@
                 <?php if (!empty($doctors)): ?>
                     <?php foreach ($doctors as $doctor): ?>
                         <option value="<?= esc($doctor['id']) ?>" <?= old('doctor_id', $patient['doctor_id'] ?? null) == $doctor['id'] ? 'selected' : '' ?>>
-                            <?= esc($doctor['username']) ?> <?= !empty($doctor['email']) ? '(' . esc($doctor['email']) . ')' : '' ?>
+                            <?= esc($doctor['doctor_name'] ?? $doctor['id']) ?>
+                            <?php if (!empty($doctor['specialization'])): ?>
+                              - <?= esc($doctor['specialization']) ?>
+                            <?php endif; ?>
                         </option>
                     <?php endforeach; ?>
                 <?php else: ?>

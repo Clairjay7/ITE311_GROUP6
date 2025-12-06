@@ -7,7 +7,7 @@ use App\Models\HMSPatientModel;
 use App\Models\AdminPatientModel;
 use App\Models\TriageModel;
 use App\Models\AuditLogModel;
-use App\Models\DoctorDirectoryModel;
+use App\Models\DoctorModel;
 
 class TriageController extends BaseController
 {
@@ -24,7 +24,7 @@ class TriageController extends BaseController
         $this->adminPatientModel = new AdminPatientModel();
         $this->triageModel = new TriageModel();
         $this->auditLogModel = new AuditLogModel();
-        $this->doctorModel = new DoctorDirectoryModel();
+        $this->doctorModel = new DoctorModel();
     }
 
     /**
@@ -1116,149 +1116,60 @@ class TriageController extends BaseController
 
         $availableDoctors = [];
         
-        // Get doctors from users table
-        if ($db->tableExists('users')) {
-            $userDoctors = $db->table('users')
-                ->select('users.id, users.username, users.email')
-                ->join('roles', 'roles.id = users.role_id', 'left')
-                ->where('LOWER(roles.name)', 'doctor')
-                ->where('users.status', 'active')
-                ->orderBy('users.username', 'ASC')
-                ->get()
-                ->getResultArray();
-
-            foreach ($userDoctors as $userDoctor) {
-                // If time is provided, check if doctor is already booked at that time
-                if (!empty($time)) {
-                    $hasConflict = false;
+        // Get doctors from doctors table (primary source)
+        $doctors = $this->doctorModel->getAllDoctors();
+        
+        foreach ($doctors as $doctor) {
+            // If time is provided, check if doctor is already booked at that time
+            if (!empty($time)) {
+                $hasConflict = false;
+                
+                // Check for appointment conflict
+                if ($db->tableExists('appointments')) {
+                    $appointmentConflict = $db->table('appointments')
+                        ->where('doctor_id', $doctor['id'])
+                        ->where('appointment_date', $date)
+                        ->where('appointment_time', $time)
+                        ->whereNotIn('status', ['cancelled', 'no_show'])
+                        ->countAllResults();
                     
-                    // Check for appointment conflict
-                    if ($db->tableExists('appointments')) {
-                        $appointmentConflict = $db->table('appointments')
-                            ->where('doctor_id', $userDoctor['id'])
-                            ->where('appointment_date', $date)
-                            ->where('appointment_time', $time)
-                            ->whereNotIn('status', ['cancelled', 'no_show'])
-                            ->countAllResults();
-                        
-                        if ($appointmentConflict > 0) {
-                            $hasConflict = true;
-                        }
-                    }
-                    
-                    // Check for consultation conflict
-                    if (!$hasConflict && $db->tableExists('consultations')) {
-                        $consultationConflict = $db->table('consultations')
-                            ->where('doctor_id', $userDoctor['id'])
-                            ->where('consultation_date', $date)
-                            ->where('consultation_time', $time)
-                            ->whereNotIn('status', ['cancelled'])
-                            ->countAllResults();
-                        
-                        if ($consultationConflict > 0) {
-                            $hasConflict = true;
-                        }
-                    }
-                    
-                    // Skip this doctor if they have a conflict at the requested time
-                    if ($hasConflict) {
-                        continue;
+                    if ($appointmentConflict > 0) {
+                        $hasConflict = true;
                     }
                 }
                 
-                // Get specialization from doctors table if exists
-                $specialization = 'General Practice';
-                if ($db->tableExists('doctors')) {
-                    $doctorInfo = $db->table('doctors')
-                        ->where('id', $userDoctor['id'])
-                        ->get()
-                        ->getRowArray();
-                    if ($doctorInfo) {
-                        $specialization = $doctorInfo['specialization'] ?? 'General Practice';
+                // Check for consultation conflict
+                if (!$hasConflict && $db->tableExists('consultations')) {
+                    $consultationConflict = $db->table('consultations')
+                        ->where('doctor_id', $doctor['id'])
+                        ->where('consultation_date', $date)
+                        ->where('consultation_time', $time)
+                        ->whereNotIn('status', ['cancelled'])
+                        ->countAllResults();
+                    
+                    if ($consultationConflict > 0) {
+                        $hasConflict = true;
                     }
                 }
-
-                // Check schedule availability
-                $scheduleInfo = $this->getDoctorScheduleInfo($userDoctor['id'], $date, $time, $db);
                 
-                $availableDoctors[] = [
-                    'id' => $userDoctor['id'],
-                    'name' => $userDoctor['username'] ?? 'Dr. ' . $userDoctor['id'],
-                    'specialization' => $specialization,
-                    'schedule_status' => $scheduleInfo['status'], // 'available', 'scheduled', 'full', 'off_duty'
-                    'schedule_time' => $scheduleInfo['schedule_time'],
-                    'current_appointments' => $scheduleInfo['current_appointments'],
-                    'max_capacity' => $scheduleInfo['max_capacity'],
-                ];
-            }
-        }
-
-        // Also include doctors from doctors table if not already in list
-        if ($db->tableExists('doctors')) {
-            $doctors = $this->doctorModel->findAll();
-            foreach ($doctors as $doctor) {
-                // Check if already added
-                $alreadyAdded = false;
-                foreach ($availableDoctors as $doc) {
-                    if ($doc['id'] == $doctor['id']) {
-                        $alreadyAdded = true;
-                        break;
-                    }
-                }
-
-                if (!$alreadyAdded) {
-                    // If time is provided, check if doctor is already booked at that time
-                    if (!empty($time)) {
-                        $hasConflict = false;
-                        
-                        // Check for appointment conflict
-                        if ($db->tableExists('appointments')) {
-                            $appointmentConflict = $db->table('appointments')
-                                ->where('doctor_id', $doctor['id'])
-                                ->where('appointment_date', $date)
-                                ->where('appointment_time', $time)
-                                ->whereNotIn('status', ['cancelled', 'no_show'])
-                                ->countAllResults();
-                            
-                            if ($appointmentConflict > 0) {
-                                $hasConflict = true;
-                            }
-                        }
-                        
-                        // Check for consultation conflict
-                        if (!$hasConflict && $db->tableExists('consultations')) {
-                            $consultationConflict = $db->table('consultations')
-                                ->where('doctor_id', $doctor['id'])
-                                ->where('consultation_date', $date)
-                                ->where('consultation_time', $time)
-                                ->whereNotIn('status', ['cancelled'])
-                                ->countAllResults();
-                            
-                            if ($consultationConflict > 0) {
-                                $hasConflict = true;
-                            }
-                        }
-                        
-                        // Skip this doctor if they have a conflict at the requested time
-                        if ($hasConflict) {
-                            continue;
-                        }
-                    }
-                    
-                    // Check schedule availability
-                    $scheduleInfo = $this->getDoctorScheduleInfo($doctor['id'], $date, $time, $db);
-                    
-                    $availableDoctors[] = [
-                        'id' => $doctor['id'],
-                        'name' => $doctor['doctor_name'] ?? 'Dr. ' . $doctor['id'],
-                        'specialization' => $doctor['specialization'] ?? 'General Practice',
-                        'schedule_status' => $scheduleInfo['status'],
-                        'schedule_time' => $scheduleInfo['schedule_time'],
-                        'current_appointments' => $scheduleInfo['current_appointments'],
-                        'max_capacity' => $scheduleInfo['max_capacity'],
-                    ];
+                // Skip this doctor if they have a conflict at the requested time
+                if ($hasConflict) {
+                    continue;
                 }
             }
+            
+            // Check schedule availability
+            $scheduleInfo = $this->getDoctorScheduleInfo($doctor['id'], $date, $time, $db);
+            
+            $availableDoctors[] = [
+                'id' => $doctor['id'],
+                'name' => $doctor['doctor_name'] ?? 'Dr. ' . $doctor['id'],
+                'specialization' => $doctor['specialization'] ?? 'General Practice',
+                'schedule_status' => $scheduleInfo['status'], // 'available', 'scheduled', 'full', 'off_duty'
+                'schedule_time' => $scheduleInfo['schedule_time'],
+                'current_appointments' => $scheduleInfo['current_appointments'],
+                'max_capacity' => $scheduleInfo['max_capacity'],
+            ];
         }
 
         return $this->response->setJSON([

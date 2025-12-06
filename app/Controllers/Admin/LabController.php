@@ -9,6 +9,7 @@ use App\Models\LabTestModel;
 use App\Models\LabRequestModel;
 use App\Models\ChargeModel;
 use App\Models\BillingItemModel;
+use App\Models\DoctorModel;
 
 class LabController extends BaseController
 {
@@ -18,6 +19,7 @@ class LabController extends BaseController
     protected $labRequestModel;
     protected $chargeModel;
     protected $billingItemModel;
+    protected $doctorModel;
 
     public function __construct()
     {
@@ -28,6 +30,7 @@ class LabController extends BaseController
         $this->labRequestModel = new LabRequestModel();
         $this->chargeModel = new ChargeModel();
         $this->billingItemModel = new BillingItemModel();
+        $this->doctorModel = new DoctorModel();
     }
 
     public function index()
@@ -97,99 +100,78 @@ class LabController extends BaseController
 
         $availableDoctors = [];
         
-        // Get doctors from users table
-        if ($db->tableExists('users')) {
-            $userDoctors = $db->table('users')
-                ->select('users.id, users.username, users.email')
-                ->join('roles', 'roles.id = users.role_id', 'left')
-                ->where('LOWER(roles.name)', 'doctor')
-                ->where('users.status', 'active')
-                ->orderBy('users.username', 'ASC')
+        // Get doctors from doctors table (primary source)
+        $doctors = $this->doctorModel->getAllDoctors();
+        
+        foreach ($doctors as $doctor) {
+            // Get doctor's schedule for the selected date
+            $doctorSchedule = $db->table('doctor_schedules')
+                ->where('doctor_id', $doctor['id'])
+                ->where('shift_date', $date)
+                ->where('status', 'active')
+                ->orderBy('start_time', 'ASC')
                 ->get()
                 ->getResultArray();
 
-            foreach ($userDoctors as $userDoctor) {
-                // Get specialization from doctors table if exists
-                $specialization = 'General Practice';
-                if ($db->tableExists('doctors')) {
-                    $doctorInfo = $db->table('doctors')
-                        ->where('id', $userDoctor['id'])
-                        ->get()
-                        ->getRowArray();
-                    if ($doctorInfo) {
-                        $specialization = $doctorInfo['specialization'] ?? 'General Practice';
-                    }
+            $scheduleStatus = 'no_schedule';
+            $scheduleTime = '';
+            $currentAppointments = 0;
+            $maxCapacity = 0;
+            $availableSlots = 0;
+
+            if (!empty($doctorSchedule)) {
+                $scheduleStatus = 'available';
+                $scheduleTimes = [];
+                foreach ($doctorSchedule as $schedule) {
+                    $scheduleTimes[] = substr($schedule['start_time'], 0, 5) . ' - ' . substr($schedule['end_time'], 0, 5);
+                    // Calculate max capacity based on 1-hour slots
+                    $start = strtotime($schedule['start_time']);
+                    $end = strtotime($schedule['end_time']);
+                    $maxCapacity += floor(($end - $start) / 3600); // Assuming 1-hour slots
                 }
+                $scheduleTime = implode(', ', $scheduleTimes);
 
-                // Get doctor's schedule for the selected date
-                $doctorSchedule = $db->table('doctor_schedules')
-                    ->where('doctor_id', $userDoctor['id'])
-                    ->where('shift_date', $date)
-                    ->where('status', 'active')
-                    ->orderBy('start_time', 'ASC')
-                    ->get()
-                    ->getResultArray();
+                // Get current appointments for this doctor on this date
+                $currentAppointments = $db->table('consultations')
+                    ->where('doctor_id', $doctor['id'])
+                    ->where('consultation_date', $date)
+                    ->whereNotIn('status', ['cancelled'])
+                    ->countAllResults();
+                
+                $availableSlots = $maxCapacity - $currentAppointments;
 
-                $scheduleStatus = 'no_schedule';
-                $scheduleTime = '';
-                $currentAppointments = 0;
-                $maxCapacity = 0;
-                $availableSlots = 0;
-
-                if (!empty($doctorSchedule)) {
-                    $scheduleStatus = 'available';
-                    $scheduleTimes = [];
-                    foreach ($doctorSchedule as $schedule) {
-                        $scheduleTimes[] = substr($schedule['start_time'], 0, 5) . ' - ' . substr($schedule['end_time'], 0, 5);
-                        // Calculate max capacity based on 1-hour slots
-                        $start = strtotime($schedule['start_time']);
-                        $end = strtotime($schedule['end_time']);
-                        $maxCapacity += floor(($end - $start) / 3600); // Assuming 1-hour slots
-                    }
-                    $scheduleTime = implode(', ', $scheduleTimes);
-
-                    // Get current appointments for this doctor on this date
-                    $currentAppointments = $db->table('consultations')
-                        ->where('doctor_id', $userDoctor['id'])
-                        ->where('consultation_date', $date)
-                        ->whereNotIn('status', ['cancelled'])
-                        ->countAllResults();
-                    
-                    $availableSlots = $maxCapacity - $currentAppointments;
-
-                    if ($maxCapacity > 0) {
-                        $occupancy = ($currentAppointments / $maxCapacity) * 100;
-                        if ($occupancy >= 100) {
-                            $scheduleStatus = 'full';
-                        } elseif ($occupancy >= 80) {
-                            $scheduleStatus = 'busy';
-                        }
-                    } else {
-                        $scheduleStatus = 'no_capacity';
+                if ($maxCapacity > 0) {
+                    $occupancy = ($currentAppointments / $maxCapacity) * 100;
+                    if ($occupancy >= 100) {
+                        $scheduleStatus = 'full';
+                    } elseif ($occupancy >= 80) {
+                        $scheduleStatus = 'busy';
                     }
                 } else {
-                    // Check if doctor has any schedule at all
-                    $anySchedule = $db->table('doctor_schedules')
-                        ->where('doctor_id', $userDoctor['id'])
-                        ->countAllResults();
-                    if ($anySchedule > 0) {
-                        $scheduleStatus = 'off_duty'; // Has schedule but not for today
-                    } else {
-                        $scheduleStatus = 'no_schedule'; // No schedule ever set
-                    }
+                    $scheduleStatus = 'no_capacity';
                 }
-
-                $availableDoctors[] = [
-                    'id' => $userDoctor['id'],
-                    'name' => $userDoctor['username'] ?? 'Dr. ' . $userDoctor['id'],
-                    'specialization' => $specialization,
-                    'schedule_status' => $scheduleStatus,
-                    'schedule_time' => $scheduleTime,
-                    'current_appointments' => $currentAppointments,
-                    'max_capacity' => $maxCapacity,
-                    'available_slots' => $availableSlots,
-                ];
+            } else {
+                // Check if doctor has any schedule at all
+                $anySchedule = $db->table('doctor_schedules')
+                    ->where('doctor_id', $doctor['id'])
+                    ->countAllResults();
+                if ($anySchedule > 0) {
+                    $scheduleStatus = 'off_duty'; // Has schedule but not for today
+                } else {
+                    $scheduleStatus = 'no_schedule'; // No schedule ever set
+                }
             }
+
+            $availableDoctors[] = [
+                'id' => $doctor['id'],
+                'name' => $doctor['doctor_name'] ?? 'Dr. ' . $doctor['id'],
+                'specialization' => $doctor['specialization'] ?? 'General Practice',
+                'schedule_status' => $scheduleStatus,
+                'schedule_time' => $scheduleTime,
+                'current_appointments' => $currentAppointments,
+                'max_capacity' => $maxCapacity,
+                'available_slots' => $availableSlots,
+            ];
         }
 
         return $this->response->setJSON([

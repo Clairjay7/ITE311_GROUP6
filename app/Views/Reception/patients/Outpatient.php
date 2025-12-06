@@ -189,50 +189,6 @@ $errors = session('errors') ?? [];
         border-left: 4px solid var(--primary-color);
     }
     
-    /* Insurance Toggle */
-    .insurance-toggle {
-        display: flex;
-        gap: 16px;
-        margin-bottom: 16px;
-        flex-wrap: wrap;
-    }
-    
-    .insurance-toggle label {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        cursor: pointer;
-        padding: 10px 20px;
-        border: 2px solid #e5e7eb;
-        border-radius: 10px;
-        transition: all 0.2s ease;
-        font-weight: 500;
-    }
-    
-    .insurance-toggle input[type="radio"],
-    .insurance-toggle input[type="checkbox"] {
-        width: 18px;
-        height: 18px;
-        accent-color: var(--primary-color);
-    }
-    
-    .insurance-toggle label:has(input:checked) {
-        border-color: var(--primary-color);
-        background: #e8f5e9;
-    }
-    
-    .insurance-fields {
-        display: block;
-        padding: 16px;
-        background: #f8fafc;
-        border-radius: 10px;
-        margin-top: 16px;
-    }
-    
-    .insurance-fields.hidden {
-        display: none;
-    }
-    
     /* Visit Type Cards */
     .visit-type-options {
         display: grid;
@@ -390,6 +346,155 @@ $errors = session('errors') ?? [];
         color: #475569;
     }
     
+    /* Step-by-Step Form Styles */
+    .form-steps {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 32px;
+        padding: 0 20px;
+        position: relative;
+    }
+    
+    .form-steps::before {
+        content: '';
+        position: absolute;
+        top: 20px;
+        left: 10%;
+        right: 10%;
+        height: 2px;
+        background: #e5e7eb;
+        z-index: 0;
+    }
+    
+    .step {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        flex: 1;
+    }
+    
+    .step-number {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #e5e7eb;
+        color: #64748b;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 16px;
+        margin-bottom: 8px;
+        transition: all 0.3s ease;
+    }
+    
+    .step.active .step-number {
+        background: var(--primary-color);
+        color: white;
+        box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
+    }
+    
+    .step.completed .step-number {
+        background: #10b981;
+        color: white;
+    }
+    
+    .step-title {
+        font-size: 12px;
+        color: #64748b;
+        text-align: center;
+        font-weight: 600;
+    }
+    
+    .step.active .step-title {
+        color: var(--primary-color);
+    }
+    
+    .step.completed .step-title {
+        color: #10b981;
+    }
+    
+    .form-step {
+        display: none;
+    }
+    
+    .form-step.active {
+        display: block;
+        animation: fadeIn 0.3s ease;
+    }
+    
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .step-navigation {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 32px;
+        padding-top: 24px;
+        border-top: 2px solid #e5e7eb;
+    }
+    
+    .btn-step {
+        padding: 12px 24px;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s ease;
+    }
+    
+    .btn-step-next {
+        background: linear-gradient(135deg, var(--gradient-1) 0%, var(--gradient-2) 100%);
+        color: white;
+        margin-left: auto;
+    }
+    
+    .btn-step-next:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
+    }
+    
+    .btn-step-prev {
+        background: #f1f5f9;
+        color: #64748b;
+        border: 2px solid #e5e7eb;
+    }
+    
+    .btn-step-prev:hover {
+        background: #e5e7eb;
+        color: #475569;
+    }
+    
+    .btn-step:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    
+    .validation-error {
+        color: #ef4444;
+        font-size: 13px;
+        margin-top: 8px;
+        display: none;
+    }
+    
+    .validation-error.show {
+        display: block;
+    }
+    
     /* Type Badge */
     .type-badge {
         display: inline-block;
@@ -430,11 +535,28 @@ $errors = session('errors') ?? [];
 
     <div class="form-card">
         <div class="form-card-body">
+            <!-- Step Indicators -->
+            <div class="form-steps">
+                <div class="step active" data-step="1">
+                    <div class="step-number">1</div>
+                    <div class="step-title">Patient Info</div>
+                </div>
+                <div class="step" data-step="2">
+                    <div class="step-number">2</div>
+                    <div class="step-title">Visit Details</div>
+                </div>
+                <div class="step" data-step="3">
+                    <div class="step-number">3</div>
+                    <div class="step-title">Additional</div>
+                </div>
+            </div>
+            
             <form method="post" action="<?= site_url('receptionist/patients/store') ?>" id="outpatientForm">
         <?= csrf_field() ?>
                 <input type="hidden" name="type" value="Out-Patient">
 
-                <!-- PATIENT INFORMATION -->
+                <!-- STEP 1: PATIENT INFORMATION -->
+                <div class="form-step active" data-step="1">
                 <div class="form-section">
                     <h3 class="section-title">
                         <i class="fas fa-user"></i> Patient Information
@@ -509,8 +631,10 @@ $errors = session('errors') ?? [];
                         </div>
           </div>
           </div>
+                </div>
 
-                <!-- VISIT DETAILS -->
+                <!-- STEP 2: VISIT DETAILS -->
+                <div class="form-step" data-step="2">
                 <div class="form-section">
                     <h3 class="section-title">
                         <i class="fas fa-clipboard-list"></i> Visit Details
@@ -548,7 +672,7 @@ $errors = session('errors') ?? [];
                                 <option value="">-- Choose Doctor --</option>
                 <?php if (!empty($doctors)): ?>
                   <?php foreach ($doctors as $doctor): ?>
-                    <option value="<?= esc($doctor['id']) ?>" <?= set_select('doctor_id', (string)$doctor['id']) ?>>
+                    <option value="<?= esc($doctor['id']) ?>" <?= set_select('doctor_id', (string)$doctor['id']) ?> data-specialization="<?= esc(strtolower($doctor['specialization'] ?? '')) ?>">
                                             Dr. <?= esc($doctor['doctor_name'] ?? $doctor['id']) ?>
                       <?php if (!empty($doctor['specialization'])): ?>
                         - <?= esc($doctor['specialization']) ?>
@@ -607,65 +731,10 @@ $errors = session('errors') ?? [];
                         </div>
                     </div>
                 </div>
-
-                <!-- INSURANCE INFORMATION -->
-                <div class="form-section">
-                    <h3 class="section-title">
-                        <i class="fas fa-shield-alt"></i> Insurance Information <span class="optional">(Optional)</span>
-                    </h3>
-                    
-                    <div class="form-group">
-                        <div class="insurance-toggle">
-                            <label>
-                                <input type="checkbox" name="no_insurance" id="no_insurance" value="1"> 
-                                <i class="fas fa-times-circle" style="color: #94a3b8;"></i> No Insurance
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <div class="insurance-fields" id="insurance_fields">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label class="form-label">Insurance Provider</label>
-                                <select name="insurance_provider" class="form-select" id="insurance_provider">
-                                    <option value="">-- Select Provider --</option>
-                                    <option value="PhilHealth" <?= set_select('insurance_provider', 'PhilHealth') ?>>PhilHealth</option>
-                                    <option value="Maxicare" <?= set_select('insurance_provider', 'Maxicare') ?>>Maxicare</option>
-                                    <option value="Medicard" <?= set_select('insurance_provider', 'Medicard') ?>>Medicard</option>
-                                    <option value="Intellicare" <?= set_select('insurance_provider', 'Intellicare') ?>>Intellicare</option>
-                                    <option value="Pacific Cross" <?= set_select('insurance_provider', 'Pacific Cross') ?>>Pacific Cross</option>
-                                    <option value="Cocolife" <?= set_select('insurance_provider', 'Cocolife') ?>>Cocolife</option>
-                                    <option value="AXA" <?= set_select('insurance_provider', 'AXA') ?>>AXA Philippines</option>
-                                    <option value="Sun Life" <?= set_select('insurance_provider', 'Sun Life') ?>>Sun Life</option>
-                                    <option value="Pru Life UK" <?= set_select('insurance_provider', 'Pru Life UK') ?>>Pru Life UK</option>
-                                    <option value="Other" <?= set_select('insurance_provider', 'Other') ?>>Other</option>
-                                </select>
-                                <div class="form-hint">Select the patient's insurance provider if applicable</div>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label class="form-label">Policy Number / Member ID</label>
-                                <input type="text" name="insurance_number" class="form-control" id="insurance_number"
-                                       value="<?= set_value('insurance_number') ?>" placeholder="Enter policy or member ID">
-                            </div>
-                        </div>
-                        
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label class="form-label">Coverage Type</label>
-                                <select name="payment_type" class="form-select">
-                                    <option value="">-- Select Coverage --</option>
-                                    <option value="Insurance" <?= set_select('payment_type', 'Insurance') ?>>Full Insurance Coverage</option>
-                                    <option value="Cash" <?= set_select('payment_type', 'Cash') ?>>Partial Coverage (Co-pay)</option>
-                                    <option value="Credit" <?= set_select('payment_type', 'Credit') ?>>Credit/Deferred Payment</option>
-                                </select>
-                                <div class="form-hint">Select basic coverage information if needed</div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
-                <!-- ADDITIONAL DETAILS -->
+                <!-- STEP 3: ADDITIONAL DETAILS -->
+                <div class="form-step" data-step="3">
                 <div class="form-section">
                     <h3 class="section-title">
                         <i class="fas fa-plus-circle"></i> Additional Details <span class="optional">(Optional)</span>
@@ -732,10 +801,17 @@ $errors = session('errors') ?? [];
             </div>
           </div>
         </div>
+                </div>
 
-                <!-- FORM ACTIONS -->
-                <div class="form-actions">
-                    <button type="submit" class="btn-submit">
+                <!-- STEP NAVIGATION -->
+                <div class="step-navigation">
+                    <button type="button" class="btn-step btn-step-prev" id="prevStep" style="display: none;">
+                        <i class="fas fa-arrow-left"></i> Previous
+                    </button>
+                    <button type="button" class="btn-step btn-step-next" id="nextStep">
+                        Next <i class="fas fa-arrow-right"></i>
+                    </button>
+                    <button type="submit" class="btn-step btn-step-next" id="submitForm" style="display: none;">
                         <i class="fas fa-user-plus"></i> Register Out-Patient
                     </button>
                     <a href="<?= site_url('receptionist/patients') ?>" class="btn-cancel">
@@ -749,9 +825,297 @@ $errors = session('errors') ?? [];
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Step-by-Step Form Navigation
+    let currentStep = 1;
+    const totalSteps = 3;
+    const formSteps = document.querySelectorAll('.form-step');
+    const stepIndicators = document.querySelectorAll('.step');
+    const prevBtn = document.getElementById('prevStep');
+    const nextBtn = document.getElementById('nextStep');
+    const submitBtn = document.getElementById('submitForm');
+    
+    // Define required fields for each step
+    const stepRequiredFields = {
+        1: ['first_name', 'last_name', 'date_of_birth', 'gender', 'contact', 'address'],
+        2: ['visit_type', 'purpose'], // doctor_id, appointment_day, appointment_time are conditional
+        3: [] // All optional (additional details)
+    };
+    
+    // Function to validate a step
+    function validateStep(step) {
+        const requiredFields = stepRequiredFields[step];
+        if (!requiredFields || requiredFields.length === 0) {
+            return { valid: true, errors: [] };
+        }
+        
+        const errors = [];
+        requiredFields.forEach(fieldName => {
+            const field = document.querySelector(`[name="${fieldName}"]`);
+            if (!field) return;
+            
+            let isValid = true;
+            let value = '';
+            
+            if (field.type === 'radio') {
+                const radioGroup = document.querySelectorAll(`[name="${fieldName}"]`);
+                const checked = Array.from(radioGroup).some(radio => radio.checked);
+                isValid = checked;
+            } else if (field.type === 'checkbox') {
+                isValid = field.checked;
+            } else if (field.tagName === 'SELECT') {
+                value = field.value.trim();
+                isValid = value !== '' && value !== '-- Select Gender --';
+            } else {
+                value = field.value.trim();
+                isValid = value !== '';
+            }
+            
+            if (!isValid) {
+                errors.push(fieldName);
+                field.classList.add('is-invalid');
+            } else {
+                field.classList.remove('is-invalid');
+            }
+        });
+        
+        // Special validation for step 2 (Visit Details)
+        if (step === 2) {
+            const visitType = document.querySelector('input[name="visit_type"]:checked')?.value;
+            if (visitType === 'Consultation') {
+                const doctorId = document.getElementById('doctor_id');
+                const appointmentDay = document.getElementById('appointment_day');
+                const appointmentTime = document.getElementById('appointment_time');
+                
+                if (!doctorId?.value || doctorId.value === '-- Choose Doctor --') {
+                    errors.push('doctor_id');
+                    if (doctorId) doctorId.classList.add('is-invalid');
+                }
+                if (!appointmentDay?.value || appointmentDay.disabled) {
+                    errors.push('appointment_day');
+                    if (appointmentDay) appointmentDay.classList.add('is-invalid');
+                }
+                if (!appointmentTime?.value || appointmentTime.disabled) {
+                    errors.push('appointment_time');
+                    if (appointmentTime) appointmentTime.classList.add('is-invalid');
+                }
+            }
+        }
+        
+        return {
+            valid: errors.length === 0,
+            errors: errors
+        };
+    }
+    
+    // Function to show step
+    function showStep(step) {
+        // Hide all steps
+        formSteps.forEach((formStep, index) => {
+            if (index + 1 === step) {
+                formStep.classList.add('active');
+            } else {
+                formStep.classList.remove('active');
+            }
+        });
+        
+        // Update step indicators
+        stepIndicators.forEach((indicator, index) => {
+            const stepNum = index + 1;
+            indicator.classList.remove('active', 'completed');
+            if (stepNum < step) {
+                indicator.classList.add('completed');
+            } else if (stepNum === step) {
+                indicator.classList.add('active');
+            }
+        });
+        
+        // Update navigation buttons
+        if (prevBtn) {
+            prevBtn.style.display = step > 1 ? 'inline-flex' : 'none';
+        }
+        if (nextBtn) {
+            nextBtn.style.display = step < totalSteps ? 'inline-flex' : 'none';
+        }
+        if (submitBtn) {
+            submitBtn.style.display = step === totalSteps ? 'inline-flex' : 'none';
+        }
+        
+        // Scroll to top of form
+        document.querySelector('.form-card-body').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    
+    // Next step button
+    if (nextBtn) {
+        nextBtn.addEventListener('click', function() {
+            const validation = validateStep(currentStep);
+            if (validation.valid) {
+                if (currentStep < totalSteps) {
+                    currentStep++;
+                    showStep(currentStep);
+                }
+            } else {
+                // Show error message
+                const errorMsg = document.createElement('div');
+                errorMsg.className = 'validation-error show';
+                errorMsg.innerHTML = '<i class="fas fa-exclamation-circle"></i> Please fill in all required fields before proceeding.';
+                errorMsg.style.marginTop = '16px';
+                errorMsg.style.padding = '12px';
+                errorMsg.style.background = '#fee2e2';
+                errorMsg.style.borderRadius = '8px';
+                errorMsg.style.borderLeft = '4px solid #ef4444';
+                
+                // Remove existing error message
+                const existingError = document.querySelector('.form-step.active .validation-error');
+                if (existingError) {
+                    existingError.remove();
+                }
+                
+                // Add error message to current step
+                const currentStepElement = document.querySelector('.form-step.active');
+                if (currentStepElement) {
+                    currentStepElement.appendChild(errorMsg);
+                    
+                    // Scroll to first invalid field
+                    const firstInvalid = currentStepElement.querySelector('.is-invalid');
+                    if (firstInvalid) {
+                        firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        firstInvalid.focus();
+                    }
+                }
+            }
+        });
+    }
+    
+    // Previous step button
+    if (prevBtn) {
+        prevBtn.addEventListener('click', function() {
+            if (currentStep > 1) {
+                currentStep--;
+                showStep(currentStep);
+            }
+        });
+    }
+    
+    // Remove validation errors on input
+    document.querySelectorAll('input, select, textarea').forEach(field => {
+        field.addEventListener('input', function() {
+            this.classList.remove('is-invalid');
+            const errorMsg = document.querySelector('.form-step.active .validation-error');
+            if (errorMsg) {
+                errorMsg.remove();
+            }
+        });
+        
+        field.addEventListener('change', function() {
+            this.classList.remove('is-invalid');
+            const errorMsg = document.querySelector('.form-step.active .validation-error');
+            if (errorMsg) {
+                errorMsg.remove();
+            }
+        });
+    });
+    
+    // Initialize first step
+    showStep(1);
+    
   // Auto-calculate age from date of birth
   const dobInput = document.getElementById('date_of_birth');
   const ageInput = document.getElementById('age');
+  const doctorSelect = document.getElementById('doctor_id');
+  const doctorHint = document.getElementById('doctor_hint');
+  
+  // Store original doctor options data
+  let originalDoctorOptions = [];
+  
+  // Initialize original doctor options on page load
+  function initializeDoctorOptions() {
+    if (doctorSelect && originalDoctorOptions.length === 0) {
+      const options = Array.from(doctorSelect.options).slice(1);
+      if (options.length > 0) {
+        originalDoctorOptions = options.map(option => {
+          let specialization = (option.dataset.specialization || '').toLowerCase();
+          // Fallback: try to parse from text if data attribute is missing
+          if (!specialization && option.textContent) {
+            const match = option.textContent.match(/- ([^-]+)$/);
+            if (match) {
+              specialization = match[1].trim().toLowerCase();
+            }
+          }
+          return {
+            value: option.value,
+            text: option.textContent,
+            specialization: specialization
+          };
+        });
+      }
+    }
+  }
+  
+  // Function to filter doctors based on age
+  function filterDoctorsByAge() {
+    if (!doctorSelect) return;
+    
+    const patientAge = ageInput ? parseInt(ageInput.value) : -1;
+    const isPediatric = patientAge >= 0 && patientAge <= 17;
+    const isAdult = patientAge >= 18;
+    const currentValue = doctorSelect.value;
+    
+    // Clear current options
+    doctorSelect.innerHTML = '<option value="">-- Choose Doctor --</option>';
+    
+    // If original options not stored yet, try to initialize them
+    if (originalDoctorOptions.length === 0) {
+      initializeDoctorOptions();
+    }
+    
+    // Filter and add doctors based on age
+    originalDoctorOptions.forEach(doctor => {
+      let shouldShow = false;
+      
+      if (isPediatric) {
+        // Age 0-17: Show only Pediatrics doctors
+        shouldShow = doctor.specialization === 'pediatrics';
+        if (doctorHint && shouldShow) {
+          doctorHint.textContent = 'Select from the list of available Pediatric doctors';
+        }
+      } else if (isAdult) {
+        // Age 18+: Show all doctors EXCEPT Pediatrics
+        shouldShow = doctor.specialization !== 'pediatrics';
+        if (doctorHint) {
+          doctorHint.textContent = 'Select from the list of available doctors (excluding Pediatrics)';
+        }
+      } else {
+        // Age not determined: Show all doctors
+        shouldShow = true;
+        if (doctorHint) {
+          doctorHint.textContent = 'Please choose the doctor assigned for this visit';
+        }
+      }
+      
+      if (shouldShow) {
+        const option = document.createElement('option');
+        option.value = doctor.value;
+        option.textContent = doctor.text;
+        option.dataset.specialization = doctor.specialization;
+        doctorSelect.appendChild(option);
+      }
+    });
+    
+    // Restore selected value if it's still available
+    if (currentValue) {
+      const stillAvailable = Array.from(doctorSelect.options).some(opt => opt.value === currentValue);
+      if (stillAvailable) {
+        doctorSelect.value = currentValue;
+      } else {
+        doctorSelect.value = '';
+      }
+    }
+    
+    // Trigger onchange event to update appointment day dropdown if doctor was already selected
+    if (doctorSelect.value && typeof enableAppointmentDayDropdown === 'function') {
+      enableAppointmentDayDropdown(doctorSelect.value);
+    }
+  }
   
   if (dobInput && ageInput) {
     dobInput.addEventListener('change', function() {
@@ -763,83 +1127,38 @@ document.addEventListener('DOMContentLoaded', function() {
         if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
           age--;
         }
-                ageInput.value = age >= 0 ? age : 0;
-            } else {
-                ageInput.value = '';
-            }
-        });
+        ageInput.value = age >= 0 ? age : 0;
         
-        // Trigger on page load if DOB has value
-        if (dobInput.value) {
-            dobInput.dispatchEvent(new Event('change'));
-        }
-    }
+        // Filter doctors when age changes
+        filterDoctorsByAge();
+      } else {
+        ageInput.value = '';
+        filterDoctorsByAge();
+      }
+    });
     
-    // No Insurance toggle
-    const noInsuranceCheckbox = document.getElementById('no_insurance');
-    const insuranceFields = document.getElementById('insurance_fields');
-    const insuranceProvider = document.getElementById('insurance_provider');
-    const insuranceNumber = document.getElementById('insurance_number');
+    // Also filter when age input changes directly
+    ageInput.addEventListener('input', function() {
+      filterDoctorsByAge();
+    });
     
-    function toggleInsuranceFields() {
-        if (noInsuranceCheckbox && noInsuranceCheckbox.checked) {
-            insuranceFields.classList.add('hidden');
-            if (insuranceProvider) insuranceProvider.value = '';
-            if (insuranceNumber) insuranceNumber.value = '';
-        } else {
-            insuranceFields.classList.remove('hidden');
-        }
-    }
+    // Initialize original doctor options if not already done
+    initializeDoctorOptions();
     
-    if (noInsuranceCheckbox) {
-        noInsuranceCheckbox.addEventListener('change', toggleInsuranceFields);
-    }
+    // Filter doctors on page load
+    filterDoctorsByAge();
     
-    // Auto-fill insurance number based on provider
-    if (insuranceProvider && insuranceNumber) {
-        // Insurance provider number formats
-        const insuranceFormats = {
-            'PhilHealth': () => 'PH-' + Math.floor(100000000000 + Math.random() * 900000000000).toString(),
-            'Maxicare': () => 'MC-' + Math.floor(10000000 + Math.random() * 90000000).toString(),
-            'Medicard': () => 'MD-' + Math.floor(1000000 + Math.random() * 9000000).toString(),
-            'Intellicare': () => 'IC-' + Math.floor(10000000 + Math.random() * 90000000).toString(),
-            'Pacific Cross': () => 'PC-' + Math.floor(1000000 + Math.random() * 9000000).toString(),
-            'Cocolife': () => 'CL-' + Math.floor(1000000 + Math.random() * 9000000).toString(),
-            'AXA': () => 'AXA-' + Math.floor(1000000 + Math.random() * 9000000).toString(),
-            'Sun Life': () => 'SL-' + Math.floor(1000000 + Math.random() * 9000000).toString(),
-            'Pru Life UK': () => 'PRU-' + Math.floor(1000000 + Math.random() * 9000000).toString(),
-            'Other': () => 'INS-' + Math.floor(1000000 + Math.random() * 9000000).toString()
-        };
-        
-        insuranceProvider.addEventListener('change', function() {
-            const selectedProvider = this.value;
-            
-            if (selectedProvider && selectedProvider !== '') {
-                // Auto-generate number based on provider
-                if (insuranceFormats[selectedProvider]) {
-                    const generatedNumber = insuranceFormats[selectedProvider]();
-                    insuranceNumber.value = generatedNumber;
-                    insuranceNumber.focus();
-                    // Select all text for easy editing
-                    setTimeout(() => {
-                        insuranceNumber.select();
-                    }, 10);
-                }
-            } else {
-                // Clear if no provider selected
-                insuranceNumber.value = '';
-            }
-        });
+    // Trigger on page load if DOB has value
+    if (dobInput.value) {
+      dobInput.dispatchEvent(new Event('change'));
     }
+  }
   
-    // Initialize
-    toggleInsuranceFields();
-    
     // Make doctor_id required only when Consultation is selected
     const visitTypeRadios = document.querySelectorAll('input[name="visit_type"]');
-    const doctorSelect = document.getElementById('doctor_id');
+    // doctorSelect is already declared above
     const doctorRequiredIndicator = document.getElementById('doctor_required_indicator');
-    const doctorHint = document.getElementById('doctor_hint');
+    // doctorHint is already declared above
     
     function toggleDoctorRequirement() {
         const selectedVisitType = document.querySelector('input[name="visit_type"]:checked');
@@ -1298,32 +1617,62 @@ document.addEventListener('DOMContentLoaded', function() {
     const outpatientForm = document.getElementById('outpatientForm');
     if (outpatientForm) {
         outpatientForm.addEventListener('submit', function(e) {
-            const selectedTime = appointmentTimeSelect.value;
-            const selectedDay = appointmentDaySelect.value;
-            const doctorId = doctorSelect.value;
+            // Validate all steps before submitting
+            let allValid = true;
+            for (let step = 1; step <= totalSteps; step++) {
+                const validation = validateStep(step);
+                if (!validation.valid) {
+                    allValid = false;
+                    // Show the step with errors
+                    currentStep = step;
+                    showStep(step);
+                    break;
+                }
+            }
             
-            if (!doctorId) {
+            if (!allValid) {
                 e.preventDefault();
-                alert('Please select a doctor.');
                 return false;
             }
             
-            if (!selectedDay) {
-                e.preventDefault();
-                alert('Please select an appointment day (Monday-Friday).');
-                return false;
-            }
-            
-            if (!selectedTime) {
-                e.preventDefault();
-                alert('Please select an available appointment time.');
-                return false;
-            }
-            
-            // Ensure the hidden date field is set
-            const actualDate = getNextDayOfWeek(selectedDay);
-            if (actualDate) {
-                appointmentDateInput.value = actualDate;
+            // Additional validation for appointment fields (if Consultation visit type)
+            const visitType = document.querySelector('input[name="visit_type"]:checked')?.value;
+            if (visitType === 'Consultation') {
+                const selectedTime = appointmentTimeSelect?.value;
+                const selectedDay = appointmentDaySelect?.value;
+                const doctorId = doctorSelect?.value;
+                
+                if (!doctorId) {
+                    e.preventDefault();
+                    currentStep = 2;
+                    showStep(2);
+                    alert('Please select a doctor.');
+                    return false;
+                }
+                
+                if (!selectedDay) {
+                    e.preventDefault();
+                    currentStep = 2;
+                    showStep(2);
+                    alert('Please select an appointment day (Monday-Friday).');
+                    return false;
+                }
+                
+                if (!selectedTime) {
+                    e.preventDefault();
+                    currentStep = 2;
+                    showStep(2);
+                    alert('Please select an available appointment time.');
+                    return false;
+                }
+                
+                // Ensure the hidden date field is set
+                if (typeof getNextDayOfWeek === 'function') {
+                    const actualDate = getNextDayOfWeek(selectedDay);
+                    if (actualDate && appointmentDateInput) {
+                        appointmentDateInput.value = actualDate;
+                    }
+                }
             }
             
             // Additional validation: check if time is still available

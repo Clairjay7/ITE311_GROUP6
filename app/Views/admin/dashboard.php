@@ -179,7 +179,20 @@
                                     <td>#<?= esc($activity['id']) ?></td>
                                     <td><?= esc($activity['patient_first_name'] . ' ' . $activity['patient_last_name']) ?></td>
                                     <td><?= esc($activity['doctor'] ?? 'N/A') ?></td>
-                                    <td><?= esc(date('M d, Y', strtotime($activity['date'])) . ' ' . date('h:i A', strtotime($activity['time']))) ?></td>
+                                    <td>
+                                        <?php 
+                                        $dateStr = $activity['date'] ?? '';
+                                        $timeStr = $activity['time'] ?? '';
+                                        if (!empty($dateStr) && strtotime($dateStr) !== false) {
+                                            echo esc(date('M d, Y', strtotime($dateStr)));
+                                            if (!empty($timeStr) && strtotime($timeStr) !== false) {
+                                                echo ' ' . esc(date('h:i A', strtotime($timeStr)));
+                                            }
+                                        } else {
+                                            echo 'N/A';
+                                        }
+                                        ?>
+                                    </td>
                                     <td>
                                         <span class="status-badge status-<?= esc(strtolower($activity['status'])) ?>">
                                             <?= esc(ucfirst($activity['status'])) ?>
@@ -298,22 +311,47 @@ document.addEventListener('DOMContentLoaded', function() {
                 `;
                 
                 data.recentActivity.forEach(activity => {
-                    const date = new Date(activity.date).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric'
-                    });
-                    const time = new Date(activity.time).toLocaleTimeString('en-US', {
-                        hour: 'numeric',
-                        minute: '2-digit'
-                    });
+                    // Format date safely
+                    let dateStr = 'N/A';
+                    if (activity.date) {
+                        try {
+                            const dateObj = new Date(activity.date);
+                            if (!isNaN(dateObj.getTime())) {
+                                dateStr = dateObj.toLocaleDateString('en-US', {
+                                    year: 'numeric',
+                                    month: 'short',
+                                    day: 'numeric'
+                                });
+                            }
+                        } catch (e) {
+                            console.error('Invalid date:', activity.date);
+                        }
+                    }
+                    
+                    // Format time safely
+                    let timeStr = '';
+                    if (activity.time) {
+                        try {
+                            // Handle time string (HH:MM:SS or HH:MM)
+                            const timeParts = activity.time.split(':');
+                            if (timeParts.length >= 2) {
+                                const hours = parseInt(timeParts[0]);
+                                const minutes = parseInt(timeParts[1]);
+                                const ampm = hours >= 12 ? 'PM' : 'AM';
+                                const displayHours = hours % 12 || 12;
+                                timeStr = `${displayHours}:${minutes.toString().padStart(2, '0')} ${ampm}`;
+                            }
+                        } catch (e) {
+                            console.error('Invalid time:', activity.time);
+                        }
+                    }
                     
                     tableHTML += `
                         <tr>
                             <td>#${activity.id}</td>
                             <td>${activity.patient_first_name} ${activity.patient_last_name}</td>
                             <td>${activity.doctor || 'N/A'}</td>
-                            <td>${date} ${time}</td>
+                            <td>${dateStr}${timeStr ? ' ' + timeStr : ''}</td>
                             <td>
                                 <span class="status-badge status-${activity.status.toLowerCase()}">
                                     ${activity.status.charAt(0).toUpperCase() + activity.status.slice(1)}

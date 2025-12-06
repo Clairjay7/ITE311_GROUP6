@@ -252,7 +252,10 @@
                     <?php if (!empty($doctors)): ?>
                         <?php foreach ($doctors as $doctor): ?>
                             <option value="<?= esc($doctor['id']) ?>" <?= old('attending_physician_id') == $doctor['id'] ? 'selected' : '' ?>>
-                                <?= esc($doctor['username']) ?>
+                                <?= esc($doctor['doctor_name'] ?? $doctor['id']) ?>
+                                <?php if (!empty($doctor['specialization'])): ?>
+                                  - <?= esc($doctor['specialization']) ?>
+                                <?php endif; ?>
                             </option>
                         <?php endforeach; ?>
                     <?php endif; ?>

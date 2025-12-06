@@ -8,6 +8,7 @@ use App\Models\HMSPatientModel;
 use App\Models\UserModel;
 use App\Models\DoctorScheduleModel;
 use App\Models\DepartmentModel;
+use App\Models\DoctorModel;
 
 class Appointment extends BaseController
 {
@@ -16,6 +17,7 @@ class Appointment extends BaseController
     protected $userModel;
     protected $doctorScheduleModel;
     protected $departmentModel;
+    protected $doctorModel;
 
     public function __construct()
     {
@@ -24,6 +26,7 @@ class Appointment extends BaseController
         $this->userModel = new UserModel();
         $this->doctorScheduleModel = new DoctorScheduleModel();
         $this->departmentModel = new DepartmentModel();
+        $this->doctorModel = new DoctorModel();
     }
 
     /**
@@ -114,13 +117,8 @@ class Appointment extends BaseController
             return redirect()->to('login');
         }
 
-        // Get doctors from users table via roles join (users.role removed)
-        $doctors = $this->userModel
-            ->select('users.*')
-            ->join('roles r', 'users.role_id = r.id', 'left')
-            ->where('r.name', 'doctor')
-            ->where('users.status', 'active')
-            ->findAll();
+        // Get doctors from doctors table
+        $doctors = $this->doctorModel->getAllDoctors();
 
         $departments = $this->departmentModel->findAll();
 

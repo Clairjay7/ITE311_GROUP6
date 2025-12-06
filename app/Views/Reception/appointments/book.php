@@ -68,7 +68,10 @@
                 <option value="" disabled selected>Select doctor</option>
                 <?php foreach (($doctors ?? []) as $doc): ?>
                   <option value="<?= (int)$doc['id'] ?>">
-                    <?= esc($doc['username']) ?> <?= $doc['email'] ? '(' . esc($doc['email']) . ')' : '' ?>
+                    <?= esc($doc['doctor_name'] ?? $doc['id']) ?>
+                    <?php if (!empty($doc['specialization'])): ?>
+                      - <?= esc($doc['specialization']) ?>
+                    <?php endif; ?>
                   </option>
                 <?php endforeach; ?>
               <?php else: ?>

@@ -47,13 +47,18 @@ class DashboardStats extends BaseController
             ->countAllResults();
         
         // Get recent activity from schedules
-        $recentActivity = $scheduleModel
-            ->select('schedules.*, admin_patients.firstname as patient_first_name, admin_patients.lastname as patient_last_name, users.username as doctor')
+        // Join with doctors table to get doctor name from patient's assigned doctor
+        $db = \Config\Database::connect();
+        $recentActivity = $db->table('schedules')
+            ->select('schedules.*, admin_patients.firstname as patient_first_name, admin_patients.lastname as patient_last_name, 
+                     COALESCE(doctors.doctor_name, schedules.doctor, "N/A") as doctor')
             ->join('admin_patients', 'admin_patients.id = schedules.patient_id', 'left')
-            ->join('users', 'users.id = schedules.doctor', 'left')
+            ->join('doctors', 'doctors.user_id = admin_patients.doctor_id', 'left')
+            ->where('schedules.deleted_at IS NULL', null, false)
             ->orderBy('schedules.created_at', 'DESC')
             ->limit(10)
-            ->findAll();
+            ->get()
+            ->getResultArray();
 
         $data = [
             'totalDoctors' => $totalDoctors,

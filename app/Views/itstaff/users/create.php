@@ -206,6 +206,26 @@
                 <?php endif; ?>
             </div>
             
+            <div class="form-group-modern" id="specialization_group" style="display: none;">
+                <label class="form-label-modern" for="specialization">
+                    <i class="fas fa-stethoscope me-2"></i>
+                    Specialization <span class="text-danger">*</span>
+                </label>
+                <select name="specialization" id="specialization" class="form-control-modern">
+                    <option value="">Select Specialization</option>
+                    <?php if (!empty($specializations)): ?>
+                        <?php foreach ($specializations as $spec): ?>
+                            <option value="<?= esc($spec) ?>" <?= old('specialization') == $spec ? 'selected' : '' ?>>
+                                <?= esc($spec) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </select>
+                <?php if (session()->getFlashdata('errors') && isset(session()->getFlashdata('errors')['specialization'])): ?>
+                    <div class="text-danger"><?= esc(session()->getFlashdata('errors')['specialization']) ?></div>
+                <?php endif; ?>
+            </div>
+            
             <div class="form-group-modern">
                 <label class="form-label-modern" for="status">
                     <i class="fas fa-toggle-on me-2"></i>
@@ -234,5 +254,36 @@
         </form>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const roleSelect = document.getElementById('role_id');
+    const specializationGroup = document.getElementById('specialization_group');
+    const specialization = document.getElementById('specialization');
+    const doctorRoleId = <?= $doctorRoleId ?? 'null' ?>;
+    
+    function toggleSpecialization() {
+        const selectedRoleId = roleSelect.value;
+        const selectedOption = roleSelect.options[roleSelect.selectedIndex];
+        const roleName = selectedOption ? selectedOption.textContent.toLowerCase() : '';
+        
+        // Handle doctor specialization
+        if (roleName.includes('doctor') || selectedRoleId == doctorRoleId) {
+            specializationGroup.style.display = 'block';
+            specialization.setAttribute('required', 'required');
+        } else {
+            specializationGroup.style.display = 'none';
+            specialization.removeAttribute('required');
+            specialization.value = '';
+        }
+    }
+    
+    // Check on page load if doctor is already selected
+    toggleSpecialization();
+    
+    // Listen for changes
+    roleSelect.addEventListener('change', toggleSpecialization);
+});
+</script>
 <?= $this->endSection() ?>
 

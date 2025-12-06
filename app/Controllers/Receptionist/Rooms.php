@@ -139,36 +139,8 @@ class Rooms extends BaseController
             ->orderBy('patient_id', 'DESC')
             ->findAll();
 
-        // Get doctors for new patient form
-        $db = \Config\Database::connect();
-        $doctors = [];
-        
-        if ($db->tableExists('users') && $db->tableExists('roles')) {
-            $userDoctors = $db->table('users')
-                ->select('users.id, users.username, users.email')
-                ->join('roles', 'roles.id = users.role_id', 'left')
-                ->where('roles.name', 'doctor')
-                ->where('users.status', 'active')
-                ->get()
-                ->getResultArray();
-            
-            foreach ($userDoctors as $userDoctor) {
-                $doctorDetails = null;
-                if ($db->tableExists('doctors')) {
-                    $doctorDetails = $db->table('doctors')
-                        ->where('id', $userDoctor['id'])
-                        ->orWhere('doctor_name', $userDoctor['username'])
-                        ->get()
-                        ->getRowArray();
-                }
-                
-                $doctors[] = [
-                    'id' => $userDoctor['id'],
-                    'doctor_name' => $userDoctor['username'] ?? 'Dr. ' . $userDoctor['id'],
-                    'specialization' => $doctorDetails['specialization'] ?? 'General Practice',
-                ];
-            }
-        }
+        // Get doctors from doctors table
+        $doctors = $this->doctorModel->getAllDoctors();
 
         return view('Reception/rooms/assign', [
             'title' => 'Assign Patient to Room',

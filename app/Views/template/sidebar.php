@@ -257,6 +257,7 @@
                     <li><a href="<?= site_url('receptionist/rooms/type/ward') ?>"><span class="text">🏥 Ward (General Ward)</span></a></li>
                     <li><a href="<?= site_url('receptionist/rooms/type/icu') ?>"><span class="text">🚨 ICU (Intensive Care Unit)</span></a></li>
                     <li><a href="<?= site_url('receptionist/rooms/type/isolation') ?>"><span class="text">🔒 Isolation Room</span></a></li>
+                    <li><a href="<?= site_url('receptionist/rooms/type/nicu') ?>"><span class="text">👶 NICU (Neonatal Intensive Care Unit)</span></a></li>
                 </ul>
             </li>
 

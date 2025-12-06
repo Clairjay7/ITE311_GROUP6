@@ -10,6 +10,7 @@ use App\Models\RoomModel;
 use App\Models\BedModel;
 use App\Models\ChargeModel;
 use App\Models\BillingItemModel;
+use App\Models\DoctorModel;
 
 class AdmissionController extends BaseController
 {
@@ -20,6 +21,7 @@ class AdmissionController extends BaseController
     protected $bedModel;
     protected $chargeModel;
     protected $billingItemModel;
+    protected $doctorModel;
 
     public function __construct()
     {
@@ -30,6 +32,7 @@ class AdmissionController extends BaseController
         $this->bedModel = new BedModel();
         $this->chargeModel = new ChargeModel();
         $this->billingItemModel = new BillingItemModel();
+        $this->doctorModel = new DoctorModel();
     }
 
     /**
@@ -81,14 +84,8 @@ class AdmissionController extends BaseController
             ->orderBy('room_number', 'ASC')
             ->findAll();
 
-        // Get doctors for attending physician
-        $doctors = $db->table('users u')
-            ->select('u.id, u.username, r.name as role_name')
-            ->join('roles r', 'r.id = u.role_id', 'left')
-            ->where('r.name', 'doctor')
-            ->where('u.status', 'active')
-            ->get()
-            ->getResultArray();
+        // Get doctors from doctors table
+        $doctors = $this->doctorModel->getAllDoctors();
 
         // Group rooms by ward
         $roomsByWard = [];

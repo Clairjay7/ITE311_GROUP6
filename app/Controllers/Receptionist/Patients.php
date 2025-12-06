@@ -5,7 +5,7 @@ namespace App\Controllers\Receptionist;
 use App\Controllers\BaseController;
 use App\Models\HMSPatientModel;
 use App\Models\DepartmentModel;
-use App\Models\DoctorDirectoryModel;
+use App\Models\DoctorModel;
 use App\Models\RoomModel;
 
 class Patients extends BaseController
@@ -20,7 +20,7 @@ class Patients extends BaseController
         helper(['form', 'url']);
         $this->patientModel = new HMSPatientModel();
         $this->departmentModel = new DepartmentModel();
-        $this->doctorModel = new DoctorDirectoryModel();
+        $this->doctorModel = new DoctorModel();
         $this->roomModel = new RoomModel();
     }
 
@@ -31,7 +31,7 @@ class Patients extends BaseController
 
         $builder = $this->patientModel->builder();
         $builder->select('patients.*, doctors.doctor_name, departments.department_name')
-                ->join('doctors', 'doctors.id = patients.doctor_id', 'left')
+                ->join('doctors', 'doctors.user_id = patients.doctor_id', 'left') // Fix: use user_id instead of id
                 ->join('departments', 'departments.id = patients.department_id', 'left');
 
         if ($type && in_array($type, ['In-Patient', 'Out-Patient'])) {
@@ -86,7 +86,7 @@ class Patients extends BaseController
         $availableBedsByRoom = [];
         
         if ($prefType === 'In-Patient' && $db->tableExists('rooms')) {
-            $roomTypes = ['Private', 'Semi-Private', 'Ward', 'ICU', 'Isolation'];
+            $roomTypes = ['Private', 'Semi-Private', 'Ward', 'ICU', 'Isolation', 'NICU'];
             foreach ($roomTypes as $roomType) {
                 // Get available rooms for this type (case-insensitive status check)
                 $rooms = $db->table('rooms')
@@ -127,59 +127,8 @@ class Patients extends BaseController
             }
         }
 
-        // Get doctors from both users table and doctors table
-        $db = \Config\Database::connect();
-        $allDoctors = [];
-        
-        // Get doctors from users table (primary source)
-        // Users table uses role_id, need to join with roles table or check role name
-        if ($db->tableExists('users') && $db->tableExists('roles')) {
-            $userDoctors = $db->table('users')
-                ->select('users.id, users.username, users.email')
-                ->join('roles', 'roles.id = users.role_id', 'left')
-                ->where('roles.name', 'doctor')
-                ->where('users.status', 'active')
-                ->get()
-                ->getResultArray();
-            
-            foreach ($userDoctors as $userDoctor) {
-                // Get specialization from doctors table if exists
-                $doctorDetails = null;
-                if ($db->tableExists('doctors')) {
-                    $doctorDetails = $db->table('doctors')
-                        ->where('id', $userDoctor['id'])
-                        ->orWhere('doctor_name', $userDoctor['username'])
-                        ->get()
-                        ->getRowArray();
-                }
-                
-                $allDoctors[] = [
-                    'id' => $userDoctor['id'],
-                    'doctor_name' => $userDoctor['username'] ?? 'Dr. ' . $userDoctor['id'],
-                    'specialization' => $doctorDetails['specialization'] ?? 'General Practice',
-                ];
-            }
-        }
-        
-        // Also include doctors from doctors table (if not already added)
-        $doctorsFromTable = $this->doctorModel->findAll();
-        foreach ($doctorsFromTable as $doctor) {
-            $alreadyAdded = false;
-            foreach ($allDoctors as $doc) {
-                if ($doc['id'] == $doctor['id']) {
-                    $alreadyAdded = true;
-                    break;
-                }
-            }
-            
-            if (!$alreadyAdded) {
-                $allDoctors[] = [
-                    'id' => $doctor['id'],
-                    'doctor_name' => $doctor['doctor_name'] ?? 'Dr. ' . $doctor['id'],
-                    'specialization' => $doctor['specialization'] ?? 'General Practice',
-                ];
-            }
-        }
+        // Get doctors from doctors table
+        $allDoctors = $this->doctorModel->getAllDoctors();
 
         $viewName = $prefType === 'Out-Patient'
             ? 'Reception/patients/Outpatient'
@@ -244,7 +193,11 @@ class Patients extends BaseController
         }
         
         if (!$this->validate($rules)) {
-            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+            $validationErrors = $this->validator->getErrors();
+            log_message('error', 'Patient Registration Validation Failed: ' . json_encode($validationErrors));
+            log_message('error', 'POST Data: ' . json_encode($this->request->getPost()));
+            // withInput() automatically stores validation errors in _ci_validation_errors
+            return redirect()->back()->withInput();
         }
 
         // Additional validation for In-Patient: admission_date must not be in the past
@@ -1146,7 +1099,7 @@ class Patients extends BaseController
     {
         $patient = $this->patientModel
             ->select('patients.*, doctors.doctor_name, departments.department_name')
-            ->join('doctors', 'doctors.id = patients.doctor_id', 'left')
+            ->join('doctors', 'doctors.user_id = patients.doctor_id', 'left') // Fix: use user_id instead of id
             ->join('departments', 'departments.id = patients.department_id', 'left')
             ->find($id);
         if (!$patient) {
