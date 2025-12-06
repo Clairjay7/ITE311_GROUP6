@@ -438,6 +438,32 @@ class LabStaffController extends BaseController
             $this->labResultModel->insert($resultData);
         }
 
+        // Update lab_services table with the result (so it appears in admin lab services)
+        if ($db->tableExists('lab_services')) {
+            // Find lab_service by lab_request_id
+            $labService = $db->table('lab_services')
+                ->where('lab_request_id', $requestId)
+                ->get()
+                ->getRowArray();
+            
+            if ($labService) {
+                // Update lab_service with result and remarks
+                $labServiceUpdateData = [
+                    'result' => $result, // Save the test result
+                    'remarks' => $interpretation, // Save interpretation as remarks
+                    'updated_at' => date('Y-m-d H:i:s')
+                ];
+                
+                $db->table('lab_services')
+                    ->where('id', $labService['id'])
+                    ->update($labServiceUpdateData);
+                
+                log_message('debug', 'Lab Staff - Updated lab_service ID: ' . $labService['id'] . ' with result and remarks');
+            } else {
+                log_message('warning', 'Lab Staff - No lab_service found for lab_request_id: ' . $requestId);
+            }
+        }
+
         // Log status change
         $db = \Config\Database::connect();
         if ($db->tableExists('lab_status_history')) {

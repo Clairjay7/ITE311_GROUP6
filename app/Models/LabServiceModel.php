@@ -17,6 +17,7 @@ class LabServiceModel extends Model
         'patient_id',
         'doctor_id',
         'nurse_id',
+        'referring_nurse_id',
         'lab_request_id',
         'test_type',
         'result',

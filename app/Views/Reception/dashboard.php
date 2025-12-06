@@ -72,7 +72,7 @@
                 View all doctor working schedules for the year
             </p>
         </div>
-        <a href="<?= site_url('receptionist/doctor-schedules') ?>" style="background: white; color: #0288d1; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; transition: all 0.3s ease;">
+        <a href="<?= site_url('receptionist/schedule') ?>" style="background: white; color: #0288d1; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; transition: all 0.3s ease;">
             <i class="fas fa-eye"></i> View Schedules
         </a>
     </div>

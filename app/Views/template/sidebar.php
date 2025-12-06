@@ -34,14 +34,6 @@
                 </a>
             </li>
 
-            <!-- Nurse Schedules -->
-            <li class="nav-item">
-                <a href="<?= base_url('admin/nurse-schedules') ?>">
-                    <i class="fa-solid fa-user-nurse sidebar-icon"></i>
-                    <span class="text">Nurse Schedules</span>
-                </a>
-            </li>
-
             <!-- Billing -->
             <li class="nav-item">
                 <a href="<?= base_url('admin/billing') ?>">
@@ -121,6 +113,32 @@
                     <span class="text">My Schedule</span>
                 </a>
             </li>
+
+            <?php
+            // Check if doctor is a pediatrician
+            $isPediatricsDoctor = false;
+            if ($role === 'doctor') {
+                $db = \Config\Database::connect();
+                $doctorId = session()->get('user_id');
+                if ($db->tableExists('doctors') && $doctorId) {
+                    $doctor = $db->table('doctors')
+                        ->where('user_id', $doctorId)
+                        ->get()
+                        ->getRowArray();
+                    if ($doctor && strtolower(trim($doctor['specialization'] ?? '')) === 'pediatrics') {
+                        $isPediatricsDoctor = true;
+                    }
+                }
+            }
+            ?>
+            <?php if ($isPediatricsDoctor): ?>
+            <li class="nav-item">
+                <a href="<?= site_url('doctor/consultations/pediatrics') ?>">
+                    <i class="fa-solid fa-child sidebar-icon"></i>
+                    <span class="text">Pediatrics Consultations</span>
+                </a>
+            </li>
+            <?php endif; ?>
 
             <li class="nav-item">
                 <a href="<?= site_url('doctor/lab-requests') ?>">
@@ -262,9 +280,9 @@
             </li>
 
             <li class="nav-item">
-                <a href="<?= site_url('receptionist/doctor-schedules') ?>">
+                <a href="<?= site_url('receptionist/schedule') ?>">
                     <i class="fa-solid fa-calendar-alt sidebar-icon"></i>
-                    <span class="text">Doctor Schedules</span>
+                    <span class="text">View Schedules</span>
                 </a>
             </li>
         <?php endif; ?>

@@ -521,6 +521,16 @@ $errorMessage = session()->getFlashdata('error');
         cursor: not-allowed;
     }
     
+    #submitForm {
+        position: relative;
+        z-index: 10;
+        pointer-events: auto !important;
+    }
+    
+    #submitForm:not([disabled]) {
+        cursor: pointer !important;
+    }
+    
     .validation-error {
         color: #ef4444;
         font-size: 13px;
@@ -1176,7 +1186,14 @@ document.addEventListener('DOMContentLoaded', function() {
             nextBtn.style.display = step < totalSteps ? 'inline-flex' : 'none';
         }
         if (submitBtn) {
-            submitBtn.style.display = step === totalSteps ? 'inline-flex' : 'none';
+            if (step === totalSteps) {
+                submitBtn.style.display = 'inline-flex';
+                submitBtn.disabled = false;
+                submitBtn.style.pointerEvents = 'auto';
+                submitBtn.style.cursor = 'pointer';
+            } else {
+                submitBtn.style.display = 'none';
+            }
         }
         
         // Scroll to top of form
@@ -2069,7 +2086,7 @@ document.addEventListener('DOMContentLoaded', function() {
         filterICUOption();
     
     // Form validation before submit
-    const form = document.getElementById('inpatientForm');
+    const form = document.getElementById('patientForm');
     if (form) {
         form.addEventListener('submit', function(e) {
             // Validate all steps before submitting

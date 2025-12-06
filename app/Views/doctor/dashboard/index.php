@@ -310,6 +310,23 @@
         <p>Here's what's happening with your patients today</p>
     </div>
 
+    <!-- Quick Actions -->
+    <?php if (!empty($isPediatricsDoctor) && $isPediatricsDoctor): ?>
+    <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 12px; padding: 20px; margin-bottom: 24px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); border: 2px solid #f59e0b;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+            <div>
+                <h3 style="margin: 0 0 4px 0; color: #92400e; font-size: 18px; font-weight: 700;">
+                    <i class="fas fa-child"></i> Pediatric Patients
+                </h3>
+                <p style="margin: 0; color: #78350f; font-size: 14px;">Manage consultations for patients aged 0-17 years old</p>
+            </div>
+            <a href="<?= site_url('doctor/consultations/pediatrics') ?>" style="background: #f59e0b; color: white; padding: 14px 28px; border-radius: 10px; text-decoration: none; font-weight: 700; display: inline-flex; align-items: center; gap: 10px; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4); transition: all 0.3s; font-size: 15px;">
+                <i class="fas fa-stethoscope"></i> View Pediatrics Consultations
+            </a>
+        </div>
+    </div>
+    <?php endif; ?>
+
     <!-- Notifications Section -->
     <?php if (!empty($unreadNotifications ?? []) && $totalUnreadNotifications > 0): ?>
         <div class="patients-section" style="background: #fef3c7; border-left: 4px solid #f59e0b;">

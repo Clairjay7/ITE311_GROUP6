@@ -76,6 +76,7 @@ $routes->group('admin', ['namespace' => 'App\\Controllers\\Admin', 'filter' => '
         $routes->get('/', 'PatientController::index');
         $routes->get('create', 'PatientController::create');
         $routes->post('store', 'PatientController::store');
+        $routes->get('show/(:num)', 'PatientController::show/$1');
         $routes->get('edit/(:num)', 'PatientController::edit/$1');
         $routes->post('update/(:num)', 'PatientController::update/$1');
         $routes->get('delete/(:num)', 'PatientController::delete/$1');
@@ -83,12 +84,22 @@ $routes->group('admin', ['namespace' => 'App\\Controllers\\Admin', 'filter' => '
     
     // Scheduling
     $routes->group('schedule', function($routes) {
-        $routes->get('/', 'ScheduleController::index');
+        // View-only routes (accessible by admin and receptionist)
+        $routes->get('/', 'ScheduleController::index', ['filter' => 'auth:admin,receptionist']);
+        $routes->get('view/(:num)', 'ScheduleController::view/$1', ['filter' => 'auth:admin,receptionist']);
+        
+        // Admin-only routes (create, edit, delete)
         $routes->get('create', 'ScheduleController::create');
+        $routes->get('create-doctor', 'ScheduleController::createDoctor');
+        $routes->get('create-nurse', 'ScheduleController::createNurse');
+        $routes->post('store-doctor', 'ScheduleController::storeDoctor');
+        $routes->post('store-nurse', 'ScheduleController::storeNurse');
         $routes->post('store', 'ScheduleController::store');
         $routes->get('edit/(:num)', 'ScheduleController::edit/$1');
         $routes->post('update/(:num)', 'ScheduleController::update/$1');
         $routes->get('delete/(:num)', 'ScheduleController::delete/$1');
+        $routes->get('cleanup-old', 'ScheduleController::cleanupOldSchedules');
+        $routes->get('clear-all-doctor', 'ScheduleController::clearAllDoctorSchedules');
     });
     
     // Nurse Schedules
@@ -118,6 +129,7 @@ $routes->group('admin', ['namespace' => 'App\\Controllers\\Admin', 'filter' => '
         $routes->get('/', 'LabController::index');
         $routes->get('create', 'LabController::create');
         $routes->post('store', 'LabController::store');
+        $routes->get('view/(:num)', 'LabController::view/$1');
         $routes->get('edit/(:num)', 'LabController::edit/$1');
         $routes->post('update/(:num)', 'LabController::update/$1');
         $routes->get('delete/(:num)', 'LabController::delete/$1');
@@ -162,6 +174,7 @@ $routes->group('admin', ['namespace' => 'App\\Controllers\\Admin', 'filter' => '
         $routes->get('edit/(:num)', 'UserController::edit/$1');
         $routes->post('update/(:num)', 'UserController::update/$1');
         $routes->get('delete/(:num)', 'UserController::delete/$1');
+        $routes->get('restore/(:num)', 'UserController::restore/$1');
     });
 });
 
@@ -367,8 +380,14 @@ $routes->group('receptionist/assign-doctor', ['namespace' => 'App\\Controllers\\
     $routes->post('assign', 'AssignDoctorController::assign');
 });
 
-// Receptionist - Doctor Schedules
+// Receptionist - Doctor Schedules (redirects to admin schedule view)
 $routes->get('receptionist/doctor-schedules', 'Receptionist\DoctorScheduleController::index', ['filter' => 'auth:receptionist,admin']);
+
+// Receptionist - View Schedules (read-only access to admin schedules)
+$routes->group('receptionist/schedule', ['namespace' => 'App\\Controllers\\Admin', 'filter' => 'auth:receptionist,admin'], function($routes) {
+    $routes->get('/', 'ScheduleController::index');
+    $routes->get('view/(:num)', 'ScheduleController::view/$1');
+});
 
 $routes->group('receptionist/rooms', ['namespace' => 'App\\Controllers\\Receptionist', 'filter' => 'auth:receptionist,admin'], function($routes) {
     $routes->get('ward/(:segment)', 'Rooms::ward/$1');
@@ -419,6 +438,9 @@ $routes->group('doctor', ['namespace' => 'App\\Controllers', 'filter' => 'auth:d
         $routes->get('edit/(:num)', 'Doctor\ConsultationController::edit/$1');
         $routes->post('update/(:num)', 'Doctor\ConsultationController::update/$1');
         $routes->get('delete/(:num)', 'Doctor\ConsultationController::delete/$1');
+        $routes->get('pediatrics', 'Doctor\ConsultationController::pediatricsList');
+        $routes->get('pediatrics/consult/(:num)', 'Doctor\ConsultationController::pediatricsConsult/$1');
+        $routes->post('pediatrics/save', 'Doctor\ConsultationController::savePediatricsConsultation');
     });
     
     // Lab Requests from Nurses

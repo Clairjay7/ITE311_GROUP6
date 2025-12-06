@@ -625,6 +625,20 @@ class DashboardController extends BaseController
             return $dateB <=> $dateA;
         });
         
+        // Check if doctor is a pediatrician
+        $isPediatricsDoctor = false;
+        $doctorSpecialization = null;
+        if ($db->tableExists('doctors')) {
+            $doctor = $db->table('doctors')
+                ->where('user_id', $doctorId)
+                ->get()
+                ->getRowArray();
+            if ($doctor && !empty($doctor['specialization'])) {
+                $doctorSpecialization = $doctor['specialization'];
+                $isPediatricsDoctor = (strtolower(trim($doctor['specialization'])) === 'pediatrics');
+            }
+        }
+        
         // Debug: Log patient counts
         log_message('debug', "Doctor Dashboard - doctor_id: {$doctorId}, assignedPatientsCount: {$assignedPatientsCount}, hmsPatientsCount: " . count($hmsPatients) . ", total: " . count($allAssignedPatients) . ", admittedPatients: " . count($admittedPatients));
         if (!empty($hmsPatients)) {
@@ -653,6 +667,8 @@ class DashboardController extends BaseController
             'recentOrders' => $recentOrders,
             'unreadNotifications' => $unreadNotifications,
             'totalUnreadNotifications' => $totalUnreadNotifications,
+            'isPediatricsDoctor' => $isPediatricsDoctor,
+            'doctorSpecialization' => $doctorSpecialization,
         ];
 
         return view('doctor/dashboard/index', $data);

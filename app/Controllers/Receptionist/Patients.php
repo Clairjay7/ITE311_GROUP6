@@ -791,8 +791,8 @@ class Patients extends BaseController
         $db = \Config\Database::connect();
         $today = date('Y-m-d');
         
-        // Auto-generate schedule for doctor if they don't have any
-        $this->ensureDoctorHasSchedule($doctorId);
+        // Schedules are now only created through Admin > Schedule
+        // No auto-generation - doctor must have schedule created by admin
         
         // Get doctor's schedule dates (from today onwards, next 30 days)
         $scheduleDates = [];
@@ -914,8 +914,8 @@ class Patients extends BaseController
             return $this->response->setJSON(['success' => false, 'message' => 'Doctor ID and date are required']);
         }
         
-        // Auto-generate schedule for doctor if they don't have any
-        $this->ensureDoctorHasSchedule($doctorId);
+        // Schedules are now only created through Admin > Schedule
+        // No auto-generation - doctor must have schedule created by admin
         
         $db = \Config\Database::connect();
         
@@ -1281,87 +1281,10 @@ class Patients extends BaseController
     }
 
     /**
-     * Ensure doctor has schedule in database, generate if missing
+     * REMOVED: Auto-generation of doctor schedules
+     * Schedules are now only created through Admin > Schedule > Create Schedule
+     * Doctors and nurses must have schedules created by admin before they can be used
      */
-    private function ensureDoctorHasSchedule($doctorId)
-    {
-        $db = \Config\Database::connect();
-        
-        if (!$db->tableExists('doctor_schedules')) {
-            log_message('warning', 'doctor_schedules table does not exist');
-            return;
-        }
-        
-        // Check if doctor has any schedule for the current year
-        $currentYear = date('Y');
-        $startDate = $currentYear . '-01-01';
-        $endDate = $currentYear . '-12-31';
-        
-        $existingCount = $db->table('doctor_schedules')
-            ->where('doctor_id', $doctorId)
-            ->where('shift_date >=', $startDate)
-            ->where('shift_date <=', $endDate)
-            ->where('status !=', 'cancelled')
-            ->countAllResults();
-        
-        // If schedule already exists, return
-        if ($existingCount > 0) {
-            log_message('info', "Doctor {$doctorId} already has schedule for {$currentYear}");
-            return;
-        }
-        
-        // Generate schedule for the entire year
-        log_message('info', "Generating schedule for doctor {$doctorId} for year {$currentYear}");
-        
-        $startDateObj = new \DateTime($startDate);
-        $endDateObj = new \DateTime($endDate);
-        $endDateObj->modify('+1 day'); // Include the end date
-        
-        $currentDate = clone $startDateObj;
-        $schedulesToInsert = [];
-        
-        while ($currentDate < $endDateObj) {
-            $dayOfWeek = (int)$currentDate->format('w'); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
-            
-            // Only generate schedule for Monday (1) to Friday (5)
-            if ($dayOfWeek >= 1 && $dayOfWeek <= 5) {
-                $dateStr = $currentDate->format('Y-m-d');
-                
-                // Morning shift: 9:00 AM - 12:00 PM
-                $schedulesToInsert[] = [
-                    'doctor_id' => $doctorId,
-                    'shift_date' => $dateStr,
-                    'start_time' => '09:00:00',
-                    'end_time' => '12:00:00',
-                    'status' => 'active',
-                    'created_at' => date('Y-m-d H:i:s'),
-                    'updated_at' => date('Y-m-d H:i:s')
-                ];
-                
-                // Afternoon shift: 1:00 PM - 4:00 PM
-                $schedulesToInsert[] = [
-                    'doctor_id' => $doctorId,
-                    'shift_date' => $dateStr,
-                    'start_time' => '13:00:00',
-                    'end_time' => '16:00:00',
-                    'status' => 'active',
-                    'created_at' => date('Y-m-d H:i:s'),
-                    'updated_at' => date('Y-m-d H:i:s')
-                ];
-            }
-            
-            $currentDate->modify('+1 day');
-        }
-        
-        // Batch insert schedules (insert in chunks of 100 to avoid memory issues)
-        if (!empty($schedulesToInsert)) {
-            $chunks = array_chunk($schedulesToInsert, 100);
-            foreach ($chunks as $chunk) {
-                $db->table('doctor_schedules')->insertBatch($chunk);
-            }
-            log_message('info', "Generated " . count($schedulesToInsert) . " schedule entries for doctor {$doctorId}");
-        }
-    }
     
     public function delete($id)
     {

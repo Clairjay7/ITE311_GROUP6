@@ -579,5 +579,36 @@ class UserController extends BaseController
             return redirect()->to('/admin/users')->with('error', 'Failed to delete user.');
         }
     }
+
+    public function restore($id)
+    {
+        // Check if user is logged in and is admin
+        if (!session()->get('logged_in') || session()->get('role') !== 'admin') {
+            return redirect()->to('/auth')->with('error', 'You must be logged in as admin to access this page.');
+        }
+
+        $user = $this->userModel->withDeleted()->find($id);
+        
+        if (!$user) {
+            return redirect()->to('/admin/users')->with('error', 'User not found.');
+        }
+
+        // Check if user is deleted
+        if (empty($user['deleted_at'])) {
+            return redirect()->to('/admin/users')->with('error', 'User is not deleted.');
+        }
+
+        // Restore user (remove deleted_at and set status to active)
+        $data = [
+            'deleted_at' => null,
+            'status' => 'active',
+        ];
+
+        if ($this->userModel->update($id, $data)) {
+            return redirect()->to('/admin/users')->with('success', 'User restored successfully.');
+        } else {
+            return redirect()->to('/admin/users')->with('error', 'Failed to restore user.');
+        }
+    }
 }
 

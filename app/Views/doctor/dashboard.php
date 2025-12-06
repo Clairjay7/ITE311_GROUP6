@@ -43,6 +43,11 @@
                 <p>Here's what's happening with your patients today</p>
             </div>
             <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                <?php if (!empty($isPediatricsDoctor) && $isPediatricsDoctor): ?>
+                <a href="<?= site_url('doctor/consultations/pediatrics') ?>" style="background: #f59e0b; color: white; padding: 12px 24px; border-radius: 10px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-child"></i> Pediatrics Consultations
+                </a>
+                <?php endif; ?>
                 <a href="<?= site_url('doctor/admission-orders') ?>" style="background: #0288d1; color: white; padding: 12px 24px; border-radius: 10px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;">
                     <i class="fas fa-hospital"></i> Admitted Patients
                 </a>

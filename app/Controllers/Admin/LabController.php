@@ -5,6 +5,7 @@ namespace App\Controllers\Admin;
 use App\Controllers\BaseController;
 use App\Models\LabServiceModel;
 use App\Models\AdminPatientModel;
+use App\Models\HMSPatientModel;
 use App\Models\LabTestModel;
 use App\Models\LabRequestModel;
 use App\Models\ChargeModel;
@@ -15,6 +16,7 @@ class LabController extends BaseController
 {
     protected $labServiceModel;
     protected $patientModel;
+    protected $hmsPatientModel;
     protected $labTestModel;
     protected $labRequestModel;
     protected $chargeModel;
@@ -26,6 +28,7 @@ class LabController extends BaseController
         helper(['form', 'url']);
         $this->labServiceModel = new LabServiceModel();
         $this->patientModel = new AdminPatientModel();
+        $this->hmsPatientModel = new HMSPatientModel();
         $this->labTestModel = new LabTestModel();
         $this->labRequestModel = new LabRequestModel();
         $this->chargeModel = new ChargeModel();
@@ -35,10 +38,33 @@ class LabController extends BaseController
 
     public function index()
     {
-        // Get lab services including soft deleted ones for debugging
+        $db = \Config\Database::connect();
+        
+        // Get lab services with related information
         $labServices = $this->labServiceModel
-            ->select('lab_services.*, admin_patients.firstname, admin_patients.lastname')
+            ->select('lab_services.*, 
+                     admin_patients.firstname, 
+                     admin_patients.lastname,
+                     admin_patients.contact,
+                     admin_patients.birthdate,
+                     lab_requests.status as request_status,
+                     lab_requests.payment_status,
+                     lab_requests.test_name,
+                     lab_requests.test_type,
+                     lab_requests.requested_date,
+                     lab_requests.requested_by,
+                     lab_results.result as lab_result,
+                     lab_results.interpretation,
+                     lab_results.completed_at,
+                     users_nurse.username as nurse_name,
+                     users_doctor.username as doctor_name,
+                     users_completed.username as completed_by_name')
             ->join('admin_patients', 'admin_patients.id = lab_services.patient_id', 'left')
+            ->join('lab_requests', 'lab_requests.id = lab_services.lab_request_id', 'left')
+            ->join('lab_results', 'lab_results.lab_request_id = lab_requests.id', 'left')
+            ->join('users as users_nurse', 'users_nurse.id = lab_services.nurse_id', 'left')
+            ->join('users as users_doctor', 'users_doctor.id = lab_services.doctor_id', 'left')
+            ->join('users as users_completed', 'users_completed.id = lab_results.completed_by', 'left')
             ->where('lab_services.deleted_at', null) // Only show non-deleted records
             ->orderBy('lab_services.created_at', 'DESC')
             ->findAll();
@@ -53,10 +79,27 @@ class LabController extends BaseController
 
     public function create()
     {
-        $patients = $this->patientModel->findAll();
+        $db = \Config\Database::connect();
+        
+        // Get patients from admin_patients table
+        $adminPatients = $this->patientModel->findAll();
+        
+        // Get patients from patients table (receptionist-registered)
+        $hmsPatients = [];
+        if ($db->tableExists('patients')) {
+            $hmsPatientsRaw = $this->hmsPatientModel->findAll();
+            // Format to match admin_patients structure
+            foreach ($hmsPatientsRaw as $patient) {
+                $hmsPatients[] = [
+                    'id' => $patient['patient_id'] ?? $patient['id'],
+                    'firstname' => $patient['first_name'] ?? '',
+                    'lastname' => $patient['last_name'] ?? '',
+                    'full_name' => ($patient['first_name'] ?? '') . ' ' . ($patient['last_name'] ?? ''),
+                ];
+            }
+        }
         
         // Get active lab tests grouped by category
-        $db = \Config\Database::connect();
         $labTests = [];
         if ($db->tableExists('lab_tests')) {
             $labTests = $this->labTestModel->getActiveTestsGroupedByCategory();
@@ -77,7 +120,8 @@ class LabController extends BaseController
         
         $data = [
             'title' => 'Create Lab Service',
-            'patients' => $patients,
+            'adminPatients' => $adminPatients,
+            'hmsPatients' => $hmsPatients,
             'labTests' => $labTests,
             'nurses' => $nurses,
             'validation' => \Config\Services::validation(),
@@ -186,14 +230,23 @@ class LabController extends BaseController
         // Log incoming request for debugging
         log_message('debug', 'Lab Service Store - Post Data: ' . json_encode($this->request->getPost()));
         
-        // Check if test requires specimen (needs nurse)
-        $testName = $this->request->getPost('test_type');
-        $requiresSpecimen = true; // Default to true for safety
+        $patientSource = $this->request->getPost('patient_source');
         $db = \Config\Database::connect();
+        
+        // Determine test name based on patient source
+        if ($patientSource === 'walkin') {
+            $testName = $this->request->getPost('walkin_test_type');
+            $nurseId = $this->request->getPost('walkin_collected_by');
+        } else {
+            $testName = $this->request->getPost('test_type');
+            $nurseId = $this->request->getPost('nurse_id');
+        }
+        
+        // Check if test requires specimen (needs nurse)
+        $requiresSpecimen = true; // Default to true for safety
         
         // First, check if nurse_id is provided - if not provided and test is without_specimen, that's OK
         // Handle both empty string and null/not set
-        $nurseId = $this->request->getPost('nurse_id');
         if ($nurseId === '' || $nurseId === null) {
             $nurseId = null;
         }
@@ -222,17 +275,40 @@ class LabController extends BaseController
         
         log_message('debug', 'Lab Service Store - Requires Specimen: ' . ($requiresSpecimen ? 'yes' : 'no') . ', Nurse ID provided: ' . (!empty($nurseId) ? 'yes (' . $nurseId . ')' : 'no'));
         
-        $rules = [
-            'patient_id' => 'required|integer',
-            'test_type' => 'required|max_length[255]',
-            'result' => 'permit_empty|max_length[500]',
-            'remarks' => 'permit_empty|max_length[500]',
-        ];
-        
-        // Nurse is only required if test requires specimen
-        if ($requiresSpecimen) {
-            $rules['nurse_id'] = 'required|integer';
-            log_message('debug', 'Lab Service Store - Validation: nurse_id is REQUIRED (test requires specimen)');
+        // Different validation rules based on patient source
+        if ($patientSource === 'walkin') {
+            $rules = [
+                'patient_source' => 'required|in_list[walkin,patient]',
+                'walkin_full_name' => 'required|max_length[255]',
+                'walkin_gender' => 'required|in_list[male,female,other]',
+                'walkin_contact' => 'required|max_length[255]',
+                'walkin_test_type' => 'required|max_length[255]',
+                'walkin_request_date' => 'required|valid_date',
+                'walkin_payment_method' => 'required|in_list[Cash,Insurance,PhilHealth,Credit,HMO]',
+                'walkin_amount' => 'permit_empty|decimal',
+            ];
+            
+            // Sample fields required only if test requires specimen
+            if ($requiresSpecimen) {
+                $rules['walkin_sample_type'] = 'required|max_length[100]';
+                $rules['walkin_collection_date'] = 'required|valid_date';
+                $rules['walkin_collection_time'] = 'required';
+                $rules['walkin_collected_by'] = 'required|integer';
+            }
+        } else {
+            $rules = [
+                'patient_source' => 'required|in_list[walkin,patient]',
+                'patient_id' => 'required|integer',
+                'test_type' => 'required|max_length[255]',
+                'result' => 'permit_empty|max_length[500]',
+                'remarks' => 'permit_empty|max_length[500]',
+            ];
+            
+            // Nurse is only required if test requires specimen
+            if ($requiresSpecimen) {
+                $rules['nurse_id'] = 'required|integer';
+                log_message('debug', 'Lab Service Store - Validation: nurse_id is REQUIRED (test requires specimen)');
+            }
         }
         // For without_specimen, don't add nurse_id to rules - it's completely optional
         // This way CodeIgniter won't validate it at all
@@ -268,11 +344,46 @@ class LabController extends BaseController
         log_message('debug', 'Lab Service Store - Validation passed');
 
         $db = \Config\Database::connect();
+        $patientSource = $this->request->getPost('patient_source');
         
-        // STEP 1: Create lab service FIRST (without transaction - save immediately)
+        // STEP 1: Handle walk-in patient creation if needed
+        $patientId = null;
+        if ($patientSource === 'walkin') {
+            // Create walk-in patient record in admin_patients
+            $walkinData = [
+                'firstname' => $this->request->getPost('walkin_full_name'),
+                'lastname' => '', // Walk-in patients don't have separate first/last
+                'gender' => $this->request->getPost('walkin_gender'),
+                'contact' => $this->request->getPost('walkin_contact'),
+                'address' => $this->request->getPost('walkin_address') ?? '',
+                'birthdate' => $this->request->getPost('walkin_date_of_birth') ?: null,
+                'visit_type' => 'Walk-in',
+            ];
+            
+            // Calculate age if provided
+            if ($this->request->getPost('walkin_age')) {
+                // Age is already provided, we can store it in a note or calculate from DOB
+            }
+            
+            $this->patientModel->skipValidation(true);
+            $patientId = $this->patientModel->insert($walkinData);
+            $this->patientModel->skipValidation(false);
+            
+            if (!$patientId) {
+                return redirect()->back()->withInput()->with('error', 'Failed to create walk-in patient record.');
+            }
+            
+            $testName = $this->request->getPost('walkin_test_type');
+            $nurseId = $this->request->getPost('walkin_collected_by');
+        } else {
+            $patientId = $this->request->getPost('patient_id');
+            $testName = $this->request->getPost('test_type');
+            $nurseId = $this->request->getPost('nurse_id');
+        }
+        
+        // STEP 2: Create lab service FIRST (without transaction - save immediately)
         try {
             // Get test info from lab_tests table
-            $testName = $this->request->getPost('test_type');
             $testType = '';
             if ($db->tableExists('lab_tests')) {
                 $labTest = $db->table('lab_tests')
@@ -289,12 +400,11 @@ class LabController extends BaseController
             }
 
             // Create lab service - SAVE FIRST
-            $nurseId = $this->request->getPost('nurse_id');
             $labServiceData = [
-                'patient_id' => $this->request->getPost('patient_id'),
+                'patient_id' => $patientId,
                 'test_type' => $testName,
-                'result' => $this->request->getPost('result') ?? null,
-                'remarks' => $this->request->getPost('remarks') ?? null,
+                'result' => null, // Results will be entered by labstaff
+                'remarks' => null, // Remarks will be entered by labstaff
             ];
             
             // Only add nurse_id if provided (required for with_specimen, optional for without_specimen)
@@ -327,28 +437,36 @@ class LabController extends BaseController
             try {
                 // Create lab request so it appears in laboratory system
                 // Nurse will collect specimen and pass to lab (only if test requires specimen)
+                // Match doctor's logic exactly
                 $labRequestData = [
                     'patient_id' => $this->request->getPost('patient_id'),
                     'test_type' => $testType,
                     'test_name' => $testName,
                     'requested_by' => 'admin',
                     'priority' => 'routine',
-                    'instructions' => $this->request->getPost('remarks') ?? '',
+                    'instructions' => ($this->request->getPost('remarks') ?? '') . ' | SPECIMEN_CATEGORY:' . ($requiresSpecimen ? 'with_specimen' : 'without_specimen'),
                     'status' => 'pending',
                     'requested_date' => date('Y-m-d'),
                     'payment_status' => 'pending', // Pending accountant approval - will be 'approved' then 'paid' by accountant
                 ];
                 
-                // Only add nurse_id if test requires specimen
+                // Only add nurse_id if test requires specimen (matching doctor logic)
                 if ($requiresSpecimen) {
                     $nurseId = $this->request->getPost('nurse_id');
                     if (!empty($nurseId)) {
                         $labRequestData['nurse_id'] = $nurseId;
                     }
                 }
+                // For without_specimen, don't add nurse_id at all
 
-                // Insert lab request (validation now allows 'admin')
-                if (!$this->labRequestModel->insert($labRequestData)) {
+                // Insert lab request (skip validation to avoid nurse_id requirement issues for without_specimen tests - matching doctor logic)
+                log_message('debug', 'Admin Lab Service - Lab Request Data: ' . json_encode($labRequestData));
+                
+                $this->labRequestModel->skipValidation(true);
+                $labRequestInserted = $this->labRequestModel->insert($labRequestData);
+                $this->labRequestModel->skipValidation(false);
+                
+                if (!$labRequestInserted) {
                     $errors = $this->labRequestModel->errors();
                     throw new \Exception('Failed to create lab request: ' . (!empty($errors) ? implode(', ', $errors) : 'Database insert failed'));
                 }
@@ -440,17 +558,19 @@ class LabController extends BaseController
                 
                 log_message('debug', 'Billing Item Created successfully');
 
-                // Update lab request with charge_id and store specimen_category for later reference
+                // Update lab request with charge_id (specimen_category already in instructions - matching doctor logic)
                 $updateData = [
                     'charge_id' => $chargeId,
                     'payment_status' => 'pending', // Pending accountant approval
                     'updated_at' => date('Y-m-d H:i:s')
                 ];
                 
-                // Store specimen category in instructions for later reference
-                $specimenCategory = $requiresSpecimen ? 'with_specimen' : 'without_specimen';
+                // Ensure specimen category is in instructions (already added above, but check to avoid duplication)
                 $existingInstructions = $labRequestData['instructions'] ?? '';
-                $updateData['instructions'] = $existingInstructions . ' | SPECIMEN_CATEGORY:' . $specimenCategory;
+                if (strpos($existingInstructions, 'SPECIMEN_CATEGORY:') === false) {
+                    $specimenCategory = $requiresSpecimen ? 'with_specimen' : 'without_specimen';
+                    $updateData['instructions'] = $existingInstructions . ' | SPECIMEN_CATEGORY:' . $specimenCategory;
+                }
                 
                 $this->labRequestModel->update($labRequestId, $updateData);
 
@@ -524,6 +644,59 @@ class LabController extends BaseController
             log_message('error', 'Stack Trace: ' . $e->getTraceAsString());
             return redirect()->back()->withInput()->with('error', 'Failed to create lab service: ' . $e->getMessage());
         }
+    }
+
+    public function view($id)
+    {
+        if (!session()->get('logged_in') || session()->get('role') !== 'admin') {
+            return redirect()->to('/auth')->with('error', 'You must be logged in as admin to access this page.');
+        }
+
+        $db = \Config\Database::connect();
+        
+        // Get lab service with all related information
+        $labService = $this->labServiceModel
+            ->select('lab_services.*, 
+                     admin_patients.firstname, 
+                     admin_patients.lastname,
+                     admin_patients.contact,
+                     admin_patients.birthdate,
+                     admin_patients.gender,
+                     admin_patients.address,
+                     lab_requests.status as request_status,
+                     lab_requests.payment_status,
+                     lab_requests.test_name,
+                     lab_requests.test_type,
+                     lab_requests.requested_date,
+                     lab_requests.requested_by,
+                     lab_results.result as lab_result,
+                     lab_results.interpretation,
+                     lab_results.completed_at,
+                     users_nurse.username as nurse_name,
+                     users_doctor.username as doctor_name,
+                     users_completed.username as completed_by_name,
+                     lab_tests.normal_range')
+            ->join('admin_patients', 'admin_patients.id = lab_services.patient_id', 'left')
+            ->join('lab_requests', 'lab_requests.id = lab_services.lab_request_id', 'left')
+            ->join('lab_results', 'lab_results.lab_request_id = lab_requests.id', 'left')
+            ->join('users as users_nurse', 'users_nurse.id = lab_services.nurse_id', 'left')
+            ->join('users as users_doctor', 'users_doctor.id = lab_services.doctor_id', 'left')
+            ->join('users as users_completed', 'users_completed.id = lab_results.completed_by', 'left')
+            ->join('lab_tests', 'lab_tests.test_name = lab_requests.test_name AND lab_tests.is_active = 1', 'left')
+            ->where('lab_services.id', $id)
+            ->where('lab_services.deleted_at', null)
+            ->first();
+        
+        if (!$labService) {
+            return redirect()->to('/admin/lab')->with('error', 'Lab service not found.');
+        }
+        
+        $data = [
+            'title' => 'View Lab Service',
+            'labService' => $labService,
+        ];
+
+        return view('admin/lab/view', $data);
     }
 
     public function edit($id)

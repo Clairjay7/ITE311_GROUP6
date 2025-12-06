@@ -5,11 +5,13 @@ namespace App\Controllers\Doctor;
 use App\Controllers\BaseController;
 use App\Models\ConsultationModel;
 use App\Models\AdminPatientModel;
+use App\Models\HMSPatientModel;
 use App\Models\PatientVitalModel;
 use App\Models\ChargeModel;
 use App\Models\BillingItemModel;
 use App\Models\DoctorOrderModel;
 use App\Models\OrderStatusLogModel;
+use App\Models\DoctorModel;
 
 class ConsultationController extends BaseController
 {
@@ -1603,6 +1605,630 @@ class ConsultationController extends BaseController
             } else {
                 return redirect()->to('/doctor/orders?patient_id=' . $adminPatientId)->with('success', 'Consultation completed and saved successfully. Charges generated.' . $medicationMessage);
             }
+        } else {
+            return redirect()->back()->withInput()->with('error', 'Failed to save consultation.');
+        }
+    }
+
+    public function pediatricsList()
+    {
+        // Check if user is logged in and is a doctor
+        if (!session()->get('logged_in') || session()->get('role') !== 'doctor') {
+            return redirect()->to('/auth')->with('error', 'You must be logged in as a doctor to access this page.');
+        }
+
+        $doctorId = session()->get('user_id');
+        $db = \Config\Database::connect();
+        
+        // Verify doctor is a pediatrician
+        $isPediatricsDoctor = false;
+        if ($db->tableExists('doctors')) {
+            $doctor = $db->table('doctors')
+                ->where('user_id', $doctorId)
+                ->get()
+                ->getRowArray();
+            if ($doctor && strtolower(trim($doctor['specialization'] ?? '')) === 'pediatrics') {
+                $isPediatricsDoctor = true;
+            }
+        }
+        
+        if (!$isPediatricsDoctor) {
+            return redirect()->to('/doctor/dashboard')->with('error', 'This page is only available for pediatricians.');
+        }
+
+        $hmsPatientModel = new HMSPatientModel();
+        $adminPatientModel = new AdminPatientModel();
+        
+        // Get all pediatric patients (age 0-17) assigned to this doctor from patients table
+        $pediatricPatients = [];
+        if ($db->tableExists('patients')) {
+            $allPatients = $db->table('patients')
+                ->where('doctor_id', $doctorId)
+                ->where('doctor_id IS NOT NULL')
+                ->where('doctor_id !=', 0)
+                ->get()
+                ->getResultArray();
+            
+            foreach ($allPatients as $patient) {
+                // Calculate age from date_of_birth
+                $age = null;
+                if (!empty($patient['date_of_birth'])) {
+                    $birthDate = new \DateTime($patient['date_of_birth']);
+                    $today = new \DateTime();
+                    $age = $today->diff($birthDate)->y;
+                } elseif (!empty($patient['age'])) {
+                    $age = (int)$patient['age'];
+                }
+                
+                // Include patients aged 0-17
+                if ($age !== null && $age >= 0 && $age <= 17) {
+                    $patient['calculated_age'] = $age;
+                    $patient['source'] = 'patients';
+                    $pediatricPatients[] = $patient;
+                }
+            }
+        }
+
+        // Also get pediatric patients from admin_patients table
+        if ($db->tableExists('admin_patients')) {
+            $adminPatients = $adminPatientModel
+                ->where('doctor_id', $doctorId)
+                ->findAll();
+            
+            foreach ($adminPatients as $patient) {
+                // Calculate age from birthdate
+                $age = null;
+                if (!empty($patient['birthdate'])) {
+                    $birthDate = new \DateTime($patient['birthdate']);
+                    $today = new \DateTime();
+                    $age = $today->diff($birthDate)->y;
+                }
+                
+                // Include patients aged 0-17
+                if ($age !== null && $age >= 0 && $age <= 17) {
+                    // Format to match patients table structure
+                    $formattedPatient = [
+                        'patient_id' => $patient['id'],
+                        'id' => $patient['id'],
+                        'full_name' => ($patient['firstname'] ?? '') . ' ' . ($patient['lastname'] ?? ''),
+                        'first_name' => $patient['firstname'] ?? '',
+                        'last_name' => $patient['lastname'] ?? '',
+                        'date_of_birth' => $patient['birthdate'] ?? null,
+                        'gender' => $patient['gender'] ?? null,
+                        'contact' => $patient['contact'] ?? null,
+                        'address' => $patient['address'] ?? null,
+                        'calculated_age' => $age,
+                        'source' => 'admin_patients',
+                    ];
+                    $pediatricPatients[] = $formattedPatient;
+                }
+            }
+        }
+
+        // Sort by patient ID
+        usort($pediatricPatients, function($a, $b) {
+            $idA = $a['patient_id'] ?? $a['id'] ?? 0;
+            $idB = $b['patient_id'] ?? $b['id'] ?? 0;
+            return $idA <=> $idB;
+        });
+
+        $data = [
+            'title' => 'Pediatrics Consultations',
+            'patients' => $pediatricPatients,
+        ];
+
+        return view('doctor/consultations/pediatrics_list', $data);
+    }
+
+    public function pediatricsConsult($patientId)
+    {
+        // Check if user is logged in and is a doctor
+        if (!session()->get('logged_in') || session()->get('role') !== 'doctor') {
+            return redirect()->to('/auth')->with('error', 'You must be logged in as a doctor to access this page.');
+        }
+
+        $doctorId = session()->get('user_id');
+        $db = \Config\Database::connect();
+        
+        // Verify doctor is a pediatrician
+        $isPediatricsDoctor = false;
+        if ($db->tableExists('doctors')) {
+            $doctor = $db->table('doctors')
+                ->where('user_id', $doctorId)
+                ->get()
+                ->getRowArray();
+            if ($doctor && strtolower(trim($doctor['specialization'] ?? '')) === 'pediatrics') {
+                $isPediatricsDoctor = true;
+            }
+        }
+        
+        if (!$isPediatricsDoctor) {
+            return redirect()->to('/doctor/dashboard')->with('error', 'This page is only available for pediatricians.');
+        }
+
+        $hmsPatientModel = new HMSPatientModel();
+        $adminPatientModel = new AdminPatientModel();
+        
+        // Try to get patient from patients table first
+        $patient = $hmsPatientModel->find($patientId);
+        $patientSource = 'patients';
+        
+        // If not found, try admin_patients table
+        if (!$patient && $db->tableExists('admin_patients')) {
+            $adminPatient = $adminPatientModel->find($patientId);
+            if ($adminPatient) {
+                // Format to match patients table structure
+                $patient = [
+                    'patient_id' => $adminPatient['id'],
+                    'id' => $adminPatient['id'],
+                    'full_name' => ($adminPatient['firstname'] ?? '') . ' ' . ($adminPatient['lastname'] ?? ''),
+                    'first_name' => $adminPatient['firstname'] ?? '',
+                    'last_name' => $adminPatient['lastname'] ?? '',
+                    'date_of_birth' => $adminPatient['birthdate'] ?? null,
+                    'gender' => $adminPatient['gender'] ?? null,
+                    'contact' => $adminPatient['contact'] ?? null,
+                    'address' => $adminPatient['address'] ?? null,
+                    'allergies' => null,
+                ];
+                $patientSource = 'admin_patients';
+            }
+        }
+        
+        if (!$patient) {
+            return redirect()->to('/doctor/consultations/pediatrics')->with('error', 'Patient not found.');
+        }
+
+        // Calculate age
+        $age = null;
+        if (!empty($patient['date_of_birth'])) {
+            $birthDate = new \DateTime($patient['date_of_birth']);
+            $today = new \DateTime();
+            $age = $today->diff($birthDate)->y;
+        } elseif (!empty($patient['age'])) {
+            $age = (int)$patient['age'];
+        } elseif ($patientSource === 'admin_patients' && !empty($patient['birthdate'])) {
+            $birthDate = new \DateTime($patient['birthdate']);
+            $today = new \DateTime();
+            $age = $today->diff($birthDate)->y;
+        }
+
+        // Verify patient is pediatric (0-17)
+        if ($age === null || $age < 0 || $age > 17) {
+            return redirect()->to('/doctor/consultations/pediatrics')->with('error', 'This patient is not a pediatric patient (must be 0-17 years old).');
+        }
+
+        // Get all pediatricians for assignment
+        $doctorModel = new DoctorModel();
+        $pediatricians = $doctorModel->getDoctorsBySpecialization('Pediatrics');
+
+        // Get all available medicines from pharmacy for medication prescription
+        $medicines = [];
+        if ($db->tableExists('pharmacy')) {
+            $medicines = $db->table('pharmacy')
+                ->where('quantity >', 0)
+                ->orderBy('item_name', 'ASC')
+                ->get()
+                ->getResultArray();
+        }
+
+        // Get all active nurses (for medication orders and lab tests)
+        $nurses = [];
+        if ($db->tableExists('users') && $db->tableExists('roles')) {
+            $nurses = $db->table('users')
+                ->select('users.id, users.username')
+                ->join('roles', 'roles.id = users.role_id', 'left')
+                ->where('LOWER(roles.name)', 'nurse')
+                ->where('users.status', 'active')
+                ->orderBy('users.username', 'ASC')
+                ->get()
+                ->getResultArray();
+        }
+
+        // Get active lab tests grouped by category (for lab test requests)
+        $labTests = [];
+        if ($db->tableExists('lab_tests')) {
+            $labTestModel = new \App\Models\LabTestModel();
+            $labTests = $labTestModel->getActiveTestsGroupedByCategory();
+        }
+
+        $data = [
+            'title' => 'Pediatric Consultation',
+            'patient' => $patient,
+            'age' => $age,
+            'pediatricians' => $pediatricians,
+            'patient_source' => $patientSource,
+            'medicines' => $medicines,
+            'nurses' => $nurses,
+            'labTests' => $labTests,
+            'validation' => \Config\Services::validation()
+        ];
+
+        return view('doctor/consultations/pediatrics_consult', $data);
+    }
+
+    public function savePediatricsConsultation()
+    {
+        // Check if user is logged in and is a doctor
+        if (!session()->get('logged_in') || session()->get('role') !== 'doctor') {
+            return redirect()->to('/auth')->with('error', 'You must be logged in as a doctor to access this page.');
+        }
+
+        $doctorId = session()->get('user_id');
+        $db = \Config\Database::connect();
+        
+        // Verify doctor is a pediatrician
+        $isPediatricsDoctor = false;
+        if ($db->tableExists('doctors')) {
+            $doctor = $db->table('doctors')
+                ->where('user_id', $doctorId)
+                ->get()
+                ->getRowArray();
+            if ($doctor && strtolower(trim($doctor['specialization'] ?? '')) === 'pediatrics') {
+                $isPediatricsDoctor = true;
+            }
+        }
+        
+        if (!$isPediatricsDoctor) {
+            return redirect()->to('/doctor/dashboard')->with('error', 'This page is only available for pediatricians.');
+        }
+
+        $validation = $this->validate([
+            'patient_id' => 'required|integer|greater_than[0]',
+            'reason_for_consultation' => 'required|max_length[1000]',
+            'symptoms' => 'permit_empty|max_length[2000]',
+            'allergies' => 'permit_empty|max_length[500]',
+            'temperature' => 'permit_empty|decimal',
+            'weight' => 'permit_empty|decimal',
+            'pulse_rate' => 'permit_empty|integer',
+            'diagnosis_notes' => 'permit_empty|max_length[2000]',
+            'follow_up_date' => 'permit_empty|valid_date',
+        ]);
+
+        if (!$validation) {
+            return redirect()->back()->withInput()->with('validation', $this->validator);
+        }
+
+        $patientId = $this->request->getPost('patient_id');
+        $hmsPatientModel = new HMSPatientModel();
+        $adminPatientModel = new AdminPatientModel();
+        
+        // Try to get patient from patients table first
+        $patient = $hmsPatientModel->find($patientId);
+        $patientSource = 'patients';
+        $adminPatientId = null;
+        
+        // If not found, try admin_patients table
+        if (!$patient && $db->tableExists('admin_patients')) {
+            $adminPatient = $adminPatientModel->find($patientId);
+            if ($adminPatient) {
+                $patient = $adminPatient;
+                $patientSource = 'admin_patients';
+                $adminPatientId = $patientId;
+            }
+        }
+        
+        if (!$patient) {
+            return redirect()->back()->withInput()->with('error', 'Patient not found.');
+        }
+
+        // For admin_patients, use adminPatientId; for patients, use patientId
+        $effectivePatientId = ($patientSource === 'admin_patients') ? $adminPatientId : $patientId;
+
+        // Save consultation data (use logged-in doctor as the pediatrician)
+        $consultationData = [
+            'doctor_id' => $doctorId,
+            'patient_id' => $effectivePatientId,
+            'consultation_date' => date('Y-m-d'),
+            'consultation_time' => date('H:i:s'),
+            'type' => 'completed',
+            'status' => 'completed',
+            'notes' => $this->request->getPost('diagnosis_notes'),
+            'observations' => $this->request->getPost('symptoms'),
+            'diagnosis' => $this->request->getPost('diagnosis_notes'),
+        ];
+
+        $consultationModel = new ConsultationModel();
+        $consultationId = $consultationModel->insert($consultationData);
+
+        // Save vital signs if provided
+        if ($db->tableExists('patient_vitals')) {
+            $vitalData = [
+                'patient_id' => $effectivePatientId,
+                'temperature' => $this->request->getPost('temperature'),
+                'weight' => $this->request->getPost('weight'),
+                'pulse_rate' => $this->request->getPost('pulse_rate'),
+                'recorded_by' => $doctorId,
+                'recorded_at' => date('Y-m-d H:i:s'),
+            ];
+            
+            $vitalModel = new PatientVitalModel();
+            $vitalModel->insert($vitalData);
+        }
+
+        // Update patient allergies if provided
+        if ($this->request->getPost('allergies')) {
+            if ($patientSource === 'admin_patients') {
+                $adminPatientModel->update($patientId, [
+                    'allergies' => $this->request->getPost('allergies')
+                ]);
+            } else {
+                $hmsPatientModel->update($patientId, [
+                    'allergies' => $this->request->getPost('allergies')
+                ]);
+            }
+        }
+
+        // Handle medication prescription if provided
+        $prescribeMedication = $this->request->getPost('prescribe_medication');
+        if ($prescribeMedication === 'yes') {
+            $medicineName = $this->request->getPost('medicine_name');
+            $dosage = $this->request->getPost('dosage');
+            $frequency = $this->request->getPost('frequency');
+            $duration = $this->request->getPost('duration');
+            $purchaseLocation = $this->request->getPost('purchase_location');
+            $nurseId = $this->request->getPost('nurse_id'); // Only required if hospital_pharmacy
+            
+            if ($medicineName && $dosage && $frequency && $duration && $purchaseLocation) {
+                // Only require nurse_id if hospital pharmacy
+                if ($purchaseLocation === 'hospital_pharmacy' && !$nurseId) {
+                    return redirect()->back()->withInput()->with('error', 'Please assign a nurse for hospital pharmacy medication orders.');
+                }
+                
+                // Create medication order
+                $orderModel = new \App\Models\DoctorOrderModel();
+                $orderData = [
+                    'patient_id' => $effectivePatientId,
+                    'doctor_id' => $doctorId,
+                    'nurse_id' => $nurseId ?: null, // Only set if hospital pharmacy
+                    'order_type' => 'medication',
+                    'medicine_name' => $medicineName,
+                    'dosage' => $dosage,
+                    'frequency' => $frequency,
+                    'duration' => $duration,
+                    'order_description' => "Prescribed during pediatric consultation: {$medicineName} - {$dosage}, {$frequency}, for {$duration}",
+                    'status' => $purchaseLocation === 'outside' ? 'completed' : 'pending', // Auto-complete if outside hospital
+                    'purchase_location' => $purchaseLocation, // hospital_pharmacy or outside
+                    'pharmacy_status' => $purchaseLocation === 'hospital_pharmacy' ? 'pending' : null, // Only set if hospital pharmacy
+                    'completed_by' => $purchaseLocation === 'outside' ? $doctorId : null, // Doctor completed the prescription for outside purchase
+                    'completed_at' => $purchaseLocation === 'outside' ? date('Y-m-d H:i:s') : null, // Auto-complete timestamp for outside
+                ];
+                
+                if ($orderModel->insert($orderData)) {
+                    $orderId = $orderModel->getInsertID();
+                    
+                    // Create order status log entry
+                    if ($db->tableExists('order_status_logs')) {
+                        $logModel = new \App\Models\OrderStatusLogModel();
+                        $logModel->insert([
+                            'order_id' => $orderId,
+                            'status' => $orderData['status'],
+                            'changed_by' => $doctorId,
+                            'notes' => $purchaseLocation === 'outside' 
+                                ? 'Prescription completed by doctor. Patient will purchase medication from outside pharmacy.' 
+                                : 'Medication order created. Sent to hospital pharmacy.',
+                            'created_at' => date('Y-m-d H:i:s'),
+                        ]);
+                    }
+                    
+                    // If hospital pharmacy, notify pharmacy
+                    if ($purchaseLocation === 'hospital_pharmacy' && $db->tableExists('pharmacy_notifications')) {
+                        $db->table('pharmacy_notifications')->insert([
+                            'order_id' => $orderId,
+                            'patient_id' => $effectivePatientId,
+                            'medicine_name' => $medicineName,
+                            'message' => "New medication order from Dr. " . (session()->get('username') ?? 'Doctor') . " for pediatric patient consultation.",
+                            'is_read' => 0,
+                            'created_at' => date('Y-m-d H:i:s'),
+                        ]);
+                    }
+                    
+                    // Notify nurse only if hospital pharmacy (nurse will administer)
+                    if ($purchaseLocation === 'hospital_pharmacy' && $nurseId && $db->tableExists('nurse_notifications')) {
+                        $db->table('nurse_notifications')->insert([
+                            'nurse_id' => $nurseId,
+                            'type' => 'new_doctor_order',
+                            'title' => 'New Medication Order',
+                            'message' => "Dr. " . (session()->get('username') ?? 'Doctor') . " has prescribed {$medicineName} for a pediatric patient. Patient will purchase from hospital pharmacy. Please wait for pharmacy to dispense before administering.",
+                            'related_id' => $orderId,
+                            'related_type' => 'doctor_order',
+                            'is_read' => 0,
+                            'created_at' => date('Y-m-d H:i:s'),
+                        ]);
+                    }
+                }
+            }
+        }
+        
+        // Handle lab test request if provided
+        $requestLabTest = $this->request->getPost('request_lab_test');
+        if ($requestLabTest === 'yes') {
+            $labTestName = $this->request->getPost('lab_test_name');
+            $labNurseId = $this->request->getPost('lab_nurse_id');
+            $labTestRemarks = $this->request->getPost('lab_test_remarks');
+            
+            if (!empty($labTestName)) {
+                // IMPORTANT: Check test type FIRST before processing
+                $requiresSpecimen = true; // Default to true for safety
+                $testPrice = 300.00; // Default price
+                $testType = 'General';
+                
+                // Handle both empty string and null/not set for nurse_id
+                if ($labNurseId === '' || $labNurseId === null) {
+                    $labNurseId = null;
+                }
+                
+                // Check test type FIRST before validation
+                if ($db->tableExists('lab_tests') && !empty($labTestName)) {
+                    $labTest = $db->table('lab_tests')
+                        ->where('test_name', $labTestName)
+                        ->where('is_active', 1)
+                        ->get()
+                        ->getRowArray();
+                    
+                    if ($labTest) {
+                        $testType = $labTest['test_type'] ?? 'General';
+                        $testPrice = (float)($labTest['price'] ?? 300.00);
+                        $specimenCategory = $labTest['specimen_category'] ?? 'with_specimen';
+                        $requiresSpecimen = ($specimenCategory === 'with_specimen');
+                    } else {
+                        // If test not found, default to requiring specimen for safety
+                        $requiresSpecimen = true;
+                    }
+                } else {
+                    // If we can't check, default to requiring specimen for safety
+                    $requiresSpecimen = true;
+                }
+                
+                // For without_specimen tests, explicitly unset nurse_id to avoid validation issues
+                if (!$requiresSpecimen && empty($labNurseId)) {
+                    $labNurseId = null; // Explicitly set to null
+                }
+                
+                // Create lab service
+                $labServiceModel = new \App\Models\LabServiceModel();
+                $labServiceData = [
+                    'patient_id' => $effectivePatientId,
+                    'doctor_id' => $doctorId,
+                    'test_type' => $labTestName,
+                    'result' => null,
+                    'remarks' => $labTestRemarks ?? null,
+                ];
+                
+                // Only add nurse_id if provided (required for with_specimen, optional for without_specimen)
+                if (!empty($labNurseId)) {
+                    $labServiceData['nurse_id'] = $labNurseId;
+                }
+                
+                // Skip validation to avoid nurse_id requirement issues
+                $labServiceModel->skipValidation(true);
+                $labServiceInserted = $labServiceModel->insert($labServiceData);
+                $labServiceModel->skipValidation(false);
+                
+                if ($labServiceInserted) {
+                    $labServiceId = $labServiceModel->getInsertID();
+                    
+                    // Create lab request
+                    $labRequestModel = new \App\Models\LabRequestModel();
+                    $labRequestData = [
+                        'patient_id' => $effectivePatientId,
+                        'doctor_id' => $doctorId,
+                        'test_type' => $testType,
+                        'test_name' => $labTestName,
+                        'requested_by' => 'doctor',
+                        'priority' => 'routine',
+                        'instructions' => ($labTestRemarks ?? '') . ' | SPECIMEN_CATEGORY:' . ($requiresSpecimen ? 'with_specimen' : 'without_specimen'),
+                        'status' => 'pending',
+                        'requested_date' => date('Y-m-d'),
+                        'payment_status' => 'pending', // Pending accountant approval
+                    ];
+                    
+                    // Only add nurse_id if test requires specimen
+                    if ($requiresSpecimen) {
+                        if (!empty($labNurseId)) {
+                            $labRequestData['nurse_id'] = $labNurseId;
+                        }
+                    }
+                    // For without_specimen, don't add nurse_id at all
+                    
+                    // Skip validation to avoid nurse_id requirement issues for without_specimen tests
+                    $labRequestModel->skipValidation(true);
+                    $labRequestInserted = $labRequestModel->insert($labRequestData);
+                    $labRequestModel->skipValidation(false);
+                    
+                    if ($labRequestInserted) {
+                        $labRequestId = $labRequestModel->getInsertID();
+                        
+                        // Link lab service to lab request
+                        $labServiceModel->update($labServiceId, [
+                            'lab_request_id' => $labRequestId
+                        ]);
+                        
+                        // Create charge for lab test
+                        $chargeModel = new ChargeModel();
+                        $billingItemModel = new BillingItemModel();
+                        
+                        if ($db->tableExists('charges') && $db->tableExists('billing_items')) {
+                            $chargeNumber = $chargeModel->generateChargeNumber();
+                            
+                            // Create charge record (pending - waiting for accountant approval)
+                            $chargeNotes = $requiresSpecimen 
+                                ? 'Lab test payment: ' . $labTestName . ' - Requires accountant approval before proceeding to nurse for specimen collection'
+                                : 'Lab test payment: ' . $labTestName . ' - Requires accountant approval before proceeding to laboratory for testing (no specimen required)';
+                            
+                            $chargeData = [
+                                'patient_id' => $effectivePatientId,
+                                'charge_number' => $chargeNumber,
+                                'total_amount' => $testPrice,
+                                'status' => 'pending', // Pending until accountant approves
+                                'notes' => $chargeNotes,
+                            ];
+                            
+                            if ($chargeModel->insert($chargeData)) {
+                                $chargeId = $chargeModel->getInsertID();
+                                
+                                // Create billing item
+                                $billingItemData = [
+                                    'charge_id' => $chargeId,
+                                    'item_type' => 'lab_test',
+                                    'item_name' => $labTestName,
+                                    'description' => 'Lab Test: ' . $testType . ' - ' . $labTestName,
+                                    'quantity' => 1.00,
+                                    'unit_price' => $testPrice,
+                                    'total_price' => $testPrice,
+                                    'related_id' => $labRequestId,
+                                    'related_type' => 'lab_request',
+                                ];
+                                
+                                $billingItemModel->insert($billingItemData);
+                                
+                                // Update lab request with charge_id
+                                $updateData = [
+                                    'charge_id' => $chargeId,
+                                    'payment_status' => 'pending', // Pending accountant approval
+                                    'updated_at' => date('Y-m-d H:i:s')
+                                ];
+                                
+                                $labRequestModel->update($labRequestId, $updateData);
+                                
+                                // Notify Accountant about new payment request (needs approval)
+                                if ($db->tableExists('accountant_notifications')) {
+                                    $patientName = ($patientSource === 'admin_patients' && isset($patient['firstname']))
+                                        ? ($patient['firstname'] ?? '') . ' ' . ($patient['lastname'] ?? '')
+                                        : ($patient['full_name'] ?? ($patient['first_name'] ?? '') . ' ' . ($patient['last_name'] ?? '') ?? 'Patient');
+                                    
+                                    $notificationMessage = $requiresSpecimen
+                                        ? 'Payment request for lab test: ' . $labTestName . ' - Patient: ' . $patientName . ' - Amount: ₱' . number_format($testPrice, 2) . ' - Please approve to proceed to nurse for specimen collection.'
+                                        : 'Payment request for lab test: ' . $labTestName . ' - Patient: ' . $patientName . ' - Amount: ₱' . number_format($testPrice, 2) . ' - Please approve to proceed directly to laboratory for testing (no specimen required).';
+                                    
+                                    $db->table('accountant_notifications')->insert([
+                                        'type' => 'lab_payment',
+                                        'title' => 'Lab Test Payment Pending Approval',
+                                        'message' => $notificationMessage,
+                                        'related_id' => $chargeId,
+                                        'related_type' => 'charge',
+                                        'is_read' => 0,
+                                        'created_at' => date('Y-m-d H:i:s'),
+                                    ]);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        $medicationMessage = '';
+        if ($prescribeMedication === 'yes') {
+            $purchaseLocation = $this->request->getPost('purchase_location');
+            if ($purchaseLocation === 'hospital_pharmacy') {
+                $medicationMessage = ' Medication prescription created and sent to hospital pharmacy.';
+            } else {
+                $medicationMessage = ' Medication prescription created. Patient will purchase from outside pharmacy.';
+            }
+        }
+
+        if ($consultationId) {
+            return redirect()->to('/doctor/consultations/pediatrics')->with('success', 'Pediatric consultation saved successfully.' . $medicationMessage);
         } else {
             return redirect()->back()->withInput()->with('error', 'Failed to save consultation.');
         }

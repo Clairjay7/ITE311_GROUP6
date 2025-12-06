@@ -6,64 +6,142 @@
 <div class="admin-module">
     <div class="module-header">
         <h2><?= esc($title) ?></h2>
-        <a href="<?= base_url('admin/schedule') ?>" class="btn btn-secondary">Back to List</a>
+        <a href="<?= base_url('admin/schedule') ?>" class="btn btn-secondary">
+            <i class="fa-solid fa-arrow-left"></i> Back
+        </a>
     </div>
 
-    <form method="POST" action="<?= base_url('admin/schedule/store') ?>" class="form-container">
-        <div class="form-group">
-            <label for="patient_id">Patient *</label>
-            <select id="patient_id" name="patient_id" class="form-control" required>
-                <option value="">Select Patient</option>
-                <?php foreach ($patients as $patient): ?>
-                    <option value="<?= esc($patient['id']) ?>"><?= esc($patient['firstname'] . ' ' . $patient['lastname']) ?></option>
-                <?php endforeach; ?>
-            </select>
+    <div class="schedule-type-selection">
+        <div class="selection-card" onclick="window.location.href='<?= base_url('admin/schedule/create-doctor') ?>'">
+            <div class="card-icon" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">
+                <i class="fa-solid fa-user-doctor"></i>
+            </div>
+            <h3>Doctor Schedule</h3>
+            <p>Create working schedule for doctors</p>
+            <div class="card-arrow">
+                <i class="fa-solid fa-arrow-right"></i>
+            </div>
         </div>
 
-        <div class="form-group">
-            <label for="date">Date *</label>
-            <input type="date" id="date" name="date" class="form-control" value="<?= old('date') ?>" required>
+        <div class="selection-card" onclick="window.location.href='<?= base_url('admin/schedule/create-nurse') ?>'">
+            <div class="card-icon" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                <i class="fa-solid fa-user-nurse"></i>
+            </div>
+            <h3>Nurse Schedule</h3>
+            <p>Create working schedule for nurses</p>
+            <div class="card-arrow">
+                <i class="fa-solid fa-arrow-right"></i>
+            </div>
         </div>
-
-        <div class="form-group">
-            <label for="time">Time *</label>
-            <input type="time" id="time" name="time" class="form-control" value="<?= old('time') ?>" required>
-        </div>
-
-        <div class="form-group">
-            <label for="doctor">Doctor *</label>
-            <input type="text" id="doctor" name="doctor" class="form-control" value="<?= old('doctor') ?>" required>
-        </div>
-
-        <div class="form-group">
-            <label for="status">Status *</label>
-            <select id="status" name="status" class="form-control" required>
-                <option value="pending" <?= old('status') === 'pending' ? 'selected' : '' ?>>Pending</option>
-                <option value="confirmed" <?= old('status') === 'confirmed' ? 'selected' : '' ?>>Confirmed</option>
-                <option value="completed" <?= old('status') === 'completed' ? 'selected' : '' ?>>Completed</option>
-                <option value="cancelled" <?= old('status') === 'cancelled' ? 'selected' : '' ?>>Cancelled</option>
-            </select>
-        </div>
-
-        <div class="form-actions">
-            <button type="submit" class="btn btn-primary">Create Schedule</button>
-            <a href="<?= base_url('admin/schedule') ?>" class="btn btn-secondary">Cancel</a>
-        </div>
-    </form>
+    </div>
 </div>
 
 <style>
-.admin-module { padding: 24px; }
-.module-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-.module-header h2 { margin: 0; color: #2e7d32; }
-.btn { padding: 10px 20px; border-radius: 6px; text-decoration: none; display: inline-block; border: none; cursor: pointer; }
-.btn-primary { background: #2e7d32; color: white; }
-.btn-secondary { background: #6b7280; color: white; }
-.form-container { background: white; padding: 24px; border-radius: 8px; max-width: 600px; }
-.form-group { margin-bottom: 20px; }
-.form-group label { display: block; margin-bottom: 6px; font-weight: 600; color: #374151; }
-.form-control { width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; }
-.form-actions { display: flex; gap: 12px; margin-top: 24px; }
+.admin-module { 
+    padding: 24px; 
+    background: #f8fafc;
+    min-height: 100vh;
+}
+
+.module-header { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    margin-bottom: 32px;
+}
+
+.module-header h2 { 
+    margin: 0; 
+    color: #2e7d32; 
+    font-size: 28px;
+}
+
+.btn { 
+    padding: 10px 20px; 
+    border-radius: 6px; 
+    text-decoration: none; 
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.btn-secondary {
+    background: #6b7280;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #4b5563;
+}
+
+.schedule-type-selection {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.selection-card {
+    background: white;
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+}
+
+.selection-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.selection-card:hover .card-arrow {
+    transform: translateX(8px);
+}
+
+.card-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    color: white;
+    font-size: 36px;
+}
+
+.selection-card h3 {
+    margin: 0 0 8px 0;
+    color: #1e293b;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.selection-card p {
+    margin: 0 0 20px 0;
+    color: #64748b;
+    font-size: 14px;
+}
+
+.card-arrow {
+    position: absolute;
+    bottom: 24px;
+    right: 24px;
+    color: #94a3b8;
+    font-size: 20px;
+    transition: all 0.3s;
+}
+
+@media (max-width: 768px) {
+    .schedule-type-selection {
+        grid-template-columns: 1fr;
+    }
+}
 </style>
 <?= $this->endSection() ?>
-

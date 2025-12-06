@@ -299,7 +299,7 @@
                         <?php foreach ($users as $user): 
                             $isDeleted = !empty($user['deleted_at']);
                         ?>
-                            <tr class="user-row" data-role="<?= esc(strtolower(str_replace('_', '-', $user['role_name'] ?? 'all'))) ?>">
+                            <tr class="user-row <?= $isDeleted ? 'deleted-user' : '' ?>" data-role="<?= esc(strtolower(str_replace('_', '-', $user['role_name'] ?? 'all'))) ?>" style="<?= $isDeleted ? 'opacity: 0.7; background: #fef2f2;' : '' ?>">
                                 <td><strong>#<?= esc($user['id']) ?></strong></td>
                                 <td><strong><?= esc($user['username']) ?></strong></td>
                                 <td><?= esc($user['email']) ?></td>
@@ -315,9 +315,15 @@
                                     <?php endif; ?>
                                 </td>
                                 <td>
-                                    <span class="badge-modern" style="background: <?= $user['status'] == 'active' ? '#d1fae5' : '#fee2e2'; ?>; color: <?= $user['status'] == 'active' ? '#065f46' : '#991b1b'; ?>;">
-                                        <?= esc(ucfirst($user['status'])) ?>
-                                    </span>
+                                    <?php if ($isDeleted): ?>
+                                        <span class="badge-modern" style="background: #fee2e2; color: #991b1b;">
+                                            <i class="fas fa-trash"></i> Deleted
+                                        </span>
+                                    <?php else: ?>
+                                        <span class="badge-modern" style="background: <?= $user['status'] == 'active' ? '#d1fae5' : '#fee2e2'; ?>; color: <?= $user['status'] == 'active' ? '#065f46' : '#991b1b'; ?>;">
+                                            <?= esc(ucfirst($user['status'])) ?>
+                                        </span>
+                                    <?php endif; ?>
                                 </td>
                                 <td><?= esc($user['created_at'] ? date('M d, Y h:i A', strtotime($user['created_at'])) : 'N/A') ?></td>
                                 <td>
@@ -331,6 +337,11 @@
                                                 <a href="<?= site_url('admin/users/delete/' . $user['id']) ?>" class="btn-sm-modern btn-danger" onclick="return confirm('Are you sure you want to mark this user as deleted? The user will be hidden from the system but data will be preserved.')">
                                                     <i class="fas fa-user-slash"></i>
                                                     Mark as Deleted
+                                                </a>
+                                            <?php else: ?>
+                                                <a href="<?= site_url('admin/users/restore/' . $user['id']) ?>" class="btn-sm-modern" style="background: #10b981; color: white;" onclick="return confirm('Are you sure you want to restore this user? The user will be reactivated and can log in again.')">
+                                                    <i class="fas fa-undo"></i>
+                                                    Restore
                                                 </a>
                                             <?php endif; ?>
                                         <?php else: ?>
