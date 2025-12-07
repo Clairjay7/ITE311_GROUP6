@@ -247,8 +247,8 @@
                     <span class="arrow">›</span>
                 </a>
                 <ul class="submenu">
-                    <li><a href="<?= site_url('receptionist/patients/create?type=In-Patient') ?>"><span class="text">Register In-Patient</span></a></li>
-                    <li><a href="<?= site_url('receptionist/patients/create?type=Out-Patient') ?>"><span class="text">Register Out-Patient</span></a></li>
+                    <li><a href="<?= site_url('receptionist/patients/register') ?>"><span class="text">Register In-Patient</span></a></li>
+                    <li><a href="<?= site_url('receptionist/patients/outpatient') ?>"><span class="text">Register Out-Patient</span></a></li>
                     <li><a href="<?= site_url('receptionist/patients') ?>"><span class="text">Patient Records</span></a></li>
                 </ul>
             </li>

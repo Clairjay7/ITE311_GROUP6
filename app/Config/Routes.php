@@ -74,12 +74,16 @@ $routes->group('admin', ['namespace' => 'App\\Controllers\\Admin', 'filter' => '
     // Patients
     $routes->group('patients', function($routes) {
         $routes->get('/', 'PatientController::index');
-        $routes->get('create', 'PatientController::create');
+        $routes->get('register', 'PatientController::register');
+        $routes->get('outpatient', 'PatientController::outpatient');
+        $routes->get('create', 'PatientController::create'); // Keep for backward compatibility
         $routes->post('store', 'PatientController::store');
         $routes->get('show/(:num)', 'PatientController::show/$1');
         $routes->get('edit/(:num)', 'PatientController::edit/$1');
         $routes->post('update/(:num)', 'PatientController::update/$1');
         $routes->get('delete/(:num)', 'PatientController::delete/$1');
+        $routes->get('get-doctor-schedule-dates', 'PatientController::getDoctorScheduleDates');
+        $routes->get('get-available-times', 'PatientController::getAvailableTimes');
     });
     
     // Scheduling
@@ -370,7 +374,9 @@ $routes->group('receptionist/appointments', ['namespace' => 'App\\Controllers', 
 $routes->group('receptionist/patients', ['namespace' => 'App\\Controllers\\Receptionist', 'filter' => 'auth:receptionist,admin'], function($routes) {
     $routes->get('/', 'Patients::index');
     $routes->get('list', 'Patients::index');
-    $routes->get('create', 'Patients::create');
+    $routes->get('register', 'Patients::register');
+    $routes->get('outpatient', 'Patients::outpatient');
+    $routes->get('create', 'Patients::create'); // Keep for backward compatibility
     $routes->post('store', 'Patients::store');
     $routes->get('show/(:num)', 'Patients::show/$1');
     $routes->get('edit/(:num)', 'Patients::edit/$1');

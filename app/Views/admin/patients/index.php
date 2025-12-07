@@ -11,9 +11,14 @@ $query = $query ?? '';
 <div class="admin-module">
     <div class="module-header">
         <h2><?= esc($title) ?></h2>
-        <a href="<?= base_url('admin/patients/create') ?>" class="btn btn-primary">
-            <i class="fa-solid fa-plus"></i> Add New Patient
-        </a>
+        <div style="display: flex; gap: 10px;">
+            <a href="<?= base_url('admin/patients/register') ?>" class="btn btn-primary">
+                <i class="fas fa-hospital-user"></i> Register In-Patient
+            </a>
+            <a href="<?= base_url('admin/patients/outpatient') ?>" class="btn btn-primary">
+                <i class="fas fa-user-plus"></i> Register Out-Patient
+            </a>
+        </div>
     </div>
 
     <?php if (session()->getFlashdata('success')): ?>

@@ -10,7 +10,7 @@ if (empty($errors)) {
 $errorMessage = session()->getFlashdata('error');
 ?>
 <?= $this->extend('template/header') ?>
-<?= $this->section('title') ?><?= esc($title) ?><?= $this->endSection() ?>
+<?= $this->section('title') ?>Register In-Patient<?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
 <style>
@@ -521,16 +521,6 @@ $errorMessage = session()->getFlashdata('error');
         cursor: not-allowed;
     }
     
-    #submitForm {
-        position: relative;
-        z-index: 10;
-        pointer-events: auto !important;
-    }
-    
-    #submitForm:not([disabled]) {
-        cursor: pointer !important;
-    }
-    
     .validation-error {
         color: #ef4444;
         font-size: 13px;
@@ -546,11 +536,11 @@ $errorMessage = session()->getFlashdata('error');
 <div class="register-container">
     <div class="page-header">
         <h1>
-            <i class="fas fa-user-plus"></i>
-            Add New Patient
+            <i class="fas fa-hospital-user"></i>
+            In-Patient Registration Form
         </h1>
         <a href="<?= base_url('admin/patients') ?>" class="back-btn">
-            <i class="fas fa-arrow-left"></i> Back to List
+            <i class="fas fa-arrow-left"></i> Back to Records
         </a>
     </div>
 
@@ -601,28 +591,10 @@ $errorMessage = session()->getFlashdata('error');
                 </div>
             </div>
             
-            <!-- Patient Type Selection -->
-            <div class="form-section" style="margin-bottom: 32px;">
-                <h3 class="section-title">
-                    <i class="fas fa-user-tag"></i> Patient Type
-                </h3>
-                <div class="form-row">
-                    <div class="form-group full-width">
-                        <label class="form-label">Select Patient Type <span class="required">*</span></label>
-                        <select name="type" id="patient_type" class="form-select" required>
-                            <option value="">-- Select Patient Type --</option>
-                            <option value="In-Patient" <?= set_select('type', 'In-Patient') ?>>In-Patient (Hospital Admission)</option>
-                            <option value="Out-Patient" <?= set_select('type', 'Out-Patient') ?>>Out-Patient (Consultation/Check-up)</option>
-                        </select>
-                        <div class="form-hint">Select whether the patient will be admitted to the hospital or will have an outpatient visit</div>
-                    </div>
-                </div>
-            </div>
-            
-            <form method="post" action="<?= base_url('admin/patients/store') ?>" id="patientForm">
+            <form method="post" action="<?= base_url('admin/patients/store') ?>" id="inpatientForm">
                 <?= csrf_field() ?>
-                <input type="hidden" name="type" id="hidden_type" value="<?= set_value('type', 'In-Patient') ?>">
-                <input type="hidden" name="visit_type" id="hidden_visit_type" value="Consultation">
+                <input type="hidden" name="type" value="In-Patient">
+                <input type="hidden" name="visit_type" value="Consultation">
 
                 <!-- STEP 1: PATIENT INFORMATION -->
                 <div class="form-step active" data-step="1">
@@ -701,8 +673,8 @@ $errorMessage = session()->getFlashdata('error');
                 </div>
                 </div>
 
-                <!-- STEP 2: ADMISSION DETAILS (In-Patient Only) -->
-                <div class="form-step" data-step="2" id="admission-step" style="display: none;">
+                <!-- STEP 2: ADMISSION DETAILS -->
+                <div class="form-step" data-step="2">
                 <div class="form-section">
                     <h3 class="section-title">
                         <i class="fas fa-hospital"></i> Admission Details
@@ -790,85 +762,6 @@ $errorMessage = session()->getFlashdata('error');
                     <script type="application/json" id="beds-data">
                         <?= json_encode($availableBedsByRoom ?? []) ?>
                     </script>
-                </div>
-                </div>
-
-                <!-- STEP 2: VISIT DETAILS (Out-Patient Only) -->
-                <div class="form-step" data-step="2" id="visit-step" style="display: none;">
-                <div class="form-section">
-                    <h3 class="section-title">
-                        <i class="fas fa-clipboard-list"></i> Visit Details
-                    </h3>
-                    
-                    <div class="form-group" style="margin-bottom: 20px;">
-                        <label class="form-label">Visit Type <span class="required">*</span></label>
-                        <div class="form-hint" style="margin-bottom: 12px;">Please select the purpose of the patient's Out-Patient visit</div>
-                        
-                        <div class="visit-type-options" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px;">
-                            <label class="visit-type-card" style="position: relative; padding: 16px; border: 2px solid #e5e7eb; border-radius: 12px; cursor: pointer; text-align: center; transition: all 0.2s ease;">
-                                <input type="radio" name="visit_type" value="Consultation" <?= set_radio('visit_type', 'Consultation', true) ?> required>
-                                <i class="fas fa-stethoscope" style="font-size: 28px; color: var(--primary-color); margin-bottom: 8px; display: block;"></i>
-                                <span class="title" style="font-weight: 600; color: #1e293b; font-size: 14px;">Consultation</span>
-                            </label>
-                            
-                            <label class="visit-type-card" style="position: relative; padding: 16px; border: 2px solid #e5e7eb; border-radius: 12px; cursor: pointer; text-align: center; transition: all 0.2s ease;">
-                                <input type="radio" name="visit_type" value="Follow-up" <?= set_radio('visit_type', 'Follow-up') ?>>
-                                <i class="fas fa-redo" style="font-size: 28px; color: var(--primary-color); margin-bottom: 8px; display: block;"></i>
-                                <span class="title" style="font-weight: 600; color: #1e293b; font-size: 14px;">Follow-Up</span>
-                            </label>
-                            
-                            <label class="visit-type-card" style="position: relative; padding: 16px; border: 2px solid #e5e7eb; border-radius: 12px; cursor: pointer; text-align: center; transition: all 0.2s ease;">
-                                <input type="radio" name="visit_type" value="Check-up" <?= set_radio('visit_type', 'Check-up') ?>>
-                                <i class="fas fa-heartbeat" style="font-size: 28px; color: var(--primary-color); margin-bottom: 8px; display: block;"></i>
-                                <span class="title" style="font-weight: 600; color: #1e293b; font-size: 14px;">Medical Check-Up</span>
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label class="form-label">Attending Doctor <span class="required">*</span></label>
-                            <select name="doctor_id" id="outpatient_doctor_id" class="form-select" required>
-                                <option value="">-- Choose Doctor --</option>
-                                <?php if (!empty($doctors)): ?>
-                                    <?php foreach ($doctors as $doctor): ?>
-                                        <option value="<?= esc($doctor['id']) ?>" <?= set_select('doctor_id', (string)$doctor['id']) ?> data-specialization="<?= esc(strtolower($doctor['specialization'] ?? '')) ?>">
-                                            Dr. <?= esc($doctor['doctor_name'] ?? $doctor['id']) ?>
-                                            <?php if (!empty($doctor['specialization'])): ?>
-                                                - <?= esc($doctor['specialization']) ?>
-                                            <?php endif; ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                <?php else: ?>
-                                    <option value="" disabled>No doctors available</option>
-                                <?php endif; ?>
-                            </select>
-                            <div class="form-hint">Please choose the doctor assigned for this visit</div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="form-label">Appointment Date <span class="required">*</span></label>
-                            <input type="date" name="appointment_date" id="appointment_date" class="form-control" 
-                                   value="<?= set_value('appointment_date', date('Y-m-d')) ?>" 
-                                   min="<?= date('Y-m-d') ?>" required>
-                            <div class="form-hint">Select appointment date (must be today or future)</div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="form-label">Appointment Time <span class="required">*</span></label>
-                            <input type="time" name="appointment_time" id="appointment_time" class="form-control" 
-                                   value="<?= set_value('appointment_time', '09:00') ?>" required>
-                            <div class="form-hint">Select appointment time</div>
-                        </div>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group full-width">
-                            <label class="form-label">Reason for Visit <span class="required">*</span></label>
-                            <textarea name="purpose" class="form-control" rows="3" required 
-                                      placeholder="Briefly describe the patient's primary concern or purpose"><?= set_value('purpose') ?></textarea>
-                        </div>
-                    </div>
                 </div>
                 </div>
 
@@ -996,7 +889,7 @@ $errorMessage = session()->getFlashdata('error');
                         Next <i class="fas fa-arrow-right"></i>
                     </button>
                     <button type="submit" class="btn-step btn-step-next" id="submitForm" style="display: none;">
-                        <i class="fas fa-user-plus"></i> Register Patient
+                        <i class="fas fa-user-plus"></i> Register In-Patient
                     </button>
                     <a href="<?= base_url('admin/patients') ?>" class="btn-cancel">
                         <i class="fas fa-times"></i> Cancel
@@ -1009,55 +902,6 @@ $errorMessage = session()->getFlashdata('error');
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Patient Type Selector
-    const patientTypeSelect = document.getElementById('patient_type');
-    const hiddenTypeInput = document.getElementById('hidden_type');
-    const hiddenVisitTypeInput = document.getElementById('hidden_visit_type');
-    
-    // Sync type selector with hidden field and show/hide steps
-    const admissionStep = document.getElementById('admission-step');
-    const visitStep = document.getElementById('visit-step');
-    
-    if (patientTypeSelect && hiddenTypeInput) {
-        function updateFormForType(type) {
-            hiddenTypeInput.value = type;
-            
-            if (type === 'In-Patient') {
-                // Show admission step, hide visit step
-                if (admissionStep) admissionStep.style.display = 'block';
-                if (visitStep) visitStep.style.display = 'none';
-                // Update step 2 title
-                const step2Indicator = document.querySelector('.step[data-step="2"]');
-                if (step2Indicator) {
-                    step2Indicator.querySelector('.step-title').textContent = 'Admission';
-                }
-            } else if (type === 'Out-Patient') {
-                // Show visit step, hide admission step
-                if (visitStep) visitStep.style.display = 'block';
-                if (admissionStep) admissionStep.style.display = 'none';
-                // Update step 2 title
-                const step2Indicator = document.querySelector('.step[data-step="2"]');
-                if (step2Indicator) {
-                    step2Indicator.querySelector('.step-title').textContent = 'Visit Details';
-                }
-                hiddenVisitTypeInput.value = 'Consultation';
-            }
-        }
-        
-        patientTypeSelect.addEventListener('change', function() {
-            updateFormForType(this.value);
-        });
-        
-        // Initialize on page load
-        if (patientTypeSelect.value) {
-            updateFormForType(patientTypeSelect.value);
-        } else {
-            // Default to In-Patient
-            patientTypeSelect.value = 'In-Patient';
-            updateFormForType('In-Patient');
-        }
-    }
-    
     // Step-by-Step Form Navigation
     let currentStep = 1;
     const totalSteps = 5;
@@ -1067,36 +911,18 @@ document.addEventListener('DOMContentLoaded', function() {
     const nextBtn = document.getElementById('nextStep');
     const submitBtn = document.getElementById('submitForm');
     
-    // Function to get current patient type
-    function getCurrentPatientType() {
-        return patientTypeSelect ? patientTypeSelect.value : 'In-Patient';
-    }
-    
-    // Define required fields for each step (dynamic based on type)
-    function getStepRequiredFields(step) {
-        const type = getCurrentPatientType();
-        
-        if (step === 1) {
-            return ['first_name', 'last_name', 'date_of_birth', 'gender', 'contact', 'address'];
-        } else if (step === 2) {
-            if (type === 'In-Patient') {
-                return ['doctor_id', 'admission_date', 'purpose', 'room_type', 'room_number'];
-            } else {
-                return ['visit_type', 'doctor_id', 'appointment_date', 'appointment_time', 'purpose'];
-            }
-        } else if (step === 3) {
-            return []; // All optional
-        } else if (step === 4) {
-            return []; // All optional (insurance)
-        } else if (step === 5) {
-            return ['emergency_name', 'emergency_relationship', 'emergency_contact'];
-        }
-        return [];
-    }
+    // Define required fields for each step
+    const stepRequiredFields = {
+        1: ['first_name', 'last_name', 'date_of_birth', 'gender', 'contact', 'address'],
+        2: ['doctor_id', 'admission_date', 'purpose', 'room_type', 'room_number'],
+        3: [], // All optional
+        4: [], // All optional (insurance)
+        5: ['emergency_name', 'emergency_relationship', 'emergency_contact']
+    };
     
     // Function to validate a step
     function validateStep(step) {
-        const requiredFields = getStepRequiredFields(step);
+        const requiredFields = stepRequiredFields[step];
         if (!requiredFields || requiredFields.length === 0) {
             return { valid: true, errors: [] };
         }
@@ -1186,14 +1012,7 @@ document.addEventListener('DOMContentLoaded', function() {
             nextBtn.style.display = step < totalSteps ? 'inline-flex' : 'none';
         }
         if (submitBtn) {
-            if (step === totalSteps) {
-                submitBtn.style.display = 'inline-flex';
-                submitBtn.disabled = false;
-                submitBtn.style.pointerEvents = 'auto';
-                submitBtn.style.cursor = 'pointer';
-            } else {
-                submitBtn.style.display = 'none';
-            }
+            submitBtn.style.display = step === totalSteps ? 'inline-flex' : 'none';
         }
         
         // Scroll to top of form
@@ -1273,16 +1092,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize first step
     showStep(1);
-    
-    // Validate patient type is selected before proceeding
-    if (patientTypeSelect) {
-        patientTypeSelect.addEventListener('change', function() {
-            if (!this.value) {
-                alert('Please select a patient type first.');
-                return;
-            }
-        });
-    }
     
     // Auto-calculate age from date of birth
     const dobInput = document.getElementById('date_of_birth');
@@ -2086,7 +1895,7 @@ document.addEventListener('DOMContentLoaded', function() {
         filterICUOption();
     
     // Form validation before submit
-    const form = document.getElementById('patientForm');
+    const form = document.getElementById('inpatientForm');
     if (form) {
         form.addEventListener('submit', function(e) {
             // Validate all steps before submitting

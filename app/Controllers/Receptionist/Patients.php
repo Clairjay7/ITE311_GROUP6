@@ -55,12 +55,39 @@ class Patients extends BaseController
         ]);
     }
 
+    /**
+     * Register In-Patient (dedicated route)
+     */
+    public function register()
+    {
+        return $this->createWithType('In-Patient');
+    }
+
+    /**
+     * Register Out-Patient (dedicated route)
+     */
+    public function outpatient()
+    {
+        return $this->createWithType('Out-Patient');
+    }
+
+    /**
+     * Create patient registration form (backward compatibility - accepts type parameter)
+     */
     public function create()
     {
         $prefType = $this->request->getGet('type'); // In-Patient | Out-Patient from link
         if (!in_array($prefType, ['In-Patient', 'Out-Patient'], true)) {
             $prefType = 'Out-Patient';
         }
+        return $this->createWithType($prefType);
+    }
+
+    /**
+     * Internal method to create registration form with specified type
+     */
+    private function createWithType($prefType)
+    {
 
         $availableRoomsByWard = [];
         $erRooms = [];
