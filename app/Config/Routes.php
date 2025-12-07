@@ -186,6 +186,7 @@ $routes->group('admin', ['namespace' => 'App\\Controllers\\Admin', 'filter' => '
         $routes->post('update/(:num)', 'UserController::update/$1');
         $routes->get('delete/(:num)', 'UserController::delete/$1');
         $routes->get('restore/(:num)', 'UserController::restore/$1');
+        $routes->get('get-doctor-schedule', 'UserController::getDoctorSchedule');
     });
 });
 

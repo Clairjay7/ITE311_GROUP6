@@ -169,10 +169,15 @@
                     </div>
                 </div>
                 
-                <!-- Quantity Field for New Item -->
+                <!-- New Item Information Fields -->
                 <div style="margin-top: 20px; padding: 16px; background: white; border-radius: 8px; border: 1px solid #e5e7eb;">
-                    <div style="display: flex; gap: 12px; align-items: end;">
-                        <div style="flex: 1;">
+                    <h5 style="margin: 0 0 16px 0; color: #374151; font-size: 14px; font-weight: 600;">
+                        <i class="fas fa-plus-circle" style="margin-right: 6px; color: #2e7d32;"></i>
+                        New Item Information (Required for Stock Monitoring)
+                    </h5>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;">
+                        <div>
                             <label style="display: block; margin-bottom: 6px; font-size: 13px; font-weight: 500; color: #374151;">
                                 Quantity / Stock for New Item <span style="color: #ef4444;">*</span>
                             </label>
@@ -789,6 +794,7 @@ document.querySelector('form[action*="pharmacy/store"]')?.addEventListener('subm
         
         console.log('Total selectedMedicinesData:', selectedMedicinesData);
         console.log('Number of medicines to update:', selectedMedicinesData.length);
+        
         
         // Store selected medicines data in hidden input to send to server
         // Remove any existing hidden input first

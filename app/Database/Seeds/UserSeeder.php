@@ -28,6 +28,10 @@ class UserSeeder extends Seeder
                 'password'   => password_hash('123123', PASSWORD_DEFAULT),
                 'role_id'    => $roleMap['admin'],
                 'status'     => 'active',
+                'first_name' => 'System',
+                'last_name'  => 'Administrator',
+                'employee_id' => 'EMP-000001',
+                'contact'    => '0912-345-6789',
                 'created_at' => $now,
                 'updated_at' => $now,
             ],
@@ -38,6 +42,11 @@ class UserSeeder extends Seeder
                 'password'   => password_hash('123123', PASSWORD_DEFAULT),
                 'role_id'    => $roleMap['doctor'],
                 'status'     => 'active',
+                'first_name' => 'Juan',
+                'last_name'  => 'Dela Cruz',
+                'prc_license' => 'PRC-100001',
+                'specialization' => 'General Practice',
+                'contact'    => '0912-345-6781',
                 'created_at' => $now,
                 'updated_at' => $now,
             ],
@@ -47,6 +56,11 @@ class UserSeeder extends Seeder
                 'password'   => password_hash('123123', PASSWORD_DEFAULT),
                 'role_id'    => $roleMap['doctor'],
                 'status'     => 'active',
+                'first_name' => 'Ana',
+                'last_name'  => 'Garcia',
+                'prc_license' => 'PRC-100002',
+                'specialization' => 'Pediatrics',
+                'contact'    => '0912-345-6782',
                 'created_at' => $now,
                 'updated_at' => $now,
             ],
@@ -56,6 +70,11 @@ class UserSeeder extends Seeder
                 'password'   => password_hash('123123', PASSWORD_DEFAULT),
                 'role_id'    => $roleMap['doctor'],
                 'status'     => 'active',
+                'first_name' => 'Maria',
+                'last_name'  => 'Santos',
+                'prc_license' => 'PRC-100003',
+                'specialization' => 'Cardiology',
+                'contact'    => '0912-345-6783',
                 'created_at' => $now,
                 'updated_at' => $now,
             ],
@@ -65,6 +84,11 @@ class UserSeeder extends Seeder
                 'password'   => password_hash('123123', PASSWORD_DEFAULT),
                 'role_id'    => $roleMap['doctor'],
                 'status'     => 'active',
+                'first_name' => 'Carlos',
+                'last_name'  => 'Reyes',
+                'prc_license' => 'PRC-100004',
+                'specialization' => 'Orthopedics',
+                'contact'    => '0912-345-6784',
                 'created_at' => $now,
                 'updated_at' => $now,
             ],
@@ -74,6 +98,11 @@ class UserSeeder extends Seeder
                 'password'   => password_hash('123123', PASSWORD_DEFAULT),
                 'role_id'    => $roleMap['doctor'],
                 'status'     => 'active',
+                'first_name' => 'Luis',
+                'last_name'  => 'Felipe',
+                'prc_license' => 'PRC-100005',
+                'specialization' => 'Neurology',
+                'contact'    => '0912-345-6785',
                 'created_at' => $now,
                 'updated_at' => $now,
             ],
@@ -83,6 +112,11 @@ class UserSeeder extends Seeder
                 'password'   => password_hash('123123', PASSWORD_DEFAULT),
                 'role_id'    => $roleMap['doctor'],
                 'status'     => 'active',
+                'first_name' => 'Rosario',
+                'last_name'  => 'Villanueva',
+                'prc_license' => 'PRC-100006',
+                'specialization' => 'Internal Medicine',
+                'contact'    => '0912-345-6786',
                 'created_at' => $now,
                 'updated_at' => $now,
             ],
@@ -92,6 +126,11 @@ class UserSeeder extends Seeder
                 'password'   => password_hash('123123', PASSWORD_DEFAULT),
                 'role_id'    => $roleMap['doctor'],
                 'status'     => 'active',
+                'first_name' => 'Patricio',
+                'last_name'  => 'Cruz',
+                'prc_license' => 'PRC-100007',
+                'specialization' => 'Dermatology',
+                'contact'    => '0912-345-6787',
                 'created_at' => $now,
                 'updated_at' => $now,
             ],
@@ -101,6 +140,11 @@ class UserSeeder extends Seeder
                 'password'   => password_hash('123123', PASSWORD_DEFAULT),
                 'role_id'    => $roleMap['doctor'],
                 'status'     => 'active',
+                'first_name' => 'Elena',
+                'last_name'  => 'Torres',
+                'prc_license' => 'PRC-100008',
+                'specialization' => 'Obstetrics and Gynecology',
+                'contact'    => '0912-345-6788',
                 'created_at' => $now,
                 'updated_at' => $now,
             ],
@@ -110,6 +154,11 @@ class UserSeeder extends Seeder
                 'password'   => password_hash('123123', PASSWORD_DEFAULT),
                 'role_id'    => $roleMap['doctor'],
                 'status'     => 'active',
+                'first_name' => 'Ricardo',
+                'last_name'  => 'Mendoza',
+                'prc_license' => 'PRC-100009',
+                'specialization' => 'Surgery',
+                'contact'    => '0912-345-6789',
                 'created_at' => $now,
                 'updated_at' => $now,
             ],
@@ -119,6 +168,11 @@ class UserSeeder extends Seeder
                 'password'   => password_hash('123123', PASSWORD_DEFAULT),
                 'role_id'    => $roleMap['doctor'],
                 'status'     => 'active',
+                'first_name' => 'Angelica',
+                'last_name'  => 'Gomez',
+                'prc_license' => 'PRC-100010',
+                'specialization' => 'Pediatrics',
+                'contact'    => '0912-345-6790',
                 'created_at' => $now,
                 'updated_at' => $now,
             ],
@@ -129,6 +183,10 @@ class UserSeeder extends Seeder
                 'password'   => password_hash('123123', PASSWORD_DEFAULT),
                 'role_id'    => $roleMap['nurse'],
                 'status'     => 'active',
+                'first_name' => 'Maria',
+                'last_name'  => 'Reyes',
+                'nursing_license' => 'NUR-200001',
+                'contact'    => '0912-345-6791',
                 'created_at' => $now,
                 'updated_at' => $now,
             ],
@@ -139,6 +197,10 @@ class UserSeeder extends Seeder
                 'password'   => password_hash('123123', PASSWORD_DEFAULT),
                 'role_id'    => $roleMap['receptionist'],
                 'status'     => 'active',
+                'first_name' => 'Maria',
+                'last_name'  => 'Cruz',
+                'employee_id' => 'EMP-300001',
+                'contact'    => '0912-345-6792',
                 'created_at' => $now,
                 'updated_at' => $now,
             ],
@@ -149,6 +211,10 @@ class UserSeeder extends Seeder
                 'password'   => password_hash('123123', PASSWORD_DEFAULT),
                 'role_id'    => $roleMap['finance'],
                 'status'     => 'active',
+                'first_name' => 'Juan',
+                'last_name'  => 'Santos',
+                'employee_id' => 'EMP-400001',
+                'contact'    => '0912-345-6793',
                 'created_at' => $now,
                 'updated_at' => $now,
             ],
@@ -159,16 +225,24 @@ class UserSeeder extends Seeder
                 'password'   => password_hash('123123', PASSWORD_DEFAULT),
                 'role_id'    => $roleMap['itstaff'],
                 'status'     => 'active',
+                'first_name' => 'John',
+                'last_name'  => 'Doe',
+                'employee_id' => 'EMP-500001',
+                'contact'    => '0912-345-6794',
                 'created_at' => $now,
                 'updated_at' => $now,
             ],
-            // Laboratory Staff (using nurse role as there's no specific lab role)
+            // Laboratory Staff
             [
                 'username'   => 'lab.tech',
                 'email'      => 'laboratory@group6.edu.ph',
                 'password'   => password_hash('123123', PASSWORD_DEFAULT),
                 'role_id'    => $roleMap['lab_staff'],
                 'status'     => 'active',
+                'first_name' => 'Pedro',
+                'last_name'  => 'Garcia',
+                'prc_license' => 'PRC-600001',
+                'contact'    => '0912-345-6795',
                 'created_at' => $now,
                 'updated_at' => $now,
             ],
@@ -179,6 +253,10 @@ class UserSeeder extends Seeder
                 'password'   => password_hash('123123', PASSWORD_DEFAULT),
                 'role_id'    => $roleMap['pharmacy'],
                 'status'     => 'active',
+                'first_name' => 'Ana',
+                'last_name'  => 'Lopez',
+                'prc_license' => 'PRC-700001',
+                'contact'    => '0912-345-6796',
                 'created_at' => $now,
                 'updated_at' => $now,
             ],
@@ -200,11 +278,70 @@ class UserSeeder extends Seeder
             $this->db->table('users')->insertBatch($usersToInsert);
         }
         
+        // Update existing users with new fields based on username
+        $this->updateExistingUsers($users);
+        
         // Create doctor records for all doctor users
         $this->createDoctors();
         
         // Create schedules for all doctors
         $this->createDoctorSchedules();
+    }
+    
+    /**
+     * Update existing users with new fields (first_name, last_name, contact, etc.)
+     */
+    protected function updateExistingUsers($users)
+    {
+        foreach ($users as $userData) {
+            $username = $userData['username'];
+            
+            // Check if user exists
+            $existingUser = $this->db->table('users')
+                ->where('username', $username)
+                ->get()
+                ->getRowArray();
+            
+            if ($existingUser) {
+                // Prepare update data (exclude password, created_at, updated_at from update)
+                $updateData = [];
+                if (isset($userData['first_name'])) {
+                    $updateData['first_name'] = $userData['first_name'];
+                }
+                if (isset($userData['middle_name'])) {
+                    $updateData['middle_name'] = $userData['middle_name'];
+                }
+                if (isset($userData['last_name'])) {
+                    $updateData['last_name'] = $userData['last_name'];
+                }
+                if (isset($userData['contact'])) {
+                    $updateData['contact'] = $userData['contact'];
+                }
+                if (isset($userData['address'])) {
+                    $updateData['address'] = $userData['address'];
+                }
+                if (isset($userData['employee_id'])) {
+                    $updateData['employee_id'] = $userData['employee_id'];
+                }
+                if (isset($userData['prc_license'])) {
+                    $updateData['prc_license'] = $userData['prc_license'];
+                }
+                if (isset($userData['nursing_license'])) {
+                    $updateData['nursing_license'] = $userData['nursing_license'];
+                }
+                if (isset($userData['specialization'])) {
+                    $updateData['specialization'] = $userData['specialization'];
+                }
+                
+                // Only update if there's data to update
+                if (!empty($updateData)) {
+                    $updateData['updated_at'] = date('Y-m-d H:i:s');
+                    $this->db->table('users')
+                        ->where('username', $username)
+                        ->update($updateData);
+                }
+            }
+        }
     }
     
     /**

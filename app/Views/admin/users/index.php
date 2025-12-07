@@ -55,6 +55,7 @@
         transform: translateY(-2px);
         box-shadow: 0 6px 20px rgba(255, 255, 255, 0.4);
         color: #2e7d32;
+        background: #f0fdf4;
     }
     
     .modern-card {
@@ -224,8 +225,8 @@
             <i class="fas fa-users-cog"></i>
             User Management
         </h1>
-        <a href="<?= site_url('admin/users/create') ?>" class="btn-modern btn-modern-primary">
-            <i class="fas fa-plus"></i>
+        <a href="<?= site_url('admin/users/create') ?>" class="btn-modern btn-modern-primary" style="background: white; color: #2e7d32; box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3); padding: 12px 24px; font-size: 15px; font-weight: 700;">
+            <i class="fas fa-user-plus" style="font-size: 16px;"></i>
             Add New User
         </a>
     </div>
@@ -245,6 +246,19 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     <?php endif; ?>
+
+    <!-- Search Bar -->
+    <div class="modern-card" style="margin-bottom: 24px; padding: 20px;">
+        <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 300px; position: relative;">
+                <i class="fas fa-search" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 16px;"></i>
+                <input type="text" id="userSearchInput" class="form-control-modern" placeholder="Search by ID, Name, Username, Email, Role, License/ID, or Contact..." style="padding-left: 45px; font-size: 14px;">
+            </div>
+            <button type="button" id="clearSearchBtn" class="btn-modern" style="background: #f1f5f9; color: #475569; padding: 12px 20px; display: none;">
+                <i class="fas fa-times"></i> Clear
+            </button>
+        </div>
+    </div>
 
     <!-- Role Filter Buttons -->
     <div class="modern-card" style="margin-bottom: 24px; padding: 20px;">
@@ -286,9 +300,12 @@
                 <thead>
                     <tr>
                         <th>ID</th>
+                        <th>Name</th>
                         <th>Username</th>
                         <th>Email</th>
                         <th>Role</th>
+                        <th>License/ID</th>
+                        <th>Contact</th>
                         <th>Status</th>
                         <th>Created</th>
                         <th>Actions</th>
@@ -301,17 +318,58 @@
                         ?>
                             <tr class="user-row <?= $isDeleted ? 'deleted-user' : '' ?>" data-role="<?= esc(strtolower(str_replace('_', '-', $user['role_name'] ?? 'all'))) ?>" style="<?= $isDeleted ? 'opacity: 0.7; background: #fef2f2;' : '' ?>">
                                 <td><strong>#<?= esc($user['id']) ?></strong></td>
+                                <td>
+                                    <?php 
+                                    $fullName = trim(($user['first_name'] ?? '') . ' ' . ($user['middle_name'] ?? '') . ' ' . ($user['last_name'] ?? ''));
+                                    if (empty($fullName)) {
+                                        $fullName = 'N/A';
+                                    }
+                                    ?>
+                                    <strong><?= esc($fullName) ?></strong>
+                                    <?php if (!empty($user['doctor_specialization'])): ?>
+                                        <br>
+                                        <small style="color: #64748b; font-size: 11px; margin-top: 2px; display: block;">
+                                            <i class="fas fa-stethoscope"></i> <?= esc($user['doctor_specialization']) ?>
+                                        </small>
+                                    <?php endif; ?>
+                                </td>
                                 <td><strong><?= esc($user['username']) ?></strong></td>
                                 <td><?= esc($user['email']) ?></td>
                                 <td>
                                     <span class="badge-modern" style="background: #e0f2fe; color: #0369a1;">
                                         <?= esc(ucfirst(str_replace('_', ' ', $user['role_name'] ?? 'N/A'))) ?>
                                     </span>
-                                    <?php if (!empty($user['doctor_specialization'])): ?>
+                                </td>
+                                <td>
+                                    <?php 
+                                    $licenseId = '';
+                                    $roleName = strtolower($user['role_name'] ?? '');
+                                    if (in_array($roleName, ['doctor', 'lab_staff', 'pharmacy']) && !empty($user['prc_license'])) {
+                                        $licenseId = $user['prc_license'];
+                                        $label = $roleName === 'lab_staff' ? 'PRC (Med Tech)' : ($roleName === 'pharmacy' ? 'PRC (Pharmacist)' : 'PRC');
+                                    } elseif ($roleName === 'nurse' && !empty($user['nursing_license'])) {
+                                        $licenseId = $user['nursing_license'];
+                                        $label = 'Nursing';
+                                    } elseif (in_array($roleName, ['admin', 'finance', 'itstaff', 'receptionist']) && !empty($user['employee_id'])) {
+                                        $licenseId = $user['employee_id'];
+                                        $label = 'Employee ID';
+                                    }
+                                    ?>
+                                    <?php if (!empty($licenseId)): ?>
+                                        <span style="font-size: 12px; font-weight: 600; color: #475569;">
+                                            <i class="fas fa-id-badge"></i> <?= esc($licenseId) ?>
+                                        </span>
                                         <br>
-                                        <small style="color: #64748b; font-size: 12px; margin-top: 4px; display: block;">
-                                            <i class="fas fa-stethoscope"></i> <?= esc($user['doctor_specialization']) ?>
-                                        </small>
+                                        <small style="color: #94a3b8; font-size: 10px;"><?= esc($label ?? '') ?></small>
+                                    <?php else: ?>
+                                        <span style="color: #94a3b8; font-size: 12px;">-</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <?php if (!empty($user['contact'])): ?>
+                                        <i class="fas fa-phone"></i> <?= esc($user['contact']) ?>
+                                    <?php else: ?>
+                                        <span style="color: #94a3b8; font-size: 12px;">-</span>
                                     <?php endif; ?>
                                 </td>
                                 <td>
@@ -325,7 +383,7 @@
                                         </span>
                                     <?php endif; ?>
                                 </td>
-                                <td><?= esc($user['created_at'] ? date('M d, Y h:i A', strtotime($user['created_at'])) : 'N/A') ?></td>
+                                <td><?= esc($user['created_at'] ? date('M d, Y', strtotime($user['created_at'])) : 'N/A') ?></td>
                                 <td>
                                     <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                                         <?php if ($user['id'] != session()->get('user_id')): ?>
@@ -356,7 +414,7 @@
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="7" style="text-align: center; padding: 40px; color: #94a3b8;">
+                            <td colspan="10" style="text-align: center; padding: 40px; color: #94a3b8;">
                                 <i class="fas fa-users" style="font-size: 48px; margin-bottom: 16px; opacity: 0.4;"></i>
                                 <p style="margin: 0;">No users found.</p>
                             </td>
@@ -372,46 +430,110 @@
 document.addEventListener('DOMContentLoaded', function() {
     const filterButtons = document.querySelectorAll('.role-filter-btn');
     const userRows = document.querySelectorAll('.user-row');
+    const searchInput = document.getElementById('userSearchInput');
+    const clearSearchBtn = document.getElementById('clearSearchBtn');
+    let currentRoleFilter = 'all';
     
+    // Function to get searchable text from a row
+    function getRowSearchText(row) {
+        const cells = row.querySelectorAll('td');
+        if (cells.length < 7) return '';
+        
+        const id = cells[0]?.textContent?.trim() || '';
+        const name = cells[1]?.textContent?.trim() || '';
+        const username = cells[2]?.textContent?.trim() || '';
+        const email = cells[3]?.textContent?.trim() || '';
+        const role = cells[4]?.textContent?.trim() || '';
+        const licenseId = cells[5]?.textContent?.trim() || '';
+        const contact = cells[6]?.textContent?.trim() || '';
+        
+        return `${id} ${name} ${username} ${email} ${role} ${licenseId} ${contact}`.toLowerCase();
+    }
+    
+    // Function to filter rows based on search and role
+    function filterRows() {
+        const searchTerm = searchInput.value.toLowerCase().trim();
+        const hasSearch = searchTerm.length > 0;
+        
+        // Show/hide clear button
+        if (hasSearch) {
+            clearSearchBtn.style.display = 'inline-flex';
+        } else {
+            clearSearchBtn.style.display = 'none';
+        }
+        
+        let visibleCount = 0;
+        
+        userRows.forEach(row => {
+            const rowRole = row.getAttribute('data-role');
+            const rowText = getRowSearchText(row);
+            
+            // Check role filter
+            let roleMatch = false;
+            if (currentRoleFilter === 'all') {
+                roleMatch = true;
+            } else {
+                const normalizedRowRole = rowRole.replace(/_/g, '-');
+                const normalizedSelectedRole = currentRoleFilter.replace(/_/g, '-');
+                roleMatch = normalizedRowRole === normalizedSelectedRole;
+            }
+            
+            // Check search filter
+            let searchMatch = true;
+            if (hasSearch) {
+                searchMatch = rowText.includes(searchTerm);
+            }
+            
+            // Show/hide row
+            if (roleMatch && searchMatch) {
+                row.classList.remove('hidden');
+                visibleCount++;
+            } else {
+                row.classList.add('hidden');
+            }
+        });
+        
+        // Show/hide empty message
+        const emptyRow = document.querySelector('tbody tr:not(.user-row)');
+        if (emptyRow) {
+            if (visibleCount === 0) {
+                emptyRow.style.display = 'table-row';
+            } else {
+                emptyRow.style.display = 'none';
+            }
+        }
+    }
+    
+    // Role filter functionality
     filterButtons.forEach(button => {
         button.addEventListener('click', function() {
             const selectedRole = this.getAttribute('data-role');
+            currentRoleFilter = selectedRole;
             
             // Update active button
             filterButtons.forEach(btn => btn.classList.remove('active'));
             this.classList.add('active');
             
             // Filter rows
-            userRows.forEach(row => {
-                const rowRole = row.getAttribute('data-role');
-                
-                if (selectedRole === 'all') {
-                    row.classList.remove('hidden');
-                } else {
-                    // Normalize both roles for comparison (handle both underscore and hyphen)
-                    const normalizedRowRole = rowRole.replace(/_/g, '-');
-                    const normalizedSelectedRole = selectedRole.replace(/_/g, '-');
-                    
-                    if (normalizedRowRole === normalizedSelectedRole) {
-                        row.classList.remove('hidden');
-                    } else {
-                        row.classList.add('hidden');
-                    }
-                }
-            });
-            
-            // Show/hide empty message
-            const visibleRows = Array.from(userRows).filter(row => !row.classList.contains('hidden'));
-            const emptyRow = document.querySelector('tbody tr:not(.user-row)');
-            if (emptyRow) {
-                if (visibleRows.length === 0) {
-                    emptyRow.style.display = 'table-row';
-                } else {
-                    emptyRow.style.display = 'none';
-                }
-            }
+            filterRows();
         });
     });
+    
+    // Search functionality
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            filterRows();
+        });
+        
+        // Clear search
+        if (clearSearchBtn) {
+            clearSearchBtn.addEventListener('click', function() {
+                searchInput.value = '';
+                filterRows();
+                searchInput.focus();
+            });
+        }
+    }
 });
 </script>
 <?= $this->endSection() ?>

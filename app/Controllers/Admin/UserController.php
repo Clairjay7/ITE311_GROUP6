@@ -140,11 +140,17 @@ class UserController extends BaseController
     {
         $db = \Config\Database::connect();
         
-        // Get role name to check if it's nurse or doctor
+        // Get role name to check role-specific requirements
         $roleId = $this->request->getPost('role_id');
         $role = $db->table('roles')->where('id', $roleId)->get()->getRowArray();
-        $isNurse = $role && strtolower($role['name']) === 'nurse';
-        $isDoctor = $role && strtolower($role['name']) === 'doctor';
+        $roleName = $role ? strtolower($role['name']) : '';
+        $isNurse = $roleName === 'nurse';
+        $isDoctor = $roleName === 'doctor';
+        $isLabStaff = $roleName === 'lab_staff';
+        $isPharmacy = $roleName === 'pharmacy';
+        $needsEmployeeId = in_array($roleName, ['admin', 'finance', 'itstaff', 'receptionist']);
+        $needsPRCLicense = in_array($roleName, ['doctor', 'lab_staff', 'pharmacy']);
+        $needsNursingLicense = $isNurse;
         
         $validationRules = [
             'username' => 'required|min_length[3]|max_length[100]|is_unique[users.username]',
@@ -152,16 +158,29 @@ class UserController extends BaseController
             'password' => 'required|min_length[6]',
             'role_id' => 'required|integer|greater_than[0]',
             'status' => 'required|in_list[active,inactive]',
+            'first_name' => 'permit_empty|max_length[100]',
+            'middle_name' => 'permit_empty|max_length[100]',
+            'last_name' => 'permit_empty|max_length[100]',
+            'contact' => 'permit_empty|max_length[20]',
+            'address' => 'permit_empty|max_length[255]',
         ];
         
-        // Add shift preference validation if role is nurse
-        if ($isNurse) {
-            $validationRules['shift_preference'] = 'required|in_list[morning,night,bulk]';
+        // Add role-specific validations
+        if ($needsEmployeeId) {
+            $validationRules['employee_id'] = 'required|max_length[50]';
+        }
+        
+        if ($needsPRCLicense) {
+            $validationRules['prc_license'] = 'required|max_length[50]';
+        }
+        
+        if ($needsNursingLicense) {
+            $validationRules['nursing_license'] = 'required|max_length[50]';
         }
         
         // Add specialization validation if role is doctor
         if ($isDoctor) {
-            $validationRules['specialization'] = 'required';
+            $validationRules['specialization'] = 'required|max_length[100]';
         }
 
         if (!$this->validate($validationRules)) {
@@ -174,23 +193,53 @@ class UserController extends BaseController
             'password' => password_hash($this->request->getPost('password'), PASSWORD_DEFAULT),
             'role_id' => $this->request->getPost('role_id'),
             'status' => $this->request->getPost('status'),
+            'first_name' => $this->request->getPost('first_name') ?: null,
+            'middle_name' => $this->request->getPost('middle_name') ?: null,
+            'last_name' => $this->request->getPost('last_name') ?: null,
+            'contact' => $this->request->getPost('contact') ?: null,
+            'address' => $this->request->getPost('address') ?: null,
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
         ];
+        
+        // Add role-specific fields
+        if ($needsEmployeeId) {
+            $data['employee_id'] = $this->request->getPost('employee_id');
+        }
+        
+        if ($needsPRCLicense) {
+            $data['prc_license'] = $this->request->getPost('prc_license');
+        }
+        
+        if ($needsNursingLicense) {
+            $data['nursing_license'] = $this->request->getPost('nursing_license');
+        }
+        
+        if ($isDoctor) {
+            $data['specialization'] = $this->request->getPost('specialization');
+        }
 
         if ($this->userModel->insert($data)) {
             $userId = $this->userModel->getInsertID();
             
-            // If doctor role, create doctor record
+            // If doctor role, create doctor record and schedule
             if ($isDoctor && $db->tableExists('doctors')) {
                 $specialization = $this->request->getPost('specialization');
                 
-                // Try to extract name from username (remove 'dr.' prefix and format)
-                $username = strtolower($this->request->getPost('username'));
-                $namePart = preg_replace('/^dr\./', '', $username);
-                $namePart = str_replace('.', ' ', $namePart);
-                $namePart = ucwords($namePart);
-                $doctorName = 'Dr. ' . $namePart;
+                // Use first_name and last_name if available, otherwise extract from username
+                $firstName = $this->request->getPost('first_name');
+                $lastName = $this->request->getPost('last_name');
+                
+                if ($firstName && $lastName) {
+                    $doctorName = 'Dr. ' . trim($firstName . ' ' . ($this->request->getPost('middle_name') ? $this->request->getPost('middle_name') . ' ' : '') . $lastName);
+                } else {
+                    // Fallback: Try to extract name from username
+                    $username = strtolower($this->request->getPost('username'));
+                    $namePart = preg_replace('/^dr\./', '', $username);
+                    $namePart = str_replace('.', ' ', $namePart);
+                    $namePart = ucwords($namePart);
+                    $doctorName = 'Dr. ' . $namePart;
+                }
                 
                 $doctorData = [
                     'doctor_name' => $doctorName,
@@ -201,11 +250,26 @@ class UserController extends BaseController
                 ];
                 
                 $db->table('doctors')->insert($doctorData);
+                
+                // Create doctor schedule if working days are provided
+                $workingDays = $this->request->getPost('working_days');
+                if ($workingDays && is_array($workingDays) && !empty($workingDays)) {
+                    $this->createDoctorSchedule($userId, $workingDays);
+                }
             }
             
-            // If nurse, create initial schedules based on shift preference
+            // If nurse, create schedule from form data
             if ($isNurse) {
-                $this->createNurseSchedules($userId, $this->request->getPost('shift_preference'));
+                $workingDays = $this->request->getPost('working_days');
+                if ($workingDays && is_array($workingDays) && !empty($workingDays)) {
+                    $this->createNurseScheduleFromForm($userId, $workingDays);
+                } else {
+                    // Fallback: create initial schedules based on shift preference (old method)
+                    $shiftPreference = $this->request->getPost('shift_preference');
+                    if ($shiftPreference) {
+                        $this->createNurseSchedules($userId, $shiftPreference);
+                    }
+                }
             }
             
             return redirect()->to('/admin/users')->with('success', 'User created successfully.');
@@ -314,40 +378,23 @@ class UserController extends BaseController
             ->where('id', $user['role_id'])
             ->get()->getRowArray();
         
-        // Get current shift preference if user is a nurse
-        $currentShiftPreference = null;
-        if ($userRole && strtolower($userRole['name']) === 'nurse') {
-            // Check existing schedules to determine preference
-            if ($db->tableExists('nurse_schedules')) {
-                $morningCount = $db->table('nurse_schedules')
-                    ->where('nurse_id', $id)
-                    ->where('shift_type', 'morning')
-                    ->where('status', 'active')
-                    ->countAllResults();
-                
-                $nightCount = $db->table('nurse_schedules')
-                    ->where('nurse_id', $id)
-                    ->where('shift_type', 'night')
-                    ->where('status', 'active')
-                    ->countAllResults();
-                
-                if ($morningCount > 0 && $nightCount > 0) {
-                    $currentShiftPreference = 'bulk';
-                } elseif ($morningCount > 0) {
-                    $currentShiftPreference = 'morning';
-                } elseif ($nightCount > 0) {
-                    $currentShiftPreference = 'night';
-                }
-            }
-        }
+        // Get nurse role ID for JavaScript
+        $nurseRole = $db->table('roles')
+            ->where('LOWER(name)', 'nurse')
+            ->get()->getRowArray();
+        
+        // Get doctor role ID for JavaScript
+        $doctorRole = $db->table('roles')
+            ->where('LOWER(name)', 'doctor')
+            ->get()->getRowArray();
 
         $data = [
             'title' => 'Edit User',
             'user' => $user,
             'roles' => $roles,
             'userRole' => $userRole,
-            'currentShiftPreference' => $currentShiftPreference,
-            'nurseRoleId' => $userRole && strtolower($userRole['name']) === 'nurse' ? $userRole['id'] : null,
+            'nurseRoleId' => $nurseRole ? $nurseRole['id'] : null,
+            'doctorRoleId' => $doctorRole ? $doctorRole['id'] : null,
         ];
 
         return view('admin/users/edit', $data);
@@ -368,21 +415,51 @@ class UserController extends BaseController
 
         $db = \Config\Database::connect();
         
-        // Get role name to check if it's nurse
+        // Get role name to check role-specific requirements
         $roleId = $this->request->getPost('role_id');
         $role = $db->table('roles')->where('id', $roleId)->get()->getRowArray();
-        $isNurse = $role && strtolower($role['name']) === 'nurse';
+        $roleName = $role ? strtolower($role['name']) : '';
+        $isNurse = $roleName === 'nurse';
+        $isDoctor = $roleName === 'doctor';
+        $isLabStaff = $roleName === 'lab_staff';
+        $isPharmacy = $roleName === 'pharmacy';
+        $needsEmployeeId = in_array($roleName, ['admin', 'finance', 'itstaff', 'receptionist']);
+        $needsPRCLicense = in_array($roleName, ['doctor', 'lab_staff', 'pharmacy']);
+        $needsNursingLicense = $isNurse;
 
         $validationRules = [
             'username' => 'required|min_length[3]|max_length[100]',
             'email' => 'required|valid_email',
             'role_id' => 'required|integer|greater_than[0]',
             'status' => 'required|in_list[active,inactive]',
+            'first_name' => 'permit_empty|max_length[100]',
+            'middle_name' => 'permit_empty|max_length[100]',
+            'last_name' => 'permit_empty|max_length[100]',
+            'contact' => 'permit_empty|max_length[20]',
+            'address' => 'permit_empty|max_length[255]',
         ];
         
-        // Add shift preference validation if role is nurse
+        // Add role-specific validations
+        if ($needsEmployeeId) {
+            $validationRules['employee_id'] = 'required|max_length[50]';
+        }
+        
+        if ($needsPRCLicense) {
+            $validationRules['prc_license'] = 'required|max_length[50]';
+        }
+        
+        if ($needsNursingLicense) {
+            $validationRules['nursing_license'] = 'required|max_length[50]';
+        }
+        
+        // Add specialization validation if role is doctor
+        if ($isDoctor) {
+            $validationRules['specialization'] = 'required|max_length[100]';
+        }
+        
+        // Add shift preference validation if role is nurse (for backward compatibility)
         if ($isNurse) {
-            $validationRules['shift_preference'] = 'required|in_list[morning,night,bulk]';
+            $validationRules['shift_preference'] = 'permit_empty|in_list[morning,night,bulk]';
         }
 
         // Check if username is unique (excluding current user)
@@ -421,7 +498,37 @@ class UserController extends BaseController
             'email' => $this->request->getPost('email'),
             'role_id' => $this->request->getPost('role_id'),
             'status' => $this->request->getPost('status'),
+            'first_name' => $this->request->getPost('first_name') ?: null,
+            'middle_name' => $this->request->getPost('middle_name') ?: null,
+            'last_name' => $this->request->getPost('last_name') ?: null,
+            'contact' => $this->request->getPost('contact') ?: null,
+            'address' => $this->request->getPost('address') ?: null,
         ];
+        
+        // Add role-specific fields
+        if ($needsEmployeeId) {
+            $data['employee_id'] = $this->request->getPost('employee_id');
+        } else {
+            $data['employee_id'] = null;
+        }
+        
+        if ($needsPRCLicense) {
+            $data['prc_license'] = $this->request->getPost('prc_license');
+        } else {
+            $data['prc_license'] = null;
+        }
+        
+        if ($needsNursingLicense) {
+            $data['nursing_license'] = $this->request->getPost('nursing_license');
+        } else {
+            $data['nursing_license'] = null;
+        }
+        
+        if ($isDoctor) {
+            $data['specialization'] = $this->request->getPost('specialization');
+        } else {
+            $data['specialization'] = null;
+        }
 
         // Update password only if provided
         if ($this->request->getPost('password')) {
@@ -609,6 +716,159 @@ class UserController extends BaseController
         } else {
             return redirect()->to('/admin/users')->with('error', 'Failed to restore user.');
         }
+    }
+
+    /**
+     * Create doctor schedule from form data
+     */
+    private function createDoctorSchedule($doctorId, $workingDays)
+    {
+        $db = \Config\Database::connect();
+        
+        if (!$db->tableExists('doctor_schedules')) {
+            return;
+        }
+        
+        $timeIn = $this->request->getPost('time_in');
+        $timeOut = $this->request->getPost('time_out');
+        $shiftType = $this->request->getPost('shift_type');
+        $onCall = $this->request->getPost('on_call') ?: 'no';
+        $onCallNotes = $this->request->getPost('on_call_notes');
+        $maxPatients = $this->request->getPost('max_patients');
+        $status = $this->request->getPost('schedule_status') ?: 'active';
+        
+        // Generate schedules for 1 year starting from today's date
+        $startDate = new \DateTime(); // Today's date
+        $endDate = new \DateTime(); // Today's date
+        $endDate->modify('+1 year'); // 1 year from today
+        
+        $schedulesToInsert = [];
+        $currentDate = clone $startDate;
+        
+        while ($currentDate <= $endDate) {
+            $dayName = $currentDate->format('l'); // Full day name
+            
+            // Check if this day is in working days
+            if (in_array($dayName, $workingDays)) {
+                $schedulesToInsert[] = [
+                    'doctor_id' => $doctorId,
+                    'shift_date' => $currentDate->format('Y-m-d'),
+                    'start_time' => $timeIn ?: '09:00:00',
+                    'end_time' => $timeOut ?: '17:00:00',
+                    'status' => $status,
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ];
+            }
+            
+            $currentDate->modify('+1 day');
+        }
+        
+        // Batch insert schedules
+        if (!empty($schedulesToInsert)) {
+            $chunks = array_chunk($schedulesToInsert, 100);
+            foreach ($chunks as $chunk) {
+                $db->table('doctor_schedules')->insertBatch($chunk);
+            }
+        }
+    }
+    
+    /**
+     * Create nurse schedule from form data
+     */
+    private function createNurseScheduleFromForm($nurseId, $workingDays)
+    {
+        $db = \Config\Database::connect();
+        
+        if (!$db->tableExists('nurse_schedules')) {
+            return;
+        }
+        
+        $shiftType = $this->request->getPost('nurse_shift_type') ?: $this->request->getPost('shift_type');
+        $timeIn = $this->request->getPost('nurse_time_in') ?: $this->request->getPost('time_in');
+        $timeOut = $this->request->getPost('nurse_time_out') ?: $this->request->getPost('time_out');
+        $dutyType = $this->request->getPost('duty_type') ?: 'regular';
+        $standby = $this->request->getPost('standby') ?: 'no';
+        $stationAssignment = $this->request->getPost('station_assignment');
+        $status = $this->request->getPost('schedule_status') ?: 'active';
+        
+        // Generate schedules for 1 year starting from today's date
+        $startDate = new \DateTime(); // Today's date
+        $endDate = new \DateTime(); // Today's date
+        $endDate->modify('+1 year'); // 1 year from today
+        
+        $schedulesToInsert = [];
+        $currentDate = clone $startDate;
+        
+        while ($currentDate <= $endDate) {
+            $dayName = $currentDate->format('l'); // Full day name
+            
+            // Check if this day is in working days
+            if (in_array($dayName, $workingDays)) {
+                $schedulesToInsert[] = [
+                    'nurse_id' => $nurseId,
+                    'shift_date' => $currentDate->format('Y-m-d'),
+                    'shift_type' => $shiftType ?: 'morning',
+                    'start_time' => $timeIn ?: '06:00:00',
+                    'end_time' => $timeOut ?: '14:00:00',
+                    'duty_type' => $dutyType,
+                    'standby' => $standby,
+                    'station_assignment' => $stationAssignment,
+                    'status' => $status,
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ];
+            }
+            
+            $currentDate->modify('+1 day');
+        }
+        
+        // Batch insert schedules
+        if (!empty($schedulesToInsert)) {
+            $chunks = array_chunk($schedulesToInsert, 100);
+            foreach ($chunks as $chunk) {
+                $db->table('nurse_schedules')->insertBatch($chunk);
+            }
+        }
+    }
+    
+    /**
+     * Get doctor schedule (AJAX endpoint)
+     */
+    public function getDoctorSchedule()
+    {
+        if (!$this->request->isAJAX()) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Invalid request'])->setStatusCode(400);
+        }
+        
+        $doctorId = $this->request->getGet('doctor_id');
+        
+        if (!$doctorId) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Doctor ID is required']);
+        }
+        
+        $db = \Config\Database::connect();
+        $schedules = [];
+        
+        if ($db->tableExists('doctor_schedules')) {
+            $schedules = $db->table('doctor_schedules')
+                ->select('shift_date, start_time, end_time, status')
+                ->where('doctor_id', $doctorId)
+                ->where('shift_date >=', date('Y-m-d'))
+                ->where('shift_date <=', date('Y-m-d', strtotime('+30 days')))
+                ->where('status !=', 'cancelled')
+                ->orderBy('shift_date', 'ASC')
+                ->orderBy('start_time', 'ASC')
+                ->limit(20)
+                ->get()
+                ->getResultArray();
+        }
+        
+        return $this->response->setJSON([
+            'success' => true,
+            'schedules' => $schedules,
+            'message' => count($schedules) > 0 ? '' : 'No schedule found'
+        ]);
     }
 }
 

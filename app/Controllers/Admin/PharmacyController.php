@@ -856,7 +856,7 @@ class PharmacyController extends BaseController
 
     public function store()
     {
-        // Only require fields that are in the form: category and quantity
+        // Require fields for Stock Monitoring: batch_number, expiration_date, supplier_name
         $rules = [
             'item_name' => 'permit_empty|max_length[255]',
             'generic_name' => 'permit_empty|max_length[255]',

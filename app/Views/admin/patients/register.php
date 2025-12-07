@@ -664,10 +664,74 @@ $errorMessage = session()->getFlashdata('error');
                                    value="<?= set_value('contact') ?>" required placeholder="09XX-XXX-XXXX">
                         </div>
                         
+                        <div class="form-group">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" name="email" class="form-control" 
+                                   value="<?= set_value('email') ?>" placeholder="patient@email.com">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Civil Status</label>
+                            <select name="civil_status" class="form-select">
+                                <option value="">-- Select Civil Status --</option>
+                                <option value="Single" <?= set_select('civil_status', 'Single') ?>>Single</option>
+                                <option value="Married" <?= set_select('civil_status', 'Married') ?>>Married</option>
+                                <option value="Widowed" <?= set_select('civil_status', 'Widowed') ?>>Widowed</option>
+                                <option value="Divorced" <?= set_select('civil_status', 'Divorced') ?>>Divorced</option>
+                                <option value="Separated" <?= set_select('civil_status', 'Separated') ?>>Separated</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Blood Type</label>
+                            <select name="blood_type" class="form-select">
+                                <option value="">-- Select Blood Type --</option>
+                                <option value="A+" <?= set_select('blood_type', 'A+') ?>>A+</option>
+                                <option value="A-" <?= set_select('blood_type', 'A-') ?>>A-</option>
+                                <option value="B+" <?= set_select('blood_type', 'B+') ?>>B+</option>
+                                <option value="B-" <?= set_select('blood_type', 'B-') ?>>B-</option>
+                                <option value="AB+" <?= set_select('blood_type', 'AB+') ?>>AB+</option>
+                                <option value="AB-" <?= set_select('blood_type', 'AB-') ?>>AB-</option>
+                                <option value="O+" <?= set_select('blood_type', 'O+') ?>>O+</option>
+                                <option value="O-" <?= set_select('blood_type', 'O-') ?>>O-</option>
+                                <option value="Unknown" <?= set_select('blood_type', 'Unknown') ?>>Unknown</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Nationality</label>
+                            <input type="text" name="nationality" class="form-control" 
+                                   value="<?= set_value('nationality', 'Filipino') ?>" placeholder="Filipino">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Religion</label>
+                            <input type="text" name="religion" class="form-control" 
+                                   value="<?= set_value('religion') ?>" placeholder="e.g., Catholic, Muslim, etc.">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Occupation</label>
+                            <input type="text" name="occupation" class="form-control" 
+                                   value="<?= set_value('occupation') ?>" placeholder="Patient's occupation">
+                        </div>
+                        
                         <div class="form-group" style="grid-column: span 2;">
                             <label class="form-label">Complete Address <span class="required">*</span></label>
                             <input type="text" name="address" class="form-control" 
                                    value="<?= set_value('address') ?>" required placeholder="House No., Street, Barangay, City/Municipality, Province">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label class="form-label">Alternative Contact Number</label>
+                            <input type="text" name="alternative_contact" class="form-control" 
+                                   value="<?= set_value('alternative_contact') ?>" placeholder="09XX-XXX-XXXX (Optional)">
                         </div>
                     </div>
                 </div>

@@ -35,10 +35,6 @@
     .pharmacy-status-dispensed { background: #d1fae5; color: #065f46; }
     .read-only-badge { background: #e5e7eb; color: #6b7280; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
     
-    /* Stock Monitoring Styles */
-    .stock-container { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 24px; margin-bottom: 24px; }
-    .stock-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid #4caf50; }
-    .stock-title { font-size: 24px; font-weight: 700; color: #2e7d32; }
     .stock-tabs { display: flex; gap: 12px; margin-bottom: 20px; border-bottom: 2px solid #e0e0e0; }
     .tab { padding: 12px 24px; background: transparent; border: none; border-bottom: 3px solid transparent; cursor: pointer; font-size: 14px; font-weight: 600; color: #666; transition: all 0.3s; }
     .tab.active { color: #2e7d32; border-bottom-color: #4caf50; }
@@ -93,9 +89,6 @@
 <div class="admin-module">
     <div class="module-header">
         <h2><?= esc($title) ?></h2>
-        <a href="<?= base_url('admin/pharmacy/create') ?>" class="btn btn-primary">
-            <i class="fa-solid fa-plus"></i> Add Item
-        </a>
     </div>
 
     <?php if (session()->getFlashdata('success')): ?>
@@ -617,200 +610,6 @@
         <?php endif; ?>
     </div>
 
-    <!-- Stock Monitoring Section -->
-    <div class="stock-container">
-        <div class="stock-header">
-            <h3 class="stock-title">📊 Stock Monitoring</h3>
-        </div>
-        
-        <!-- Search Bar -->
-        <div style="margin-bottom: 20px;">
-            <input type="text" id="stockSearchInput" placeholder="🔍 Search medicines by name, category, or batch number..." 
-                   style="width: 100%; padding: 12px 16px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; transition: border-color 0.3s;"
-                   onkeyup="filterStockTable()">
-        </div>
-        
-        <div class="stock-tabs">
-            <button class="tab active" onclick="showStockTab('critical')">
-                Critical (<?= count($criticalStock ?? []) ?>)
-            </button>
-            <button class="tab" onclick="showStockTab('low')">
-                Low Stock (<?= count($lowStock ?? []) ?>)
-            </button>
-            <button class="tab" onclick="showStockTab('all')">
-                All Medicines (<?= count($allMedicines ?? []) ?>)
-            </button>
-        </div>
-
-        <!-- Critical Stock Tab -->
-        <div id="stock-critical" class="tab-content active">
-            <table class="stock-table">
-                <thead>
-                    <tr>
-                        <th>Medicine Name</th>
-                        <th>Category</th>
-                        <th>Quantity</th>
-                        <th>Batch Number</th>
-                        <th>Expiration Date</th>
-                        <th>Supplier</th>
-                        <th>Price</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (empty($criticalStock ?? [])): ?>
-                        <tr>
-                            <td colspan="8" style="text-align: center; padding: 40px; color: #666;">
-                                No critical stock items
-                            </td>
-                        </tr>
-                    <?php else: ?>
-                        <?php foreach (($criticalStock ?? []) as $medicine): ?>
-                            <?php
-                                $expDate = !empty($medicine['expiration_date']) ? new \DateTime($medicine['expiration_date']) : null;
-                                $isExpiringSoon = $expDate && $expDate <= new \DateTime('+30 days');
-                                $isExpired = $expDate && $expDate < new \DateTime();
-                                $expColor = $isExpired ? '#ef4444' : ($isExpiringSoon ? '#f59e0b' : '#2e7d32');
-                            ?>
-                            <tr>
-                                <td><strong><?= esc($medicine['item_name']) ?></strong></td>
-                                <td><?= esc($medicine['category'] ?? 'N/A') ?></td>
-                                <td><strong style="color: #ef4444;"><?= $medicine['quantity'] ?></strong></td>
-                                <td><span style="font-family: monospace; color: #2e7d32;"><?= esc($medicine['batch_number'] ?? 'N/A') ?></span></td>
-                                <td style="color: <?= $expColor ?>;">
-                                    <?= $expDate ? $expDate->format('M d, Y') : 'N/A' ?>
-                                    <?= $isExpired ? ' <i class="fas fa-exclamation-circle"></i>' : ($isExpiringSoon ? ' <i class="fas fa-exclamation-triangle"></i>' : '') ?>
-                                </td>
-                                <td><?= esc($medicine['supplier_name'] ?? 'N/A') ?></td>
-                                <td>₱<?= number_format($medicine['price'] ?? 0, 2) ?></td>
-                                <td>
-                                    <span class="stock-level stock-critical">CRITICAL</span>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Low Stock Tab -->
-        <div id="stock-low" class="tab-content">
-            <table class="stock-table">
-                <thead>
-                    <tr>
-                        <th>Medicine Name</th>
-                        <th>Category</th>
-                        <th>Quantity</th>
-                        <th>Batch Number</th>
-                        <th>Expiration Date</th>
-                        <th>Supplier</th>
-                        <th>Price</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (empty($lowStock ?? [])): ?>
-                        <tr>
-                            <td colspan="8" style="text-align: center; padding: 40px; color: #666;">
-                                No low stock items
-                            </td>
-                        </tr>
-                    <?php else: ?>
-                        <?php foreach (($lowStock ?? []) as $medicine): ?>
-                            <?php
-                                $expDate = !empty($medicine['expiration_date']) ? new \DateTime($medicine['expiration_date']) : null;
-                                $isExpiringSoon = $expDate && $expDate <= new \DateTime('+30 days');
-                                $isExpired = $expDate && $expDate < new \DateTime();
-                                $expColor = $isExpired ? '#ef4444' : ($isExpiringSoon ? '#f59e0b' : '#2e7d32');
-                            ?>
-                            <tr>
-                                <td><strong><?= esc($medicine['item_name']) ?></strong></td>
-                                <td><?= esc($medicine['category'] ?? 'N/A') ?></td>
-                                <td><strong style="color: #f59e0b;"><?= $medicine['quantity'] ?></strong></td>
-                                <td><span style="font-family: monospace; color: #2e7d32;"><?= esc($medicine['batch_number'] ?? 'N/A') ?></span></td>
-                                <td style="color: <?= $expColor ?>;">
-                                    <?= $expDate ? $expDate->format('M d, Y') : 'N/A' ?>
-                                    <?= $isExpired ? ' <i class="fas fa-exclamation-circle"></i>' : ($isExpiringSoon ? ' <i class="fas fa-exclamation-triangle"></i>' : '') ?>
-                                </td>
-                                <td><?= esc($medicine['supplier_name'] ?? 'N/A') ?></td>
-                                <td>₱<?= number_format($medicine['price'] ?? 0, 2) ?></td>
-                                <td>
-                                    <span class="stock-level stock-low">LOW</span>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- All Medicines Tab -->
-        <div id="stock-all" class="tab-content">
-            <table class="stock-table">
-                <thead>
-                    <tr>
-                        <th>Medicine Name</th>
-                        <th>Category</th>
-                        <th>Quantity</th>
-                        <th>Batch Number</th>
-                        <th>Expiration Date</th>
-                        <th>Supplier</th>
-                        <th>Price</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (empty($allMedicines ?? [])): ?>
-                        <tr>
-                            <td colspan="8" style="text-align: center; padding: 40px; color: #666;">
-                                No medicines found
-                            </td>
-                        </tr>
-                    <?php else: ?>
-                        <?php foreach (($allMedicines ?? []) as $medicine): ?>
-                            <?php
-                                $quantity = $medicine['quantity'] ?? 0;
-                                $reorderLevel = $medicine['reorder_level'] ?? 10;
-                                $statusClass = 'stock-normal';
-                                $statusText = 'NORMAL';
-                                $qtyColor = '#2e7d32';
-                                if ($quantity == 0 || $quantity <= $reorderLevel) {
-                                    $statusClass = 'stock-critical';
-                                    $statusText = 'CRITICAL';
-                                    $qtyColor = '#ef4444';
-                                } elseif ($quantity < ($reorderLevel * 2)) {
-                                    $statusClass = 'stock-low';
-                                    $statusText = 'LOW';
-                                    $qtyColor = '#f59e0b';
-                                }
-                                
-                                $expDate = !empty($medicine['expiration_date']) ? new \DateTime($medicine['expiration_date']) : null;
-                                $isExpiringSoon = $expDate && $expDate <= new \DateTime('+30 days');
-                                $isExpired = $expDate && $expDate < new \DateTime();
-                                $expColor = $isExpired ? '#ef4444' : ($isExpiringSoon ? '#f59e0b' : '#2e7d32');
-                            ?>
-                            <tr>
-                                <td><strong><?= esc($medicine['item_name']) ?></strong></td>
-                                <td><?= esc($medicine['category'] ?? 'N/A') ?></td>
-                                <td><strong style="color: <?= $qtyColor ?>;"><?= $medicine['quantity'] ?></strong></td>
-                                <td><span style="font-family: monospace; color: #2e7d32;"><?= esc($medicine['batch_number'] ?? 'N/A') ?></span></td>
-                                <td style="color: <?= $expColor ?>;">
-                                    <?= $expDate ? $expDate->format('M d, Y') : 'N/A' ?>
-                                    <?= $isExpired ? ' <i class="fas fa-exclamation-circle"></i>' : ($isExpiringSoon ? ' <i class="fas fa-exclamation-triangle"></i>' : '') ?>
-                                </td>
-                                <td><?= esc($medicine['supplier_name'] ?? 'N/A') ?></td>
-                                <td>₱<?= number_format($medicine['price'] ?? 0, 2) ?></td>
-                                <td>
-                                    <span class="stock-level <?= $statusClass ?>"><?= $statusText ?></span>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
     <!-- Patient Medication Record -->
     <div class="medication-record-container">
         <div class="medication-record-header">
@@ -920,50 +719,6 @@ function showPrescriptionTab(tabName) {
     event.target.classList.add('active');
 }
 
-function showStockTab(tabName) {
-    // Hide all stock tabs
-    document.querySelectorAll('#stock-critical, #stock-low, #stock-all').forEach(tab => {
-        tab.classList.remove('active');
-    });
-    
-    // Remove active class from all stock tab buttons
-    document.querySelectorAll('.stock-container .tab').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    
-    // Show selected tab
-    document.getElementById('stock-' + tabName).classList.add('active');
-    
-    // Add active class to clicked button
-    event.target.classList.add('active');
-    
-    // Re-apply search filter
-    filterStockTable();
-}
-
-function filterStockTable() {
-    const searchInput = document.getElementById('stockSearchInput');
-    const searchTerm = searchInput.value.toLowerCase();
-    const activeTab = document.querySelector('.stock-container .tab.active');
-    
-    if (!activeTab) return;
-    
-    const tabName = activeTab.textContent.toLowerCase().includes('critical') ? 'critical' : 
-                    activeTab.textContent.toLowerCase().includes('low') ? 'low' : 'all';
-    const table = document.querySelector(`#stock-${tabName} .stock-table tbody`);
-    
-    if (!table) return;
-    
-    const rows = table.querySelectorAll('tr');
-    rows.forEach(row => {
-        const text = row.textContent.toLowerCase();
-        if (text.includes(searchTerm)) {
-            row.style.display = '';
-        } else {
-            row.style.display = 'none';
-        }
-    });
-}
 </script>
 
 <?= $this->endSection() ?>
