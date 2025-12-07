@@ -454,37 +454,10 @@
                         </div>
                     </div>
                     
-                    <!-- 4. Payment / Billing -->
-                    <div class="form-section">
-                        <h3 class="section-title">
-                            <i class="fas fa-money-bill-wave"></i> Payment / Billing
-                        </h3>
-                        
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label class="form-label" for="walkin_payment_method">Payment Method <span class="required">*</span></label>
-                                <select id="walkin_payment_method" name="walkin_payment_method" class="form-select" required>
-                                    <option value="">-- Select Payment Method --</option>
-                                    <option value="Cash">Cash</option>
-                                    <option value="Insurance">Insurance</option>
-                                    <option value="PhilHealth">PhilHealth</option>
-                                    <option value="Credit">Credit</option>
-                                    <option value="HMO">HMO</option>
-                                </select>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label class="form-label" for="walkin_amount">Amount</label>
-                                <input type="number" id="walkin_amount" name="walkin_amount" class="form-control" placeholder="0.00" step="0.01" min="0">
-                                <div class="form-hint">Optional if pay on site</div>
-                            </div>
-                        </div>
-                    </div>
-                    
                     <!-- Walk-in Submit Button -->
                     <div class="form-actions">
                         <button type="submit" class="btn-submit">
-                            <i class="fas fa-check-circle"></i> Submit Lab Service Request
+                            <i class="fas fa-check-circle"></i> Create Lab Service
                         </button>
                         <a href="<?= base_url('admin/lab') ?>" class="btn-cancel">
                             <i class="fas fa-times"></i> Cancel
@@ -675,7 +648,6 @@ function togglePatientForm() {
         document.getElementById('walkin_contact').setAttribute('required', 'required');
         document.getElementById('walkin_test_type').setAttribute('required', 'required');
         document.getElementById('walkin_request_date').setAttribute('required', 'required');
-        document.getElementById('walkin_payment_method').setAttribute('required', 'required');
         // Remove required from patient fields
         document.getElementById('test_type').removeAttribute('required');
         document.getElementById('patient_id_admin').removeAttribute('required');
@@ -693,7 +665,6 @@ function togglePatientForm() {
         document.getElementById('walkin_contact').removeAttribute('required');
         document.getElementById('walkin_test_type').removeAttribute('required');
         document.getElementById('walkin_request_date').removeAttribute('required');
-        document.getElementById('walkin_payment_method').removeAttribute('required');
     }
 }
 

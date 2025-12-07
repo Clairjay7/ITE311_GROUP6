@@ -160,7 +160,8 @@
             <tr>
                 <th>Charge #</th>
                 <th>Patient</th>
-                <th>Doctor</th>
+                <th>Type of Test</th>
+                <th>Nurse</th>
                 <th>Items</th>
                 <th>Total Amount</th>
                 <th>Created</th>
@@ -175,7 +176,55 @@
                         <td><strong><?= esc($charge['charge_number'] ?? 'N/A') ?></strong></td>
                         <td><?= esc(($charge['firstname'] ?? '') . ' ' . ($charge['lastname'] ?? '') ?: 'N/A') ?></td>
                         <td>
-                            <?= esc($charge['doctor_name'] ?? 'N/A') ?>
+                            <?php
+                            // Check if this is a lab test charge (has lab_test billing item)
+                            $isLabTest = !empty($charge['has_lab_test']) || !empty($charge['test_name']);
+                            ?>
+                            <?php if ($isLabTest): ?>
+                                <?php if (!empty($charge['test_name'])): ?>
+                                    <span style="color: #2e7d32; font-weight: 600;">
+                                        <i class="fas fa-vial"></i> <?= esc($charge['test_name']) ?>
+                                    </span>
+                                <?php else: ?>
+                                    <span style="color: #2e7d32; font-weight: 600;">
+                                        <i class="fas fa-vial"></i> Lab Test
+                                    </span>
+                                <?php endif; ?>
+                            <?php else: ?>
+                                <span style="color: #64748b;">
+                                    <?= esc($charge['doctor_name'] ?? 'Consultation') ?>
+                                </span>
+                            <?php endif; ?>
+                        </td>
+                        <td>
+                            <?php if ($isLabTest): ?>
+                                <?php
+                                // Check if test requires specimen
+                                $requiresSpecimen = true; // Default
+                                $instructions = $charge['lab_instructions'] ?? '';
+                                
+                                if (preg_match('/SPECIMEN_CATEGORY:(without_specimen|with_specimen)/', $instructions, $matches)) {
+                                    $requiresSpecimen = ($matches[1] === 'with_specimen');
+                                }
+                                
+                                if ($requiresSpecimen): ?>
+                                    <?php if (!empty($charge['nurse_name'])): ?>
+                                        <span style="color: #2563eb; font-weight: 600;">
+                                            <i class="fas fa-user-nurse"></i> <?= esc($charge['nurse_name']) ?>
+                                        </span>
+                                    <?php else: ?>
+                                        <span style="color: #f59e0b; font-style: italic;">
+                                            <i class="fas fa-exclamation-circle"></i> Nurse not assigned
+                                        </span>
+                                    <?php endif; ?>
+                                <?php else: ?>
+                                    <span style="color: #64748b; font-style: italic;">
+                                        <i class="fas fa-info-circle"></i> No need nurse
+                                    </span>
+                                <?php endif; ?>
+                            <?php else: ?>
+                                <span style="color: #9ca3af;">-</span>
+                            <?php endif; ?>
                         </td>
                         <td><?= esc($charge['item_count'] ?? 0) ?> item(s)</td>
                         <td style="font-weight: 700; color: #dc2626;">₱<?= number_format($charge['total_amount'] ?? 0, 2) ?></td>
@@ -222,7 +271,7 @@
                 <?php endforeach; ?>
             <?php else: ?>
                 <tr>
-                    <td colspan="8" style="text-align: center; padding: 40px; color: #64748b;">
+                    <td colspan="9" style="text-align: center; padding: 40px; color: #64748b;">
                         <i class="fas fa-inbox" style="font-size: 48px; margin-bottom: 16px; display: block; color: #cbd5e1;"></i>
                         No charges found.
                     </td>

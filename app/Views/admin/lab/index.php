@@ -29,12 +29,20 @@
         </div>
     <?php endif; ?>
 
+    <!-- Search Bar -->
+    <div style="margin-bottom: 20px; background: white; padding: 16px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        <input type="text" id="labSearchInput" placeholder="🔍 Search by patient name, test type, status, or contact..." 
+               style="width: 100%; padding: 12px 16px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; transition: border-color 0.3s;"
+               onkeyup="filterLabTable()">
+    </div>
+
     <div class="table-container">
         <table class="data-table">
             <thead>
                 <tr>
                     <th>ID</th>
                     <th>Patient</th>
+                    <th>Type</th>
                     <th>Contact</th>
                     <th>Test Type</th>
                     <th>Status</th>
@@ -48,13 +56,28 @@
             </thead>
             <tbody>
                 <?php if (empty($labServices)): ?>
-                    <tr><td colspan="11" class="text-center">No lab services found.</td></tr>
+                    <tr><td colspan="12" class="text-center">No lab services found.</td></tr>
                 <?php else: ?>
                     <?php foreach ($labServices as $lab): ?>
                         <tr>
                             <td>#<?= esc($lab['id']) ?></td>
                             <td>
                                 <strong><?= esc($lab['firstname'] . ' ' . $lab['lastname']) ?></strong>
+                            </td>
+                            <td>
+                                <?php
+                                $visitType = $lab['visit_type'] ?? '';
+                                $isWalkIn = (strtolower($visitType) === 'walk-in' || strtolower($visitType) === 'walkin' || strtolower($visitType) === 'walk_in');
+                                ?>
+                                <?php if ($isWalkIn): ?>
+                                    <span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: #fef3c7; color: #d97706; border-radius: 12px; font-size: 12px; font-weight: 600;">
+                                        <i class="fas fa-walking"></i> Walk-in
+                                    </span>
+                                <?php else: ?>
+                                    <span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: #dbeafe; color: #2563eb; border-radius: 12px; font-size: 12px; font-weight: 600;">
+                                        <i class="fas fa-user-injured"></i> Patient
+                                    </span>
+                                <?php endif; ?>
                             </td>
                             <td><?= esc($lab['contact'] ?? 'N/A') ?></td>
                             <td>
@@ -388,6 +411,24 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+function filterLabTable() {
+    const searchInput = document.getElementById('labSearchInput');
+    const searchTerm = searchInput.value.toLowerCase();
+    const table = document.querySelector('.data-table tbody');
+    
+    if (!table) return;
+    
+    const rows = table.querySelectorAll('tr');
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        if (text.includes(searchTerm)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
 </script>
 <?= $this->endSection() ?>
 

@@ -47,6 +47,7 @@ class LabController extends BaseController
                      admin_patients.lastname,
                      admin_patients.contact,
                      admin_patients.birthdate,
+                     admin_patients.visit_type,
                      lab_requests.status as request_status,
                      lab_requests.payment_status,
                      lab_requests.test_name,
@@ -236,7 +237,7 @@ class LabController extends BaseController
         // Determine test name based on patient source
         if ($patientSource === 'walkin') {
             $testName = $this->request->getPost('walkin_test_type');
-            $nurseId = $this->request->getPost('walkin_collected_by');
+            $nurseId = $this->request->getPost('walkin_nurse_id');
         } else {
             $testName = $this->request->getPost('test_type');
             $nurseId = $this->request->getPost('nurse_id');
@@ -284,16 +285,12 @@ class LabController extends BaseController
                 'walkin_contact' => 'required|max_length[255]',
                 'walkin_test_type' => 'required|max_length[255]',
                 'walkin_request_date' => 'required|valid_date',
-                'walkin_payment_method' => 'required|in_list[Cash,Insurance,PhilHealth,Credit,HMO]',
-                'walkin_amount' => 'permit_empty|decimal',
             ];
             
-            // Sample fields required only if test requires specimen
+            // Nurse field required only if test requires specimen (same logic as patient form)
             if ($requiresSpecimen) {
-                $rules['walkin_sample_type'] = 'required|max_length[100]';
-                $rules['walkin_collection_date'] = 'required|valid_date';
-                $rules['walkin_collection_time'] = 'required';
-                $rules['walkin_collected_by'] = 'required|integer';
+                $rules['walkin_nurse_id'] = 'required|integer';
+                log_message('debug', 'Lab Service Store - Validation: walkin_nurse_id is REQUIRED (test requires specimen)');
             }
         } else {
             $rules = [
@@ -325,10 +322,17 @@ class LabController extends BaseController
             log_message('error', 'Nurse ID: ' . ($nurseId ?? 'not provided'));
             log_message('error', 'Test Name: ' . ($testName ?? 'not provided'));
             
-            // If the error is about nurse_id and test doesn't require specimen, remove that error
-            if (isset($errors['nurse_id']) && !$requiresSpecimen) {
-                unset($errors['nurse_id']);
-                log_message('debug', 'Lab Service Store - Removed nurse_id validation error for without_specimen test');
+            // If the error is about nurse_id/walkin_nurse_id and test doesn't require specimen, remove that error
+            if ($patientSource === 'walkin') {
+                if (isset($errors['walkin_nurse_id']) && !$requiresSpecimen) {
+                    unset($errors['walkin_nurse_id']);
+                    log_message('debug', 'Lab Service Store - Removed walkin_nurse_id validation error for without_specimen test');
+                }
+            } else {
+                if (isset($errors['nurse_id']) && !$requiresSpecimen) {
+                    unset($errors['nurse_id']);
+                    log_message('debug', 'Lab Service Store - Removed nurse_id validation error for without_specimen test');
+                }
             }
             
             // If there are still errors after removing nurse_id error, return with errors
@@ -374,11 +378,17 @@ class LabController extends BaseController
             }
             
             $testName = $this->request->getPost('walkin_test_type');
-            $nurseId = $this->request->getPost('walkin_collected_by');
+            $nurseId = $this->request->getPost('walkin_nurse_id');
+            if ($nurseId === '' || $nurseId === null) {
+                $nurseId = null;
+            }
         } else {
             $patientId = $this->request->getPost('patient_id');
             $testName = $this->request->getPost('test_type');
             $nurseId = $this->request->getPost('nurse_id');
+            if ($nurseId === '' || $nurseId === null) {
+                $nurseId = null;
+            }
         }
         
         // STEP 2: Create lab service FIRST (without transaction - save immediately)
@@ -437,9 +447,9 @@ class LabController extends BaseController
             try {
                 // Create lab request so it appears in laboratory system
                 // Nurse will collect specimen and pass to lab (only if test requires specimen)
-                // Match doctor's logic exactly
+                // Match doctor's logic exactly - same for both walk-in and patient
                 $labRequestData = [
-                    'patient_id' => $this->request->getPost('patient_id'),
+                    'patient_id' => $patientId, // Use the $patientId variable (works for both walk-in and registered patients)
                     'test_type' => $testType,
                     'test_name' => $testName,
                     'requested_by' => 'admin',
@@ -450,12 +460,9 @@ class LabController extends BaseController
                     'payment_status' => 'pending', // Pending accountant approval - will be 'approved' then 'paid' by accountant
                 ];
                 
-                // Only add nurse_id if test requires specimen (matching doctor logic)
-                if ($requiresSpecimen) {
-                    $nurseId = $this->request->getPost('nurse_id');
-                    if (!empty($nurseId)) {
-                        $labRequestData['nurse_id'] = $nurseId;
-                    }
+                // Only add nurse_id if test requires specimen (matching doctor logic - same for both walk-in and patient)
+                if ($requiresSpecimen && !empty($nurseId)) {
+                    $labRequestData['nurse_id'] = $nurseId;
                 }
                 // For without_specimen, don't add nurse_id at all
 
@@ -508,7 +515,7 @@ class LabController extends BaseController
                     : 'Lab test payment: ' . $testName . ' - Requires accountant approval before proceeding to laboratory for testing (no specimen required)';
                 
                 $chargeData = [
-                    'patient_id' => $this->request->getPost('patient_id'),
+                    'patient_id' => $patientId, // Use the $patientId variable (works for both walk-in and registered patients)
                     'charge_number' => $chargeNumber,
                     'total_amount' => $testPrice,
                     'status' => 'pending', // Pending until accountant approves

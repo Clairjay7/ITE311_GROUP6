@@ -194,6 +194,17 @@ class MedicationController extends BaseController
                 ]);
             }
 
+            // Update patient_medication_records with administration details
+            if ($db->tableExists('patient_medication_records')) {
+                $db->table('patient_medication_records')
+                    ->where('order_id', $orderId)
+                    ->update([
+                        'administered_at' => $administeredTime,
+                        'notes' => ($remarks ? $remarks . ' | ' : '') . 'Administered by nurse. Dosage confirmed: ' . ($dosageConfirmation ?: 'N/A'),
+                        'updated_at' => date('Y-m-d H:i:s'),
+                    ]);
+            }
+
             // AUTOMATIC BILLING: Create billing record for Accountant
             if ($db->tableExists('billing') && $db->tableExists('pharmacy')) {
                 // Get medicine price from pharmacy

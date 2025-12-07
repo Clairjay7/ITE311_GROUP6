@@ -326,10 +326,33 @@ class PharmacyController extends BaseController
                     ];
                     $statusMessage = 'Medicine dispensed successfully. Nurse can now administer to patient.';
                     
+                    // Get patient allergies
+                    $patient = $db->table('admin_patients')->where('id', $order['patient_id'])->get()->getRowArray();
+                    $patientAllergies = $patient['allergies'] ?? null;
+                    
+                    // Save to patient_medication_records table
+                    if ($db->tableExists('patient_medication_records')) {
+                        $medicationRecordData = [
+                            'patient_id' => $order['patient_id'],
+                            'order_id' => $orderId,
+                            'medicine_name' => $order['medicine_name'] ?? $order['order_description'] ?? 'N/A',
+                            'dosage' => $order['dosage'] ?? null,
+                            'frequency' => $order['frequency'] ?? null,
+                            'duration' => $order['duration'] ?? null,
+                            'prescribed_by' => $order['doctor_id'] ?? null,
+                            'dispensed_at' => date('Y-m-d H:i:s'),
+                            'allergies' => $patientAllergies,
+                            'notes' => 'Dispensed by pharmacy',
+                            'created_at' => date('Y-m-d H:i:s'),
+                            'updated_at' => date('Y-m-d H:i:s'),
+                        ];
+                        
+                        $db->table('patient_medication_records')->insert($medicationRecordData);
+                    }
+                    
                     // Notify nurse that medicine is ready
                     if ($order['nurse_id']) {
                         if ($db->tableExists('nurse_notifications')) {
-                            $patient = $db->table('admin_patients')->where('id', $order['patient_id'])->get()->getRowArray();
                             $db->table('nurse_notifications')->insert([
                                 'nurse_id' => $order['nurse_id'],
                                 'type' => 'medication_ready',

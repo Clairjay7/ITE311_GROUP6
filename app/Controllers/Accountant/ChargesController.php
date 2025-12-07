@@ -43,14 +43,23 @@ class ChargesController extends BaseController
         $db = \Config\Database::connect();
 
         // Get charges with patient and doctor information
+        // Include lab test charges (which don't have consultation_id)
         $charges = $db->table('charges c')
             ->select('c.*, ap.firstname, ap.lastname, ap.contact, 
                      u.username as doctor_name,
-                     COUNT(bi.id) as item_count')
+                     COUNT(bi.id) as item_count,
+                     MAX(CASE WHEN bi.item_type = "lab_test" THEN 1 ELSE 0 END) as has_lab_test,
+                     MAX(CASE WHEN bi.item_type = "lab_test" THEN bi.item_name ELSE NULL END) as test_name,
+                     MAX(CASE WHEN bi.item_type = "lab_test" THEN bi.description ELSE NULL END) as test_description,
+                     lr.nurse_id as lab_nurse_id,
+                     lr.instructions as lab_instructions,
+                     users_nurse.username as nurse_name')
             ->join('admin_patients ap', 'ap.id = c.patient_id', 'left')
             ->join('consultations con', 'con.id = c.consultation_id', 'left')
             ->join('users u', 'u.id = con.doctor_id', 'left')
             ->join('billing_items bi', 'bi.charge_id = c.id', 'left')
+            ->join('lab_requests lr', 'lr.charge_id = c.id', 'left')
+            ->join('users as users_nurse', 'users_nurse.id = lr.nurse_id', 'left')
             ->where('c.deleted_at', null)
             ->groupBy('c.id')
             ->orderBy('c.created_at', 'DESC')

@@ -1,0 +1,991 @@
+ERROR - 2025-12-07 05:54:49 --> mysqli_sql_exception: Unknown column 'DISTINCT' in 'field list' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT `DISTINC...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `DISTINC...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `DISTINC...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `DISTINC...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Dashboard.php(337): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\app\Controllers\Dashboard.php(38): App\Controllers\Dashboard->buildDashboardData('pharmacy', 'pharm.staff')
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Dashboard->index()
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Dashboard))
+#8 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#9 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#10 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#11 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#12 {main}
+ERROR - 2025-12-07 05:54:49 --> Error loading dashboard data: Unknown column 'DISTINCT' in 'field list'
+ERROR - 2025-12-07 05:58:59 --> mysqli_sql_exception: Unknown column 'DISTINCT' in 'field list' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT `DISTINC...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `DISTINC...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `DISTINC...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `DISTINC...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Dashboard.php(337): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\app\Controllers\Dashboard.php(38): App\Controllers\Dashboard->buildDashboardData('pharmacy', 'pharm.staff')
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Dashboard->index()
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Dashboard))
+#8 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#9 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#10 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#11 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#12 {main}
+ERROR - 2025-12-07 05:58:59 --> Error loading dashboard data: Unknown column 'DISTINCT' in 'field list'
+ERROR - 2025-12-07 06:11:51 --> mysqli_sql_exception: Unknown column 'ap.allergies' in 'field list' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT `pmr`.*,...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `pmr`.*,...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `pmr`.*,...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `pmr`.*,...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Admin\PharmacyController.php(103): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Admin\PharmacyController->index()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\PharmacyController))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+CRITICAL - 2025-12-07 06:11:51 --> CodeIgniter\Database\Exceptions\DatabaseException: Unknown column 'ap.allergies' in 'field list'
+[Method: GET, Route: admin/pharmacy]
+in SYSTEMPATH\Database\BaseConnection.php on line 684.
+ 1 SYSTEMPATH\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC', [], false)
+ 2 APPPATH\Controllers\Admin\PharmacyController.php(103): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Admin\PharmacyController->index()
+ 4 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\PharmacyController))
+ 5 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 6 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 8 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2025-12-07 06:11:51 --> [Caused by] CodeIgniter\Database\Exceptions\DatabaseException: Unknown column 'ap.allergies' in 'field list'
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 332.
+ 1 SYSTEMPATH\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC')
+ 2 SYSTEMPATH\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC')
+ 3 SYSTEMPATH\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC', [], false)
+ 4 APPPATH\Controllers\Admin\PharmacyController.php(103): CodeIgniter\Database\BaseBuilder->get()
+ 5 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Admin\PharmacyController->index()
+ 6 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\PharmacyController))
+ 7 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 8 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 9 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+10 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2025-12-07 06:11:51 --> [Caused by] mysqli_sql_exception: Unknown column 'ap.allergies' in 'field list'
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 327.
+ 1 SYSTEMPATH\Database\MySQLi\Connection.php(327): mysqli->query('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC', 0)
+ 2 SYSTEMPATH\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC')
+ 3 SYSTEMPATH\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC')
+ 4 SYSTEMPATH\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC', [], false)
+ 5 APPPATH\Controllers\Admin\PharmacyController.php(103): CodeIgniter\Database\BaseBuilder->get()
+ 6 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Admin\PharmacyController->index()
+ 7 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\PharmacyController))
+ 8 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ERROR - 2025-12-07 06:14:25 --> mysqli_sql_exception: Unknown column 'ap.allergies' in 'field list' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT `pmr`.*,...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `pmr`.*,...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `pmr`.*,...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `pmr`.*,...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Admin\PharmacyController.php(103): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Admin\PharmacyController->index()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\PharmacyController))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+CRITICAL - 2025-12-07 06:14:25 --> CodeIgniter\Database\Exceptions\DatabaseException: Unknown column 'ap.allergies' in 'field list'
+[Method: GET, Route: admin/pharmacy]
+in SYSTEMPATH\Database\BaseConnection.php on line 684.
+ 1 SYSTEMPATH\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC', [], false)
+ 2 APPPATH\Controllers\Admin\PharmacyController.php(103): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Admin\PharmacyController->index()
+ 4 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\PharmacyController))
+ 5 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 6 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 8 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2025-12-07 06:14:25 --> [Caused by] CodeIgniter\Database\Exceptions\DatabaseException: Unknown column 'ap.allergies' in 'field list'
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 332.
+ 1 SYSTEMPATH\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC')
+ 2 SYSTEMPATH\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC')
+ 3 SYSTEMPATH\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC', [], false)
+ 4 APPPATH\Controllers\Admin\PharmacyController.php(103): CodeIgniter\Database\BaseBuilder->get()
+ 5 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Admin\PharmacyController->index()
+ 6 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\PharmacyController))
+ 7 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 8 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 9 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+10 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2025-12-07 06:14:25 --> [Caused by] mysqli_sql_exception: Unknown column 'ap.allergies' in 'field list'
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 327.
+ 1 SYSTEMPATH\Database\MySQLi\Connection.php(327): mysqli->query('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC', 0)
+ 2 SYSTEMPATH\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC')
+ 3 SYSTEMPATH\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC')
+ 4 SYSTEMPATH\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC', [], false)
+ 5 APPPATH\Controllers\Admin\PharmacyController.php(103): CodeIgniter\Database\BaseBuilder->get()
+ 6 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Admin\PharmacyController->index()
+ 7 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\PharmacyController))
+ 8 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ERROR - 2025-12-07 06:14:27 --> mysqli_sql_exception: Unknown column 'ap.allergies' in 'field list' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT `pmr`.*,...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `pmr`.*,...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `pmr`.*,...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `pmr`.*,...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Admin\PharmacyController.php(103): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Admin\PharmacyController->index()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\PharmacyController))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+CRITICAL - 2025-12-07 06:14:27 --> CodeIgniter\Database\Exceptions\DatabaseException: Unknown column 'ap.allergies' in 'field list'
+[Method: GET, Route: admin/pharmacy]
+in SYSTEMPATH\Database\BaseConnection.php on line 684.
+ 1 SYSTEMPATH\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC', [], false)
+ 2 APPPATH\Controllers\Admin\PharmacyController.php(103): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Admin\PharmacyController->index()
+ 4 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\PharmacyController))
+ 5 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 6 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 8 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2025-12-07 06:14:27 --> [Caused by] CodeIgniter\Database\Exceptions\DatabaseException: Unknown column 'ap.allergies' in 'field list'
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 332.
+ 1 SYSTEMPATH\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC')
+ 2 SYSTEMPATH\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC')
+ 3 SYSTEMPATH\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC', [], false)
+ 4 APPPATH\Controllers\Admin\PharmacyController.php(103): CodeIgniter\Database\BaseBuilder->get()
+ 5 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Admin\PharmacyController->index()
+ 6 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\PharmacyController))
+ 7 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 8 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 9 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+10 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2025-12-07 06:14:27 --> [Caused by] mysqli_sql_exception: Unknown column 'ap.allergies' in 'field list'
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 327.
+ 1 SYSTEMPATH\Database\MySQLi\Connection.php(327): mysqli->query('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC', 0)
+ 2 SYSTEMPATH\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC')
+ 3 SYSTEMPATH\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC')
+ 4 SYSTEMPATH\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC', [], false)
+ 5 APPPATH\Controllers\Admin\PharmacyController.php(103): CodeIgniter\Database\BaseBuilder->get()
+ 6 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Admin\PharmacyController->index()
+ 7 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\PharmacyController))
+ 8 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ERROR - 2025-12-07 06:15:21 --> mysqli_sql_exception: Unknown column 'ap.allergies' in 'field list' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT `pmr`.*,...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `pmr`.*,...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `pmr`.*,...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `pmr`.*,...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Admin\PharmacyController.php(103): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Admin\PharmacyController->index()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\PharmacyController))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+CRITICAL - 2025-12-07 06:15:21 --> CodeIgniter\Database\Exceptions\DatabaseException: Unknown column 'ap.allergies' in 'field list'
+[Method: GET, Route: admin/pharmacy]
+in SYSTEMPATH\Database\BaseConnection.php on line 684.
+ 1 SYSTEMPATH\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC', [], false)
+ 2 APPPATH\Controllers\Admin\PharmacyController.php(103): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Admin\PharmacyController->index()
+ 4 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\PharmacyController))
+ 5 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 6 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 8 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2025-12-07 06:15:21 --> [Caused by] CodeIgniter\Database\Exceptions\DatabaseException: Unknown column 'ap.allergies' in 'field list'
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 332.
+ 1 SYSTEMPATH\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC')
+ 2 SYSTEMPATH\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC')
+ 3 SYSTEMPATH\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC', [], false)
+ 4 APPPATH\Controllers\Admin\PharmacyController.php(103): CodeIgniter\Database\BaseBuilder->get()
+ 5 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Admin\PharmacyController->index()
+ 6 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\PharmacyController))
+ 7 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 8 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 9 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+10 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2025-12-07 06:15:21 --> [Caused by] mysqli_sql_exception: Unknown column 'ap.allergies' in 'field list'
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 327.
+ 1 SYSTEMPATH\Database\MySQLi\Connection.php(327): mysqli->query('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC', 0)
+ 2 SYSTEMPATH\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC')
+ 3 SYSTEMPATH\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC')
+ 4 SYSTEMPATH\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC', [], false)
+ 5 APPPATH\Controllers\Admin\PharmacyController.php(103): CodeIgniter\Database\BaseBuilder->get()
+ 6 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Admin\PharmacyController->index()
+ 7 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\PharmacyController))
+ 8 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ERROR - 2025-12-07 06:15:31 --> mysqli_sql_exception: Unknown column 'ap.allergies' in 'field list' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT `pmr`.*,...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `pmr`.*,...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `pmr`.*,...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `pmr`.*,...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Admin\PharmacyController.php(103): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Admin\PharmacyController->index()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\PharmacyController))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+CRITICAL - 2025-12-07 06:15:31 --> CodeIgniter\Database\Exceptions\DatabaseException: Unknown column 'ap.allergies' in 'field list'
+[Method: GET, Route: admin/pharmacy]
+in SYSTEMPATH\Database\BaseConnection.php on line 684.
+ 1 SYSTEMPATH\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC', [], false)
+ 2 APPPATH\Controllers\Admin\PharmacyController.php(103): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Admin\PharmacyController->index()
+ 4 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\PharmacyController))
+ 5 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 6 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 8 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2025-12-07 06:15:31 --> [Caused by] CodeIgniter\Database\Exceptions\DatabaseException: Unknown column 'ap.allergies' in 'field list'
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 332.
+ 1 SYSTEMPATH\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC')
+ 2 SYSTEMPATH\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC')
+ 3 SYSTEMPATH\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC', [], false)
+ 4 APPPATH\Controllers\Admin\PharmacyController.php(103): CodeIgniter\Database\BaseBuilder->get()
+ 5 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Admin\PharmacyController->index()
+ 6 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\PharmacyController))
+ 7 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 8 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 9 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+10 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2025-12-07 06:15:31 --> [Caused by] mysqli_sql_exception: Unknown column 'ap.allergies' in 'field list'
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 327.
+ 1 SYSTEMPATH\Database\MySQLi\Connection.php(327): mysqli->query('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC', 0)
+ 2 SYSTEMPATH\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC')
+ 3 SYSTEMPATH\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC')
+ 4 SYSTEMPATH\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC', [], false)
+ 5 APPPATH\Controllers\Admin\PharmacyController.php(103): CodeIgniter\Database\BaseBuilder->get()
+ 6 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Admin\PharmacyController->index()
+ 7 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\PharmacyController))
+ 8 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ERROR - 2025-12-07 06:15:31 --> mysqli_sql_exception: Unknown column 'ap.allergies' in 'field list' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT `pmr`.*,...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `pmr`.*,...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `pmr`.*,...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `pmr`.*,...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Admin\PharmacyController.php(103): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Admin\PharmacyController->index()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\PharmacyController))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+CRITICAL - 2025-12-07 06:15:31 --> CodeIgniter\Database\Exceptions\DatabaseException: Unknown column 'ap.allergies' in 'field list'
+[Method: GET, Route: admin/pharmacy]
+in SYSTEMPATH\Database\BaseConnection.php on line 684.
+ 1 SYSTEMPATH\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC', [], false)
+ 2 APPPATH\Controllers\Admin\PharmacyController.php(103): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Admin\PharmacyController->index()
+ 4 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\PharmacyController))
+ 5 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 6 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 8 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2025-12-07 06:15:31 --> [Caused by] CodeIgniter\Database\Exceptions\DatabaseException: Unknown column 'ap.allergies' in 'field list'
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 332.
+ 1 SYSTEMPATH\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC')
+ 2 SYSTEMPATH\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC')
+ 3 SYSTEMPATH\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC', [], false)
+ 4 APPPATH\Controllers\Admin\PharmacyController.php(103): CodeIgniter\Database\BaseBuilder->get()
+ 5 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Admin\PharmacyController->index()
+ 6 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\PharmacyController))
+ 7 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 8 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 9 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+10 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2025-12-07 06:15:31 --> [Caused by] mysqli_sql_exception: Unknown column 'ap.allergies' in 'field list'
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 327.
+ 1 SYSTEMPATH\Database\MySQLi\Connection.php(327): mysqli->query('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC', 0)
+ 2 SYSTEMPATH\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC')
+ 3 SYSTEMPATH\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC')
+ 4 SYSTEMPATH\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC', [], false)
+ 5 APPPATH\Controllers\Admin\PharmacyController.php(103): CodeIgniter\Database\BaseBuilder->get()
+ 6 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Admin\PharmacyController->index()
+ 7 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\PharmacyController))
+ 8 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ERROR - 2025-12-07 06:15:32 --> mysqli_sql_exception: Unknown column 'ap.allergies' in 'field list' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT `pmr`.*,...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `pmr`.*,...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `pmr`.*,...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `pmr`.*,...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Admin\PharmacyController.php(103): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Admin\PharmacyController->index()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\PharmacyController))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+CRITICAL - 2025-12-07 06:15:32 --> CodeIgniter\Database\Exceptions\DatabaseException: Unknown column 'ap.allergies' in 'field list'
+[Method: GET, Route: admin/pharmacy]
+in SYSTEMPATH\Database\BaseConnection.php on line 684.
+ 1 SYSTEMPATH\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC', [], false)
+ 2 APPPATH\Controllers\Admin\PharmacyController.php(103): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Admin\PharmacyController->index()
+ 4 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\PharmacyController))
+ 5 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 6 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 8 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2025-12-07 06:15:32 --> [Caused by] CodeIgniter\Database\Exceptions\DatabaseException: Unknown column 'ap.allergies' in 'field list'
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 332.
+ 1 SYSTEMPATH\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC')
+ 2 SYSTEMPATH\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC')
+ 3 SYSTEMPATH\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC', [], false)
+ 4 APPPATH\Controllers\Admin\PharmacyController.php(103): CodeIgniter\Database\BaseBuilder->get()
+ 5 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Admin\PharmacyController->index()
+ 6 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\PharmacyController))
+ 7 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 8 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 9 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+10 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2025-12-07 06:15:32 --> [Caused by] mysqli_sql_exception: Unknown column 'ap.allergies' in 'field list'
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 327.
+ 1 SYSTEMPATH\Database\MySQLi\Connection.php(327): mysqli->query('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC', 0)
+ 2 SYSTEMPATH\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC')
+ 3 SYSTEMPATH\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC')
+ 4 SYSTEMPATH\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC', [], false)
+ 5 APPPATH\Controllers\Admin\PharmacyController.php(103): CodeIgniter\Database\BaseBuilder->get()
+ 6 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Admin\PharmacyController->index()
+ 7 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\PharmacyController))
+ 8 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ERROR - 2025-12-07 06:15:32 --> mysqli_sql_exception: Unknown column 'ap.allergies' in 'field list' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT `pmr`.*,...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `pmr`.*,...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `pmr`.*,...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `pmr`.*,...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Admin\PharmacyController.php(103): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Admin\PharmacyController->index()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\PharmacyController))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+CRITICAL - 2025-12-07 06:15:32 --> CodeIgniter\Database\Exceptions\DatabaseException: Unknown column 'ap.allergies' in 'field list'
+[Method: GET, Route: admin/pharmacy]
+in SYSTEMPATH\Database\BaseConnection.php on line 684.
+ 1 SYSTEMPATH\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC', [], false)
+ 2 APPPATH\Controllers\Admin\PharmacyController.php(103): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Admin\PharmacyController->index()
+ 4 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\PharmacyController))
+ 5 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 6 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 8 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2025-12-07 06:15:32 --> [Caused by] CodeIgniter\Database\Exceptions\DatabaseException: Unknown column 'ap.allergies' in 'field list'
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 332.
+ 1 SYSTEMPATH\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC')
+ 2 SYSTEMPATH\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC')
+ 3 SYSTEMPATH\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC', [], false)
+ 4 APPPATH\Controllers\Admin\PharmacyController.php(103): CodeIgniter\Database\BaseBuilder->get()
+ 5 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Admin\PharmacyController->index()
+ 6 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\PharmacyController))
+ 7 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 8 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 9 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+10 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2025-12-07 06:15:32 --> [Caused by] mysqli_sql_exception: Unknown column 'ap.allergies' in 'field list'
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 327.
+ 1 SYSTEMPATH\Database\MySQLi\Connection.php(327): mysqli->query('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC', 0)
+ 2 SYSTEMPATH\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC')
+ 3 SYSTEMPATH\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC')
+ 4 SYSTEMPATH\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `pmr`.*, `ap`.`firstname`, `ap`.`lastname`, `ap`.`allergies` as `patient_allergies`, `u`.`username` as `doctor_name`, `do`.`medicine_name`, `do`.`dosage`, `do`.`frequency`, `do`.`duration`, `do`.`pharmacy_dispensed_at`, `do`.`status` as `order_status`
+FROM `patient_medication_records` `pmr`
+LEFT JOIN `admin_patients` `ap` ON `ap`.`id` = `pmr`.`patient_id`
+LEFT JOIN `users` `u` ON `u`.`id` = `pmr`.`prescribed_by`
+LEFT JOIN `doctor_orders` `do` ON `do`.`id` = `pmr`.`order_id`
+ORDER BY `pmr`.`created_at` DESC', [], false)
+ 5 APPPATH\Controllers\Admin\PharmacyController.php(103): CodeIgniter\Database\BaseBuilder->get()
+ 6 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Admin\PharmacyController->index()
+ 7 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\PharmacyController))
+ 8 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2025-12-07 07:03:59 --> ParseError: syntax error, unexpected token ":"
+[Method: GET, Route: admin/pharmacy]
+in APPPATH\Views\admin\pharmacy\index.php on line 421.
+ 1 SYSTEMPATH\View\View.php(229): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 2 SYSTEMPATH\Common.php(1167): CodeIgniter\View\View->render('admin/pharmacy/index', [], true)
+ 3 APPPATH\Controllers\Admin\PharmacyController.php(233): view('admin/pharmacy/index', [...])
+ 4 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Admin\PharmacyController->index()
+ 5 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\PharmacyController))
+ 6 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 7 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 8 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 9 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2025-12-07 07:25:19 --> ParseError: syntax error, unexpected token ":"
+[Method: GET, Route: admin/pharmacy]
+in APPPATH\Views\admin\pharmacy\index.php on line 429.
+ 1 SYSTEMPATH\View\View.php(229): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 2 SYSTEMPATH\Common.php(1167): CodeIgniter\View\View->render('admin/pharmacy/index', [], true)
+ 3 APPPATH\Controllers\Admin\PharmacyController.php(233): view('admin/pharmacy/index', [...])
+ 4 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Admin\PharmacyController->index()
+ 5 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\PharmacyController))
+ 6 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 7 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 8 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 9 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ERROR - 2025-12-07 08:07:27 --> mysqli_sql_exception: Unknown column 'assigned_doctor_id' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Doctor\DashboardStats.php(424): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Doctor\DashboardStats->stats()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Doctor\DashboardStats))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-12-07 08:07:27 --> Error fetching Doctor Dashboard Stats: Unknown column 'assigned_doctor_id' in 'where clause'
+ERROR - 2025-12-07 08:07:45 --> mysqli_sql_exception: Unknown column 'assigned_doctor_id' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Doctor\DashboardStats.php(424): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Doctor\DashboardStats->stats()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Doctor\DashboardStats))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-12-07 08:07:45 --> Error fetching Doctor Dashboard Stats: Unknown column 'assigned_doctor_id' in 'where clause'
+ERROR - 2025-12-07 11:12:17 --> Error connecting to the database: mysqli_sql_exception: Unknown database 'hospital_management' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:201
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(201): mysqli->real_connect('localhost', 'root', Object(SensitiveParameterValue), 'hospital_manage...', 3306, '', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(419): CodeIgniter\Database\MySQLi\Connection->connect(false)
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(614): CodeIgniter\Database\BaseConnection->initialize()
+#3 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(1525): CodeIgniter\Database\BaseConnection->query('SHOW TABLES FRO...')
+#4 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(1545): CodeIgniter\Database\BaseConnection->listTables()
+#5 F:\xammp\htdocs\group6\system\Database\MigrationRunner.php(768): CodeIgniter\Database\BaseConnection->tableExists('migrations')
+#6 F:\xammp\htdocs\group6\system\Database\MigrationRunner.php(162): CodeIgniter\Database\MigrationRunner->ensureTable()
+#7 F:\xammp\htdocs\group6\system\Commands\Database\Migrate.php(85): CodeIgniter\Database\MigrationRunner->latest(NULL)
+#8 F:\xammp\htdocs\group6\system\CLI\Commands.php(74): CodeIgniter\Commands\Database\Migrate->run(Array)
+#9 F:\xammp\htdocs\group6\system\CLI\Console.php(47): CodeIgniter\CLI\Commands->run('migrate', Array)
+#10 F:\xammp\htdocs\group6\system\Boot.php(388): CodeIgniter\CLI\Console->run()
+#11 F:\xammp\htdocs\group6\system\Boot.php(133): CodeIgniter\Boot::runCommand(Object(CodeIgniter\CLI\Console))
+#12 F:\xammp\htdocs\group6\spark(87): CodeIgniter\Boot::bootSpark(Object(Config\Paths))
+#13 {main}
+
+Next CodeIgniter\Database\Exceptions\DatabaseException: Unknown database 'hospital_management' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:246
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(419): CodeIgniter\Database\MySQLi\Connection->connect(false)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(614): CodeIgniter\Database\BaseConnection->initialize()
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(1525): CodeIgniter\Database\BaseConnection->query('SHOW TABLES FRO...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(1545): CodeIgniter\Database\BaseConnection->listTables()
+#4 F:\xammp\htdocs\group6\system\Database\MigrationRunner.php(768): CodeIgniter\Database\BaseConnection->tableExists('migrations')
+#5 F:\xammp\htdocs\group6\system\Database\MigrationRunner.php(162): CodeIgniter\Database\MigrationRunner->ensureTable()
+#6 F:\xammp\htdocs\group6\system\Commands\Database\Migrate.php(85): CodeIgniter\Database\MigrationRunner->latest(NULL)
+#7 F:\xammp\htdocs\group6\system\CLI\Commands.php(74): CodeIgniter\Commands\Database\Migrate->run(Array)
+#8 F:\xammp\htdocs\group6\system\CLI\Console.php(47): CodeIgniter\CLI\Commands->run('migrate', Array)
+#9 F:\xammp\htdocs\group6\system\Boot.php(388): CodeIgniter\CLI\Console->run()
+#10 F:\xammp\htdocs\group6\system\Boot.php(133): CodeIgniter\Boot::runCommand(Object(CodeIgniter\CLI\Console))
+#11 F:\xammp\htdocs\group6\spark(87): CodeIgniter\Boot::bootSpark(Object(Config\Paths))
+#12 {main}
+CRITICAL - 2025-12-07 13:47:08 --> ParseError: syntax error, unexpected token "return", expecting "function" or "const"
+[Method: GET, Route: admin/pharmacy/get-dosage-strength-by-category]
+in APPPATH\Controllers\Admin\PharmacyController.php on line 1027.
+ 1 SYSTEMPATH\Autoloader\Autoloader.php(295): CodeIgniter\Autoloader\Autoloader->includeFile('F:\\xammp\\htdocs\\group6\\app\\Controllers\\Admin\\PharmacyController.php')
+ 2 SYSTEMPATH\Autoloader\Autoloader.php(271): CodeIgniter\Autoloader\Autoloader->loadInNamespace('App\\Controllers\\Admin\\PharmacyController')
+ 3 [internal function]: CodeIgniter\Autoloader\Autoloader->loadClass('App\\Controllers\\Admin\\PharmacyController')
+ 4 SYSTEMPATH\CodeIgniter.php(885): class_exists('\\App\\Controllers\\Admin\\PharmacyController', true)
+ 5 SYSTEMPATH\CodeIgniter.php(494): CodeIgniter\CodeIgniter->startController()
+ 6 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 7 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 8 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 9 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2025-12-07 13:47:09 --> ParseError: syntax error, unexpected token "return", expecting "function" or "const"
+[Method: GET, Route: admin/pharmacy/get-generic-names-by-category]
+in APPPATH\Controllers\Admin\PharmacyController.php on line 1027.
+ 1 SYSTEMPATH\Autoloader\Autoloader.php(295): CodeIgniter\Autoloader\Autoloader->includeFile('F:\\xammp\\htdocs\\group6\\app\\Controllers\\Admin\\PharmacyController.php')
+ 2 SYSTEMPATH\Autoloader\Autoloader.php(271): CodeIgniter\Autoloader\Autoloader->loadInNamespace('App\\Controllers\\Admin\\PharmacyController')
+ 3 [internal function]: CodeIgniter\Autoloader\Autoloader->loadClass('App\\Controllers\\Admin\\PharmacyController')
+ 4 SYSTEMPATH\CodeIgniter.php(885): class_exists('\\App\\Controllers\\Admin\\PharmacyController', true)
+ 5 SYSTEMPATH\CodeIgniter.php(494): CodeIgniter\CodeIgniter->startController()
+ 6 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 7 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 8 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 9 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ERROR - 2025-12-07 13:50:33 --> Failed to insert pharmacy item. Errors: {"item_name":"The item_name field is required.","price":"The price field is required."}
+ERROR - 2025-12-07 13:50:33 --> Failed to update medicine ID 26. Errors: {"quantity":"The quantity field must contain an integer."}
+ERROR - 2025-12-07 13:51:25 --> Failed to insert pharmacy item. Errors: {"item_name":"The item_name field is required.","price":"The price field is required."}
+ERROR - 2025-12-07 13:51:25 --> Failed to update medicine ID 26. Errors: {"quantity":"The quantity field must contain an integer."}
+ERROR - 2025-12-07 13:51:25 --> Failed to update medicine ID 4. Errors: {"quantity":"The quantity field must contain an integer."}
+ERROR - 2025-12-07 13:51:25 --> Failed to update medicine ID 22. Errors: {"quantity":"The quantity field must contain an integer."}
+ERROR - 2025-12-07 13:51:25 --> Failed to update medicine ID 13. Errors: {"quantity":"The quantity field must contain an integer."}
+ERROR - 2025-12-07 13:56:44 --> mysqli_sql_exception: Column 'item_name' cannot be null in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `ph...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `ph...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `ph...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `ph...', Array, false)
+#4 F:\xammp\htdocs\group6\system\Model.php(394): CodeIgniter\Database\BaseBuilder->insert()
+#5 F:\xammp\htdocs\group6\system\BaseModel.php(838): CodeIgniter\Model->doInsert(Array)
+#6 F:\xammp\htdocs\group6\system\Model.php(797): CodeIgniter\BaseModel->insert(Array, true)
+#7 F:\xammp\htdocs\group6\app\Controllers\Admin\PharmacyController.php(886): CodeIgniter\Model->insert(Array)
+#8 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Admin\PharmacyController->store()
+#9 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\PharmacyController))
+#10 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#11 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#12 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#13 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#14 {main}
+CRITICAL - 2025-12-07 13:56:44 --> CodeIgniter\Database\Exceptions\DatabaseException: Column 'item_name' cannot be null
+[Method: POST, Route: admin/pharmacy/store]
+in SYSTEMPATH\Database\BaseConnection.php on line 684.
+ 1 SYSTEMPATH\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `pharmacy` (`item_name`, `generic_name`, `category`, `description`, `strength`, `dosage_form`, `quantity`, `reorder_level`, `batch_number`, `expiration_date`, `price`, `unit_price`, `selling_price`, `markup_percent`, `supplier_name`, `supplier_contact`, `status`, `created_at`, `updated_at`) VALUES (:item_name:, :generic_name:, :category:, :description:, :strength:, :dosage_form:, :quantity:, :reorder_level:, :batch_number:, :expiration_date:, :price:, :unit_price:, :selling_price:, :markup_percent:, :supplier_name:, :supplier_contact:, :status:, :created_at:, :updated_at:)', [...], false)
+ 2 SYSTEMPATH\Model.php(394): CodeIgniter\Database\BaseBuilder->insert()
+ 3 SYSTEMPATH\BaseModel.php(838): CodeIgniter\Model->doInsert([...])
+ 4 SYSTEMPATH\Model.php(797): CodeIgniter\BaseModel->insert([...], true)
+ 5 APPPATH\Controllers\Admin\PharmacyController.php(886): CodeIgniter\Model->insert([...])
+ 6 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Admin\PharmacyController->store()
+ 7 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\PharmacyController))
+ 8 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2025-12-07 13:56:44 --> [Caused by] CodeIgniter\Database\Exceptions\DatabaseException: Column 'item_name' cannot be null
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 332.
+ 1 SYSTEMPATH\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `pharmacy` (`item_name`, `generic_name`, `category`, `description`, `strength`, `dosage_form`, `quantity`, `reorder_level`, `batch_number`, `expiration_date`, `price`, `unit_price`, `selling_price`, `markup_percent`, `supplier_name`, `supplier_contact`, `status`, `created_at`, `updated_at`) VALUES (NULL, NULL, \'Analgesics / Antipyretics\', NULL, NULL, NULL, \'1\', 10, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, \'active\', \'2025-12-07 13:56:44\', \'2025-12-07 13:56:44\')')
+ 2 SYSTEMPATH\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `pharmacy` (`item_name`, `generic_name`, `category`, `description`, `strength`, `dosage_form`, `quantity`, `reorder_level`, `batch_number`, `expiration_date`, `price`, `unit_price`, `selling_price`, `markup_percent`, `supplier_name`, `supplier_contact`, `status`, `created_at`, `updated_at`) VALUES (NULL, NULL, \'Analgesics / Antipyretics\', NULL, NULL, NULL, \'1\', 10, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, \'active\', \'2025-12-07 13:56:44\', \'2025-12-07 13:56:44\')')
+ 3 SYSTEMPATH\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `pharmacy` (`item_name`, `generic_name`, `category`, `description`, `strength`, `dosage_form`, `quantity`, `reorder_level`, `batch_number`, `expiration_date`, `price`, `unit_price`, `selling_price`, `markup_percent`, `supplier_name`, `supplier_contact`, `status`, `created_at`, `updated_at`) VALUES (:item_name:, :generic_name:, :category:, :description:, :strength:, :dosage_form:, :quantity:, :reorder_level:, :batch_number:, :expiration_date:, :price:, :unit_price:, :selling_price:, :markup_percent:, :supplier_name:, :supplier_contact:, :status:, :created_at:, :updated_at:)', [...], false)
+ 4 SYSTEMPATH\Model.php(394): CodeIgniter\Database\BaseBuilder->insert()
+ 5 SYSTEMPATH\BaseModel.php(838): CodeIgniter\Model->doInsert([...])
+ 6 SYSTEMPATH\Model.php(797): CodeIgniter\BaseModel->insert([...], true)
+ 7 APPPATH\Controllers\Admin\PharmacyController.php(886): CodeIgniter\Model->insert([...])
+ 8 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Admin\PharmacyController->store()
+ 9 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\PharmacyController))
+10 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+11 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+12 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+13 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2025-12-07 13:56:44 --> [Caused by] mysqli_sql_exception: Column 'item_name' cannot be null
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 327.
+ 1 SYSTEMPATH\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `pharmacy` (`item_name`, `generic_name`, `category`, `description`, `strength`, `dosage_form`, `quantity`, `reorder_level`, `batch_number`, `expiration_date`, `price`, `unit_price`, `selling_price`, `markup_percent`, `supplier_name`, `supplier_contact`, `status`, `created_at`, `updated_at`) VALUES (NULL, NULL, \'Analgesics / Antipyretics\', NULL, NULL, NULL, \'1\', 10, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, \'active\', \'2025-12-07 13:56:44\', \'2025-12-07 13:56:44\')', 0)
+ 2 SYSTEMPATH\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `pharmacy` (`item_name`, `generic_name`, `category`, `description`, `strength`, `dosage_form`, `quantity`, `reorder_level`, `batch_number`, `expiration_date`, `price`, `unit_price`, `selling_price`, `markup_percent`, `supplier_name`, `supplier_contact`, `status`, `created_at`, `updated_at`) VALUES (NULL, NULL, \'Analgesics / Antipyretics\', NULL, NULL, NULL, \'1\', 10, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, \'active\', \'2025-12-07 13:56:44\', \'2025-12-07 13:56:44\')')
+ 3 SYSTEMPATH\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `pharmacy` (`item_name`, `generic_name`, `category`, `description`, `strength`, `dosage_form`, `quantity`, `reorder_level`, `batch_number`, `expiration_date`, `price`, `unit_price`, `selling_price`, `markup_percent`, `supplier_name`, `supplier_contact`, `status`, `created_at`, `updated_at`) VALUES (NULL, NULL, \'Analgesics / Antipyretics\', NULL, NULL, NULL, \'1\', 10, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, \'active\', \'2025-12-07 13:56:44\', \'2025-12-07 13:56:44\')')
+ 4 SYSTEMPATH\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `pharmacy` (`item_name`, `generic_name`, `category`, `description`, `strength`, `dosage_form`, `quantity`, `reorder_level`, `batch_number`, `expiration_date`, `price`, `unit_price`, `selling_price`, `markup_percent`, `supplier_name`, `supplier_contact`, `status`, `created_at`, `updated_at`) VALUES (:item_name:, :generic_name:, :category:, :description:, :strength:, :dosage_form:, :quantity:, :reorder_level:, :batch_number:, :expiration_date:, :price:, :unit_price:, :selling_price:, :markup_percent:, :supplier_name:, :supplier_contact:, :status:, :created_at:, :updated_at:)', [...], false)
+ 5 SYSTEMPATH\Model.php(394): CodeIgniter\Database\BaseBuilder->insert()
+ 6 SYSTEMPATH\BaseModel.php(838): CodeIgniter\Model->doInsert([...])
+ 7 SYSTEMPATH\Model.php(797): CodeIgniter\BaseModel->insert([...], true)
+ 8 APPPATH\Controllers\Admin\PharmacyController.php(886): CodeIgniter\Model->insert([...])
+ 9 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Admin\PharmacyController->store()
+10 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\PharmacyController))
+11 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+12 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+13 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+14 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ERROR - 2025-12-07 16:17:23 --> mysqli_sql_exception: Unknown column 'assigned_doctor_id' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Doctor\DashboardStats.php(424): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Doctor\DashboardStats->stats()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Doctor\DashboardStats))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-12-07 16:17:23 --> Error fetching Doctor Dashboard Stats: Unknown column 'assigned_doctor_id' in 'where clause'
+ERROR - 2025-12-07 16:17:31 --> mysqli_sql_exception: Unknown column 'assigned_doctor_id' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Doctor\DashboardStats.php(424): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Doctor\DashboardStats->stats()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Doctor\DashboardStats))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-12-07 16:17:31 --> Error fetching Doctor Dashboard Stats: Unknown column 'assigned_doctor_id' in 'where clause'
+ERROR - 2025-12-07 16:17:41 --> mysqli_sql_exception: Unknown column 'assigned_doctor_id' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Doctor\DashboardStats.php(424): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Doctor\DashboardStats->stats()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Doctor\DashboardStats))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-12-07 16:17:41 --> Error fetching Doctor Dashboard Stats: Unknown column 'assigned_doctor_id' in 'where clause'
+ERROR - 2025-12-07 16:17:51 --> mysqli_sql_exception: Unknown column 'assigned_doctor_id' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Doctor\DashboardStats.php(424): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Doctor\DashboardStats->stats()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Doctor\DashboardStats))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-12-07 16:17:51 --> Error fetching Doctor Dashboard Stats: Unknown column 'assigned_doctor_id' in 'where clause'

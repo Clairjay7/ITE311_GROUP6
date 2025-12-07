@@ -27,6 +27,13 @@
         <div class="alert alert-error"><?= session()->getFlashdata('error') ?></div>
     <?php endif; ?>
 
+    <!-- Search Bar -->
+    <div style="margin-bottom: 20px; background: white; padding: 16px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        <input type="text" id="scheduleSearchInput" placeholder="🔍 Search by username, role, specialization, or email..." 
+               style="width: 100%; padding: 12px 16px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; transition: border-color 0.3s;"
+               onkeyup="filterScheduleTable()">
+    </div>
+
     <?php if (empty($usersWithSchedules)): ?>
         <div class="empty-state">
             <i class="fa-solid fa-users" style="font-size: 48px; color: #94a3b8; margin-bottom: 16px;"></i>
@@ -176,6 +183,24 @@ function filterByDate() {
     const date = document.getElementById('schedule_date').value;
     const baseUrl = '<?= session()->get('role') === 'admin' ? base_url('admin/schedule') : base_url('receptionist/schedule') ?>';
     window.location.href = baseUrl + '?date=' + date + '&view=date';
+}
+
+function filterScheduleTable() {
+    const searchInput = document.getElementById('scheduleSearchInput');
+    const searchTerm = searchInput.value.toLowerCase();
+    const container = document.querySelector('.users-schedule-container');
+    
+    if (!container) return;
+    
+    const cards = container.querySelectorAll('.user-schedule-card');
+    cards.forEach(card => {
+        const text = card.textContent.toLowerCase();
+        if (text.includes(searchTerm)) {
+            card.style.display = '';
+        } else {
+            card.style.display = 'none';
+        }
+    });
 }
 </script>
 

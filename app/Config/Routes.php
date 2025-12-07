@@ -144,6 +144,13 @@ $routes->group('admin', ['namespace' => 'App\\Controllers\\Admin', 'filter' => '
         $routes->get('edit/(:num)', 'PharmacyController::edit/$1');
         $routes->post('update/(:num)', 'PharmacyController::update/$1');
         $routes->get('delete/(:num)', 'PharmacyController::delete/$1');
+        $routes->get('get-medicines-by-category', 'PharmacyController::getMedicinesByCategory');
+        $routes->get('get-generic-names-by-category', 'PharmacyController::getGenericNamesByCategory');
+        $routes->get('get-dosage-strength-by-category', 'PharmacyController::getDosageStrengthByCategory');
+        $routes->get('get-inventory-info-by-category', 'PharmacyController::getInventoryInfoByCategory');
+        $routes->get('get-average-pricing-by-category', 'PharmacyController::getAveragePricingByCategory');
+        $routes->post('add-stock', 'PharmacyController::addStock');
+        $routes->post('update-pricing', 'PharmacyController::updatePricing');
     });
     
     // Stock Monitoring
