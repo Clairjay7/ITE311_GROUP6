@@ -3,6 +3,7 @@
 namespace App\Database\Seeds;
 
 use CodeIgniter\Database\Seeder;
+use App\Models\UserModel;
 
 class UserSeeder extends Seeder
 {
@@ -266,6 +267,9 @@ class UserSeeder extends Seeder
         $existingUsernames = $this->db->table('users')->select('username')->get()->getResultArray();
         $existingUsernames = array_column($existingUsernames, 'username');
         
+        // Use UserModel to ensure proper field filtering
+        $userModel = new UserModel();
+        
         $usersToInsert = [];
         foreach ($users as $user) {
             if (!in_array($user['username'], $existingUsernames)) {
@@ -274,8 +278,15 @@ class UserSeeder extends Seeder
         }
         
         if (!empty($usersToInsert)) {
-            // Using Query Builder to insert data
-            $this->db->table('users')->insertBatch($usersToInsert);
+            // Insert one by one using UserModel to ensure proper field handling
+            foreach ($usersToInsert as $userData) {
+                try {
+                    $userModel->insert($userData);
+                } catch (\Exception $e) {
+                    // Log error but continue with other users
+                    log_message('error', 'Failed to insert user: ' . $userData['username'] . ' - ' . $e->getMessage());
+                }
+            }
         }
         
         // Update existing users with new fields based on username

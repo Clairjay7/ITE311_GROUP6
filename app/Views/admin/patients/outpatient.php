@@ -522,7 +522,7 @@ $errors = session('errors') ?? [];
             </h1>
             <p>For patients receiving consultation, follow-up, or medical check-up services</p>
         </div>
-        <a href="<?= base_url('admin/patients') ?>" class="back-btn">
+        <a href="<?= site_url('admin/patients') ?>" class="back-btn">
             <i class="fas fa-arrow-left"></i> Back to Records
         </a>
   </div>
@@ -551,7 +551,7 @@ $errors = session('errors') ?? [];
                 </div>
             </div>
             
-            <form method="post" action="<?= base_url('admin/patients/store') ?>" id="outpatientForm">
+            <form method="post" action="<?= site_url('admin/patients/store') ?>" id="outpatientForm">
         <?= csrf_field() ?>
                 <input type="hidden" name="type" value="Out-Patient">
 
@@ -814,7 +814,7 @@ $errors = session('errors') ?? [];
                     <button type="submit" class="btn-step btn-step-next" id="submitForm" style="display: none;">
                         <i class="fas fa-user-plus"></i> Register Out-Patient
                     </button>
-                    <a href="<?= base_url('admin/patients') ?>" class="btn-cancel">
+                    <a href="<?= site_url('admin/patients') ?>" class="btn-cancel">
                         <i class="fas fa-times"></i> Cancel
                     </a>
         </div>
@@ -1285,7 +1285,7 @@ document.addEventListener('DOMContentLoaded', function() {
         timeHint.style.color = '#10b981';
         
         // Fetch available times via AJAX using the calculated date
-        fetch(`<?= base_url('admin/patients/get-available-times') ?>?doctor_id=${doctorId}&date=${actualDate}`, {
+        fetch(`<?= site_url('admin/patients/get-available-times') ?>?doctor_id=${doctorId}&date=${actualDate}`, {
             method: 'GET',
             headers: {
                 'X-Requested-With': 'XMLHttpRequest'
@@ -1371,7 +1371,7 @@ document.addEventListener('DOMContentLoaded', function() {
         dateHint.style.color = '#10b981';
         
         // Fetch doctor's schedule dates to get schedule info
-        fetch(`<?= base_url('admin/patients/get-doctor-schedule-dates') ?>?doctor_id=${doctorId}`, {
+        fetch(`<?= site_url('admin/patients/get-doctor-schedule-dates') ?>?doctor_id=${doctorId}`, {
             method: 'GET',
             headers: {
                 'X-Requested-With': 'XMLHttpRequest'
