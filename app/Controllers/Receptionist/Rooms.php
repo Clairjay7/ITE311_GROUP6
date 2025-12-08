@@ -6,18 +6,21 @@ use App\Controllers\BaseController;
 use App\Models\RoomModel;
 use App\Models\HMSPatientModel;
 use App\Models\BedModel;
+use App\Models\DoctorModel;
 
 class Rooms extends BaseController
 {
     protected $roomModel;
     protected $patientModel;
     protected $bedModel;
+    protected $doctorModel;
 
     public function __construct()
     {
         $this->roomModel = new RoomModel();
         $this->patientModel = new HMSPatientModel();
         $this->bedModel = new BedModel();
+        $this->doctorModel = new DoctorModel();
         helper('form'); // Load form helper for set_value() and other form functions
     }
 
@@ -74,6 +77,7 @@ class Rooms extends BaseController
             'ward' => 'Ward',
             'icu' => 'ICU',
             'isolation' => 'Isolation',
+            'nicu' => 'NICU',
         ];
 
         if (!isset($map[$slug])) {
@@ -116,6 +120,7 @@ class Rooms extends BaseController
             'Ward' => 'Ward (General Ward)',
             'ICU' => 'ICU (Intensive Care Unit)',
             'Isolation' => 'Isolation Room',
+            'NICU' => 'NICU (Neonatal Intensive Care Unit)',
         ];
 
         return view('Reception/rooms/type', [
@@ -365,6 +370,7 @@ class Rooms extends BaseController
             'Ward' => 'ward',
             'ICU' => 'icu',
             'Isolation' => 'isolation',
+            'NICU' => 'nicu',
         ];
 
         return $reverse[$roomType] ?? 'ward';

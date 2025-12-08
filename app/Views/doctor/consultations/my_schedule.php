@@ -379,10 +379,7 @@
                 <div class="info-box">
                     <h4><i class="fas fa-info-circle"></i> Working Schedule Information</h4>
                     <p>
-                        <span class="highlight"><i class="fas fa-calendar-week"></i> Monday - Friday</span>
-                        <span class="highlight"><i class="fas fa-sun"></i> 9:00 AM - 12:00 PM</span>
-                        <span class="highlight"><i class="fas fa-cloud-sun"></i> 1:00 PM - 4:00 PM</span>
-                        <span class="highlight" style="background: #fef3c7;"><i class="fas fa-moon"></i> Sat & Sun - Rest</span>
+                        Your working schedule has been created by the administrator. Below is your schedule for the year.
                     </p>
                 </div>
 
@@ -390,12 +387,14 @@
                 <?php 
                 $totalWorkingDays = 0;
                 $totalRestDays = 0;
+                $totalSchedules = 0;
                 foreach ($scheduleByMonth as $month => $days) {
                     foreach ($days as $day => $dayData) {
-                        if (in_array($dayData['day_name'], ['Saturday', 'Sunday'])) {
-                            $totalRestDays++;
-                        } else {
+                        if (!empty($dayData['time_slots'])) {
                             $totalWorkingDays++;
+                            $totalSchedules += count($dayData['time_slots']);
+                        } elseif (in_array($dayData['day_name'], ['Saturday', 'Sunday'])) {
+                            $totalRestDays++;
                         }
                     }
                 }
@@ -410,12 +409,8 @@
                         <div class="label">Rest Days</div>
                     </div>
                     <div class="summary-card">
-                        <div class="number" style="color: #0288d1;">6</div>
-                        <div class="label">Hours/Day</div>
-                    </div>
-                    <div class="summary-card">
-                        <div class="number" style="color: #7c3aed;">12</div>
-                        <div class="label">Months</div>
+                        <div class="number" style="color: #0288d1;"><?= $totalSchedules ?></div>
+                        <div class="label">Total Shifts</div>
                     </div>
                 </div>
 
@@ -465,11 +460,7 @@
                                         $isWeekend = in_array($dayData['day_name'], ['Saturday', 'Sunday']);
                                         $admittedPatients = $dayData['admitted_patients'] ?? [];
                                         $consultations = $dayData['consultations'] ?? [];
-                                        
-                                        // Debug: Log consultations for this day
-                                        if (!empty($consultations)) {
-                                            log_message('debug', "Day {$day} has " . count($consultations) . " consultations");
-                                        }
+                                        $hasSchedule = !empty($dayData['time_slots']);
                                     ?>
                                         <tr class="<?= $isWeekend ? 'weekend' : '' ?>">
                                             <td>
@@ -483,12 +474,14 @@
                                             <td>
                                                 <?php if ($isWeekend): ?>
                                                     <span class="status-rest"><i class="fas fa-moon"></i> Rest</span>
-                                                <?php else: ?>
+                                                <?php elseif ($hasSchedule): ?>
                                                     <span class="status-working"><i class="fas fa-check-circle"></i> Working</span>
+                                                <?php else: ?>
+                                                    <span style="color: #94a3b8;">No schedule</span>
                                                 <?php endif; ?>
                                             </td>
                                             <td>
-                                                <?php if (!$isWeekend && !empty($dayData['time_slots'])): ?>
+                                                <?php if ($hasSchedule): ?>
                                                     <?php foreach ($dayData['time_slots'] as $timeSlot): ?>
                                                         <span class="time-slot">
                                                             <i class="fas fa-clock"></i> <?= esc($timeSlot) ?>
@@ -500,29 +493,6 @@
                                                     </span>
                                                 <?php else: ?>
                                                     <span style="color: #94a3b8;">No schedule</span>
-                                                <?php endif; ?>
-                                            </td>
-                                            <td>
-                                                <?php if (!empty($consultations)): ?>
-                                                    <div style="display: flex; flex-direction: column; gap: 8px;">
-                                                        <?php foreach ($consultations as $consult): ?>
-                                                            <div style="padding: 8px 12px; background: #e0f2fe; border-left: 3px solid #0288d1; border-radius: 6px;">
-                                                                <div style="font-weight: 600; color: #0288d1; font-size: 13px; margin-bottom: 4px;">
-                                                                    <i class="fas fa-user-md"></i> <?= esc($consult['patient_name']) ?>
-                                                                </div>
-                                                                <div style="font-size: 12px; color: #64748b;">
-                                                                    <i class="fas fa-clock"></i> <?= date('g:i A', strtotime($consult['consultation_time'])) ?>
-                                                                </div>
-                                                                <?php if (!empty($consult['notes'])): ?>
-                                                                    <div style="font-size: 11px; color: #94a3b8; margin-top: 4px; font-style: italic;">
-                                                                        <?= esc(substr($consult['notes'], 0, 50)) ?><?= strlen($consult['notes']) > 50 ? '...' : '' ?>
-                                                                    </div>
-                                                                <?php endif; ?>
-                                                            </div>
-                                                        <?php endforeach; ?>
-                                                    </div>
-                                                <?php else: ?>
-                                                    <span style="color: #94a3b8; font-size: 13px;">No appointments</span>
                                                 <?php endif; ?>
                                             </td>
                                             <td>
@@ -587,9 +557,9 @@
                 <div class="empty-state">
                     <i class="fas fa-calendar-times"></i>
                     <h5>No Schedule Found</h5>
-                    <p>Your working schedule for this year has not been generated yet.</p>
+                    <p>Your working schedule has not been created yet.</p>
                     <p style="color: #94a3b8; font-size: 13px; margin-top: 8px;">
-                        Please refresh the page to generate your schedule automatically.
+                        Please contact the administrator to create your working schedule.
                     </p>
                 </div>
             <?php endif; ?>

@@ -25,7 +25,14 @@ class BedSeeder extends Seeder
         
         foreach ($rooms as $room) {
             $roomId = $room['id'];
-            $bedCount = $room['bed_count'] ?? 1;
+            $bedCount = (int)($room['bed_count'] ?? 1);
+            $roomType = $room['room_type'] ?? 'Unknown';
+            $roomNumber = $room['room_number'] ?? 'N/A';
+            
+            // Ensure bed_count is at least 1 for all rooms
+            if ($bedCount < 1) {
+                $bedCount = 1;
+            }
             
             // Check if beds already exist for this room
             $existingBeds = $db->table('beds')
@@ -61,6 +68,12 @@ class BedSeeder extends Seeder
                         'updated_at' => $now,
                     ];
                 }
+                
+                // Log for debugging
+                log_message('info', "Creating {$bedCount} bed(s) for room {$roomNumber} (Type: {$roomType}, ID: {$roomId}). Existing beds: {$existingBeds}");
+            } else {
+                // Log if beds already exist
+                log_message('debug', "Room {$roomNumber} (Type: {$roomType}, ID: {$roomId}) already has {$existingBeds} bed(s), skipping.");
             }
         }
         

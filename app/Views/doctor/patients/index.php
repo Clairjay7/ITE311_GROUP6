@@ -255,10 +255,6 @@
             <i class="fas fa-hospital-user"></i>
             My Patients
         </h1>
-        <a href="<?= site_url('doctor/patients/create') ?>" class="btn-modern btn-modern-primary">
-            <i class="fas fa-plus"></i>
-            Add New Patient
-        </a>
     </div>
     
     <div class="modern-card">
@@ -474,10 +470,6 @@
                     <i class="fas fa-users"></i>
                     <h5>No Patients Found</h5>
                     <p>You haven't been assigned any patients yet. Patients assigned from the admin panel will appear here.</p>
-                    <a href="<?= site_url('doctor/patients/create') ?>" class="btn-modern btn-modern-primary">
-                        <i class="fas fa-plus"></i>
-                        Add New Patient
-                    </a>
                 </div>
             <?php endif; ?>
         </div>

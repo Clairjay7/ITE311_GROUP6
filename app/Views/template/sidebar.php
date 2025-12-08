@@ -68,7 +68,7 @@
 
             <!-- System Controls -->
             <li class="nav-item">
-                <a href="<?= base_url('admin/system') ?>">
+                <a href="<?= base_url('admin/system/dashboard') ?>">
                     <i class="fa-solid fa-gear sidebar-icon"></i>
                     <span class="text">System Controls</span>
                 </a>
@@ -323,6 +323,13 @@
                 <a href="<?= site_url('accounting/dashboard') ?>">
                     <i class="fa-solid fa-peso-sign sidebar-icon"></i>
                     <span class="text">Dashboard</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a href="<?= site_url('accounting/patient-billing') ?>">
+                    <i class="fa-solid fa-user-injured sidebar-icon"></i>
+                    <span class="text">Patient Billing</span>
                 </a>
             </li>
 

@@ -4,8 +4,8 @@ Options -Indexes
 <IfModule mod_rewrite.c>
     RewriteEngine On
     
-    # Deny direct access to sensitive folders
-    RewriteCond %{REQUEST_URI} (app|system|writable|tests)/
+    # Deny direct access to sensitive folders (only if they're at the root level)
+    RewriteCond %{REQUEST_URI} ^/(app|system|writable|tests)(/|$)
     RewriteRule ^ - [F]
     
     # Block direct access to /public - return 404 (Page Not Found)

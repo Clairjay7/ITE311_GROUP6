@@ -112,16 +112,20 @@ class ScheduleController extends BaseController
                         ->getResultArray();
                 }
                 
-                $usersWithSchedules[] = [
-                    'user_id' => $doctor['id'],
-                    'username' => $doctor['username'],
-                    'email' => $doctor['email'],
-                    'role' => 'Doctor',
-                    'role_name' => $doctor['role_name'],
-                    'specialization' => $doctor['specialization'] ?? null,
-                    'schedules' => $doctorSchedules,
-                    'appointments' => $patientAppointments,
-                ];
+                // Only add doctor to list if they have schedules or appointments
+                // This ensures only doctors with manually created schedules are shown
+                if (!empty($doctorSchedules) || !empty($patientAppointments)) {
+                    $usersWithSchedules[] = [
+                        'user_id' => $doctor['id'],
+                        'username' => $doctor['username'],
+                        'email' => $doctor['email'],
+                        'role' => 'Doctor',
+                        'role_name' => $doctor['role_name'],
+                        'specialization' => $doctor['specialization'] ?? null,
+                        'schedules' => $doctorSchedules,
+                        'appointments' => $patientAppointments,
+                    ];
+                }
             }
             
             // Get all nurses
@@ -156,15 +160,19 @@ class ScheduleController extends BaseController
                         ->getResultArray();
                 }
                 
-                $usersWithSchedules[] = [
-                    'user_id' => $nurse['id'],
-                    'username' => $nurse['username'],
-                    'email' => $nurse['email'],
-                    'role' => 'Nurse',
-                    'role_name' => $nurse['role_name'],
-                    'schedules' => $nurseSchedules,
-                    'appointments' => [], // Nurses don't have patient appointments in schedules table
-                ];
+                // Only add nurse to list if they have schedules
+                // This ensures only nurses with manually created schedules are shown
+                if (!empty($nurseSchedules)) {
+                    $usersWithSchedules[] = [
+                        'user_id' => $nurse['id'],
+                        'username' => $nurse['username'],
+                        'email' => $nurse['email'],
+                        'role' => 'Nurse',
+                        'role_name' => $nurse['role_name'],
+                        'schedules' => $nurseSchedules,
+                        'appointments' => [], // Nurses don't have patient appointments in schedules table
+                    ];
+                }
             }
         }
         
@@ -184,30 +192,7 @@ class ScheduleController extends BaseController
     {
         $db = \Config\Database::connect();
         $role = $this->request->getGet('role') ?: 'doctor';
-        $viewType = $this->request->getGet('view') ?: 'date'; // Default to date view
-        $selectedDate = $this->request->getGet('date') ?: date('Y-m-d'); // Default to today's date
-        
-        // Calculate date range based on view type
-        $startDate = $selectedDate;
-        $endDate = $selectedDate;
-        
-        if ($viewType === 'week') {
-            $dateObj = new \DateTime($selectedDate);
-            $dayOfWeek = (int)$dateObj->format('w');
-            $daysToMonday = $dayOfWeek == 0 ? 6 : $dayOfWeek - 1;
-            $dateObj->modify('-' . $daysToMonday . ' days');
-            $startDate = $dateObj->format('Y-m-d');
-            $dateObj->modify('+6 days');
-            $endDate = $dateObj->format('Y-m-d');
-        } elseif ($viewType === 'month') {
-            $dateObj = new \DateTime($selectedDate);
-            $startDate = $dateObj->format('Y-m-01');
-            $endDate = $dateObj->format('Y-m-t');
-        } elseif ($viewType === 'year') {
-            // Get year range from today to 1 year from today (based on schedule creation period)
-            $startDate = date('Y-m-d'); // Today's date
-            $endDate = date('Y-m-d', strtotime('+1 year')); // 1 year from today
-        }
+        $selectedMonth = $this->request->getGet('month'); // Format: Y-m (e.g., 2025-01)
         
         // Get user information
         $user = null;
@@ -233,11 +218,9 @@ class ScheduleController extends BaseController
                     ->orWhere('status', null)
                 ->groupEnd();
                 
-                if ($viewType === 'date') {
-                    $scheduleQuery->where('shift_date', $selectedDate);
-                } else {
-                    $scheduleQuery->where('shift_date >=', $startDate)
-                                  ->where('shift_date <=', $endDate);
+                // Filter by month if selected
+                if ($selectedMonth) {
+                    $scheduleQuery->where('DATE_FORMAT(shift_date, "%Y-%m")', $selectedMonth);
                 }
                 
                 $schedules = $scheduleQuery
@@ -254,11 +237,9 @@ class ScheduleController extends BaseController
                     ->join('admin_patients', 'admin_patients.id = schedules.patient_id', 'left')
                     ->where('schedules.doctor', $user['username'] ?? '');
                 
-                if ($viewType === 'date') {
-                    $appointmentQuery->where('schedules.date', $selectedDate);
-                } else {
-                    $appointmentQuery->where('schedules.date >=', $startDate)
-                                     ->where('schedules.date <=', $endDate);
+                // Filter by month if selected
+                if ($selectedMonth) {
+                    $appointmentQuery->where('DATE_FORMAT(schedules.date, "%Y-%m")', $selectedMonth);
                 }
                 
                 $appointments = $appointmentQuery
@@ -280,11 +261,9 @@ class ScheduleController extends BaseController
                     ->where('nurse_id', $userId)
                     ->where('status !=', 'cancelled');
                 
-                if ($viewType === 'date') {
-                    $scheduleQuery->where('shift_date', $selectedDate);
-                } else {
-                    $scheduleQuery->where('shift_date >=', $startDate)
-                                  ->where('shift_date <=', $endDate);
+                // Filter by month if selected
+                if ($selectedMonth) {
+                    $scheduleQuery->where('DATE_FORMAT(shift_date, "%Y-%m")', $selectedMonth);
                 }
                 
                 $schedules = $scheduleQuery
@@ -299,24 +278,77 @@ class ScheduleController extends BaseController
             return redirect()->to('/admin/schedule')->with('error', 'User not found.');
         }
         
-        // Group schedules by date
-        $schedulesByDate = [];
-        foreach ($schedules as $schedule) {
-            $date = $schedule['shift_date'];
-            if (!isset($schedulesByDate[$date])) {
-                $schedulesByDate[$date] = [];
-            }
-            $schedulesByDate[$date][] = $schedule;
+        // Get ALL schedules (without month filter) to build month list
+        $allSchedulesForMonths = [];
+        if ($role === 'doctor' && $db->tableExists('doctor_schedules')) {
+            $allSchedulesQuery = $db->table('doctor_schedules')
+                ->where('doctor_id', $userId);
+            
+            $allSchedulesQuery->groupStart()
+                ->where('status !=', 'cancelled')
+                ->orWhere('status', null)
+            ->groupEnd();
+            
+            $allSchedulesForMonths = $allSchedulesQuery
+                ->orderBy('shift_date', 'ASC')
+                ->get()
+                ->getResultArray();
+        } elseif ($role === 'nurse' && $db->tableExists('nurse_schedules')) {
+            $allSchedulesForMonths = $db->table('nurse_schedules')
+                ->where('nurse_id', $userId)
+                ->where('status !=', 'cancelled')
+                ->orderBy('shift_date', 'ASC')
+                ->get()
+                ->getResultArray();
         }
         
-        // Group appointments by date
-        $appointmentsByDate = [];
-        foreach ($appointments as $appointment) {
-            $date = $appointment['date'];
-            if (!isset($appointmentsByDate[$date])) {
-                $appointmentsByDate[$date] = [];
+        // Get all unique months from ALL schedules (not filtered)
+        $allMonths = [];
+        foreach ($allSchedulesForMonths as $schedule) {
+            $month = date('Y-m', strtotime($schedule['shift_date']));
+            if (!in_array($month, $allMonths)) {
+                $allMonths[] = $month;
             }
-            $appointmentsByDate[$date][] = $appointment;
+        }
+        sort($allMonths);
+        
+        // Group schedules by month and date
+        $schedulesByMonth = [];
+        foreach ($schedules as $schedule) {
+            $month = date('Y-m', strtotime($schedule['shift_date']));
+            $date = $schedule['shift_date'];
+            
+            if (!isset($schedulesByMonth[$month])) {
+                $schedulesByMonth[$month] = [];
+            }
+            if (!isset($schedulesByMonth[$month][$date])) {
+                $schedulesByMonth[$month][$date] = [];
+            }
+            $schedulesByMonth[$month][$date][] = $schedule;
+        }
+        
+        // Group appointments by month and date
+        $appointmentsByMonth = [];
+        foreach ($appointments as $appointment) {
+            $month = date('Y-m', strtotime($appointment['date']));
+            $date = $appointment['date'];
+            
+            if (!isset($appointmentsByMonth[$month])) {
+                $appointmentsByMonth[$month] = [];
+            }
+            if (!isset($appointmentsByMonth[$month][$date])) {
+                $appointmentsByMonth[$month][$date] = [];
+            }
+            $appointmentsByMonth[$month][$date][] = $appointment;
+        }
+        
+        // If no month selected, show all schedules grouped by month
+        // If month selected, show only that month's schedules grouped by date
+        $schedulesByDate = [];
+        $appointmentsByDate = [];
+        if ($selectedMonth) {
+            $schedulesByDate = $schedulesByMonth[$selectedMonth] ?? [];
+            $appointmentsByDate = $appointmentsByMonth[$selectedMonth] ?? [];
         }
         
         $data = [
@@ -325,12 +357,12 @@ class ScheduleController extends BaseController
             'role' => $role,
             'schedules' => $schedules,
             'schedulesByDate' => $schedulesByDate,
+            'schedulesByMonth' => $schedulesByMonth,
             'appointments' => $appointments,
             'appointmentsByDate' => $appointmentsByDate,
-            'selectedDate' => $selectedDate,
-            'viewType' => $viewType,
-            'startDate' => $startDate,
-            'endDate' => $endDate,
+            'appointmentsByMonth' => $appointmentsByMonth,
+            'allMonths' => $allMonths,
+            'selectedMonth' => $selectedMonth,
         ];
         
         return view('admin/schedule/view_individual', $data);

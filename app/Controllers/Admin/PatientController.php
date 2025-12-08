@@ -199,7 +199,13 @@ class PatientController extends BaseController
         }
 
         // Get doctors from doctors table
-        $allDoctors = $this->doctorModel->getAllDoctors();
+        // For Out-Patient: Only show doctors who have schedules
+        // For In-Patient: Show all doctors (schedules not required for admission)
+        if ($prefType === 'Out-Patient') {
+            $allDoctors = $this->doctorModel->getDoctorsWithSchedules();
+        } else {
+            $allDoctors = $this->doctorModel->getAllDoctors();
+        }
 
         $viewName = $prefType === 'Out-Patient'
             ? 'admin/patients/outpatient'

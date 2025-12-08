@@ -126,6 +126,50 @@ $routes->group('admin', ['namespace' => 'App\\Controllers\\Admin', 'filter' => '
         $routes->get('edit/(:num)', 'BillingController::edit/$1');
         $routes->post('update/(:num)', 'BillingController::update/$1');
         $routes->get('delete/(:num)', 'BillingController::delete/$1');
+        
+        // Billing Dashboard
+        $routes->get('dashboard', 'BillingController::dashboard');
+        $routes->get('dashboard/stats', 'BillingController::dashboardStats');
+        
+        // Finance Overview
+        $routes->get('finance', 'BillingController::finance');
+        $routes->get('finance/create', 'BillingController::financeCreate');
+        $routes->post('finance/store', 'BillingController::financeStore');
+        $routes->get('finance/edit/(:num)', 'BillingController::financeEdit/$1');
+        $routes->post('finance/update/(:num)', 'BillingController::financeUpdate/$1');
+        $routes->get('finance/delete/(:num)', 'BillingController::financeDelete/$1');
+        
+        // Payment Reports
+        $routes->get('payment_reports', 'BillingController::paymentReports');
+        $routes->get('payment_reports/create', 'BillingController::paymentReportsCreate');
+        $routes->post('payment_reports/store', 'BillingController::paymentReportsStore');
+        $routes->get('payment_reports/edit/(:num)', 'BillingController::paymentReportsEdit/$1');
+        $routes->post('payment_reports/update/(:num)', 'BillingController::paymentReportsUpdate/$1');
+        $routes->get('payment_reports/delete/(:num)', 'BillingController::paymentReportsDelete/$1');
+        
+        // Expenses
+        $routes->get('expenses', 'BillingController::expenses');
+        $routes->get('expenses/create', 'BillingController::expensesCreate');
+        $routes->post('expenses/store', 'BillingController::expensesStore');
+        $routes->get('expenses/edit/(:num)', 'BillingController::expensesEdit/$1');
+        $routes->post('expenses/update/(:num)', 'BillingController::expensesUpdate/$1');
+        $routes->get('expenses/delete/(:num)', 'BillingController::expensesDelete/$1');
+        
+        // Discharge
+        $routes->get('discharge', 'BillingController::discharge');
+        $routes->get('discharge/finalize/(:num)', 'BillingController::dischargeFinalize/$1');
+        $routes->post('discharge/process/(:num)', 'BillingController::dischargeProcess/$1');
+        
+        // Patient Billing
+        $routes->get('patient_billing', 'BillingController::patientBilling');
+        
+        // Charges Management
+        $routes->get('charges', 'BillingController::charges');
+        $routes->get('charges/view/(:num)', 'BillingController::chargesView/$1');
+        $routes->get('charges/invoice/(:num)', 'BillingController::chargesInvoice/$1');
+        $routes->post('charges/approve/(:num)', 'BillingController::chargesApprove/$1');
+        $routes->post('charges/process-payment/(:num)', 'BillingController::chargesProcessPayment/$1');
+        $routes->post('charges/cancel/(:num)', 'BillingController::chargesCancel/$1');
     });
     
     // Lab Services
@@ -175,6 +219,31 @@ $routes->group('admin', ['namespace' => 'App\\Controllers\\Admin', 'filter' => '
         $routes->get('edit/(:num)', 'SystemController::edit/$1');
         $routes->post('update/(:num)', 'SystemController::update/$1');
         $routes->get('delete/(:num)', 'SystemController::delete/$1');
+        
+        // System Control Dashboard
+        $routes->get('dashboard', 'SystemController::dashboard');
+        
+        // System Logs
+        $routes->group('logs', function($routes) {
+            $routes->get('/', 'SystemController::logs');
+            $routes->get('view/(:num)', 'SystemController::logsView/$1');
+            $routes->get('delete/(:num)', 'SystemController::logsDelete/$1');
+            $routes->post('clear', 'SystemController::logsClear');
+        });
+        
+        // Backup
+        $routes->group('backup', function($routes) {
+            $routes->get('/', 'SystemController::backup');
+            $routes->post('create', 'SystemController::backupCreate');
+            $routes->get('download/(:num)', 'SystemController::backupDownload/$1');
+            $routes->get('delete/(:num)', 'SystemController::backupDelete/$1');
+        });
+        
+        // Restore
+        $routes->group('restore', function($routes) {
+            $routes->get('/', 'SystemController::restore');
+            $routes->post('restore/(:num)', 'SystemController::restoreBackup/$1');
+        });
     });
     
     // User Management
@@ -358,6 +427,9 @@ $routes->group('accounting', ['namespace' => 'App\\Controllers\\Accountant', 'fi
     $routes->get('discharge', 'DischargeController::index');
     $routes->get('discharge/finalize/(:num)', 'DischargeController::finalize/$1');
     $routes->post('discharge/process/(:num)', 'DischargeController::processDischarge/$1');
+    
+    // Patient Billing
+    $routes->get('patient-billing', 'PaymentReportController::patientBilling');
 });
 
 // Doctor read-only access to medication billing

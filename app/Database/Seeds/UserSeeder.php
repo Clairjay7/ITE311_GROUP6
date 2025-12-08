@@ -446,7 +446,8 @@ class UserSeeder extends Seeder
         }
         
         // Create schedules for all doctors
-        $this->createDoctorSchedules();
+        // COMMENTED OUT: Schedules should be created manually through the admin interface
+        // $this->createDoctorSchedules();
     }
     
     /**

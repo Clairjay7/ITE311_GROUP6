@@ -110,4 +110,41 @@ class DoctorModel extends Model
                     ->orderBy('doctor_name', 'ASC')
                     ->findAll();
     }
+
+    /**
+     * Get doctors who have schedules in doctor_schedules table
+     * Only returns doctors with at least one active schedule
+     */
+    public function getDoctorsWithSchedules()
+    {
+        $db = \Config\Database::connect();
+        
+        // Check if doctor_schedules table exists
+        if (!$db->tableExists('doctor_schedules')) {
+            // If table doesn't exist, return empty array
+            return [];
+        }
+        
+        // Get doctors who have at least one schedule
+        $doctors = $db->table('doctors')
+            ->select('doctors.*, doctors.user_id as assignment_id, users.status as user_status')
+            ->join('users', 'users.id = doctors.user_id', 'inner')
+            ->join('doctor_schedules', 'doctor_schedules.doctor_id = doctors.user_id', 'inner')
+            ->where('users.status', 'active')
+            ->where('users.deleted_at IS NULL', null, false)
+            ->where('doctor_schedules.status', 'active')
+            ->where('doctor_schedules.shift_date >=', date('Y-m-d')) // Only future or today's schedules
+            ->groupBy('doctors.id') // Group by doctor to avoid duplicates
+            ->orderBy('doctors.doctor_name', 'ASC')
+            ->get()
+            ->getResultArray();
+        
+        // Add user_id as both 'id' (for backward compatibility) and 'user_id' (for correct assignment)
+        foreach ($doctors as &$doctor) {
+            $doctor['id'] = $doctor['user_id']; // Use user_id as id for assignment
+            $doctor['assignment_id'] = $doctor['user_id']; // Explicit assignment_id
+        }
+        
+        return $doctors;
+    }
 }

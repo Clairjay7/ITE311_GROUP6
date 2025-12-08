@@ -141,13 +141,21 @@ class DashboardController extends BaseController
         
         if ($db->tableExists('consultations') && $db->tableExists('patients')) {
             // Query consultations and join with patients table (for out-patients)
+            // Only show consultations where date and time have arrived
+            $currentTime = date('H:i:s');
             $consultations = $db->table('consultations')
                 ->select('consultations.*, patients.full_name, patients.date_of_birth as birthdate, patients.gender, patients.patient_id, patients.type as patient_type')
                 ->join('patients', 'patients.patient_id = consultations.patient_id', 'left')
                 ->where('consultations.doctor_id', $doctorId)
                 ->where('consultations.type', 'upcoming')
                 ->whereIn('consultations.status', ['approved', 'pending']) // Include both approved and pending
-                ->where('consultations.consultation_date >=', $today)
+                ->groupStart()
+                    ->where('consultations.consultation_date >', $today) // Future dates
+                    ->orGroupStart()
+                        ->where('consultations.consultation_date', $today) // Today's date
+                        ->where('consultations.consultation_time <=', $currentTime) // Time has arrived
+                    ->groupEnd()
+                ->groupEnd()
                 ->orderBy('consultations.consultation_date', 'ASC')
                 ->orderBy('consultations.consultation_time', 'ASC')
                 ->get()
@@ -165,13 +173,21 @@ class DashboardController extends BaseController
         // Also check admin_patients if they have consultations (though consultations table references patients.patient_id)
         // This is for backward compatibility if there are any old records
         if ($db->tableExists('admin_patients')) {
+            // Only show consultations where date and time have arrived
+            $currentTime = date('H:i:s');
             $adminConsultations = $consultationModel
                 ->select('consultations.*, admin_patients.firstname, admin_patients.lastname, admin_patients.birthdate, admin_patients.gender, admin_patients.id as patient_id')
                 ->join('admin_patients', 'admin_patients.id = consultations.patient_id', 'left')
                 ->where('consultations.doctor_id', $doctorId)
                 ->where('consultations.type', 'upcoming')
                 ->whereIn('consultations.status', ['approved', 'pending']) // Include both approved and pending
-                ->where('consultations.consultation_date >=', $today)
+                ->groupStart()
+                    ->where('consultations.consultation_date >', $today) // Future dates
+                    ->orGroupStart()
+                        ->where('consultations.consultation_date', $today) // Today's date
+                        ->where('consultations.consultation_time <=', $currentTime) // Time has arrived
+                    ->groupEnd()
+                ->groupEnd()
                 ->where('admin_patients.id IS NOT NULL') // Only get records that actually have admin_patient
                 ->orderBy('consultations.consultation_date', 'ASC')
                 ->orderBy('consultations.consultation_time', 'ASC')

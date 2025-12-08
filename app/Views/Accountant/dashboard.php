@@ -59,6 +59,10 @@
             <i class="fas fa-receipt" style="font-size: 24px; margin-bottom: 8px; display: block;"></i>
             Expense Tracking
         </a>
+        <a href="<?= site_url('accounting/patient-billing') ?>" style="background: #8b5cf6; color: white; padding: 16px; border-radius: 12px; text-decoration: none; text-align: center; font-weight: 600; box-shadow: 0 2px 6px rgba(0,0,0,0.08);">
+            <i class="fas fa-user-injured" style="font-size: 24px; margin-bottom: 8px; display: block;"></i>
+            Patient Billing
+        </a>
     </div>
 
     <!-- Pending Charges Section -->

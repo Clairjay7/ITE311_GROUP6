@@ -52,7 +52,8 @@ class ConsultationController extends BaseController
         }
 
         // Generate 1-year schedule if not exists
-        $this->generateYearlySchedule($doctorId);
+        // COMMENTED OUT: Schedules should be created manually through the admin interface
+        // $this->generateYearlySchedule($doctorId);
 
         // Get all schedules for the current year, grouped by month
         $currentYear = date('Y');
@@ -273,6 +274,8 @@ class ConsultationController extends BaseController
                 log_message('info', "  - Consultation ID: {$c['id']}, patient_id: {$c['patient_id']}, date: {$c['consultation_date']}, time: {$c['consultation_time']}, type: {$c['type']}, status: {$c['status']}");
             }
             
+            // For schedule display, show all consultations in the date range
+            // (Calendar view should show all scheduled consultations)
             $consultationsRaw = $db->table('consultations c')
                 ->select('c.*, p.full_name, p.patient_id, p.first_name, p.last_name')
                 ->join('patients p', 'p.patient_id = c.patient_id', 'left')
@@ -838,13 +841,21 @@ class ConsultationController extends BaseController
             // For admin patients, consultations use admin_patients.id
             $patientIdForConsultation = $patientId;
             
-            // Try to find upcoming consultation
+            // Try to find upcoming consultation where date and time have arrived
+            $today = date('Y-m-d');
+            $currentTime = date('H:i:s');
             $upcomingConsultation = $db->table('consultations')
                 ->where('patient_id', $patientIdForConsultation)
                 ->where('doctor_id', $doctorId)
                 ->where('type', 'upcoming')
                 ->whereIn('status', ['approved', 'pending'])
-                ->where('consultation_date >=', date('Y-m-d'))
+                ->groupStart()
+                    ->where('consultation_date >', $today) // Future dates
+                    ->orGroupStart()
+                        ->where('consultation_date', $today) // Today's date
+                        ->where('consultation_time <=', $currentTime) // Time has arrived
+                    ->groupEnd()
+                ->groupEnd()
                 ->orderBy('consultation_date', 'ASC')
                 ->orderBy('consultation_time', 'ASC')
                 ->get()

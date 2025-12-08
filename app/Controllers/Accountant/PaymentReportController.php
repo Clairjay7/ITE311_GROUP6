@@ -240,5 +240,98 @@ class PaymentReportController extends BaseController
             return redirect()->to('/accounting/payments')->with('error', 'Failed to delete payment report.');
         }
     }
+
+    /**
+     * Patient Billing - View all bills for a specific patient
+     */
+    public function patientBilling()
+    {
+        if (!session()->get('logged_in')) {
+            return redirect()->to('/auth')->with('error', 'You must be logged in to access this page.');
+        }
+
+        $role = session()->get('role');
+        if (!in_array($role, ['finance', 'admin'])) {
+            return redirect()->to('/dashboard')->with('error', 'Access denied.');
+        }
+
+        $db = \Config\Database::connect();
+        $patientId = $this->request->getGet('patient_id');
+
+        $patients = $this->patientModel->findAll();
+        $patientBills = [];
+        $selectedPatient = null;
+        $totalAmount = 0.0;
+        $paidAmount = 0.0;
+        $pendingAmount = 0.0;
+
+        if ($patientId) {
+            $selectedPatient = $this->patientModel->find($patientId);
+            
+            if ($selectedPatient) {
+                // Get all bills for this patient from billing table
+                $patientBills = $db->table('billing')
+                    ->where('patient_id', $patientId)
+                    ->orderBy('created_at', 'DESC')
+                    ->get()
+                    ->getResultArray();
+
+                // Calculate totals
+                foreach ($patientBills as $bill) {
+                    $totalAmount += (float)($bill['amount'] ?? 0);
+                    if ($bill['status'] === 'paid') {
+                        $paidAmount += (float)($bill['amount'] ?? 0);
+                    } else {
+                        $pendingAmount += (float)($bill['amount'] ?? 0);
+                    }
+                }
+
+                // Also get charges for this patient
+                $patientCharges = $db->table('charges')
+                    ->where('patient_id', $patientId)
+                    ->where('deleted_at', null)
+                    ->orderBy('created_at', 'DESC')
+                    ->get()
+                    ->getResultArray();
+
+                // Add charges to bills array
+                foreach ($patientCharges as $charge) {
+                    $patientBills[] = [
+                        'id' => 'CHG-' . $charge['id'],
+                        'type' => 'charge',
+                        'service' => $charge['notes'] ?? 'Charge',
+                        'amount' => $charge['total_amount'] ?? 0,
+                        'status' => $charge['status'] ?? 'pending',
+                        'created_at' => $charge['created_at'] ?? date('Y-m-d H:i:s'),
+                        'charge_number' => $charge['charge_number'] ?? null,
+                    ];
+                    $totalAmount += (float)($charge['total_amount'] ?? 0);
+                    if ($charge['status'] === 'paid') {
+                        $paidAmount += (float)($charge['total_amount'] ?? 0);
+                    } else {
+                        $pendingAmount += (float)($charge['total_amount'] ?? 0);
+                    }
+                }
+
+                // Sort by date
+                usort($patientBills, function($a, $b) {
+                    return strtotime($b['created_at']) - strtotime($a['created_at']);
+                });
+            }
+        }
+
+        $data = [
+            'title' => 'Patient Billing',
+            'patients' => $patients,
+            'selectedPatient' => $selectedPatient,
+            'patientBills' => $patientBills,
+            'totalAmount' => $totalAmount,
+            'paidAmount' => $paidAmount,
+            'pendingAmount' => $pendingAmount,
+            'patientId' => $patientId,
+        ];
+
+        return view('Accountant/patient_billing', $data);
+    }
 }
 

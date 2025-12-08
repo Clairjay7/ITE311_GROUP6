@@ -141,8 +141,12 @@ class PatientController extends BaseController
                 }
                 
                 // Get upcoming consultation for this patient
+                // Only show consultations where date and time have arrived
                 $upcomingConsultation = null;
                 if ($consultationPatientId) {
+                    $today = date('Y-m-d');
+                    $currentTime = date('H:i:s');
+                    
                     if ($patientSource === 'receptionist') {
                         // For receptionist patients, consultations table uses patients.patient_id
                         $upcomingConsultation = $db->table('consultations')
@@ -150,7 +154,13 @@ class PatientController extends BaseController
                             ->where('doctor_id', $doctorId)
                             ->where('type', 'upcoming')
                             ->whereIn('status', ['approved', 'pending'])
-                            ->where('consultation_date >=', date('Y-m-d'))
+                            ->groupStart()
+                                ->where('consultation_date >', $today) // Future dates
+                                ->orGroupStart()
+                                    ->where('consultation_date', $today) // Today's date
+                                    ->where('consultation_time <=', $currentTime) // Time has arrived
+                                ->groupEnd()
+                            ->groupEnd()
                             ->orderBy('consultation_date', 'ASC')
                             ->orderBy('consultation_time', 'ASC')
                             ->get()
@@ -162,7 +172,13 @@ class PatientController extends BaseController
                             ->where('doctor_id', $doctorId)
                             ->where('type', 'upcoming')
                             ->whereIn('status', ['approved', 'pending'])
-                            ->where('consultation_date >=', date('Y-m-d'))
+                            ->groupStart()
+                                ->where('consultation_date >', $today) // Future dates
+                                ->orGroupStart()
+                                    ->where('consultation_date', $today) // Today's date
+                                    ->where('consultation_time <=', $currentTime) // Time has arrived
+                                ->groupEnd()
+                            ->groupEnd()
                             ->orderBy('consultation_date', 'ASC')
                             ->orderBy('consultation_time', 'ASC')
                             ->get()

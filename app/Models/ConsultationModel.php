@@ -90,18 +90,32 @@ class ConsultationModel extends Model
 
     /**
      * Get upcoming consultations for a specific doctor
+     * Only shows consultations where the date and time have arrived
      */
     public function getUpcomingConsultations($doctorId)
     {
-        return $this->select('consultations.*, admin_patients.firstname, admin_patients.lastname')
+        $today = date('Y-m-d');
+        $currentTime = date('H:i:s');
+        
+        // Get consultations where:
+        // 1. Date is in the future, OR
+        // 2. Date is today AND time has arrived (consultation_time <= current_time)
+        $builder = $this->select('consultations.*, admin_patients.firstname, admin_patients.lastname')
                     ->join('admin_patients', 'admin_patients.id = consultations.patient_id', 'left')
                     ->where('consultations.doctor_id', $doctorId)
                     ->where('consultations.type', 'upcoming')
                     ->where('consultations.status', 'approved')
-                    ->where('consultations.consultation_date >=', date('Y-m-d'))
+                    ->groupStart()
+                        ->where('consultations.consultation_date >', $today) // Future dates
+                        ->orGroupStart()
+                            ->where('consultations.consultation_date', $today) // Today's date
+                            ->where('consultations.consultation_time <=', $currentTime) // Time has arrived
+                        ->groupEnd()
+                    ->groupEnd()
                     ->orderBy('consultations.consultation_date', 'ASC')
-                    ->orderBy('consultations.consultation_time', 'ASC')
-                    ->findAll();
+                    ->orderBy('consultations.consultation_time', 'ASC');
+        
+        return $builder->findAll();
     }
 
     /**
