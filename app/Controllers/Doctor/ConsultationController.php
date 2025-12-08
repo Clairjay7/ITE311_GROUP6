@@ -51,9 +51,6 @@ class ConsultationController extends BaseController
             return redirect()->back()->with('error', 'Doctor schedules table does not exist. Please contact administrator to run migrations.');
         }
 
-        // Generate 1-year schedule if not exists
-        // COMMENTED OUT: Schedules should be created manually through the admin interface
-        // $this->generateYearlySchedule($doctorId);
 
         // Get all schedules for the current year, grouped by month
         $currentYear = date('Y');
@@ -361,89 +358,6 @@ class ConsultationController extends BaseController
         ];
 
         return view('doctor/consultations/my_schedule', $data);
-    }
-
-    /**
-     * Generate 1-year working schedule for doctor
-     * Working days: Monday to Friday
-     * Working hours: 9:00 AM - 12:00 PM and 1:00 PM - 4:00 PM
-     * No schedule on Saturday and Sunday
-     */
-    private function generateYearlySchedule($doctorId)
-    {
-        $db = \Config\Database::connect();
-        $scheduleModel = new \App\Models\DoctorScheduleModel();
-
-        // Check if table exists
-        if (!$db->tableExists('doctor_schedules')) {
-            log_message('error', 'doctor_schedules table does not exist. Please run migrations.');
-            return;
-        }
-
-        // Check if schedule already exists for this year
-        $currentYear = date('Y');
-        $startDate = $currentYear . '-01-01';
-        $endDate = $currentYear . '-12-31';
-
-        $existingCount = $db->table('doctor_schedules')
-            ->where('doctor_id', $doctorId)
-            ->where('shift_date >=', $startDate)
-            ->where('shift_date <=', $endDate)
-            ->countAllResults();
-
-        // If schedule already exists, skip generation
-        if ($existingCount > 0) {
-            return;
-        }
-
-        // Generate schedule for the entire year
-        $startDateObj = new \DateTime($startDate);
-        $endDateObj = new \DateTime($endDate);
-        $endDateObj->modify('+1 day'); // Include the end date
-
-        $currentDate = clone $startDateObj;
-        $schedulesToInsert = [];
-
-        while ($currentDate < $endDateObj) {
-            $dayOfWeek = (int)$currentDate->format('w'); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
-            
-            // Only generate schedule for Monday (1) to Friday (5)
-            if ($dayOfWeek >= 1 && $dayOfWeek <= 5) {
-                $dateStr = $currentDate->format('Y-m-d');
-                
-                // Morning shift: 9:00 AM - 12:00 PM
-                $schedulesToInsert[] = [
-                    'doctor_id' => $doctorId,
-                    'shift_date' => $dateStr,
-                    'start_time' => '09:00:00',
-                    'end_time' => '12:00:00',
-                    'status' => 'active',
-                    'created_at' => date('Y-m-d H:i:s'),
-                    'updated_at' => date('Y-m-d H:i:s')
-                ];
-                
-                // Afternoon shift: 1:00 PM - 4:00 PM
-                $schedulesToInsert[] = [
-                    'doctor_id' => $doctorId,
-                    'shift_date' => $dateStr,
-                    'start_time' => '13:00:00',
-                    'end_time' => '16:00:00',
-                    'status' => 'active',
-                    'created_at' => date('Y-m-d H:i:s'),
-                    'updated_at' => date('Y-m-d H:i:s')
-                ];
-            }
-            
-            $currentDate->modify('+1 day');
-        }
-
-        // Batch insert schedules (insert in chunks of 100 to avoid memory issues)
-        if (!empty($schedulesToInsert)) {
-            $chunks = array_chunk($schedulesToInsert, 100);
-            foreach ($chunks as $chunk) {
-                $db->table('doctor_schedules')->insertBatch($chunk);
-            }
-        }
     }
 
     public function create()

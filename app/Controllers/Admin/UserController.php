@@ -250,12 +250,6 @@ class UserController extends BaseController
                 ];
                 
                 $db->table('doctors')->insert($doctorData);
-                
-                // Create doctor schedule if working days are provided
-                $workingDays = $this->request->getPost('working_days');
-                if ($workingDays && is_array($workingDays) && !empty($workingDays)) {
-                    $this->createDoctorSchedule($userId, $workingDays);
-                }
             }
             
             // If nurse, create schedule from form data
@@ -718,61 +712,6 @@ class UserController extends BaseController
         }
     }
 
-    /**
-     * Create doctor schedule from form data
-     */
-    private function createDoctorSchedule($doctorId, $workingDays)
-    {
-        $db = \Config\Database::connect();
-        
-        if (!$db->tableExists('doctor_schedules')) {
-            return;
-        }
-        
-        $timeIn = $this->request->getPost('time_in');
-        $timeOut = $this->request->getPost('time_out');
-        $shiftType = $this->request->getPost('shift_type');
-        $onCall = $this->request->getPost('on_call') ?: 'no';
-        $onCallNotes = $this->request->getPost('on_call_notes');
-        $maxPatients = $this->request->getPost('max_patients');
-        $status = $this->request->getPost('schedule_status') ?: 'active';
-        
-        // Generate schedules for 1 year starting from today's date
-        $startDate = new \DateTime(); // Today's date
-        $endDate = new \DateTime(); // Today's date
-        $endDate->modify('+1 year'); // 1 year from today
-        
-        $schedulesToInsert = [];
-        $currentDate = clone $startDate;
-        
-        while ($currentDate <= $endDate) {
-            $dayName = $currentDate->format('l'); // Full day name
-            
-            // Check if this day is in working days
-            if (in_array($dayName, $workingDays)) {
-                $schedulesToInsert[] = [
-                    'doctor_id' => $doctorId,
-                    'shift_date' => $currentDate->format('Y-m-d'),
-                    'start_time' => $timeIn ?: '09:00:00',
-                    'end_time' => $timeOut ?: '17:00:00',
-                    'status' => $status,
-                    'created_at' => date('Y-m-d H:i:s'),
-                    'updated_at' => date('Y-m-d H:i:s'),
-                ];
-            }
-            
-            $currentDate->modify('+1 day');
-        }
-        
-        // Batch insert schedules
-        if (!empty($schedulesToInsert)) {
-            $chunks = array_chunk($schedulesToInsert, 100);
-            foreach ($chunks as $chunk) {
-                $db->table('doctor_schedules')->insertBatch($chunk);
-            }
-        }
-    }
-    
     /**
      * Create nurse schedule from form data
      */

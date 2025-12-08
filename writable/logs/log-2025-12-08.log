@@ -2904,3 +2904,261 @@ Stack trace:
 #10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
 #11 {main}
 ERROR - 2025-12-08 10:30:14 --> Error fetching Doctor Dashboard Stats: Unknown column 'assigned_doctor_id' in 'where clause'
+ERROR - 2025-12-08 10:37:03 --> mysqli_sql_exception: Table 'hospital_management.patients' doesn't exist in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT COUNT(*)...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT COUNT(*)...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT COUNT(*)...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT COUNT(*)...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Receptionist\DashboardStats.php(41): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Receptionist\DashboardStats->stats()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Receptionist\DashboardStats))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-12-08 10:37:03 --> DashboardStats error: Table 'hospital_management.patients' doesn't exist
+ERROR - 2025-12-08 10:38:02 --> mysqli_sql_exception: Table 'hospital_management.doctors' doesn't exist in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT `doctors...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `doctors...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `doctors...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `doctors...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Models\DoctorModel.php(40): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\app\Controllers\Receptionist\AssignDoctorController.php(151): App\Models\DoctorModel->getAllDoctors()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Receptionist\AssignDoctorController->getAvailableDoctors()
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Receptionist\AssignDoctorController))
+#8 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#9 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#10 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#11 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#12 {main}
+CRITICAL - 2025-12-08 10:38:02 --> CodeIgniter\Database\Exceptions\DatabaseException: Table 'hospital_management.doctors' doesn't exist
+[Method: GET, Route: receptionist/assign-doctor/available-doctors]
+in SYSTEMPATH\Database\BaseConnection.php on line 684.
+ 1 SYSTEMPATH\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `doctors`.*, `doctors`.`user_id` as `assignment_id`, `users`.`status` as `user_status`
+FROM `doctors`
+INNER JOIN `users` ON `users`.`id` = `doctors`.`user_id`
+WHERE `users`.`status` = :users.status:
+AND users.deleted_at IS NULL
+ORDER BY `doctors`.`doctor_name` ASC', [...], false)
+ 2 APPPATH\Models\DoctorModel.php(40): CodeIgniter\Database\BaseBuilder->get()
+ 3 APPPATH\Controllers\Receptionist\AssignDoctorController.php(151): App\Models\DoctorModel->getAllDoctors()
+ 4 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Receptionist\AssignDoctorController->getAvailableDoctors()
+ 5 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Receptionist\AssignDoctorController))
+ 6 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 7 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 8 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 9 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2025-12-08 10:38:02 --> [Caused by] CodeIgniter\Database\Exceptions\DatabaseException: Table 'hospital_management.doctors' doesn't exist
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 332.
+ 1 SYSTEMPATH\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `doctors`.*, `doctors`.`user_id` as `assignment_id`, `users`.`status` as `user_status`
+FROM `doctors`
+INNER JOIN `users` ON `users`.`id` = `doctors`.`user_id`
+WHERE `users`.`status` = \'active\'
+AND users.deleted_at IS NULL
+ORDER BY `doctors`.`doctor_name` ASC')
+ 2 SYSTEMPATH\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `doctors`.*, `doctors`.`user_id` as `assignment_id`, `users`.`status` as `user_status`
+FROM `doctors`
+INNER JOIN `users` ON `users`.`id` = `doctors`.`user_id`
+WHERE `users`.`status` = \'active\'
+AND users.deleted_at IS NULL
+ORDER BY `doctors`.`doctor_name` ASC')
+ 3 SYSTEMPATH\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `doctors`.*, `doctors`.`user_id` as `assignment_id`, `users`.`status` as `user_status`
+FROM `doctors`
+INNER JOIN `users` ON `users`.`id` = `doctors`.`user_id`
+WHERE `users`.`status` = :users.status:
+AND users.deleted_at IS NULL
+ORDER BY `doctors`.`doctor_name` ASC', [...], false)
+ 4 APPPATH\Models\DoctorModel.php(40): CodeIgniter\Database\BaseBuilder->get()
+ 5 APPPATH\Controllers\Receptionist\AssignDoctorController.php(151): App\Models\DoctorModel->getAllDoctors()
+ 6 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Receptionist\AssignDoctorController->getAvailableDoctors()
+ 7 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Receptionist\AssignDoctorController))
+ 8 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2025-12-08 10:38:02 --> [Caused by] mysqli_sql_exception: Table 'hospital_management.doctors' doesn't exist
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 327.
+ 1 SYSTEMPATH\Database\MySQLi\Connection.php(327): mysqli->query('SELECT `doctors`.*, `doctors`.`user_id` as `assignment_id`, `users`.`status` as `user_status`
+FROM `doctors`
+INNER JOIN `users` ON `users`.`id` = `doctors`.`user_id`
+WHERE `users`.`status` = \'active\'
+AND users.deleted_at IS NULL
+ORDER BY `doctors`.`doctor_name` ASC', 0)
+ 2 SYSTEMPATH\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `doctors`.*, `doctors`.`user_id` as `assignment_id`, `users`.`status` as `user_status`
+FROM `doctors`
+INNER JOIN `users` ON `users`.`id` = `doctors`.`user_id`
+WHERE `users`.`status` = \'active\'
+AND users.deleted_at IS NULL
+ORDER BY `doctors`.`doctor_name` ASC')
+ 3 SYSTEMPATH\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `doctors`.*, `doctors`.`user_id` as `assignment_id`, `users`.`status` as `user_status`
+FROM `doctors`
+INNER JOIN `users` ON `users`.`id` = `doctors`.`user_id`
+WHERE `users`.`status` = \'active\'
+AND users.deleted_at IS NULL
+ORDER BY `doctors`.`doctor_name` ASC')
+ 4 SYSTEMPATH\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `doctors`.*, `doctors`.`user_id` as `assignment_id`, `users`.`status` as `user_status`
+FROM `doctors`
+INNER JOIN `users` ON `users`.`id` = `doctors`.`user_id`
+WHERE `users`.`status` = :users.status:
+AND users.deleted_at IS NULL
+ORDER BY `doctors`.`doctor_name` ASC', [...], false)
+ 5 APPPATH\Models\DoctorModel.php(40): CodeIgniter\Database\BaseBuilder->get()
+ 6 APPPATH\Controllers\Receptionist\AssignDoctorController.php(151): App\Models\DoctorModel->getAllDoctors()
+ 7 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Receptionist\AssignDoctorController->getAvailableDoctors()
+ 8 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Receptionist\AssignDoctorController))
+ 9 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+10 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+11 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+12 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ERROR - 2025-12-08 10:38:06 --> mysqli_sql_exception: Table 'hospital_management.users' doesn't exist in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\group6\system\Model.php(330): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\BaseModel.php(715): CodeIgniter\Model->doFirst()
+#6 F:\xammp\htdocs\group6\app\Controllers\Auth.php(47): CodeIgniter\BaseModel->first()
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Auth->process_login()
+#8 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Auth))
+#9 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#10 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#11 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#12 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#13 {main}
+CRITICAL - 2025-12-08 10:38:06 --> CodeIgniter\Database\Exceptions\DatabaseException: Table 'hospital_management.users' doesn't exist
+[Method: POST, Route: auth/process_login]
+in SYSTEMPATH\Database\BaseConnection.php on line 684.
+ 1 SYSTEMPATH\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *
+FROM `users`
+WHERE `username` = :username:
+AND `users`.`deleted_at` IS NULL
+ LIMIT 1', [...], false)
+ 2 SYSTEMPATH\Model.php(330): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH\BaseModel.php(715): CodeIgniter\Model->doFirst()
+ 4 APPPATH\Controllers\Auth.php(47): CodeIgniter\BaseModel->first()
+ 5 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Auth->process_login()
+ 6 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Auth))
+ 7 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 8 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 9 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+10 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2025-12-08 10:38:06 --> [Caused by] CodeIgniter\Database\Exceptions\DatabaseException: Table 'hospital_management.users' doesn't exist
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 332.
+ 1 SYSTEMPATH\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *
+FROM `users`
+WHERE `username` = \'sys.admin\'
+AND `users`.`deleted_at` IS NULL
+ LIMIT 1')
+ 2 SYSTEMPATH\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *
+FROM `users`
+WHERE `username` = \'sys.admin\'
+AND `users`.`deleted_at` IS NULL
+ LIMIT 1')
+ 3 SYSTEMPATH\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *
+FROM `users`
+WHERE `username` = :username:
+AND `users`.`deleted_at` IS NULL
+ LIMIT 1', [...], false)
+ 4 SYSTEMPATH\Model.php(330): CodeIgniter\Database\BaseBuilder->get()
+ 5 SYSTEMPATH\BaseModel.php(715): CodeIgniter\Model->doFirst()
+ 6 APPPATH\Controllers\Auth.php(47): CodeIgniter\BaseModel->first()
+ 7 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Auth->process_login()
+ 8 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Auth))
+ 9 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+10 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+11 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+12 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2025-12-08 10:38:06 --> [Caused by] mysqli_sql_exception: Table 'hospital_management.users' doesn't exist
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 327.
+ 1 SYSTEMPATH\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *
+FROM `users`
+WHERE `username` = \'sys.admin\'
+AND `users`.`deleted_at` IS NULL
+ LIMIT 1', 0)
+ 2 SYSTEMPATH\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *
+FROM `users`
+WHERE `username` = \'sys.admin\'
+AND `users`.`deleted_at` IS NULL
+ LIMIT 1')
+ 3 SYSTEMPATH\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *
+FROM `users`
+WHERE `username` = \'sys.admin\'
+AND `users`.`deleted_at` IS NULL
+ LIMIT 1')
+ 4 SYSTEMPATH\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *
+FROM `users`
+WHERE `username` = :username:
+AND `users`.`deleted_at` IS NULL
+ LIMIT 1', [...], false)
+ 5 SYSTEMPATH\Model.php(330): CodeIgniter\Database\BaseBuilder->get()
+ 6 SYSTEMPATH\BaseModel.php(715): CodeIgniter\Model->doFirst()
+ 7 APPPATH\Controllers\Auth.php(47): CodeIgniter\BaseModel->first()
+ 8 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Auth->process_login()
+ 9 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Auth))
+10 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+11 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+12 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+13 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2025-12-08 10:40:34 --> Error: Call to a member function setJSON() on null
+[Method: GET, Route: admin/billing/dashboard/stats]
+in APPPATH\Controllers\Accountant\DashboardStats.php on line 13.
+ 1 APPPATH\Controllers\Admin\BillingController.php(105): App\Controllers\Accountant\DashboardStats->stats()
+ 2 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Admin\BillingController->dashboardStats()
+ 3 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\BillingController))
+ 4 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 5 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 7 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2025-12-08 10:43:29 --> Error: Call to a member function setJSON() on null
+[Method: GET, Route: admin/billing/dashboard/stats]
+in APPPATH\Controllers\Accountant\DashboardStats.php on line 13.
+ 1 APPPATH\Controllers\Admin\BillingController.php(105): App\Controllers\Accountant\DashboardStats->stats()
+ 2 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Admin\BillingController->dashboardStats()
+ 3 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\BillingController))
+ 4 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 5 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 7 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2025-12-08 10:43:31 --> Error: Call to a member function setJSON() on null
+[Method: GET, Route: admin/billing/dashboard/stats]
+in APPPATH\Controllers\Accountant\DashboardStats.php on line 13.
+ 1 APPPATH\Controllers\Admin\BillingController.php(105): App\Controllers\Accountant\DashboardStats->stats()
+ 2 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Admin\BillingController->dashboardStats()
+ 3 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\BillingController))
+ 4 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 5 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 7 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2025-12-08 10:43:32 --> Error: Call to a member function setJSON() on null
+[Method: GET, Route: admin/billing/dashboard/stats]
+in APPPATH\Controllers\Accountant\DashboardStats.php on line 13.
+ 1 APPPATH\Controllers\Admin\BillingController.php(105): App\Controllers\Accountant\DashboardStats->stats()
+ 2 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Admin\BillingController->dashboardStats()
+ 3 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\BillingController))
+ 4 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 5 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 7 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2025-12-08 10:43:38 --> Error: Call to a member function setJSON() on null
+[Method: GET, Route: admin/billing/dashboard/stats]
+in APPPATH\Controllers\Accountant\DashboardStats.php on line 13.
+ 1 APPPATH\Controllers\Admin\BillingController.php(105): App\Controllers\Accountant\DashboardStats->stats()
+ 2 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Admin\BillingController->dashboardStats()
+ 3 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\BillingController))
+ 4 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 5 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 7 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2025-12-08 11:01:08 --> CodeIgniter\Database\Exceptions\DatabaseException: Deletes are not allowed unless they contain a "where" or "like" clause.
+[Method: CLI, Route: schedules:clear-all-doctors]
+in SYSTEMPATH\Database\BaseBuilder.php on line 2819.
+ 1 APPPATH\Commands\ClearAllDoctorSchedules.php(25): CodeIgniter\Database\BaseBuilder->delete()
+ 2 SYSTEMPATH\CLI\Commands.php(74): App\Commands\ClearAllDoctorSchedules->run([])
+ 3 SYSTEMPATH\CLI\Console.php(47): CodeIgniter\CLI\Commands->run('schedules:clear-all-doctors', [])
+ 4 SYSTEMPATH\Boot.php(388): CodeIgniter\CLI\Console->run()
+ 5 SYSTEMPATH\Boot.php(133): CodeIgniter\Boot::runCommand(Object(CodeIgniter\CLI\Console))
+ 6 ROOTPATH\spark(87): CodeIgniter\Boot::bootSpark(Object(Config\Paths))

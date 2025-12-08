@@ -294,9 +294,6 @@ class UserSeeder extends Seeder
         
         // Create doctor records for all doctor users
         $this->createDoctors();
-        
-        // Create schedules for all doctors
-        $this->createDoctorSchedules();
     }
     
     /**
@@ -445,110 +442,8 @@ class UserSeeder extends Seeder
             $this->db->table('doctors')->insert($doctorData);
         }
         
-        // Create schedules for all doctors
-        // COMMENTED OUT: Schedules should be created manually through the admin interface
-        // $this->createDoctorSchedules();
     }
     
-    /**
-     * Create doctor schedules for all doctors
-     * Working days: Monday to Friday
-     * Working hours: 9:00 AM - 12:00 PM and 1:00 PM - 4:00 PM
-     */
-    protected function createDoctorSchedules()
-    {
-        // Check if table exists
-        if (!$this->db->tableExists('doctor_schedules')) {
-            return; // Skip if table doesn't exist
-        }
-        
-        // Get all doctor users
-        $roleMap = [];
-        $roles = $this->db->table('roles')->get()->getResultArray();
-        foreach ($roles as $role) {
-            $roleMap[$role['name']] = (int)$role['id'];
-        }
-        
-        $doctorRoleId = $roleMap['doctor'] ?? null;
-        if (!$doctorRoleId) {
-            return;
-        }
-        
-        $doctorUsers = $this->db->table('users')
-            ->where('role_id', $doctorRoleId)
-            ->get()
-            ->getResultArray();
-        
-        // Generate schedules for next 6 months (or current year if preferred)
-        $startDate = date('Y-m-d'); // Start from today
-        $endDate = date('Y-m-d', strtotime('+6 months')); // 6 months ahead
-        
-        $startDateObj = new \DateTime($startDate);
-        $endDateObj = new \DateTime($endDate);
-        $endDateObj->modify('+1 day'); // Include the end date
-        
-        $now = date('Y-m-d H:i:s');
-        
-        foreach ($doctorUsers as $user) {
-            $doctorId = $user['id'];
-            
-            // Check if schedule already exists for this doctor
-            $existingCount = $this->db->table('doctor_schedules')
-                ->where('doctor_id', $doctorId)
-                ->where('shift_date >=', $startDate)
-                ->where('shift_date <=', $endDate)
-                ->countAllResults();
-            
-            // Skip if schedule already exists
-            if ($existingCount > 0) {
-                continue;
-            }
-            
-            $schedulesToInsert = [];
-            $currentDate = clone $startDateObj;
-            
-            while ($currentDate < $endDateObj) {
-                $dayOfWeek = (int)$currentDate->format('w'); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
-                
-                // Only generate schedule for Monday (1) to Friday (5)
-                if ($dayOfWeek >= 1 && $dayOfWeek <= 5) {
-                    $dateStr = $currentDate->format('Y-m-d');
-                    
-                    // Morning shift: 9:00 AM - 12:00 PM
-                    $schedulesToInsert[] = [
-                        'doctor_id' => $doctorId,
-                        'shift_date' => $dateStr,
-                        'start_time' => '09:00:00',
-                        'end_time' => '12:00:00',
-                        'status' => 'active',
-                        'created_at' => $now,
-                        'updated_at' => $now
-                    ];
-                    
-                    // Afternoon shift: 1:00 PM - 4:00 PM
-                    $schedulesToInsert[] = [
-                        'doctor_id' => $doctorId,
-                        'shift_date' => $dateStr,
-                        'start_time' => '13:00:00',
-                        'end_time' => '16:00:00',
-                        'status' => 'active',
-                        'created_at' => $now,
-                        'updated_at' => $now
-                    ];
-                }
-                
-                $currentDate->modify('+1 day');
-            }
-            
-            // Batch insert schedules (insert in chunks of 100 to avoid memory issues)
-            if (!empty($schedulesToInsert)) {
-                $chunks = array_chunk($schedulesToInsert, 100);
-                foreach ($chunks as $chunk) {
-                    $this->db->table('doctor_schedules')->insertBatch($chunk);
-                }
-            }
-        }
-    }
 
     /**
      * Ensure all required roles exist in the database
