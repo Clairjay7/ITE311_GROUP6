@@ -147,8 +147,10 @@ class AssignDoctorController extends BaseController
         $time = $this->request->getGet('time'); // Optional time parameter
 
         // Get doctors from doctors table (primary source)
+        // Only show doctors who have schedules
+        // Doctors without schedules cannot be assigned to patients
         $availableDoctors = [];
-        $doctors = $this->doctorModel->getAllDoctors();
+        $doctors = $this->doctorModel->getDoctorsWithSchedules();
         
         foreach ($doctors as $doctor) {
             // If time is provided, check if doctor is already booked at that time

@@ -145,7 +145,9 @@ class Rooms extends BaseController
             ->findAll();
 
         // Get doctors from doctors table
-        $doctors = $this->doctorModel->getAllDoctors();
+        // Only show doctors who have schedules
+        // Doctors without schedules cannot be assigned to patients
+        $doctors = $this->doctorModel->getDoctorsWithSchedules();
 
         return view('Reception/rooms/assign', [
             'title' => 'Assign Patient to Room',

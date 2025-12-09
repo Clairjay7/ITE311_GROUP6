@@ -251,12 +251,15 @@
     <div class="modern-card" style="margin-bottom: 24px; padding: 20px;">
         <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
             <div style="flex: 1; min-width: 300px; position: relative;">
-                <i class="fas fa-search" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 16px;"></i>
-                <input type="text" id="userSearchInput" class="form-control-modern" placeholder="Search by ID, Name, Username, Email, Role, License/ID, or Contact..." style="padding-left: 45px; font-size: 14px;">
+                <i class="fas fa-search" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 16px; z-index: 1;"></i>
+                <input type="text" id="userSearchInput" placeholder="Search by ID, Name, Username, Email, Role, License/ID, Contact, Status, or Specialization..." style="width: 100%; padding: 12px 16px 12px 45px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 14px; transition: all 0.3s ease; background: white; color: #1e293b; outline: none;" onfocus="this.style.borderColor='#2e7d32'; this.style.boxShadow='0 0 0 3px rgba(46, 125, 50, 0.1)';" onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';">
             </div>
-            <button type="button" id="clearSearchBtn" class="btn-modern" style="background: #f1f5f9; color: #475569; padding: 12px 20px; display: none;">
+            <button type="button" id="clearSearchBtn" class="btn-modern" style="background: #f1f5f9; color: #475569; padding: 12px 20px; display: none; border: 2px solid #e5e7eb; transition: all 0.3s ease;" onmouseover="this.style.background='#e2e8f0';" onmouseout="this.style.background='#f1f5f9';">
                 <i class="fas fa-times"></i> Clear
             </button>
+        </div>
+        <div id="searchResultsCount" style="margin-top: 12px; font-size: 13px; color: #64748b; display: none;">
+            <i class="fas fa-info-circle"></i> <span id="resultsText"></span>
         </div>
     </div>
 
@@ -437,8 +440,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Function to get searchable text from a row
     function getRowSearchText(row) {
         const cells = row.querySelectorAll('td');
-        if (cells.length < 7) return '';
+        if (cells.length < 8) return '';
         
+        // Get all searchable text from each cell
         const id = cells[0]?.textContent?.trim() || '';
         const name = cells[1]?.textContent?.trim() || '';
         const username = cells[2]?.textContent?.trim() || '';
@@ -446,8 +450,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const role = cells[4]?.textContent?.trim() || '';
         const licenseId = cells[5]?.textContent?.trim() || '';
         const contact = cells[6]?.textContent?.trim() || '';
+        const status = cells[7]?.textContent?.trim() || '';
+        const created = cells[8]?.textContent?.trim() || '';
         
-        return `${id} ${name} ${username} ${email} ${role} ${licenseId} ${contact}`.toLowerCase();
+        // Also get any hidden text like specialization
+        const specialization = row.querySelector('small')?.textContent?.trim() || '';
+        
+        return `${id} ${name} ${username} ${email} ${role} ${licenseId} ${contact} ${status} ${created} ${specialization}`.toLowerCase();
     }
     
     // Function to filter rows based on search and role
@@ -502,6 +511,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 emptyRow.style.display = 'none';
             }
         }
+        
+        // Update search results count
+        const resultsCountEl = document.getElementById('searchResultsCount');
+        const resultsTextEl = document.getElementById('resultsText');
+        if (resultsCountEl && resultsTextEl) {
+            const totalCount = userRows.length;
+            if (hasSearch || currentRoleFilter !== 'all') {
+                resultsCountEl.style.display = 'block';
+                if (hasSearch && currentRoleFilter !== 'all') {
+                    resultsTextEl.textContent = `Showing ${visibleCount} of ${totalCount} users matching "${searchTerm}" in ${currentRoleFilter} role`;
+                } else if (hasSearch) {
+                    resultsTextEl.textContent = `Showing ${visibleCount} of ${totalCount} users matching "${searchTerm}"`;
+                } else {
+                    resultsTextEl.textContent = `Showing ${visibleCount} of ${totalCount} users in ${currentRoleFilter} role`;
+                }
+            } else {
+                resultsCountEl.style.display = 'none';
+            }
+        }
     }
     
     // Role filter functionality
@@ -519,10 +547,34 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Search functionality
+    // Debounce function for better performance
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+    
+    // Search functionality with debounce
     if (searchInput) {
+        // Use debounce for better performance (300ms delay)
+        const debouncedFilter = debounce(filterRows, 300);
+        
         searchInput.addEventListener('input', function() {
-            filterRows();
+            debouncedFilter();
+        });
+        
+        // Also allow Enter key to search immediately
+        searchInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                filterRows();
+            }
         });
         
         // Clear search
@@ -534,6 +586,9 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     }
+    
+    // Initial filter to show all users
+    filterRows();
 });
 </script>
 <?= $this->endSection() ?>

@@ -164,6 +164,21 @@
                             <span><i class="fas fa-check-square" style="margin-right: 6px; color: #2e7d32;"></i>Select All Medicines</span>
                         </label>
                     </div>
+                    
+                    <!-- Search Bar for Medicines -->
+                    <div style="margin-bottom: 12px; position: relative;">
+                        <div style="position: relative;">
+                            <i class="fas fa-search" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 14px; z-index: 1;"></i>
+                            <input type="text" id="medicineSearchInput" placeholder="Search medicines by name, batch number, supplier, or expiration date..." style="width: 100%; padding: 10px 14px 10px 40px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 13px; transition: all 0.3s ease; background: white; color: #1e293b; outline: none;" onfocus="this.style.borderColor='#2e7d32'; this.style.boxShadow='0 0 0 3px rgba(46, 125, 50, 0.1)';" onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';">
+                        </div>
+                        <button type="button" id="clearMedicineSearchBtn" style="display: none; margin-top: 8px; padding: 6px 12px; background: #f1f5f9; color: #475569; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 12px; cursor: pointer; transition: all 0.3s ease;" onmouseover="this.style.background='#e2e8f0';" onmouseout="this.style.background='#f1f5f9';">
+                            <i class="fas fa-times"></i> Clear Search
+                        </button>
+                        <div id="medicineSearchResults" style="margin-top: 8px; font-size: 12px; color: #64748b; display: none;">
+                            <i class="fas fa-info-circle"></i> <span id="medicineResultsText"></span>
+                        </div>
+                    </div>
+                    
                     <div id="inventoryMedicinesList" style="max-height: 400px; overflow-y: auto;">
                         <!-- Medicines list will be populated here -->
                     </div>
@@ -346,15 +361,16 @@ document.getElementById('category')?.addEventListener('change', function() {
                 
                 // Display medicines list with checkboxes for pricing selection only
                 if (inventoryData.medicines && inventoryData.medicines.length > 0) {
-                    let medicinesHtml = '<div style="display: grid; gap: 12px;">';
+                    let medicinesHtml = '<div id="medicinesContainer" style="display: grid; gap: 12px;">';
                     inventoryData.medicines.forEach(medicine => {
                         const expDate = new Date(medicine.expiration_date);
                         const isExpiringSoon = expDate <= new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
                         const isExpired = expDate < new Date();
                         const expColor = isExpired ? '#ef4444' : (isExpiringSoon ? '#f59e0b' : '#2e7d32');
+                        const expDateFormatted = medicine.expiration_date ? new Date(medicine.expiration_date).toLocaleDateString() : 'N/A';
                         
                         medicinesHtml += `
-                            <div style="padding: 12px; background: white; border-radius: 6px; border: 1px solid #e5e7eb; display: grid; grid-template-columns: auto 2fr 1fr 1fr 1fr 1fr; gap: 12px; align-items: center;">
+                            <div class="medicine-item" data-medicine-name="${(medicine.item_name || '').toLowerCase()}" data-batch="${(medicine.batch_number || '').toLowerCase()}" data-supplier="${(medicine.supplier_name || '').toLowerCase()}" data-expiration="${expDateFormatted.toLowerCase()}" data-stock="${medicine.quantity || 0}" style="padding: 12px; background: white; border-radius: 6px; border: 1px solid #e5e7eb; display: grid; grid-template-columns: auto 2fr 1fr 1fr 1fr 1fr; gap: 12px; align-items: center;">
                                 <div style="display: flex; align-items: center; justify-content: center;">
                                     <input type="checkbox" class="medicine-checkbox" value="${medicine.id || ''}" id="medicine-${medicine.id || ''}" data-medicine='${JSON.stringify(medicine)}' style="width: 18px; height: 18px; cursor: pointer;" title="Select to update pricing">
                                 </div>
@@ -371,7 +387,7 @@ document.getElementById('category')?.addEventListener('change', function() {
                                 <div>
                                     <div style="font-size: 11px; color: #6b7280; margin-bottom: 4px;">Expiration Date</div>
                                     <div style="font-weight: 600; color: ${expColor}; font-size: 12px;">
-                                        ${medicine.expiration_date ? new Date(medicine.expiration_date).toLocaleDateString() : 'N/A'}
+                                        ${expDateFormatted}
                                         ${isExpired ? ' <i class="fas fa-exclamation-circle"></i>' : ''}
                                     </div>
                                 </div>
@@ -401,23 +417,112 @@ document.getElementById('category')?.addEventListener('change', function() {
                     const selectAllCheckbox = document.getElementById('selectAllMedicines');
                     if (selectAllCheckbox) {
                         selectAllCheckbox.addEventListener('change', function() {
-                            const allCheckboxes = document.querySelectorAll('.medicine-checkbox');
+                            const allCheckboxes = document.querySelectorAll('.medicine-checkbox:not([style*="display: none"])');
                             allCheckboxes.forEach(checkbox => {
-                                checkbox.checked = this.checked;
+                                if (checkbox.closest('.medicine-item') && !checkbox.closest('.medicine-item').style.display.includes('none')) {
+                                    checkbox.checked = this.checked;
+                                }
                             });
                             updatePricingTable();
                         });
                         
                         // Update Select All checkbox state when individual checkboxes change
                         function updateSelectAllCheckbox() {
-                            const allCheckboxes = document.querySelectorAll('.medicine-checkbox');
-                            const checkedCount = document.querySelectorAll('.medicine-checkbox:checked').length;
-                            selectAllCheckbox.checked = allCheckboxes.length > 0 && checkedCount === allCheckboxes.length;
-                            selectAllCheckbox.indeterminate = checkedCount > 0 && checkedCount < allCheckboxes.length;
+                            const allCheckboxes = document.querySelectorAll('.medicine-checkbox:not([style*="display: none"])');
+                            const visibleCheckboxes = Array.from(allCheckboxes).filter(cb => {
+                                const item = cb.closest('.medicine-item');
+                                return item && !item.style.display.includes('none');
+                            });
+                            const checkedCount = visibleCheckboxes.filter(cb => cb.checked).length;
+                            selectAllCheckbox.checked = visibleCheckboxes.length > 0 && checkedCount === visibleCheckboxes.length;
+                            selectAllCheckbox.indeterminate = checkedCount > 0 && checkedCount < visibleCheckboxes.length;
                         }
                         
                         // Make updateSelectAllCheckbox available globally
                         window.updateSelectAllCheckbox = updateSelectAllCheckbox;
+                    }
+                    
+                    // Add search functionality for medicines
+                    const medicineSearchInput = document.getElementById('medicineSearchInput');
+                    const clearMedicineSearchBtn = document.getElementById('clearMedicineSearchBtn');
+                    const medicineSearchResults = document.getElementById('medicineSearchResults');
+                    const medicineResultsText = document.getElementById('medicineResultsText');
+                    
+                    function filterMedicines() {
+                        const searchTerm = (medicineSearchInput.value || '').toLowerCase().trim();
+                        const medicineItems = document.querySelectorAll('.medicine-item');
+                        let visibleCount = 0;
+                        const totalCount = medicineItems.length;
+                        
+                        medicineItems.forEach(item => {
+                            const medicineName = item.getAttribute('data-medicine-name') || '';
+                            const batch = item.getAttribute('data-batch') || '';
+                            const supplier = item.getAttribute('data-supplier') || '';
+                            const expiration = item.getAttribute('data-expiration') || '';
+                            const stock = item.getAttribute('data-stock') || '';
+                            
+                            const searchableText = `${medicineName} ${batch} ${supplier} ${expiration} ${stock}`;
+                            
+                            if (!searchTerm || searchableText.includes(searchTerm)) {
+                                item.style.display = 'grid';
+                                visibleCount++;
+                            } else {
+                                item.style.display = 'none';
+                            }
+                        });
+                        
+                        // Show/hide clear button
+                        if (searchTerm) {
+                            clearMedicineSearchBtn.style.display = 'inline-block';
+                        } else {
+                            clearMedicineSearchBtn.style.display = 'none';
+                        }
+                        
+                        // Update results count
+                        if (searchTerm) {
+                            medicineSearchResults.style.display = 'block';
+                            medicineResultsText.textContent = `Showing ${visibleCount} of ${totalCount} medicines matching "${searchTerm}"`;
+                        } else {
+                            medicineSearchResults.style.display = 'none';
+                        }
+                        
+                        // Update Select All checkbox state after filtering
+                        if (window.updateSelectAllCheckbox) {
+                            window.updateSelectAllCheckbox();
+                        }
+                    }
+                    
+                    // Debounce function for better performance
+                    function debounce(func, wait) {
+                        let timeout;
+                        return function executedFunction(...args) {
+                            const later = () => {
+                                clearTimeout(timeout);
+                                func(...args);
+                            };
+                            clearTimeout(timeout);
+                            timeout = setTimeout(later, wait);
+                        };
+                    }
+                    
+                    // Add search event listeners
+                    if (medicineSearchInput) {
+                        const debouncedFilter = debounce(filterMedicines, 300);
+                        medicineSearchInput.addEventListener('input', debouncedFilter);
+                        medicineSearchInput.addEventListener('keydown', function(e) {
+                            if (e.key === 'Enter') {
+                                e.preventDefault();
+                                filterMedicines();
+                            }
+                        });
+                    }
+                    
+                    if (clearMedicineSearchBtn) {
+                        clearMedicineSearchBtn.addEventListener('click', function() {
+                            medicineSearchInput.value = '';
+                            filterMedicines();
+                            medicineSearchInput.focus();
+                        });
                     }
                 } else {
                     inventoryMedicinesList.innerHTML = '<div style="padding: 20px; text-align: center; color: #64748b;"><i class="fas fa-inbox"></i> No medicines found in this category</div>';

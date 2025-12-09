@@ -249,17 +249,8 @@ class AdmissionOrdersController extends BaseController
         }
 
         // Get all active nurses
-        $nurses = [];
-        if ($db->tableExists('users') && $db->tableExists('roles')) {
-            $nurses = $db->table('users')
-                ->select('users.id, users.username, users.email')
-                ->join('roles', 'roles.id = users.role_id', 'left')
-                ->where('LOWER(roles.name)', 'nurse')
-                ->where('users.status', 'active')
-                ->orderBy('users.username', 'ASC')
-                ->get()
-                ->getResultArray();
-        }
+        // Only show nurses who have schedules
+        $nurses = $this->getNursesWithSchedules();
 
         $data = [
             'title' => 'Create Admission Orders',

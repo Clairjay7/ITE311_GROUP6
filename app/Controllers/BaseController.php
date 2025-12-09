@@ -55,4 +55,38 @@ abstract class BaseController extends Controller
 
         // E.g.: $this->session = service('session');
     }
+
+    /**
+     * Get nurses who have schedules in nurse_schedules table
+     * Only returns nurses with at least one active schedule
+     * 
+     * @return array
+     */
+    protected function getNursesWithSchedules()
+    {
+        $db = \Config\Database::connect();
+        
+        // Check if nurse_schedules table exists
+        if (!$db->tableExists('nurse_schedules')) {
+            // If table doesn't exist, return empty array
+            return [];
+        }
+        
+        // Get nurses who have at least one schedule
+        $nurses = $db->table('users')
+            ->select('users.id, users.username, users.email')
+            ->join('roles', 'roles.id = users.role_id', 'inner')
+            ->join('nurse_schedules', 'nurse_schedules.nurse_id = users.id', 'inner')
+            ->where('LOWER(roles.name)', 'nurse')
+            ->where('users.status', 'active')
+            ->where('users.deleted_at IS NULL', null, false)
+            ->where('nurse_schedules.status', 'active')
+            ->where('nurse_schedules.shift_date >=', date('Y-m-d')) // Only future or today's schedules
+            ->groupBy('users.id') // Group by nurse to avoid duplicates
+            ->orderBy('users.username', 'ASC')
+            ->get()
+            ->getResultArray();
+        
+        return $nurses;
+    }
 }

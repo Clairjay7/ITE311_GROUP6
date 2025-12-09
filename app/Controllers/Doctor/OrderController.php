@@ -339,13 +339,8 @@ class OrderController extends BaseController
         });
 
         // Get all active nurses
-        $nurses = $db->table('users')
-            ->select('users.id, users.username, users.email')
-            ->join('roles', 'roles.id = users.role_id', 'left')
-            ->where('LOWER(roles.name)', 'nurse')
-            ->where('users.status', 'active')
-            ->orderBy('users.username', 'ASC')
-            ->get()->getResultArray();
+        // Only show nurses who have schedules
+        $nurses = $this->getNursesWithSchedules();
 
         // Get all available medicines from pharmacy (quantity > 0)
         $medicines = [];
@@ -954,5 +949,6 @@ class OrderController extends BaseController
             return redirect()->back()->with('error', 'Failed to cancel medical order.');
         }
     }
+
 }
 

@@ -85,7 +85,9 @@ class AdmissionController extends BaseController
             ->findAll();
 
         // Get doctors from doctors table
-        $doctors = $this->doctorModel->getAllDoctors();
+        // Only show doctors who have schedules
+        // Doctors without schedules cannot be assigned as attending physician
+        $doctors = $this->doctorModel->getDoctorsWithSchedules();
 
         // Group rooms by ward
         $roomsByWard = [];

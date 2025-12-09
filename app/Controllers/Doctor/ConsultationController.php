@@ -68,6 +68,7 @@ class ConsultationController extends BaseController
             ->getResultArray();
 
         // Organize schedules by month and day
+        // ONLY create entries for days that have actual schedules, admitted patients, or consultations
         $scheduleByMonth = [];
         foreach ($schedules as $schedule) {
             $date = new \DateTime($schedule['shift_date']);
@@ -99,32 +100,8 @@ class ConsultationController extends BaseController
             }
         }
         
-        // Also create entries for all days in the year (to show admitted patients even on non-working days)
-        $startDate = new \DateTime($currentYear . '-01-01');
-        $endDate = new \DateTime($currentYear . '-12-31');
-        $currentDate = clone $startDate;
-        
-        while ($currentDate <= $endDate) {
-            $month = $currentDate->format('F Y');
-            $day = $currentDate->format('d');
-            $dayName = $currentDate->format('l');
-            $dateStr = $currentDate->format('Y-m-d');
-            
-            if (!isset($scheduleByMonth[$month])) {
-                $scheduleByMonth[$month] = [];
-            }
-            
-            if (!isset($scheduleByMonth[$month][$day])) {
-                $scheduleByMonth[$month][$day] = [
-                    'date' => $dateStr,
-                    'day_name' => $dayName,
-                    'time_slots' => [],
-                    'admitted_patients' => []
-                ];
-            }
-            
-            $currentDate->modify('+1 day');
-        }
+        // DO NOT create entries for all days in the year
+        // Only show days that have actual schedules, admitted patients, or consultations
 
         // Get admitted patients for this doctor
         $admittedPatients = [];
@@ -156,28 +133,23 @@ class ConsultationController extends BaseController
                     $admissionYear = (int)$admissionDate->format('Y');
                     
                     // Only show for current year
+                    // Only add admitted patients to days that already have schedules
                     if ($admissionYear == $currentYear) {
-                        // Ensure the day exists in scheduleByMonth (create if doesn't exist)
-                        if (!isset($scheduleByMonth[$month])) {
-                            $scheduleByMonth[$month] = [];
-                        }
-                        if (!isset($scheduleByMonth[$month][$day])) {
-                            $scheduleByMonth[$month][$day] = [
-                                'date' => $adm['admission_date'],
-                                'day_name' => $admissionDate->format('l'),
-                                'time_slots' => [],
-                                'admitted_patients' => []
+                        // Only add if this day already has a schedule
+                        if (isset($scheduleByMonth[$month][$day])) {
+                            if (!isset($scheduleByMonth[$month][$day]['admitted_patients'])) {
+                                $scheduleByMonth[$month][$day]['admitted_patients'] = [];
+                            }
+                            
+                            $scheduleByMonth[$month][$day]['admitted_patients'][] = [
+                                'name' => ($adm['firstname'] ?? '') . ' ' . ($adm['lastname'] ?? ''),
+                                'room_number' => $adm['room_number'] ?? 'N/A',
+                                'ward' => $adm['ward'] ?? 'N/A',
+                                'admission_date' => $adm['admission_date'],
+                                'source' => 'admin',
+                                'patient_id' => $adm['patient_id'],
                             ];
                         }
-                        
-                        $scheduleByMonth[$month][$day]['admitted_patients'][] = [
-                            'name' => ($adm['firstname'] ?? '') . ' ' . ($adm['lastname'] ?? ''),
-                            'room_number' => $adm['room_number'] ?? 'N/A',
-                            'ward' => $adm['ward'] ?? 'N/A',
-                            'admission_date' => $adm['admission_date'],
-                            'source' => 'admin',
-                            'patient_id' => $adm['patient_id'],
-                        ];
                     }
                 } catch (\Exception $e) {
                     // Skip invalid dates
@@ -210,39 +182,34 @@ class ConsultationController extends BaseController
                     $admissionYear = (int)$admissionDate->format('Y');
                     
                     // Only include if in current year
+                    // Only add admitted patients to days that already have schedules
                     if ($admissionYear == $currentYear) {
                         $month = $admissionDate->format('F Y');
                         $day = $admissionDate->format('d');
                         
-                        // Ensure the day exists in scheduleByMonth (create if doesn't exist)
-                        if (!isset($scheduleByMonth[$month])) {
-                            $scheduleByMonth[$month] = [];
-                        }
-                        if (!isset($scheduleByMonth[$month][$day])) {
-                            $scheduleByMonth[$month][$day] = [
-                                'date' => $admissionDateStr,
-                                'day_name' => $admissionDate->format('l'),
-                                'time_slots' => [],
-                                'admitted_patients' => []
+                        // Only add if this day already has a schedule
+                        if (isset($scheduleByMonth[$month][$day])) {
+                            if (!isset($scheduleByMonth[$month][$day]['admitted_patients'])) {
+                                $scheduleByMonth[$month][$day]['admitted_patients'] = [];
+                            }
+                            
+                            $nameParts = [];
+                            if (!empty($patient['first_name'])) $nameParts[] = $patient['first_name'];
+                            if (!empty($patient['last_name'])) $nameParts[] = $patient['last_name'];
+                            if (empty($nameParts) && !empty($patient['full_name'])) {
+                                $parts = explode(' ', $patient['full_name'], 2);
+                                $nameParts = [$parts[0] ?? '', $parts[1] ?? ''];
+                            }
+                            
+                            $scheduleByMonth[$month][$day]['admitted_patients'][] = [
+                                'name' => implode(' ', $nameParts),
+                                'room_number' => $patient['room_number'] ?? 'N/A',
+                                'ward' => $patient['ward'] ?? $patient['room_type'] ?? 'N/A',
+                                'admission_date' => $admissionDateStr,
+                                'source' => 'receptionist',
+                                'patient_id' => $patient['patient_id'],
                             ];
                         }
-                        
-                        $nameParts = [];
-                        if (!empty($patient['first_name'])) $nameParts[] = $patient['first_name'];
-                        if (!empty($patient['last_name'])) $nameParts[] = $patient['last_name'];
-                        if (empty($nameParts) && !empty($patient['full_name'])) {
-                            $parts = explode(' ', $patient['full_name'], 2);
-                            $nameParts = [$parts[0] ?? '', $parts[1] ?? ''];
-                        }
-                        
-                        $scheduleByMonth[$month][$day]['admitted_patients'][] = [
-                            'name' => implode(' ', $nameParts),
-                            'room_number' => $patient['room_number'] ?? 'N/A',
-                            'ward' => $patient['ward'] ?? $patient['room_type'] ?? 'N/A',
-                            'admission_date' => $admissionDateStr,
-                            'source' => 'receptionist',
-                            'patient_id' => $patient['patient_id'],
-                        ];
                     }
                 } catch (\Exception $e) {
                     // Skip invalid dates
@@ -304,50 +271,55 @@ class ConsultationController extends BaseController
                     $consultYear = (int)$dateObj->format('Y');
                     
                     // Include consultations from current year and next year
+                    // Only add consultations to days that already have schedules
                     if ($consultYear >= $currentYear) {
                         log_message('debug', "Processing consultation for date: {$consultDate}, month: {$month}, day: {$day}");
-                        // Ensure the day exists in scheduleByMonth
-                        if (!isset($scheduleByMonth[$month])) {
-                            $scheduleByMonth[$month] = [];
-                        }
-                        if (!isset($scheduleByMonth[$month][$day])) {
-                            $scheduleByMonth[$month][$day] = [
-                                'date' => $consultDate,
-                                'day_name' => $dateObj->format('l'),
-                                'time_slots' => [],
-                                'admitted_patients' => [],
-                                'consultations' => []
+                        // Only add if this day already has a schedule
+                        if (isset($scheduleByMonth[$month][$day])) {
+                            // Initialize consultations array if not exists
+                            if (!isset($scheduleByMonth[$month][$day]['consultations'])) {
+                                $scheduleByMonth[$month][$day]['consultations'] = [];
+                            }
+                            
+                            // Get patient name
+                            $patientName = $consult['full_name'] ?? '';
+                            if (empty($patientName)) {
+                                $patientName = trim(($consult['first_name'] ?? '') . ' ' . ($consult['last_name'] ?? ''));
+                            }
+                            if (empty($patientName)) {
+                                $patientName = 'Patient #' . ($consult['patient_id'] ?? 'Unknown');
+                            }
+                            
+                            $scheduleByMonth[$month][$day]['consultations'][] = [
+                                'id' => $consult['id'],
+                                'patient_name' => $patientName,
+                                'patient_id' => $consult['patient_id'],
+                                'consultation_time' => $consult['consultation_time'],
+                                'consultation_date' => $consultDate,
+                                'status' => $consult['status'],
+                                'notes' => $consult['notes'] ?? ''
                             ];
                         }
-                        
-                        // Initialize consultations array if not exists
-                        if (!isset($scheduleByMonth[$month][$day]['consultations'])) {
-                            $scheduleByMonth[$month][$day]['consultations'] = [];
-                        }
-                        
-                        // Get patient name
-                        $patientName = $consult['full_name'] ?? '';
-                        if (empty($patientName)) {
-                            $patientName = trim(($consult['first_name'] ?? '') . ' ' . ($consult['last_name'] ?? ''));
-                        }
-                        if (empty($patientName)) {
-                            $patientName = 'Patient #' . ($consult['patient_id'] ?? 'Unknown');
-                        }
-                        
-                        $scheduleByMonth[$month][$day]['consultations'][] = [
-                            'id' => $consult['id'],
-                            'patient_name' => $patientName,
-                            'patient_id' => $consult['patient_id'],
-                            'consultation_time' => $consult['consultation_time'],
-                            'consultation_date' => $consultDate,
-                            'status' => $consult['status'],
-                            'notes' => $consult['notes'] ?? ''
-                        ];
                     }
                 } catch (\Exception $e) {
                     // Skip invalid dates
                     continue;
                 }
+            }
+        }
+
+        // Final filter: Remove any days that don't have actual schedules (time_slots)
+        // Only show days with actual working schedules
+        foreach ($scheduleByMonth as $month => $days) {
+            foreach ($days as $day => $dayData) {
+                // If this day has no time_slots (no actual schedule), remove it
+                if (empty($dayData['time_slots'])) {
+                    unset($scheduleByMonth[$month][$day]);
+                }
+            }
+            // Remove empty months
+            if (empty($scheduleByMonth[$month])) {
+                unset($scheduleByMonth[$month]);
             }
         }
 
@@ -876,17 +848,8 @@ class ConsultationController extends BaseController
         }
 
         // Get all active nurses (for medication orders)
-        $nurses = [];
-        if ($db->tableExists('users') && $db->tableExists('roles')) {
-            $nurses = $db->table('users')
-                ->select('users.id, users.username')
-                ->join('roles', 'roles.id = users.role_id', 'left')
-                ->where('LOWER(roles.name)', 'nurse')
-                ->where('users.status', 'active')
-                ->orderBy('users.username', 'ASC')
-                ->get()
-                ->getResultArray();
-        }
+        // Only show nurses who have schedules
+        $nurses = $this->getNursesWithSchedules();
 
         // Get active lab tests grouped by category (for lab test requests)
         $labTests = [];
@@ -1737,17 +1700,8 @@ class ConsultationController extends BaseController
         }
 
         // Get all active nurses (for medication orders and lab tests)
-        $nurses = [];
-        if ($db->tableExists('users') && $db->tableExists('roles')) {
-            $nurses = $db->table('users')
-                ->select('users.id, users.username')
-                ->join('roles', 'roles.id = users.role_id', 'left')
-                ->where('LOWER(roles.name)', 'nurse')
-                ->where('users.status', 'active')
-                ->orderBy('users.username', 'ASC')
-                ->get()
-                ->getResultArray();
-        }
+        // Only show nurses who have schedules
+        $nurses = $this->getNursesWithSchedules();
 
         // Get active lab tests grouped by category (for lab test requests)
         $labTests = [];
@@ -2158,4 +2112,5 @@ class ConsultationController extends BaseController
             return redirect()->back()->withInput()->with('error', 'Failed to save consultation.');
         }
     }
+
 }
