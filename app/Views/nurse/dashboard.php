@@ -451,10 +451,83 @@
             </a>
         </h3>
         <?php if (!empty($assignedPatients)): ?>
-            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-bottom: 20px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-bottom: 20px;">
                 <?php foreach ($assignedPatients as $patient): ?>
-                    <div style="background: #f8fafc; padding: 12px; border-radius: 8px; border-left: 4px solid #0288d1;">
-                        <strong><?= esc($patient['firstname'] . ' ' . $patient['lastname']) ?></strong>
+                    <?php 
+                    // Get patient ID - handle both admin_patients and patients table
+                    $patientId = $patient['id'] ?? $patient['patient_id'] ?? null;
+                    $patientSource = $patient['source'] ?? 'admin_patients';
+                    
+                    // Build patient name - prioritize firstname/lastname, then full_name
+                    $patientName = '';
+                    if (!empty($patient['firstname']) && !empty($patient['lastname'])) {
+                        $patientName = trim(ucfirst($patient['firstname']) . ' ' . ucfirst($patient['lastname']));
+                    } elseif (!empty($patient['full_name'])) {
+                        $patientName = trim($patient['full_name']);
+                    } elseif (!empty($patient['first_name']) && !empty($patient['last_name'])) {
+                        $patientName = trim(ucfirst($patient['first_name']) . ' ' . ucfirst($patient['last_name']));
+                    } else {
+                        $patientName = 'Patient #' . $patientId;
+                    }
+                    
+                    // Determine assignment type badge
+                    $assignmentType = $patient['assignment_type'] ?? 'direct_assignment';
+                    $badgeColor = $assignmentType === 'direct_assignment' ? '#10b981' : '#0288d1';
+                    $badgeText = $assignmentType === 'direct_assignment' ? 'Directly Assigned' : 'Medication Order';
+                    
+                    // For patients from patients table, we need to find the admin_patients ID
+                    // The addVitals route expects admin_patients.id
+                    $vitalsPatientId = $patientId;
+                    if ($patientSource === 'patients' && $patientId) {
+                        // Try to find corresponding admin_patients record
+                        $db = \Config\Database::connect();
+                        $nameParts = [];
+                        if (!empty($patient['firstname'])) $nameParts[] = $patient['firstname'];
+                        if (!empty($patient['lastname'])) $nameParts[] = $patient['lastname'];
+                        
+                        if (!empty($nameParts[0]) && !empty($nameParts[1]) && $db->tableExists('admin_patients')) {
+                            $adminPatient = $db->table('admin_patients')
+                                ->where('firstname', $nameParts[0])
+                                ->where('lastname', $nameParts[1])
+                                ->where('deleted_at IS NULL', null, false)
+                                ->get()
+                                ->getRowArray();
+                            
+                            if ($adminPatient) {
+                                $vitalsPatientId = $adminPatient['id'];
+                            }
+                        }
+                    }
+                    ?>
+                    <div style="background: #f8fafc; padding: 16px; border-radius: 8px; border-left: 4px solid <?= $badgeColor ?>; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <div style="margin-bottom: 12px;">
+                            <strong style="font-size: 15px; color: #1e293b; display: block; margin-bottom: 4px;">
+                                <?= esc($patientName) ?>
+                            </strong>
+                            <span style="font-size: 11px; color: #64748b; background: <?= $badgeColor ?>20; padding: 2px 8px; border-radius: 4px; display: inline-block;">
+                                <?= esc($badgeText) ?>
+                            </span>
+                        </div>
+                        <div style="margin-top: 12px;">
+                            <?php if ($vitalsPatientId): ?>
+                                <a href="<?= site_url('nurse/patients/add-vitals/' . $vitalsPatientId) ?>" 
+                                   style="display: inline-block; background: linear-gradient(135deg, #10b981 0%, #059669 100%); 
+                                          color: white; padding: 8px 16px; border-radius: 6px; 
+                                          text-decoration: none; font-size: 13px; font-weight: 600;
+                                          box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+                                          transition: all 0.3s ease;"
+                                   onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(16, 185, 129, 0.4)';"
+                                   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(16, 185, 129, 0.3)';">
+                                    <i class="fas fa-heartbeat"></i> Check Vitals
+                                </a>
+                            <?php else: ?>
+                                <span style="display: inline-block; background: #e5e7eb; 
+                                          color: #64748b; padding: 8px 16px; border-radius: 6px; 
+                                          font-size: 13px; font-weight: 600; cursor: not-allowed;">
+                                    <i class="fas fa-heartbeat"></i> Check Vitals
+                                </span>
+                            <?php endif; ?>
+                        </div>
                     </div>
                 <?php endforeach; ?>
             </div>

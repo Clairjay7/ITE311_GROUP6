@@ -676,6 +676,81 @@ class DashboardController extends BaseController
             }
         }
         
+        // Get patients with recent vital signs from assigned nurses (for "Check Nurse Assessment" button)
+        // Note: patient_vitals.patient_id references admin_patients.id
+        $patientsWithNurseAssessment = [];
+        $patientsWithRecentVitals = []; // Map of admin_patients.id => has_recent_vitals
+        
+        if ($db->tableExists('patient_vitals') && $db->tableExists('admin_patients')) {
+            $today = date('Y-m-d');
+            $sevenDaysAgo = date('Y-m-d', strtotime('-7 days'));
+            
+            // Get all recent vital signs from assigned nurses for patients assigned to this doctor
+            // patient_vitals.patient_id = admin_patients.id
+            $recentVitals = $db->table('patient_vitals pv')
+                ->select('pv.*, ap.id as admin_patient_id, ap.firstname, ap.lastname, ap.assigned_nurse_id, ap.doctor_id,
+                         users.first_name as nurse_first_name, users.last_name as nurse_last_name, users.username as nurse_username')
+                ->join('admin_patients ap', 'ap.id = pv.patient_id', 'inner')
+                ->join('users', 'users.id = pv.nurse_id', 'left')
+                ->where('ap.doctor_id', $doctorId)
+                ->where('ap.assigned_nurse_id IS NOT NULL', null, false)
+                ->where('ap.assigned_nurse_id = pv.nurse_id', null, false) // Only vitals from assigned nurse
+                ->where('DATE(pv.created_at) >=', $sevenDaysAgo) // Last 7 days
+                ->where('ap.deleted_at IS NULL', null, false)
+                ->orderBy('pv.created_at', 'DESC')
+                ->get()
+                ->getResultArray();
+            
+            // Group by patient and get the most recent vital signs
+            $patientVitalsMap = [];
+            foreach ($recentVitals as $vital) {
+                $adminPatientId = $vital['admin_patient_id'];
+                $isToday = date('Y-m-d', strtotime($vital['created_at'])) === $today;
+                
+                if (!isset($patientVitalsMap[$adminPatientId]) || 
+                    strtotime($vital['created_at']) > strtotime($patientVitalsMap[$adminPatientId]['created_at'])) {
+                    $patientVitalsMap[$adminPatientId] = $vital;
+                    $patientVitalsMap[$adminPatientId]['is_today'] = $isToday;
+                    $patientsWithRecentVitals[$adminPatientId] = true;
+                }
+            }
+            
+            // Also map vitals to patients table IDs (for patients from patients table)
+            // This helps match vitals when displaying patients from patients table
+            if ($db->tableExists('patients')) {
+                foreach ($patientVitalsMap as $adminPatientId => $vital) {
+                    // Find corresponding patients table record
+                    $adminPatient = $db->table('admin_patients')
+                        ->where('id', $adminPatientId)
+                        ->get()
+                        ->getRowArray();
+                    
+                    if ($adminPatient) {
+                        $nameParts = [
+                            $adminPatient['firstname'] ?? '',
+                            $adminPatient['lastname'] ?? ''
+                        ];
+                        
+                        if (!empty($nameParts[0]) && !empty($nameParts[1])) {
+                            $hmsPatient = $db->table('patients')
+                                ->where('first_name', $nameParts[0])
+                                ->where('last_name', $nameParts[1])
+                                ->where('doctor_id', $doctorId)
+                                ->get()
+                                ->getRowArray();
+                            
+                            if ($hmsPatient) {
+                                // Map hms patient_id to the vital
+                                $patientVitalsMap[$adminPatientId]['hms_patient_id'] = $hmsPatient['patient_id'];
+                            }
+                        }
+                    }
+                }
+            }
+            
+            $patientsWithNurseAssessment = array_values($patientVitalsMap);
+        }
+        
         // Debug: Log patient counts
         log_message('debug', "Doctor Dashboard - doctor_id: {$doctorId}, assignedPatientsCount: {$assignedPatientsCount}, hmsPatientsCount: " . count($hmsPatients) . ", total: " . count($allAssignedPatients) . ", admittedPatients: " . count($admittedPatients));
         if (!empty($hmsPatients)) {
@@ -706,6 +781,8 @@ class DashboardController extends BaseController
             'totalUnreadNotifications' => $totalUnreadNotifications,
             'isPediatricsDoctor' => $isPediatricsDoctor,
             'doctorSpecialization' => $doctorSpecialization,
+            'patientsWithNurseAssessment' => $patientsWithNurseAssessment, // Patients with recent vital signs from assigned nurses
+            'patientsWithRecentVitals' => $patientsWithRecentVitals ?? [], // Map of patient_id => has_recent_vitals
         ];
 
         return view('doctor/dashboard/index', $data);

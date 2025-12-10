@@ -21,6 +21,7 @@ class AdminPatientModel extends Model
         'contact',
         'address',
         'doctor_id',
+        'assigned_nurse_id',
         'visit_type',
         'triage_status',
     ];

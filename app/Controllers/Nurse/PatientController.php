@@ -130,9 +130,69 @@ class PatientController extends BaseController
 
         $patientModel = new AdminPatientModel();
         $patient = $patientModel->find($patientId);
+        $db = \Config\Database::connect();
+        $nurseId = session()->get('user_id');
+        
+        // If not found in admin_patients, check patients table
+        if (!$patient && $db->tableExists('patients')) {
+            $hmsPatient = $db->table('patients')
+                ->where('patient_id', $patientId)
+                ->get()
+                ->getRowArray();
+            
+            if ($hmsPatient) {
+                // Find corresponding admin_patients record
+                $nameParts = [];
+                if (!empty($hmsPatient['first_name'])) $nameParts[] = $hmsPatient['first_name'];
+                if (!empty($hmsPatient['last_name'])) $nameParts[] = $hmsPatient['last_name'];
+                
+                if (empty($nameParts) && !empty($hmsPatient['full_name'])) {
+                    $parts = explode(' ', $hmsPatient['full_name'], 2);
+                    $nameParts = [$parts[0] ?? '', $parts[1] ?? ''];
+                }
+                
+                if (!empty($nameParts[0]) && !empty($nameParts[1])) {
+                    $adminPatient = $db->table('admin_patients')
+                        ->where('firstname', $nameParts[0])
+                        ->where('lastname', $nameParts[1])
+                        ->where('doctor_id', $hmsPatient['doctor_id'] ?? null)
+                        ->where('deleted_at IS NULL', null, false)
+                        ->get()
+                        ->getRowArray();
+                    
+                    if ($adminPatient) {
+                        $patient = $adminPatient;
+                    } else {
+                        // Create admin_patients record if it doesn't exist
+                        $adminPatientData = [
+                            'firstname' => $nameParts[0],
+                            'lastname' => $nameParts[1],
+                            'birthdate' => $hmsPatient['date_of_birth'] ?? $hmsPatient['birthdate'] ?? null,
+                            'gender' => strtolower($hmsPatient['gender'] ?? 'other'),
+                            'contact' => $hmsPatient['contact'] ?? null,
+                            'address' => $hmsPatient['address'] ?? null,
+                            'doctor_id' => $hmsPatient['doctor_id'] ?? null,
+                            'visit_type' => $hmsPatient['visit_type'] ?? null,
+                            'assigned_nurse_id' => $hmsPatient['assigned_nurse_id'] ?? null,
+                            'created_at' => date('Y-m-d H:i:s'),
+                            'updated_at' => date('Y-m-d H:i:s'),
+                        ];
+                        
+                        $db->table('admin_patients')->insert($adminPatientData);
+                        $patient = $db->table('admin_patients')->where('id', $db->insertID())->get()->getRowArray();
+                    }
+                }
+            }
+        }
         
         if (!$patient) {
             return redirect()->to('/nurse/patients/view')->with('error', 'Patient not found.');
+        }
+
+        // Verify the nurse is assigned to this patient
+        $assignedNurseId = $patient['assigned_nurse_id'] ?? null;
+        if ($assignedNurseId != $nurseId) {
+            return redirect()->to('/nurse/dashboard')->with('error', 'You are not assigned to this patient.');
         }
 
         $data = [
@@ -153,6 +213,87 @@ class PatientController extends BaseController
 
         $vitalModel = new PatientVitalModel();
         $nurseId = session()->get('user_id');
+        $db = \Config\Database::connect();
+
+        // Verify patient exists and get the correct admin_patients.id
+        // patient_vitals.patient_id must reference admin_patients.id
+        $adminPatientId = null;
+        $patientModel = new AdminPatientModel();
+        $patient = $patientModel->find($patientId);
+        
+        if ($patient) {
+            // Found in admin_patients table
+            $adminPatientId = $patientId;
+        } else {
+            // Not found in admin_patients, check if it's from patients table
+            if ($db->tableExists('patients')) {
+                $hmsPatient = $db->table('patients')
+                    ->where('patient_id', $patientId)
+                    ->get()
+                    ->getRowArray();
+                
+                if ($hmsPatient) {
+                    // Find corresponding admin_patients record
+                    $nameParts = [];
+                    if (!empty($hmsPatient['first_name'])) $nameParts[] = $hmsPatient['first_name'];
+                    if (!empty($hmsPatient['last_name'])) $nameParts[] = $hmsPatient['last_name'];
+                    
+                    if (empty($nameParts) && !empty($hmsPatient['full_name'])) {
+                        $parts = explode(' ', $hmsPatient['full_name'], 2);
+                        $nameParts = [$parts[0] ?? '', $parts[1] ?? ''];
+                    }
+                    
+                    if (!empty($nameParts[0]) && !empty($nameParts[1])) {
+                        $adminPatient = $db->table('admin_patients')
+                            ->where('firstname', $nameParts[0])
+                            ->where('lastname', $nameParts[1])
+                            ->where('doctor_id', $hmsPatient['doctor_id'] ?? null)
+                            ->where('deleted_at IS NULL', null, false)
+                            ->get()
+                            ->getRowArray();
+                        
+                        if ($adminPatient) {
+                            $adminPatientId = $adminPatient['id'];
+                        } else {
+                            // Create admin_patients record if it doesn't exist
+                            $adminPatientData = [
+                                'firstname' => $nameParts[0],
+                                'lastname' => $nameParts[1],
+                                'birthdate' => $hmsPatient['date_of_birth'] ?? $hmsPatient['birthdate'] ?? null,
+                                'gender' => strtolower($hmsPatient['gender'] ?? 'other'),
+                                'contact' => $hmsPatient['contact'] ?? null,
+                                'address' => $hmsPatient['address'] ?? null,
+                                'doctor_id' => $hmsPatient['doctor_id'] ?? null,
+                                'visit_type' => $hmsPatient['visit_type'] ?? null,
+                                'assigned_nurse_id' => $hmsPatient['assigned_nurse_id'] ?? null,
+                                'created_at' => date('Y-m-d H:i:s'),
+                                'updated_at' => date('Y-m-d H:i:s'),
+                            ];
+                            
+                            $db->table('admin_patients')->insert($adminPatientData);
+                            $adminPatientId = $db->insertID();
+                        }
+                    }
+                }
+            }
+        }
+
+        if (!$adminPatientId) {
+            return redirect()->back()->withInput()->with('error', 'Patient not found. Cannot record vital signs.');
+        }
+
+        // Verify the nurse is assigned to this patient
+        $assignedNurseId = null;
+        if ($patient) {
+            $assignedNurseId = $patient['assigned_nurse_id'] ?? null;
+        } else {
+            $adminPatient = $db->table('admin_patients')->where('id', $adminPatientId)->get()->getRowArray();
+            $assignedNurseId = $adminPatient['assigned_nurse_id'] ?? null;
+        }
+
+        if ($assignedNurseId != $nurseId) {
+            return redirect()->back()->withInput()->with('error', 'You are not assigned to this patient. Cannot record vital signs.');
+        }
 
         $validation = $this->validate([
             'blood_pressure_systolic' => 'permit_empty|integer|greater_than[0]|less_than[300]',
@@ -170,7 +311,7 @@ class PatientController extends BaseController
         }
 
         $data = [
-            'patient_id' => $patientId,
+            'patient_id' => $adminPatientId, // Always use admin_patients.id
             'nurse_id' => $nurseId,
             'blood_pressure_systolic' => $this->request->getPost('blood_pressure_systolic') ?: null,
             'blood_pressure_diastolic' => $this->request->getPost('blood_pressure_diastolic') ?: null,
@@ -185,7 +326,7 @@ class PatientController extends BaseController
         ];
 
         if ($vitalModel->insert($data)) {
-            return redirect()->to('/nurse/patients/details/' . $patientId)->with('success', 'Vital signs recorded successfully.');
+            return redirect()->to('/nurse/patients/details/' . $adminPatientId)->with('success', 'Vital signs recorded successfully.');
         } else {
             return redirect()->back()->withInput()->with('error', 'Failed to record vital signs.');
         }

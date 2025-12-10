@@ -475,6 +475,25 @@
                                                       title="Direct Inpatient Admission - No consultation needed">
                                                     <i class="fas fa-hospital"></i> Admission
                                                 </span>
+                                                
+                                                <!-- Assign Nurse for Admission Patients -->
+                                                <?php if (!empty($patient['assigned_nurse_name'])): ?>
+                                                    <!-- Show assigned nurse name -->
+                                                    <span class="badge-modern" style="background: #d1fae5; color: #065f46; padding: 6px 12px; font-size: 12px;">
+                                                        <i class="fas fa-user-nurse"></i> <?= esc($patient['assigned_nurse_name']) ?>
+                                                    </span>
+                                                <?php else: ?>
+                                                    <!-- Show dropdown if not assigned -->
+                                                    <div style="position: relative; display: inline-block;">
+                                                        <select class="form-select assign-nurse-dropdown-main" 
+                                                                data-patient-id="<?= esc($viewId) ?>"
+                                                                style="min-width: 180px; padding: 8px 12px; border-radius: 8px; border: 1px solid #e5e7eb; font-size: 13px; background: white; cursor: pointer;">
+                                                            <option value="">Assign Nurse...</option>
+                                                            <!-- Options will be loaded via AJAX -->
+                                                        </select>
+                                                        <div class="nurse-assignment-status-main" style="margin-top: 4px; font-size: 11px; min-height: 16px;"></div>
+                                                    </div>
+                                                <?php endif; ?>
                                             <?php endif; ?>
                                             <?php if (!$isInpatientRegistration): ?>
                                             <a href="<?= site_url('doctor/patients/view/' . $viewId) ?>" 
@@ -531,6 +550,7 @@
                             <th>Chief Complaint</th>
                             <th>Nurse Recommendation</th>
                             <th>Requested At</th>
+                            <th>Assign Nurse</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -555,6 +575,26 @@
                                 </td>
                                 <td><?= date('M d, Y H:i', strtotime($patient['created_at'])) ?></td>
                                 <td>
+                                    <?php if (!empty($patient['assigned_nurse_name'])): ?>
+                                        <!-- Show assigned nurse name -->
+                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                            <span class="badge-modern" style="background: #d1fae5; color: #065f46; padding: 8px 12px; font-size: 13px;">
+                                                <i class="fas fa-user-nurse"></i> <?= esc($patient['assigned_nurse_name']) ?>
+                                            </span>
+                                        </div>
+                                    <?php else: ?>
+                                        <!-- Show dropdown if not assigned -->
+                                        <select class="form-select assign-nurse-dropdown" 
+                                                data-patient-id="<?= esc($patient['patient_id']) ?>"
+                                                data-admission-request-id="<?= esc($patient['admission_request_id'] ?? '') ?>"
+                                                style="min-width: 200px; padding: 8px 12px; border-radius: 8px; border: 1px solid #e5e7eb; font-size: 14px;">
+                                            <option value="">Select Nurse...</option>
+                                            <!-- Options will be loaded via AJAX -->
+                                        </select>
+                                        <div class="nurse-assignment-status" style="margin-top: 4px; font-size: 12px;"></div>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
                                     <a href="<?= site_url('doctor/patients/view/' . $patient['patient_id']) ?>" 
                                        class="btn-modern btn-modern-info btn-sm-modern">
                                         <i class="fas fa-eye"></i> View Patient
@@ -570,5 +610,167 @@
     <?php endif; ?>
 </div>
 
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Load available nurses for all dropdowns
+    loadAvailableNurses();
+    
+    // Handle nurse assignment for admission requests section
+    document.querySelectorAll('.assign-nurse-dropdown').forEach(function(dropdown) {
+        dropdown.addEventListener('change', function() {
+            const patientId = this.getAttribute('data-patient-id');
+            const admissionRequestId = this.getAttribute('data-admission-request-id');
+            const nurseId = this.value;
+            const statusDiv = this.parentElement.querySelector('.nurse-assignment-status');
+            
+            if (!nurseId) {
+                if (statusDiv) statusDiv.innerHTML = '';
+                return;
+            }
+            
+            // Show loading
+            if (statusDiv) {
+                statusDiv.innerHTML = '<span style="color: #f59e0b;"><i class="fas fa-spinner fa-spin"></i> Assigning...</span>';
+            }
+            
+            // Assign nurse
+            assignNurseToPatient(patientId, nurseId, admissionRequestId, statusDiv, this);
+        });
+    });
+    
+    // Handle nurse assignment for main patient list (ADMISSION type)
+    document.querySelectorAll('.assign-nurse-dropdown-main').forEach(function(dropdown) {
+        dropdown.addEventListener('change', function() {
+            const patientId = this.getAttribute('data-patient-id');
+            const nurseId = this.value;
+            const statusDiv = this.parentElement.querySelector('.nurse-assignment-status-main');
+            
+            if (!nurseId) {
+                if (statusDiv) statusDiv.innerHTML = '';
+                return;
+            }
+            
+            // Show loading
+            if (statusDiv) {
+                statusDiv.innerHTML = '<span style="color: #f59e0b;"><i class="fas fa-spinner fa-spin"></i> Assigning...</span>';
+            }
+            
+            // Assign nurse (no admission_request_id for main list)
+            assignNurseToPatient(patientId, nurseId, '', statusDiv, this);
+        });
+    });
+    
+    function assignNurseToPatient(patientId, nurseId, admissionRequestId, statusDiv, dropdown) {
+        fetch('<?= site_url('doctor/patients/assign-nurse') ?>', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: new URLSearchParams({
+                patient_id: patientId,
+                nurse_id: nurseId,
+                admission_request_id: admissionRequestId || ''
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                if (statusDiv) {
+                    statusDiv.innerHTML = '<span style="color: #10b981;"><i class="fas fa-check-circle"></i> ' + data.message + '</span>';
+                }
+                // Optionally reload the page after 2 seconds to show updated assignment
+                setTimeout(function() {
+                    location.reload();
+                }, 2000);
+            } else {
+                if (statusDiv) {
+                    statusDiv.innerHTML = '<span style="color: #ef4444;"><i class="fas fa-exclamation-circle"></i> ' + (data.message || 'Error assigning nurse') + '</span>';
+                }
+                // Reset dropdown
+                dropdown.value = '';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            if (statusDiv) {
+                statusDiv.innerHTML = '<span style="color: #ef4444;"><i class="fas fa-exclamation-circle"></i> Error assigning nurse</span>';
+            }
+            dropdown.value = '';
+        });
+    }
+    
+    function loadAvailableNurses() {
+        fetch('<?= site_url('doctor/patients/get-available-nurses') ?>', {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.nurses && data.nurses.length > 0) {
+                // Populate admission requests dropdowns
+                document.querySelectorAll('.assign-nurse-dropdown').forEach(function(dropdown) {
+                    // Clear existing options except the first one
+                    while (dropdown.options.length > 1) {
+                        dropdown.remove(1);
+                    }
+                    
+                    // Add available nurses
+                    data.nurses.forEach(function(nurse) {
+                        const option = document.createElement('option');
+                        option.value = nurse.id;
+                        let displayText = nurse.name;
+                        if (nurse.schedule) {
+                            displayText += ' (' + nurse.schedule.shift_type + ': ' + nurse.schedule.start_time + '-' + nurse.schedule.end_time + ')';
+                        }
+                        option.textContent = displayText;
+                        dropdown.appendChild(option);
+                    });
+                });
+                
+                // Populate main patient list dropdowns (ADMISSION type)
+                document.querySelectorAll('.assign-nurse-dropdown-main').forEach(function(dropdown) {
+                    // Clear existing options except the first one
+                    while (dropdown.options.length > 1) {
+                        dropdown.remove(1);
+                    }
+                    
+                    // Add available nurses
+                    data.nurses.forEach(function(nurse) {
+                        const option = document.createElement('option');
+                        option.value = nurse.id;
+                        let displayText = nurse.name;
+                        if (nurse.schedule) {
+                            displayText += ' (' + nurse.schedule.shift_type + ': ' + nurse.schedule.start_time + '-' + nurse.schedule.end_time + ')';
+                        }
+                        option.textContent = displayText;
+                        dropdown.appendChild(option);
+                    });
+                });
+            } else {
+                // Show message if no nurses available
+                document.querySelectorAll('.assign-nurse-dropdown, .assign-nurse-dropdown-main').forEach(function(dropdown) {
+                    const option = document.createElement('option');
+                    option.value = '';
+                    option.textContent = 'No available nurses';
+                    option.disabled = true;
+                    dropdown.appendChild(option);
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error loading nurses:', error);
+            document.querySelectorAll('.assign-nurse-dropdown, .assign-nurse-dropdown-main').forEach(function(dropdown) {
+                const statusDiv = dropdown.parentElement.querySelector('.nurse-assignment-status, .nurse-assignment-status-main');
+                if (statusDiv) {
+                    statusDiv.innerHTML = '<span style="color: #ef4444; font-size: 11px;">Error loading nurses</span>';
+                }
+            });
+        });
+    }
+});
+</script>
 
 <?= $this->endSection() ?>

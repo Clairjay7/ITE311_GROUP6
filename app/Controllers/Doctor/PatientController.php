@@ -81,16 +81,18 @@ class PatientController extends BaseController
         // Merge both patient lists
         $patients = array_merge($adminPatients, $hmsPatients);
         
-        // Deduplicate: If same patient exists in both tables (same name + doctor_id), keep only admin_patients version
+        // Deduplicate: If same patient exists in both tables (same name + birthdate + doctor_id), keep only admin_patients version
+        // Note: We use name + birthdate to identify true duplicates, as same name with different birthdate = different patients
         $deduplicated = [];
         $seenKeys = [];
         
         foreach ($patients as $patient) {
-            // Create a unique key based on name (case-insensitive) and doctor_id
+            // Create a unique key based on name (case-insensitive), birthdate, and doctor_id
             $nameKey = strtolower(trim(($patient['firstname'] ?? '') . ' ' . ($patient['lastname'] ?? '')));
-            $key = md5($nameKey . '|' . $doctorId);
+            $birthdate = $patient['birthdate'] ?? '';
+            $key = md5($nameKey . '|' . $birthdate . '|' . $doctorId);
             
-            // If we've seen this patient before, prefer admin_patients version (source = 'admin')
+            // If we've seen this patient before (same name AND birthdate), prefer admin_patients version (source = 'admin')
             if (isset($seenKeys[$key])) {
                 // If current patient is from admin_patients and previous was from receptionist, replace it
                 if (($patient['source'] ?? '') === 'admin' && ($seenKeys[$key]['source'] ?? '') === 'receptionist') {
@@ -122,8 +124,8 @@ class PatientController extends BaseController
             return $lastA <=> $lastB;
         });
 
-        // Fetch upcoming consultations for each patient to get appointment date/time
-        if ($db->tableExists('consultations')) {
+        // Fetch upcoming consultations and assigned nurse for each patient
+        if ($db->tableExists('consultations') || $db->tableExists('users')) {
             foreach ($patients as &$patient) {
                 $patientId = $patient['id'] ?? $patient['patient_id'] ?? null;
                 $patientSource = $patient['source'] ?? 'admin';
@@ -142,7 +144,7 @@ class PatientController extends BaseController
                 // Get upcoming consultation for this patient
                 // Only show consultations where date and time have arrived
                 $upcomingConsultation = null;
-                if ($consultationPatientId) {
+                if ($consultationPatientId && $db->tableExists('consultations')) {
                     $today = date('Y-m-d');
                     $currentTime = date('H:i:s');
                     
@@ -195,6 +197,47 @@ class PatientController extends BaseController
                     $patient['appointment_time'] = null;
                     $patient['appointment_datetime'] = null;
                 }
+                
+                // Get assigned nurse information
+                $assignedNurseId = null;
+                $assignedNurseName = null;
+                
+                if ($patientSource === 'admin' || $patientSource === 'admin_patients') {
+                    // Check admin_patients table
+                    if ($db->tableExists('admin_patients') && $patientId) {
+                        $adminPatient = $db->table('admin_patients')
+                            ->select('admin_patients.assigned_nurse_id, users.first_name, users.last_name, users.username')
+                            ->join('users', 'users.id = admin_patients.assigned_nurse_id', 'left')
+                            ->where('admin_patients.id', $patientId)
+                            ->get()
+                            ->getRowArray();
+                        
+                        if ($adminPatient && $adminPatient['assigned_nurse_id']) {
+                            $assignedNurseId = $adminPatient['assigned_nurse_id'];
+                            $nurseName = trim(($adminPatient['first_name'] ?? '') . ' ' . ($adminPatient['last_name'] ?? ''));
+                            $assignedNurseName = !empty($nurseName) ? $nurseName : ($adminPatient['username'] ?? 'Nurse ' . $assignedNurseId);
+                        }
+                    }
+                } else {
+                    // Check patients table
+                    if ($db->tableExists('patients') && $patientId) {
+                        $hmsPatient = $db->table('patients')
+                            ->select('patients.assigned_nurse_id, users.first_name, users.last_name, users.username')
+                            ->join('users', 'users.id = patients.assigned_nurse_id', 'left')
+                            ->where('patients.patient_id', $patientId)
+                            ->get()
+                            ->getRowArray();
+                        
+                        if ($hmsPatient && $hmsPatient['assigned_nurse_id']) {
+                            $assignedNurseId = $hmsPatient['assigned_nurse_id'];
+                            $nurseName = trim(($hmsPatient['first_name'] ?? '') . ' ' . ($hmsPatient['last_name'] ?? ''));
+                            $assignedNurseName = !empty($nurseName) ? $nurseName : ($hmsPatient['username'] ?? 'Nurse ' . $assignedNurseId);
+                        }
+                    }
+                }
+                
+                $patient['assigned_nurse_id'] = $assignedNurseId;
+                $patient['assigned_nurse_name'] = $assignedNurseName;
             }
             unset($patient); // Break reference
         }
@@ -204,8 +247,8 @@ class PatientController extends BaseController
         if ($db->tableExists('admission_requests')) {
             $admissionRequests = $db->table('admission_requests')
                 ->select('admission_requests.*, 
-                         admin_patients.firstname, admin_patients.lastname, admin_patients.id as admin_patient_id,
-                         patients.full_name, patients.patient_id as hms_patient_id,
+                         admin_patients.firstname, admin_patients.lastname, admin_patients.id as admin_patient_id, admin_patients.assigned_nurse_id as admin_patient_nurse_id,
+                         patients.full_name, patients.patient_id as hms_patient_id, patients.assigned_nurse_id as hms_patient_nurse_id,
                          triage.triage_level, triage.chief_complaint, triage.disposition, triage.doctor_id as triage_doctor_id, triage.assigned_doctor_id')
                 ->join('admin_patients', 'admin_patients.id = admission_requests.patient_id', 'left')
                 ->join('patients', 'patients.patient_id = admission_requests.patient_id', 'left')
@@ -233,6 +276,30 @@ class PatientController extends BaseController
                     $patientName = 'Patient ' . $patientId;
                 }
                 
+                // Get assigned nurse information for admission request
+                // Priority: admission_requests.assigned_nurse_id > admin_patients.assigned_nurse_id > patients.assigned_nurse_id
+                $assignedNurseId = $request['assigned_nurse_id'] ?? null;
+                $assignedNurseName = null;
+                
+                // If not in admission_requests, check patient tables
+                if (!$assignedNurseId) {
+                    $assignedNurseId = $request['admin_patient_nurse_id'] ?? $request['hms_patient_nurse_id'] ?? null;
+                }
+                
+                // Get nurse name if assigned
+                if ($assignedNurseId && $db->tableExists('users')) {
+                    $nurse = $db->table('users')
+                        ->select('users.first_name, users.last_name, users.username')
+                        ->where('users.id', $assignedNurseId)
+                        ->get()
+                        ->getRowArray();
+                    
+                    if ($nurse) {
+                        $nurseName = trim(($nurse['first_name'] ?? '') . ' ' . ($nurse['last_name'] ?? ''));
+                        $assignedNurseName = !empty($nurseName) ? $nurseName : ($nurse['username'] ?? 'Nurse ' . $assignedNurseId);
+                    }
+                }
+                
                 $patientsForAdmission[] = [
                     'admission_request_id' => $request['id'] ?? null,
                     'patient_id' => $patientId,
@@ -244,6 +311,8 @@ class PatientController extends BaseController
                     'requested_by' => $request['requested_by'] ?? null,
                     'requested_by_role' => $request['requested_by_role'] ?? 'nurse',
                     'created_at' => $request['created_at'] ?? date('Y-m-d H:i:s'),
+                    'assigned_nurse_id' => $assignedNurseId,
+                    'assigned_nurse_name' => $assignedNurseName,
                 ];
             }
         }
@@ -255,6 +324,318 @@ class PatientController extends BaseController
         ];
 
         return view('doctor/patients/index', $data);
+    }
+
+    /**
+     * Get available nurses based on schedule (AJAX)
+     */
+    public function getAvailableNurses()
+    {
+        if (!session()->get('logged_in') || session()->get('role') !== 'doctor') {
+            return $this->response->setJSON(['success' => false, 'message' => 'Access denied'])->setStatusCode(401);
+        }
+
+        $db = \Config\Database::connect();
+        $date = $this->request->getGet('date') ?: date('Y-m-d');
+        $currentTime = date('H:i:s');
+
+        $availableNurses = [];
+
+        // Get all active nurses
+        if ($db->tableExists('users') && $db->tableExists('roles')) {
+            $nurses = $db->table('users')
+                ->select('users.id, users.username, users.email, users.first_name, users.last_name')
+                ->join('roles', 'roles.id = users.role_id', 'left')
+                ->where('LOWER(roles.name)', 'nurse')
+                ->where('users.status', 'active')
+                ->where('users.deleted_at IS NULL', null, false)
+                ->orderBy('users.username', 'ASC')
+                ->get()
+                ->getResultArray();
+
+            // Check each nurse's schedule availability
+            foreach ($nurses as $nurse) {
+                $nurseId = $nurse['id'];
+                $isAvailable = false;
+                $scheduleInfo = null;
+
+                // Check if nurse has an active schedule for today
+                if ($db->tableExists('nurse_schedules')) {
+                    $schedule = $db->table('nurse_schedules')
+                        ->where('nurse_id', $nurseId)
+                        ->where('shift_date', $date)
+                        ->where('status', 'active')
+                        ->get()
+                        ->getRowArray();
+
+                    if ($schedule) {
+                        $startTime = $schedule['start_time'];
+                        $endTime = $schedule['end_time'];
+
+                        // Check if current time is within the shift time
+                        if ($currentTime >= $startTime && $currentTime <= $endTime) {
+                            $isAvailable = true;
+                            $scheduleInfo = [
+                                'shift_type' => $schedule['shift_type'] ?? 'N/A',
+                                'start_time' => substr($startTime, 0, 5),
+                                'end_time' => substr($endTime, 0, 5),
+                            ];
+                        }
+                    }
+                }
+
+                // Only include available nurses
+                if ($isAvailable) {
+                    $nurseName = trim(($nurse['first_name'] ?? '') . ' ' . ($nurse['last_name'] ?? ''));
+                    if (empty($nurseName)) {
+                        $nurseName = $nurse['username'] ?? 'Nurse ' . $nurseId;
+                    }
+
+                    $availableNurses[] = [
+                        'id' => $nurseId,
+                        'name' => $nurseName,
+                        'username' => $nurse['username'] ?? '',
+                        'schedule' => $scheduleInfo,
+                    ];
+                }
+            }
+        }
+
+        return $this->response->setJSON([
+            'success' => true,
+            'nurses' => $availableNurses,
+            'date' => $date,
+            'time' => $currentTime
+        ]);
+    }
+
+    /**
+     * Assign nurse to patient (AJAX)
+     */
+    public function assignNurse()
+    {
+        if (!session()->get('logged_in') || session()->get('role') !== 'doctor') {
+            return $this->response->setJSON(['success' => false, 'message' => 'Access denied'])->setStatusCode(401);
+        }
+
+        $patientId = $this->request->getPost('patient_id');
+        $nurseId = $this->request->getPost('nurse_id');
+        $admissionRequestId = $this->request->getPost('admission_request_id');
+
+        if (!$patientId || !$nurseId) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Patient ID and Nurse ID are required']);
+        }
+
+        $db = \Config\Database::connect();
+        $doctorId = session()->get('user_id');
+        $db->transStart();
+
+        try {
+            // Check if patient exists in admin_patients
+            $patient = $db->table('admin_patients')
+                ->where('id', $patientId)
+                ->where('doctor_id', $doctorId)
+                ->get()
+                ->getRowArray();
+
+            // If not in admin_patients, check patients table
+            if (!$patient && $db->tableExists('patients')) {
+                $patient = $db->table('patients')
+                    ->where('patient_id', $patientId)
+                    ->where('doctor_id', $doctorId)
+                    ->get()
+                    ->getRowArray();
+            }
+
+            if (!$patient) {
+                throw new \Exception('Patient not found or not assigned to you');
+            }
+
+            // Verify nurse exists and is active
+            $nurse = $db->table('users')
+                ->select('users.*, roles.name as role_name')
+                ->join('roles', 'roles.id = users.role_id', 'left')
+                ->where('users.id', $nurseId)
+                ->where('LOWER(roles.name)', 'nurse')
+                ->where('users.status', 'active')
+                ->get()
+                ->getRowArray();
+
+            if (!$nurse) {
+                throw new \Exception('Nurse not found or not active');
+            }
+
+            // Check if nurse is available today
+            $date = date('Y-m-d');
+            $currentTime = date('H:i:s');
+            $isAvailable = false;
+
+            if ($db->tableExists('nurse_schedules')) {
+                $schedule = $db->table('nurse_schedules')
+                    ->where('nurse_id', $nurseId)
+                    ->where('shift_date', $date)
+                    ->where('status', 'active')
+                    ->get()
+                    ->getRowArray();
+
+                if ($schedule) {
+                    $startTime = $schedule['start_time'];
+                    $endTime = $schedule['end_time'];
+                    if ($currentTime >= $startTime && $currentTime <= $endTime) {
+                        $isAvailable = true;
+                    }
+                }
+            }
+
+            if (!$isAvailable) {
+                throw new \Exception('Nurse is not available at this time. Please select a nurse with an active schedule.');
+            }
+
+            // Update patient record with assigned nurse
+            // Update the table where the patient was found
+            if ($patient && isset($patient['id'])) {
+                // Patient found in admin_patients
+                if ($db->tableExists('admin_patients')) {
+                    $db->table('admin_patients')
+                        ->where('id', $patientId)
+                        ->update([
+                            'assigned_nurse_id' => $nurseId,
+                            'updated_at' => date('Y-m-d H:i:s'),
+                        ]);
+                }
+                
+                // Also check if same patient exists in patients table (by name and birthdate) and update it too
+                if ($db->tableExists('patients')) {
+                    $patientName = trim(($patient['firstname'] ?? '') . ' ' . ($patient['lastname'] ?? ''));
+                    $patientBirthdate = $patient['birthdate'] ?? null;
+                    
+                    if ($patientName && $patientBirthdate) {
+                        // Try to find matching patient in patients table
+                        $nameParts = explode(' ', $patientName, 2);
+                        $matchingPatient = $db->table('patients')
+                            ->groupStart()
+                                ->where('first_name', $nameParts[0] ?? '')
+                                ->where('last_name', $nameParts[1] ?? '')
+                                ->orWhere('full_name', $patientName)
+                            ->groupEnd()
+                            ->where('date_of_birth', $patientBirthdate)
+                            ->where('doctor_id', $doctorId)
+                            ->get()
+                            ->getRowArray();
+                        
+                        if ($matchingPatient) {
+                            $db->table('patients')
+                                ->where('patient_id', $matchingPatient['patient_id'])
+                                ->update([
+                                    'assigned_nurse_id' => $nurseId,
+                                    'updated_at' => date('Y-m-d H:i:s'),
+                                ]);
+                        }
+                    }
+                }
+            } else {
+                // Patient found in patients table
+                if ($db->tableExists('patients')) {
+                    $db->table('patients')
+                        ->where('patient_id', $patientId)
+                        ->update([
+                            'assigned_nurse_id' => $nurseId,
+                            'updated_at' => date('Y-m-d H:i:s'),
+                        ]);
+                }
+                
+                // Also check if same patient exists in admin_patients table and update it too
+                if ($db->tableExists('admin_patients') && $patient) {
+                    $patientName = trim(($patient['full_name'] ?? ($patient['first_name'] ?? '') . ' ' . ($patient['last_name'] ?? '')));
+                    $patientBirthdate = $patient['date_of_birth'] ?? $patient['birthdate'] ?? null;
+                    
+                    if ($patientName && $patientBirthdate) {
+                        $nameParts = explode(' ', $patientName, 2);
+                        $matchingPatient = $db->table('admin_patients')
+                            ->where('firstname', $nameParts[0] ?? '')
+                            ->where('lastname', $nameParts[1] ?? '')
+                            ->where('birthdate', $patientBirthdate)
+                            ->where('doctor_id', $doctorId)
+                            ->where('deleted_at IS NULL', null, false)
+                            ->get()
+                            ->getRowArray();
+                        
+                        if ($matchingPatient) {
+                            $db->table('admin_patients')
+                                ->where('id', $matchingPatient['id'])
+                                ->update([
+                                    'assigned_nurse_id' => $nurseId,
+                                    'updated_at' => date('Y-m-d H:i:s'),
+                                ]);
+                        }
+                    }
+                }
+            }
+
+            // Update admission request if provided
+            if ($admissionRequestId && $db->tableExists('admission_requests')) {
+                $db->table('admission_requests')
+                    ->where('id', $admissionRequestId)
+                    ->update([
+                        'assigned_nurse_id' => $nurseId,
+                        'updated_at' => date('Y-m-d H:i:s'),
+                    ]);
+            }
+
+            // Audit log
+            if ($db->tableExists('audit_logs')) {
+                $nurseName = trim(($nurse['first_name'] ?? '') . ' ' . ($nurse['last_name'] ?? ''));
+                if (empty($nurseName)) {
+                    $nurseName = $nurse['username'] ?? 'Nurse ' . $nurseId;
+                }
+
+                $db->table('audit_logs')->insert([
+                    'action' => 'nurse_assigned_to_patient',
+                    'user_id' => $doctorId,
+                    'user_role' => 'doctor',
+                    'user_name' => session()->get('username') ?? session()->get('name') ?? 'Doctor',
+                    'description' => "Doctor assigned nurse {$nurseName} to patient ID: {$patientId}",
+                    'related_id' => $patientId,
+                    'related_type' => 'patient',
+                    'metadata' => json_encode([
+                        'patient_id' => $patientId,
+                        'nurse_id' => $nurseId,
+                        'nurse_name' => $nurseName,
+                        'admission_request_id' => $admissionRequestId,
+                    ]),
+                    'ip_address' => $this->request->getIPAddress(),
+                    'created_at' => date('Y-m-d H:i:s'),
+                ]);
+            }
+
+            $db->transComplete();
+
+            if ($db->transStatus() === false) {
+                throw new \Exception('Transaction failed');
+            }
+
+            $nurseName = trim(($nurse['first_name'] ?? '') . ' ' . ($nurse['last_name'] ?? ''));
+            if (empty($nurseName)) {
+                $nurseName = $nurse['username'] ?? 'Nurse ' . $nurseId;
+            }
+
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => "Nurse {$nurseName} assigned successfully.",
+                'nurse' => [
+                    'id' => $nurseId,
+                    'name' => $nurseName,
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            $db->transRollback();
+            log_message('error', 'Nurse assignment error: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ])->setStatusCode(500);
+        }
     }
 
     /**
@@ -524,12 +905,64 @@ class PatientController extends BaseController
                 ->getRowArray();
         }
 
+        // Get vital signs from assigned nurse (for Medical Information section)
+        $vitalSigns = [];
+        $latestVitals = null;
+        if ($db->tableExists('patient_vitals')) {
+            // Use admin_patients.id for patient_vitals query
+            $vitalsPatientId = $adminPatientIdForQueries;
+            
+            // If patient is from patients table, find corresponding admin_patients record
+            if ($patientSource === 'patients') {
+                $nameParts = [];
+                if (!empty($patient['first_name'])) $nameParts[] = $patient['first_name'];
+                if (!empty($patient['last_name'])) $nameParts[] = $patient['last_name'];
+                
+                if (empty($nameParts) && !empty($patient['full_name'])) {
+                    $parts = explode(' ', $patient['full_name'], 2);
+                    $nameParts = [$parts[0] ?? '', $parts[1] ?? ''];
+                }
+                
+                if (!empty($nameParts[0]) && !empty($nameParts[1])) {
+                    $adminPatient = $db->table('admin_patients')
+                        ->where('firstname', $nameParts[0])
+                        ->where('lastname', $nameParts[1])
+                        ->where('doctor_id', $doctorId)
+                        ->where('deleted_at IS NULL', null, false)
+                        ->get()
+                        ->getRowArray();
+                    
+                    if ($adminPatient) {
+                        $vitalsPatientId = $adminPatient['id'];
+                    }
+                }
+            }
+            
+            // Get all vital signs for this patient (ordered by most recent)
+            $vitalSigns = $db->table('patient_vitals pv')
+                ->select('pv.*, users.first_name as nurse_first_name, users.last_name as nurse_last_name, users.username as nurse_username')
+                ->join('users', 'users.id = pv.nurse_id', 'left')
+                ->where('pv.patient_id', $vitalsPatientId)
+                ->orderBy('pv.created_at', 'DESC')
+                ->orderBy('pv.recorded_at', 'DESC')
+                ->limit(50) // Get last 50 vital signs records
+                ->get()
+                ->getResultArray();
+            
+            // Get the most recent vital signs
+            if (!empty($vitalSigns)) {
+                $latestVitals = $vitalSigns[0];
+            }
+        }
+
         $data = [
             'title' => 'Patient Details',
             'patient' => $patient,
             'patientSource' => $patientSource,
             'consultations' => $consultations,
             'admissionRequest' => $admissionRequest,
+            'vitalSigns' => $vitalSigns, // All vital signs history
+            'latestVitals' => $latestVitals, // Most recent vital signs
         ];
 
         return view('doctor/patients/view', $data);
@@ -665,5 +1098,167 @@ class PatientController extends BaseController
         }
 
         return redirect()->back()->with('error', 'Failed to delete patient.');
+    }
+
+    /**
+     * View nurse assessment (vital signs) for a patient
+     */
+    public function nurseAssessment($patientId)
+    {
+        // Check if user is logged in and is a doctor
+        if (!session()->get('logged_in') || session()->get('role') !== 'doctor') {
+            return redirect()->to('/auth')->with('error', 'You must be logged in as a doctor to access this page.');
+        }
+
+        $patientModel = new AdminPatientModel();
+        $doctorId = session()->get('user_id');
+        $db = \Config\Database::connect();
+
+        // Try to find patient in admin_patients table first
+        $patient = $patientModel->find($patientId);
+        $patientSource = 'admin_patients';
+        
+        // If not found in admin_patients, try patients table
+        if (!$patient && $db->tableExists('patients')) {
+            $patient = $db->table('patients')
+                ->where('patient_id', $patientId)
+                ->where('doctor_id', $doctorId)
+                ->get()
+                ->getRowArray();
+            $patientSource = 'patients';
+        }
+
+        if (!$patient) {
+            return redirect()->back()->with('error', 'Patient not found or not assigned to you.');
+        }
+
+        // Get assigned nurse information
+        $assignedNurseId = null;
+        $assignedNurseName = null;
+        
+        if ($patientSource === 'admin_patients') {
+            $assignedNurseId = $patient['assigned_nurse_id'] ?? null;
+        } else {
+            $assignedNurseId = $patient['assigned_nurse_id'] ?? null;
+        }
+
+        if ($assignedNurseId && $db->tableExists('users')) {
+            $nurse = $db->table('users')
+                ->select('users.first_name, users.last_name, users.username')
+                ->where('users.id', $assignedNurseId)
+                ->get()
+                ->getRowArray();
+            
+            if ($nurse) {
+                $nurseName = trim(($nurse['first_name'] ?? '') . ' ' . ($nurse['last_name'] ?? ''));
+                $assignedNurseName = !empty($nurseName) ? $nurseName : ($nurse['username'] ?? 'Nurse ' . $assignedNurseId);
+            }
+        }
+
+        // Get recent vital signs from the assigned nurse
+        $recentVitals = [];
+        $today = date('Y-m-d');
+        
+        if ($db->tableExists('patient_vitals') && $assignedNurseId) {
+            // For admin_patients, patient_vitals.patient_id = admin_patients.id
+            // For patients table, we need to find the corresponding admin_patients record first
+            $vitalsPatientId = $patientId;
+            
+            if ($patientSource === 'patients') {
+                // Try to find corresponding admin_patients record
+                $nameParts = [];
+                if (!empty($patient['first_name'])) $nameParts[] = $patient['first_name'];
+                if (!empty($patient['last_name'])) $nameParts[] = $patient['last_name'];
+                
+                if (empty($nameParts) && !empty($patient['full_name'])) {
+                    $parts = explode(' ', $patient['full_name'], 2);
+                    $nameParts = [$parts[0] ?? '', $parts[1] ?? ''];
+                }
+                
+                if (!empty($nameParts[0]) && !empty($nameParts[1])) {
+                    $adminPatient = $db->table('admin_patients')
+                        ->where('firstname', $nameParts[0])
+                        ->where('lastname', $nameParts[1])
+                        ->where('doctor_id', $doctorId)
+                        ->where('deleted_at IS NULL', null, false)
+                        ->get()
+                        ->getRowArray();
+                    
+                    if ($adminPatient) {
+                        $vitalsPatientId = $adminPatient['id'];
+                    }
+                }
+            }
+            
+            // Get recent vital signs (last 7 days, not just today)
+            $query = $db->table('patient_vitals pv')
+                ->select('pv.*, users.first_name as nurse_first_name, users.last_name as nurse_last_name, users.username as nurse_username')
+                ->join('users', 'users.id = pv.nurse_id', 'left')
+                ->where('pv.patient_id', $vitalsPatientId)
+                ->where('pv.nurse_id', $assignedNurseId)
+                ->where('DATE(pv.created_at) >=', date('Y-m-d', strtotime('-7 days'))) // Last 7 days
+                ->orderBy('pv.created_at', 'DESC')
+                ->limit(20) // Show more recent vitals
+                ->get()
+                ->getResultArray();
+            
+            $recentVitals = $query;
+        }
+
+        // Get nurse notes if available
+        $nurseNotes = [];
+        if ($db->tableExists('nurse_notes') && $assignedNurseId) {
+            // Use the same patient ID logic as vitals
+            $notesPatientId = $patientId;
+            if ($patientSource === 'patients') {
+                // Try to find corresponding admin_patients record
+                $nameParts = [];
+                if (!empty($patient['first_name'])) $nameParts[] = $patient['first_name'];
+                if (!empty($patient['last_name'])) $nameParts[] = $patient['last_name'];
+                
+                if (empty($nameParts) && !empty($patient['full_name'])) {
+                    $parts = explode(' ', $patient['full_name'], 2);
+                    $nameParts = [$parts[0] ?? '', $parts[1] ?? ''];
+                }
+                
+                if (!empty($nameParts[0]) && !empty($nameParts[1])) {
+                    $adminPatient = $db->table('admin_patients')
+                        ->where('firstname', $nameParts[0])
+                        ->where('lastname', $nameParts[1])
+                        ->where('doctor_id', $doctorId)
+                        ->where('deleted_at IS NULL', null, false)
+                        ->get()
+                        ->getRowArray();
+                    
+                    if ($adminPatient) {
+                        $notesPatientId = $adminPatient['id'];
+                    }
+                }
+            }
+            
+            // Get recent nurse notes (last 7 days, not just today)
+            $nurseNotes = $db->table('nurse_notes nn')
+                ->select('nn.*, users.first_name as nurse_first_name, users.last_name as nurse_last_name, users.username as nurse_username')
+                ->join('users', 'users.id = nn.nurse_id', 'left')
+                ->where('nn.patient_id', $notesPatientId)
+                ->where('nn.nurse_id', $assignedNurseId)
+                ->where('DATE(nn.created_at) >=', date('Y-m-d', strtotime('-7 days'))) // Last 7 days
+                ->orderBy('nn.created_at', 'DESC')
+                ->limit(20) // Show more recent notes
+                ->get()
+                ->getResultArray();
+        }
+
+        $data = [
+            'title' => 'Nurse Assessment',
+            'patient' => $patient,
+            'patientSource' => $patientSource,
+            'assignedNurseName' => $assignedNurseName,
+            'assignedNurseId' => $assignedNurseId,
+            'recentVitals' => $recentVitals,
+            'nurseNotes' => $nurseNotes,
+        ];
+
+        return view('doctor/patients/nurse_assessment', $data);
     }
 }

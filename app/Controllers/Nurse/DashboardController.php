@@ -48,14 +48,126 @@ class DashboardController extends BaseController
         $db = \Config\Database::connect();
         
         // Get assigned patients from medication orders
-        $assignedPatients = $db->table('doctor_orders do')
-            ->select('ap.*')
+        $assignedPatientsFromOrders = $db->table('doctor_orders do')
+            ->select('ap.*, "medication_order" as assignment_type, "admin_patients" as source')
             ->join('admin_patients ap', 'ap.id = do.patient_id', 'left')
             ->where('do.nurse_id', $nurseId)
             ->where('do.order_type', 'medication')
+            ->where('ap.id IS NOT NULL', null, false)
             ->groupBy('ap.id')
             ->get()
             ->getResultArray();
+        
+        // Get directly assigned patients from admin_patients table (via assigned_nurse_id)
+        $directlyAssignedAdminPatients = [];
+        if ($db->tableExists('admin_patients')) {
+            $directlyAssignedAdminPatients = $db->table('admin_patients')
+                ->select('admin_patients.*, "direct_assignment" as assignment_type, "admin_patients" as source')
+                ->where('admin_patients.assigned_nurse_id', $nurseId)
+                ->where('admin_patients.deleted_at IS NULL', null, false)
+                ->get()
+                ->getResultArray();
+        }
+        
+        // Get directly assigned patients from patients table (via assigned_nurse_id)
+        $directlyAssignedHmsPatients = [];
+        if ($db->tableExists('patients')) {
+            $directlyAssignedHmsPatientsRaw = $db->table('patients')
+                ->select('patients.*, "direct_assignment" as assignment_type')
+                ->where('patients.assigned_nurse_id', $nurseId)
+                ->get()
+                ->getResultArray();
+            
+            // Format HMS patients to match admin_patients structure
+            foreach ($directlyAssignedHmsPatientsRaw as $patient) {
+                $nameParts = [];
+                $fullName = '';
+                
+                // Prioritize first_name and last_name if available
+                if (!empty($patient['first_name']) && !empty($patient['last_name'])) {
+                    $nameParts = [$patient['first_name'], $patient['last_name']];
+                    $fullName = trim($patient['first_name'] . ' ' . $patient['last_name']);
+                } elseif (!empty($patient['full_name'])) {
+                    // If full_name exists, use it and try to parse
+                    $fullName = trim($patient['full_name']);
+                    $parts = explode(' ', $fullName, 3); // Handle names like "Clair Jay Galorpot"
+                    if (count($parts) >= 2) {
+                        // First part is firstname, last part is lastname
+                        $nameParts = [$parts[0], $parts[count($parts) - 1]];
+                    } else {
+                        $nameParts = [$parts[0] ?? '', ''];
+                    }
+                }
+                
+                $directlyAssignedHmsPatients[] = [
+                    'id' => $patient['patient_id'] ?? $patient['id'] ?? null,
+                    'patient_id' => $patient['patient_id'] ?? $patient['id'] ?? null,
+                    'firstname' => $nameParts[0] ?? '',
+                    'lastname' => $nameParts[1] ?? '',
+                    'full_name' => $fullName ?: implode(' ', $nameParts),
+                    'birthdate' => $patient['date_of_birth'] ?? $patient['birthdate'] ?? null,
+                    'gender' => strtolower($patient['gender'] ?? ''),
+                    'contact' => $patient['contact'] ?? null,
+                    'address' => $patient['address'] ?? null,
+                    'visit_type' => $patient['visit_type'] ?? null,
+                    'type' => $patient['type'] ?? 'Out-Patient',
+                    'assignment_type' => 'direct_assignment',
+                    'source' => 'patients', // Mark as from patients table
+                ];
+            }
+        }
+        
+        // Merge all assigned patients and remove duplicates
+        $allAssignedPatients = array_merge($assignedPatientsFromOrders, $directlyAssignedAdminPatients, $directlyAssignedHmsPatients);
+        
+        // Remove duplicates based on name + birthdate (same patient in both tables should only appear once)
+        // Prefer admin_patients version if duplicate exists
+        $uniqueAssignedPatients = [];
+        $seenKeys = [];
+        
+        foreach ($allAssignedPatients as $patient) {
+            $patientId = $patient['id'] ?? $patient['patient_id'] ?? null;
+            $source = $patient['source'] ?? 'admin_patients';
+            
+            if (!$patientId) {
+                continue; // Skip if no ID
+            }
+            
+            // Create unique key using name (case-insensitive) + birthdate to identify same patient across tables
+            $firstName = strtolower(trim($patient['firstname'] ?? $patient['first_name'] ?? ''));
+            $lastName = strtolower(trim($patient['lastname'] ?? $patient['last_name'] ?? ''));
+            $fullName = strtolower(trim($patient['full_name'] ?? ''));
+            $birthdate = $patient['birthdate'] ?? $patient['date_of_birth'] ?? '';
+            
+            // Use full name if available, otherwise combine first and last
+            $nameKey = !empty($fullName) ? $fullName : trim($firstName . ' ' . $lastName);
+            $uniqueKey = md5($nameKey . '|' . $birthdate);
+            
+            // If we've seen this patient before (same name + birthdate), prefer admin_patients version
+            if (isset($seenKeys[$uniqueKey])) {
+                $existingIndex = $seenKeys[$uniqueKey]['index'];
+                $existingSource = $seenKeys[$uniqueKey]['source'];
+                
+                // If current is from admin_patients and existing is from patients, replace it
+                if ($source === 'admin_patients' && $existingSource === 'patients') {
+                    $uniqueAssignedPatients[$existingIndex] = $patient;
+                    $seenKeys[$uniqueKey] = ['index' => $existingIndex, 'source' => $source];
+                }
+                // Otherwise, skip this duplicate (keep the existing one)
+                continue;
+            }
+            
+            // Add to unique list
+            if (!isset($patient['source'])) {
+                $patient['source'] = $source;
+            }
+            $index = count($uniqueAssignedPatients);
+            $uniqueAssignedPatients[] = $patient;
+            $seenKeys[$uniqueKey] = ['index' => $index, 'source' => $source];
+        }
+        
+        // Re-index array
+        $assignedPatients = array_values($uniqueAssignedPatients);
 
         // Get medication orders assigned to this nurse with pharmacy status
         $medicationOrders = $db->table('doctor_orders do')

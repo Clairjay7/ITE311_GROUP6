@@ -511,6 +511,9 @@ $routes->group('doctor', ['namespace' => 'App\\Controllers', 'filter' => 'auth:d
         $routes->post('update/(:num)', 'Doctor\PatientController::update/$1');
         $routes->get('delete/(:num)', 'Doctor\PatientController::delete/$1');
         $routes->post('approve-admission', 'Doctor\PatientController::approveAdmission'); // Approve admission request
+        $routes->get('get-available-nurses', 'Doctor\PatientController::getAvailableNurses'); // Get available nurses
+        $routes->post('assign-nurse', 'Doctor\PatientController::assignNurse'); // Assign nurse to patient
+        $routes->get('nurse-assessment/(:num)', 'Doctor\PatientController::nurseAssessment/$1'); // View nurse assessment
     });
 
     

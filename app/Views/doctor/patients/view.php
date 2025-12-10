@@ -430,15 +430,143 @@
                                 <td><?= esc($patient['family_history']) ?></td>
                             </tr>
                             <?php endif; ?>
-                            <?php if (empty($patient['blood_type']) && empty($patient['allergies']) && empty($patient['existing_conditions']) && empty($patient['current_medications']) && empty($patient['past_surgeries']) && empty($patient['family_history'])): ?>
-                            <tr>
-                                <td colspan="2" style="text-align: center; color: #94a3b8; padding: 20px;">No medical information available</td>
-                            </tr>
-                            <?php endif; ?>
                         </table>
                     </div>
                 </div>
+                <div class="col-md-6">
+                    <div class="info-section">
+                        <div class="info-section-title" style="margin-bottom: 16px;">
+                            <i class="fas fa-heartbeat"></i>
+                            Latest Vital Signs
+                        </div>
+                        <?php if (!empty($latestVitals)): ?>
+                            <?php
+                            $nurseName = trim(($latestVitals['nurse_first_name'] ?? '') . ' ' . ($latestVitals['nurse_last_name'] ?? ''));
+                            if (empty($nurseName)) {
+                                $nurseName = $latestVitals['nurse_username'] ?? 'Nurse';
+                            }
+                            ?>
+                            <table class="info-table">
+                                <tr>
+                                    <td>Date & Time:</td>
+                                    <td><strong><?= esc(date('M d, Y h:i A', strtotime($latestVitals['recorded_at'] ?? $latestVitals['created_at']))) ?></strong></td>
+                                </tr>
+                                <?php if ($latestVitals['blood_pressure_systolic'] && $latestVitals['blood_pressure_diastolic']): ?>
+                                <tr>
+                                    <td>Blood Pressure:</td>
+                                    <td><strong style="color: #2e7d32; font-size: 16px;"><?= esc($latestVitals['blood_pressure_systolic']) ?>/<?= esc($latestVitals['blood_pressure_diastolic']) ?></strong> mmHg</td>
+                                </tr>
+                                <?php endif; ?>
+                                <?php if (!empty($latestVitals['heart_rate'])): ?>
+                                <tr>
+                                    <td>Heart Rate:</td>
+                                    <td><strong style="color: #2e7d32; font-size: 16px;"><?= esc($latestVitals['heart_rate']) ?></strong> bpm</td>
+                                </tr>
+                                <?php endif; ?>
+                                <?php if (!empty($latestVitals['temperature'])): ?>
+                                <tr>
+                                    <td>Temperature:</td>
+                                    <td><strong style="color: #2e7d32; font-size: 16px;"><?= esc($latestVitals['temperature']) ?></strong> °C</td>
+                                </tr>
+                                <?php endif; ?>
+                                <?php if (!empty($latestVitals['oxygen_saturation'])): ?>
+                                <tr>
+                                    <td>O2 Saturation:</td>
+                                    <td><strong style="color: #2e7d32; font-size: 16px;"><?= esc($latestVitals['oxygen_saturation']) ?></strong> %</td>
+                                </tr>
+                                <?php endif; ?>
+                                <?php if (!empty($latestVitals['respiratory_rate'])): ?>
+                                <tr>
+                                    <td>Respiratory Rate:</td>
+                                    <td><strong style="color: #2e7d32; font-size: 16px;"><?= esc($latestVitals['respiratory_rate']) ?></strong> /min</td>
+                                </tr>
+                                <?php endif; ?>
+                                <?php if (!empty($latestVitals['weight'])): ?>
+                                <tr>
+                                    <td>Weight:</td>
+                                    <td><strong><?= esc($latestVitals['weight']) ?></strong> kg</td>
+                                </tr>
+                                <?php endif; ?>
+                                <?php if (!empty($latestVitals['height'])): ?>
+                                <tr>
+                                    <td>Height:</td>
+                                    <td><strong><?= esc($latestVitals['height']) ?></strong> cm</td>
+                                </tr>
+                                <?php endif; ?>
+                                <tr>
+                                    <td>Recorded By:</td>
+                                    <td><span class="badge-modern" style="background: #d1fae5; color: #065f46;"><?= esc($nurseName) ?></span></td>
+                                </tr>
+                                <?php if (!empty($latestVitals['notes'])): ?>
+                                <tr>
+                                    <td>Notes:</td>
+                                    <td><?= esc($latestVitals['notes']) ?></td>
+                                </tr>
+                                <?php endif; ?>
+                            </table>
+                        <?php else: ?>
+                            <div style="text-align: center; padding: 20px; color: #94a3b8;">
+                                <i class="fas fa-heartbeat" style="font-size: 32px; margin-bottom: 8px; opacity: 0.3;"></i>
+                                <p style="margin: 0; font-size: 14px;">No vital signs recorded yet</p>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
             </div>
+            
+            <!-- Vital Signs History Table -->
+            <?php if (!empty($vitalSigns)): ?>
+            <div style="margin-top: 32px;">
+                <div class="info-section-title" style="margin-bottom: 16px;">
+                    <i class="fas fa-history"></i>
+                    Vital Signs History
+                </div>
+                <div class="table-responsive">
+                    <table class="table-modern">
+                        <thead>
+                            <tr>
+                                <th>Date & Time</th>
+                                <th>BP</th>
+                                <th>HR</th>
+                                <th>Temp</th>
+                                <th>O2 Sat</th>
+                                <th>RR</th>
+                                <th>Weight</th>
+                                <th>Height</th>
+                                <th>Recorded By</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($vitalSigns as $vital): ?>
+                                <?php
+                                $nurseName = trim(($vital['nurse_first_name'] ?? '') . ' ' . ($vital['nurse_last_name'] ?? ''));
+                                if (empty($nurseName)) {
+                                    $nurseName = $vital['nurse_username'] ?? 'Nurse';
+                                }
+                                ?>
+                                <tr>
+                                    <td><?= esc(date('M d, Y h:i A', strtotime($vital['recorded_at'] ?? $vital['created_at']))) ?></td>
+                                    <td>
+                                        <?php if ($vital['blood_pressure_systolic'] && $vital['blood_pressure_diastolic']): ?>
+                                            <strong><?= esc($vital['blood_pressure_systolic']) ?>/<?= esc($vital['blood_pressure_diastolic']) ?></strong>
+                                        <?php else: ?>
+                                            <span style="color: #94a3b8;">N/A</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td><?= esc($vital['heart_rate'] ?? 'N/A') ?></td>
+                                    <td><?= esc($vital['temperature'] ? $vital['temperature'] . '°C' : 'N/A') ?></td>
+                                    <td><?= esc($vital['oxygen_saturation'] ? $vital['oxygen_saturation'] . '%' : 'N/A') ?></td>
+                                    <td><?= esc($vital['respiratory_rate'] ?? 'N/A') ?></td>
+                                    <td><?= esc($vital['weight'] ? $vital['weight'] . ' kg' : 'N/A') ?></td>
+                                    <td><?= esc($vital['height'] ? $vital['height'] . ' cm' : 'N/A') ?></td>
+                                    <td><?= esc($nurseName) ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <?php endif; ?>
         </div>
     </div>
 

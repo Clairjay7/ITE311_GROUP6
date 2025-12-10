@@ -889,10 +889,74 @@
                                         </span>
                                     </td>
                                     <td>
-                                        <a href="<?= site_url('doctor/patients/view/' . $patientId) ?>" class="btn btn-info" style="padding: 6px 12px; font-size: 12px;">
+                                        <?php
+                                        // Check if patient has assigned nurse (show button if assigned, even if no vitals yet)
+                                        $assignedNurseId = $patient['assigned_nurse_id'] ?? null;
+                                        $hasNurseAssessment = !empty($assignedNurseId);
+                                        
+                                        // Check if there are recent vitals
+                                        $hasRecentVitals = false;
+                                        $patientSource = $patient['source'] ?? 'admin_patients';
+                                        
+                                        // Check in patientsWithRecentVitals map (for admin_patients)
+                                        if ($patientSource === 'admin_patients' || $patientSource === 'admin') {
+                                            $hasRecentVitals = isset($patientsWithRecentVitals[$patientId]) && $patientsWithRecentVitals[$patientId];
+                                        } 
+                                        // For patients table, find corresponding admin_patients record
+                                        elseif (($patientSource === 'receptionist' || $patientSource === 'patients') && !empty($patient['firstname']) && !empty($patient['lastname'])) {
+                                            // Try to find admin_patients record to check for vitals
+                                            $db = \Config\Database::connect();
+                                            $adminPatient = $db->table('admin_patients')
+                                                ->where('firstname', $patient['firstname'])
+                                                ->where('lastname', $patient['lastname'])
+                                                ->where('doctor_id', session()->get('user_id'))
+                                                ->where('deleted_at IS NULL', null, false)
+                                                ->get()
+                                                ->getRowArray();
+                                            
+                                            if ($adminPatient && isset($patientsWithRecentVitals[$adminPatient['id']])) {
+                                                $hasRecentVitals = $patientsWithRecentVitals[$adminPatient['id']];
+                                            }
+                                        }
+                                        
+                                        // Also check patientsWithNurseAssessment array for today's vitals
+                                        if (!$hasRecentVitals && !empty($patientsWithNurseAssessment)) {
+                                            foreach ($patientsWithNurseAssessment as $vital) {
+                                                $vitalPatientId = $vital['admin_patient_id'] ?? $vital['patient_id'] ?? null;
+                                                $hmsPatientId = $vital['hms_patient_id'] ?? null;
+                                                $isToday = $vital['is_today'] ?? false;
+                                                
+                                                // Match by admin_patient_id for admin_patients source
+                                                if ($patientSource === 'admin_patients' || $patientSource === 'admin') {
+                                                    if ($vitalPatientId == $patientId && $isToday) {
+                                                        $hasRecentVitals = true;
+                                                        break;
+                                                    }
+                                                } 
+                                                // Match by hms_patient_id for patients table source
+                                                elseif ($patientSource === 'receptionist' || $patientSource === 'patients') {
+                                                    if (($hmsPatientId == $patientId || $vitalPatientId == $patientId) && $isToday) {
+                                                        $hasRecentVitals = true;
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        ?>
+                                        <?php if ($hasNurseAssessment): ?>
+                                            <a href="<?= site_url('doctor/patients/nurse-assessment/' . $patientId) ?>" 
+                                               class="btn btn-success" 
+                                               style="padding: 6px 12px; font-size: 12px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: none; color: white; margin-right: 4px; text-decoration: none; <?= $hasRecentVitals ? 'box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);' : 'opacity: 0.8;' ?>">
+                                                <i class="fas fa-clipboard-check"></i> Check Nurse Assessment
+                                                <?php if ($hasRecentVitals): ?>
+                                                    <span style="background: rgba(255,255,255,0.3); padding: 2px 6px; border-radius: 4px; font-size: 10px; margin-left: 4px;">New</span>
+                                                <?php endif; ?>
+                                            </a>
+                                        <?php endif; ?>
+                                        <a href="<?= site_url('doctor/patients/view/' . $patientId) ?>" class="btn btn-info" style="padding: 6px 12px; font-size: 12px; text-decoration: none;">
                                             <i class="fas fa-eye"></i> View
                                         </a>
-                                        <a href="<?= site_url('doctor/patients/edit/' . $patientId) ?>" class="btn btn-warning" style="padding: 6px 12px; font-size: 12px;">
+                                        <a href="<?= site_url('doctor/patients/edit/' . $patientId) ?>" class="btn btn-warning" style="padding: 6px 12px; font-size: 12px; text-decoration: none;">
                                             <i class="fas fa-edit"></i> Edit
                                         </a>
                                     </td>
