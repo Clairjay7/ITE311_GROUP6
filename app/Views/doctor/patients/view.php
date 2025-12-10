@@ -212,7 +212,7 @@
             Patient Details
         </h1>
         <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-            <?php if (!isset($patient_source) || $patient_source !== 'patients'): ?>
+            <?php if (!isset($patientSource) || $patientSource !== 'patients'): ?>
                 <!-- Only show Edit button for admin_patients, not receptionist patients -->
                 <a href="<?= site_url('doctor/patients/edit/' . ($patient['id'] ?? $patient['patient_id'])) ?>" class="btn-modern btn-modern-warning">
                     <i class="fas fa-edit"></i>
@@ -245,30 +245,75 @@
                                 <td>Patient ID:</td>
                                 <td><strong>#<?= esc($patient['id'] ?? $patient['patient_id'] ?? 'N/A') ?></strong></td>
                             </tr>
+                            <?php if (!empty($patient['patient_reg_no'])): ?>
+                            <tr>
+                                <td>Registration No:</td>
+                                <td><?= esc($patient['patient_reg_no']) ?></td>
+                            </tr>
+                            <?php endif; ?>
                             <tr>
                                 <td>Full Name:</td>
-                                <td><strong><?= esc(ucfirst($patient['firstname'] ?? '') . ' ' . ucfirst($patient['lastname'] ?? '')) ?></strong></td>
+                                <td><strong><?= esc(trim(($patient['firstname'] ?? $patient['first_name'] ?? '') . ' ' . ($patient['middle_name'] ?? '') . ' ' . ($patient['lastname'] ?? $patient['last_name'] ?? '') . ' ' . ($patient['extension_name'] ?? ''))) ?></strong></td>
                             </tr>
                             <tr>
                                 <td>Birthdate:</td>
-                                <td><?= !empty($patient['birthdate']) ? esc(date('F d, Y', strtotime($patient['birthdate']))) : 'N/A' ?></td>
+                                <td><?= !empty($patient['birthdate'] ?? $patient['date_of_birth'] ?? null) ? esc(date('F d, Y', strtotime($patient['birthdate'] ?? $patient['date_of_birth']))) : 'N/A' ?></td>
+                            </tr>
+                            <tr>
+                                <td>Age:</td>
+                                <td><?= !empty($patient['age']) ? esc($patient['age']) : 'N/A' ?></td>
                             </tr>
                             <tr>
                                 <td>Gender:</td>
                                 <td>
                                     <span class="badge-modern" style="background: #e0f2fe; color: #0369a1;">
-                                        <?= esc(ucfirst($patient['gender'])) ?>
+                                        <?= esc(ucfirst($patient['gender'] ?? 'N/A')) ?>
                                     </span>
                                 </td>
                             </tr>
+                            <?php if (!empty($patient['civil_status'])): ?>
+                            <tr>
+                                <td>Civil Status:</td>
+                                <td><?= esc($patient['civil_status']) ?></td>
+                            </tr>
+                            <?php endif; ?>
                             <tr>
                                 <td>Contact:</td>
                                 <td><?= esc($patient['contact'] ?? 'N/A') ?></td>
                             </tr>
+                            <?php if (!empty($patient['email'])): ?>
+                            <tr>
+                                <td>Email:</td>
+                                <td><?= esc($patient['email']) ?></td>
+                            </tr>
+                            <?php endif; ?>
                             <tr>
                                 <td>Address:</td>
-                                <td><?= esc($patient['address'] ?? 'N/A') ?></td>
+                                <td>
+                                    <?php 
+                                    $addressParts = array_filter([
+                                        $patient['address_street'] ?? null,
+                                        $patient['address_barangay'] ?? null,
+                                        $patient['address_city'] ?? null,
+                                        $patient['address_province'] ?? null
+                                    ]);
+                                    $fullAddress = !empty($addressParts) ? implode(', ', $addressParts) : ($patient['address'] ?? 'N/A');
+                                    echo esc($fullAddress);
+                                    ?>
+                                </td>
                             </tr>
+                            <?php if (!empty($patient['nationality'])): ?>
+                            <tr>
+                                <td>Nationality:</td>
+                                <td><?= esc($patient['nationality']) ?></td>
+                            </tr>
+                            <?php endif; ?>
+                            <?php if (!empty($patient['religion'])): ?>
+                            <tr>
+                                <td>Religion:</td>
+                                <td><?= esc($patient['religion']) ?></td>
+                            </tr>
+                            <?php endif; ?>
                         </table>
                     </div>
                 </div>
@@ -279,7 +324,7 @@
                             Registration Information
                         </div>
                         <table class="info-table">
-                            <?php if (isset($patient_source) && $patient_source === 'patients'): ?>
+                            <?php if (isset($patientSource) && $patientSource === 'patients'): ?>
                                 <tr>
                                     <td>Patient Type:</td>
                                     <td><span class="badge-modern" style="background: #d1fae5; color: #065f46;"><?= esc($patient['type'] ?? 'Out-Patient') ?></span></td>
@@ -290,11 +335,36 @@
                                     <td><span class="badge-modern" style="background: #dbeafe; color: #1e40af;"><?= esc($patient['visit_type']) ?></span></td>
                                 </tr>
                                 <?php endif; ?>
+                                <?php if (!empty($patient['purpose'])): ?>
+                                <tr>
+                                    <td>Purpose/Reason:</td>
+                                    <td><?= esc($patient['purpose']) ?></td>
+                                </tr>
+                                <?php endif; ?>
+                                <?php if (!empty($patient['admission_date'])): ?>
+                                <tr>
+                                    <td>Admission Date:</td>
+                                    <td><?= date('F d, Y', strtotime($patient['admission_date'])) ?></td>
+                                </tr>
+                                <?php endif; ?>
+                                <?php if (!empty($patient['room_number'])): ?>
+                                <tr>
+                                    <td>Room Number:</td>
+                                    <td><?= esc($patient['room_number']) ?></td>
+                                </tr>
+                                <?php endif; ?>
                             <?php endif; ?>
+                            <?php if (!empty($patient['registration_date'])): ?>
+                            <tr>
+                                <td>Registration Date:</td>
+                                <td><?= date('F d, Y', strtotime($patient['registration_date'])) ?></td>
+                            </tr>
+                            <?php else: ?>
                             <tr>
                                 <td>Registered Date:</td>
                                 <td><?= !empty($patient['created_at']) ? date('F d, Y h:i A', strtotime($patient['created_at'])) : 'N/A' ?></td>
                             </tr>
+                            <?php endif; ?>
                             <tr>
                                 <td>Last Updated:</td>
                                 <td><?= !empty($patient['updated_at']) ? date('F d, Y h:i A', strtotime($patient['updated_at'])) : 'N/A' ?></td>
@@ -305,6 +375,163 @@
             </div>
         </div>
     </div>
+
+    <!-- Medical Information -->
+    <?php 
+    // Show medical information for In-Patients (regardless of source)
+    $isInPatient = ($patient['type'] ?? '') === 'In-Patient' || strtoupper(trim($patient['visit_type'] ?? '')) === 'ADMISSION';
+    ?>
+    <?php if ($isInPatient): ?>
+    <div class="modern-card">
+        <div class="card-header-modern">
+            <h5>
+                <i class="fas fa-heartbeat"></i>
+                Medical Information
+            </h5>
+        </div>
+        <div class="card-body-modern">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="info-section">
+                        <table class="info-table">
+                            <?php if (!empty($patient['blood_type'])): ?>
+                            <tr>
+                                <td>Blood Type:</td>
+                                <td><span class="badge-modern" style="background: #fee2e2; color: #991b1b;"><?= esc($patient['blood_type']) ?></span></td>
+                            </tr>
+                            <?php endif; ?>
+                            <?php if (!empty($patient['allergies'])): ?>
+                            <tr>
+                                <td>Allergies:</td>
+                                <td><?= esc($patient['allergies']) ?></td>
+                            </tr>
+                            <?php endif; ?>
+                            <?php if (!empty($patient['existing_conditions'])): ?>
+                            <tr>
+                                <td>Existing Conditions:</td>
+                                <td><?= esc($patient['existing_conditions']) ?></td>
+                            </tr>
+                            <?php endif; ?>
+                            <?php if (!empty($patient['current_medications'])): ?>
+                            <tr>
+                                <td>Current Medications:</td>
+                                <td><?= esc($patient['current_medications']) ?></td>
+                            </tr>
+                            <?php endif; ?>
+                            <?php if (!empty($patient['past_surgeries'])): ?>
+                            <tr>
+                                <td>Past Surgeries:</td>
+                                <td><?= esc($patient['past_surgeries']) ?></td>
+                            </tr>
+                            <?php endif; ?>
+                            <?php if (!empty($patient['family_history'])): ?>
+                            <tr>
+                                <td>Family History:</td>
+                                <td><?= esc($patient['family_history']) ?></td>
+                            </tr>
+                            <?php endif; ?>
+                            <?php if (empty($patient['blood_type']) && empty($patient['allergies']) && empty($patient['existing_conditions']) && empty($patient['current_medications']) && empty($patient['past_surgeries']) && empty($patient['family_history'])): ?>
+                            <tr>
+                                <td colspan="2" style="text-align: center; color: #94a3b8; padding: 20px;">No medical information available</td>
+                            </tr>
+                            <?php endif; ?>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Insurance Information -->
+    <?php if ($isInPatient && (!empty($patient['insurance_provider']) || !empty($patient['insurance_number']) || !empty($patient['philhealth_number']))): ?>
+    <div class="modern-card">
+        <div class="card-header-modern">
+            <h5>
+                <i class="fas fa-shield-alt"></i>
+                Insurance Information
+            </h5>
+        </div>
+        <div class="card-body-modern">
+            <div class="info-section">
+                <table class="info-table">
+                    <?php if (!empty($patient['insurance_provider'])): ?>
+                    <tr>
+                        <td>Insurance Provider:</td>
+                        <td><?= esc($patient['insurance_provider']) ?></td>
+                    </tr>
+                    <?php endif; ?>
+                    <?php if (!empty($patient['insurance_number'])): ?>
+                    <tr>
+                        <td>Insurance Number / Member ID:</td>
+                        <td><?= esc($patient['insurance_number']) ?></td>
+                    </tr>
+                    <?php endif; ?>
+                    <?php if (!empty($patient['philhealth_number'])): ?>
+                    <tr>
+                        <td>PhilHealth Number:</td>
+                        <td><?= esc($patient['philhealth_number']) ?></td>
+                    </tr>
+                    <?php endif; ?>
+                    <?php if (!empty($patient['payment_type'])): ?>
+                    <tr>
+                        <td>Payment Type:</td>
+                        <td><span class="badge-modern" style="background: #dbeafe; color: #1e40af;"><?= esc($patient['payment_type']) ?></span></td>
+                    </tr>
+                    <?php endif; ?>
+                    <?php if (!empty($patient['billing_address'])): ?>
+                    <tr>
+                        <td>Billing Address:</td>
+                        <td><?= esc($patient['billing_address']) ?></td>
+                    </tr>
+                    <?php endif; ?>
+                </table>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
+
+    <!-- Emergency Contact Information -->
+    <?php if ($isInPatient && (!empty($patient['emergency_name']) || !empty($patient['emergency_contact']))): ?>
+    <div class="modern-card">
+        <div class="card-header-modern">
+            <h5>
+                <i class="fas fa-phone-alt"></i>
+                Emergency Contact Information
+            </h5>
+        </div>
+        <div class="card-body-modern">
+            <div class="info-section">
+                <table class="info-table">
+                    <?php if (!empty($patient['emergency_name'])): ?>
+                    <tr>
+                        <td>Emergency Contact Name:</td>
+                        <td><strong><?= esc($patient['emergency_name']) ?></strong></td>
+                    </tr>
+                    <?php endif; ?>
+                    <?php if (!empty($patient['emergency_relationship'])): ?>
+                    <tr>
+                        <td>Relationship:</td>
+                        <td><?= esc($patient['emergency_relationship']) ?></td>
+                    </tr>
+                    <?php endif; ?>
+                    <?php if (!empty($patient['emergency_contact'])): ?>
+                    <tr>
+                        <td>Emergency Contact Number:</td>
+                        <td><?= esc($patient['emergency_contact']) ?></td>
+                    </tr>
+                    <?php endif; ?>
+                    <?php if (!empty($patient['emergency_address'])): ?>
+                    <tr>
+                        <td>Emergency Contact Address:</td>
+                        <td><?= esc($patient['emergency_address']) ?></td>
+                    </tr>
+                    <?php endif; ?>
+                </table>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
+    <?php endif; ?>
 
     <!-- Consultation History -->
     <div class="modern-card">

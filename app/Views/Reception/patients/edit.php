@@ -46,7 +46,9 @@ $errors = session('errors') ?? [];
           </div>
           <div class="col-md-4">
             <label class="form-label">Date of Birth</label>
-            <input type="date" name="date_of_birth" class="form-control" value="<?= set_value('date_of_birth', $patient['date_of_birth'] ?? '') ?>">
+            <input type="date" name="date_of_birth" class="form-control <?= isset($errors['date_of_birth'])?'is-invalid':'' ?>" 
+                   value="<?= set_value('date_of_birth', $patient['date_of_birth'] ?? '') ?>" max="<?= date('Y-m-d') ?>">
+            <div class="invalid-feedback"><?= esc($errors['date_of_birth'] ?? '') ?></div>
           </div>
           <div class="col-md-4">
             <label class="form-label">Age</label>

@@ -3,19 +3,16 @@
 namespace App\Controllers\Nurse;
 
 use App\Controllers\BaseController;
-use App\Models\AdmissionModel;
 use App\Models\ConsultationModel;
 use App\Models\AdminPatientModel;
 
 class AdmissionController extends BaseController
 {
-    protected $admissionModel;
     protected $consultationModel;
     protected $patientModel;
 
     public function __construct()
     {
-        $this->admissionModel = new AdmissionModel();
         $this->consultationModel = new ConsultationModel();
         $this->patientModel = new AdminPatientModel();
     }

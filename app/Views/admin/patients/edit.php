@@ -650,8 +650,11 @@ $errorMessage = session()->getFlashdata('error');
                     <div class="form-row">
                         <div class="form-group">
                             <label class="form-label">Date of Birth <span class="required">*</span></label>
-                            <input type="date" name="date_of_birth" id="date_of_birth" class="form-control" 
-                                   value="<?= set_value('date_of_birth', $patient['date_of_birth'] ?? '') ?>" required>
+                            <input type="date" name="date_of_birth" id="date_of_birth" class="form-control <?= isset($errors['date_of_birth']) ? 'is-invalid' : '' ?>" 
+                                   value="<?= set_value('date_of_birth', $patient['date_of_birth'] ?? '') ?>" max="<?= date('Y-m-d') ?>" required>
+                            <?php if (isset($errors['date_of_birth'])): ?>
+                                <div class="invalid-feedback"><?= esc($errors['date_of_birth']) ?></div>
+                            <?php endif; ?>
                             <div class="form-hint">Age will be calculated automatically</div>
                         </div>
                         

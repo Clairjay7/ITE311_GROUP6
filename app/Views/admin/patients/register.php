@@ -632,8 +632,11 @@ $errorMessage = session()->getFlashdata('error');
                     <div class="form-row">
                         <div class="form-group">
                             <label class="form-label">Date of Birth <span class="required">*</span></label>
-                            <input type="date" name="date_of_birth" id="date_of_birth" class="form-control" 
-                                   value="<?= set_value('date_of_birth') ?>" required>
+                            <input type="date" name="date_of_birth" id="date_of_birth" class="form-control <?= isset($errors['date_of_birth']) ? 'is-invalid' : '' ?>" 
+                                   value="<?= set_value('date_of_birth') ?>" max="<?= date('Y-m-d') ?>" required>
+                            <?php if (isset($errors['date_of_birth'])): ?>
+                                <div class="invalid-feedback"><?= esc($errors['date_of_birth']) ?></div>
+                            <?php endif; ?>
                             <div class="form-hint">Age will be calculated automatically</div>
                         </div>
                         
@@ -699,12 +702,12 @@ $errorMessage = session()->getFlashdata('error');
                         <div class="form-group">
                             <label class="form-label">Admission Date <span class="required">*</span></label>
                             <input type="date" name="admission_date" class="form-control <?= isset($errors['admission_date']) ? 'is-invalid' : '' ?>" 
-                                   value="<?= set_value('admission_date', date('Y-m-d')) ?>" 
-                                   min="<?= date('Y-m-d') ?>" required>
+                                   value="<?= date('Y-m-d') ?>" 
+                                   max="<?= date('Y-m-d') ?>" readonly required style="background-color: #e9ecef; cursor: not-allowed;">
                             <?php if (isset($errors['admission_date'])): ?>
                                 <div class="invalid-feedback"><?= esc($errors['admission_date']) ?></div>
                             <?php else: ?>
-                                <small class="form-text text-muted">Hindi maaaring pumili ng nakaraang petsa. Dapat ngayon o sa hinaharap.</small>
+                                <small class="form-text text-muted">Ang admission date ay awtomatikong nakatakda sa kasalukuyang petsa.</small>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -816,9 +819,8 @@ $errorMessage = session()->getFlashdata('error');
                     <div class="insurance-fields" id="insurance_fields">
                         <div class="form-row">
                             <div class="form-group">
-                                <label class="form-label">Insurance Provider <span class="required">*</span></label>
-                                <select name="insurance_provider" class="form-select" id="insurance_provider">
-                                    <option value="">-- Select Provider --</option>
+                                <label class="form-label">Insurance Provider(s) <span class="required">*</span></label>
+                                <select name="insurance_provider[]" class="form-select" id="insurance_provider" multiple size="6">
                                     <option value="PhilHealth" <?= set_select('insurance_provider', 'PhilHealth') ?>>PhilHealth</option>
                                     <option value="Maxicare" <?= set_select('insurance_provider', 'Maxicare') ?>>Maxicare</option>
                                     <option value="Medicard" <?= set_select('insurance_provider', 'Medicard') ?>>Medicard</option>
@@ -830,12 +832,13 @@ $errorMessage = session()->getFlashdata('error');
                                     <option value="Pru Life UK" <?= set_select('insurance_provider', 'Pru Life UK') ?>>Pru Life UK</option>
                                     <option value="Other" <?= set_select('insurance_provider', 'Other') ?>>Other</option>
                                 </select>
+                                <small class="form-text text-muted">Puwedeng pumili ng isa o higit pa.</small>
                             </div>
                             
                             <div class="form-group">
                                 <label class="form-label">Insurance Number / Member ID <span class="required">*</span></label>
                                 <input type="text" name="insurance_number" class="form-control" id="insurance_number"
-                                       value="<?= set_value('insurance_number') ?>" placeholder="Enter insurance/member ID">
+                                       value="<?= set_value('insurance_number') ?>" placeholder="Auto-generated" readonly>
                             </div>
                         </div>
                     </div>
@@ -968,7 +971,8 @@ document.addEventListener('DOMContentLoaded', function() {
             if (hasInsurance) {
                 const provider = document.getElementById('insurance_provider');
                 const number = document.getElementById('insurance_number');
-                if (!provider?.value || !number?.value.trim()) {
+                const selectedProviders = provider ? Array.from(provider.selectedOptions).map(opt => opt.value).filter(Boolean) : [];
+                if (selectedProviders.length === 0 || !number?.value.trim()) {
                     errors.push('insurance_provider', 'insurance_number');
                     if (provider) provider.classList.add('is-invalid');
                     if (number) number.classList.add('is-invalid');
@@ -1362,11 +1366,12 @@ document.addEventListener('DOMContentLoaded', function() {
             insuranceFields.classList.remove('show');
             if (insuranceProvider) {
                 insuranceProvider.required = false;
-                insuranceProvider.value = '';
+                Array.from(insuranceProvider.options).forEach(opt => opt.selected = false);
             }
             if (insuranceNumber) {
                 insuranceNumber.required = false;
                 insuranceNumber.value = '';
+                insuranceNumber.readOnly = true;
             }
         }
     }
@@ -1374,9 +1379,8 @@ document.addEventListener('DOMContentLoaded', function() {
     if (insuranceYes) insuranceYes.addEventListener('change', toggleInsuranceFields);
     if (insuranceNo) insuranceNo.addEventListener('change', toggleInsuranceFields);
     
-    // Auto-fill insurance number based on provider
+    // Auto-fill insurance number based on provider (supports multiple selection)
     if (insuranceProvider && insuranceNumber) {
-        // Insurance provider number formats
         const insuranceFormats = {
             'PhilHealth': () => 'PH-' + Math.floor(100000000000 + Math.random() * 900000000000).toString(),
             'Maxicare': () => 'MC-' + Math.floor(10000000 + Math.random() * 90000000).toString(),
@@ -1387,28 +1391,39 @@ document.addEventListener('DOMContentLoaded', function() {
             'AXA': () => 'AXA-' + Math.floor(1000000 + Math.random() * 9000000).toString(),
             'Sun Life': () => 'SL-' + Math.floor(1000000 + Math.random() * 9000000).toString(),
             'Pru Life UK': () => 'PRU-' + Math.floor(1000000 + Math.random() * 9000000).toString(),
-            'Other': () => 'INS-' + Math.floor(1000000 + Math.random() * 9000000).toString()
+            'Other': () => ''
         };
-        
-        insuranceProvider.addEventListener('change', function() {
-            const selectedProvider = this.value;
+
+        function updateInsuranceNumbers() {
+            const selectedProviders = Array.from(insuranceProvider.selectedOptions).map(opt => opt.value).filter(Boolean);
             
-            if (selectedProvider && selectedProvider !== '') {
-                // Auto-generate number based on provider
-                if (insuranceFormats[selectedProvider]) {
-                    const generatedNumber = insuranceFormats[selectedProvider]();
-                    insuranceNumber.value = generatedNumber;
-                    insuranceNumber.focus();
-                    // Select all text for easy editing
-                    setTimeout(() => {
-                        insuranceNumber.select();
-                    }, 10);
-                }
-            } else {
-                // Clear if no provider selected
+            if (selectedProviders.length === 0) {
                 insuranceNumber.value = '';
+                insuranceNumber.readOnly = true;
+                return;
             }
-        });
+
+            if (selectedProviders.includes('Other')) {
+                insuranceNumber.readOnly = false;
+                insuranceNumber.placeholder = 'Enter Member ID for Other';
+                insuranceNumber.value = '';
+                return;
+            }
+
+            const numbers = selectedProviders.map(provider => {
+                if (insuranceFormats[provider]) {
+                    return insuranceFormats[provider]();
+                }
+                return provider;
+            });
+
+            insuranceNumber.readOnly = true;
+            insuranceNumber.placeholder = 'Auto-generated';
+            insuranceNumber.value = numbers.join(', ');
+        }
+
+        insuranceProvider.addEventListener('change', updateInsuranceNumbers);
+        updateInsuranceNumbers();
     }
     
     // Initialize
@@ -1918,11 +1933,12 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Check if insurance is selected but fields are empty
             if (insuranceYes && insuranceYes.checked) {
-                if (!insuranceProvider.value.trim()) {
+                const selectedProviders = Array.from(insuranceProvider.selectedOptions).map(opt => opt.value).filter(Boolean);
+                if (selectedProviders.length === 0) {
                     e.preventDefault();
                     currentStep = 4;
                     showStep(4);
-                    alert('Please enter the Insurance Provider.');
+                    alert('Please select at least one Insurance Provider.');
                     insuranceProvider.focus();
                     return false;
                 }

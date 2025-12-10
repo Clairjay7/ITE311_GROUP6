@@ -4,7 +4,6 @@ namespace App\Controllers\Doctor;
 
 use App\Controllers\BaseController;
 use App\Models\AdminPatientModel;
-use App\Models\ConsultationModel;
 
 class PatientController extends BaseController
 {
@@ -363,7 +362,6 @@ class PatientController extends BaseController
         }
 
         $patientModel = new AdminPatientModel();
-        $consultationModel = new ConsultationModel();
         $doctorId = session()->get('user_id');
         $db = \Config\Database::connect();
 
@@ -373,11 +371,44 @@ class PatientController extends BaseController
         
         // If not found in admin_patients, try patients table (receptionist patients)
         if (!$patient && $db->tableExists('patients')) {
+            // Get all fields from patients table including all registration form fields
             $patient = $db->table('patients')
+                ->select('patients.*')
                 ->where('patient_id', $id)
                 ->get()
                 ->getRowArray();
             $patientSource = 'patients';
+        }
+        
+        // If patient is from admin_patients but is an In-Patient, also fetch comprehensive data from patients table
+        if ($patient && $patientSource === 'admin_patients' && $db->tableExists('patients')) {
+            $patientType = $patient['type'] ?? '';
+            $visitType = strtoupper(trim($patient['visit_type'] ?? ''));
+            
+            // If it's an In-Patient with Admission visit type, try to get comprehensive data from patients table
+            if ($patientType === 'In-Patient' || $visitType === 'ADMISSION') {
+                // Try to find matching patient in patients table by name
+                $nameParts = [];
+                if (!empty($patient['firstname'])) $nameParts[] = $patient['firstname'];
+                if (!empty($patient['lastname'])) $nameParts[] = $patient['lastname'];
+                
+                if (!empty($nameParts[0]) && !empty($nameParts[1])) {
+                    $comprehensivePatient = $db->table('patients')
+                        ->select('patients.*')
+                        ->where('first_name', $nameParts[0])
+                        ->where('last_name', $nameParts[1])
+                        ->where('doctor_id', $doctorId)
+                        ->where('type', 'In-Patient')
+                        ->get()
+                        ->getRowArray();
+                    
+                    // Merge comprehensive data with admin_patients data (comprehensive data takes precedence)
+                    if ($comprehensivePatient) {
+                        $patient = array_merge($patient, $comprehensivePatient);
+                        $patientSource = 'patients'; // Mark as from patients table to show all sections
+                    }
+                }
+            }
         }
 
         if (!$patient) {
@@ -391,12 +422,13 @@ class PatientController extends BaseController
         if ($db->tableExists('consultations')) {
             if ($patientSource === 'admin_patients') {
                 // For admin_patients, use patient_id directly
-                $consultations = $consultationModel
+                $consultations = $db->table('consultations')
                     ->where('patient_id', $id)
                     ->where('doctor_id', $doctorId)
                     ->orderBy('consultation_date', 'DESC')
                     ->orderBy('consultation_time', 'DESC')
-                    ->findAll();
+                    ->get()
+                    ->getResultArray();
             } else {
                 // For patients table (receptionist-registered), find admin_patients record first
                 // Consultations are saved with admin_patients.id
@@ -422,12 +454,13 @@ class PatientController extends BaseController
                 // If admin_patients record found, get consultations using that ID
                 if ($adminPatient) {
                     $adminPatientIdForQueries = $adminPatient['id'];
-                    $consultations = $consultationModel
+                    $consultations = $db->table('consultations')
                         ->where('patient_id', $adminPatient['id'])
                         ->where('doctor_id', $doctorId)
                         ->orderBy('consultation_date', 'DESC')
                         ->orderBy('consultation_time', 'DESC')
-                        ->findAll();
+                        ->get()
+                        ->getResultArray();
                 }
                 
                 // Also check consultations directly with patients.patient_id (fallback)

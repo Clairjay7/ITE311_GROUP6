@@ -4,7 +4,6 @@ namespace App\Controllers\Doctor;
 
 use App\Controllers\BaseController;
 use App\Models\AdminPatientModel;
-use App\Models\ConsultationModel;
 use App\Models\DoctorOrderModel;
 use App\Models\DoctorNotificationModel;
 
@@ -19,21 +18,26 @@ class DashboardController extends BaseController
 
         $doctorId = session()->get('user_id');
         $patientModel = new AdminPatientModel();
-        $consultationModel = new ConsultationModel();
+        $db = \Config\Database::connect();
 
         // Get dashboard statistics
         $today = date('Y-m-d');
-        $appointmentsCount = $consultationModel
-            ->where('doctor_id', $doctorId)
-            ->where('consultation_date', $today)
-            ->where('status', 'approved')
-            ->countAllResults();
+        $appointmentsCount = 0;
+        $patientsSeenToday = 0;
+        
+        if ($db->tableExists('consultations')) {
+            $appointmentsCount = $db->table('consultations')
+                ->where('doctor_id', $doctorId)
+                ->where('consultation_date', $today)
+                ->where('status', 'approved')
+                ->countAllResults();
 
-        $patientsSeenToday = $consultationModel
-            ->where('doctor_id', $doctorId)
-            ->where('consultation_date', $today)
-            ->where('type', 'completed')
-            ->countAllResults();
+            $patientsSeenToday = $db->table('consultations')
+                ->where('doctor_id', $doctorId)
+                ->where('consultation_date', $today)
+                ->where('type', 'completed')
+                ->countAllResults();
+        }
 
         // Get assigned patients from admin_patients table
         $assignedPatientsCount = $patientModel
@@ -175,7 +179,7 @@ class DashboardController extends BaseController
         if ($db->tableExists('admin_patients')) {
             // Only show consultations where date and time have arrived
             $currentTime = date('H:i:s');
-            $adminConsultations = $consultationModel
+            $adminConsultations = $db->table('consultations')
                 ->select('consultations.*, admin_patients.firstname, admin_patients.lastname, admin_patients.birthdate, admin_patients.gender, admin_patients.id as patient_id')
                 ->join('admin_patients', 'admin_patients.id = consultations.patient_id', 'left')
                 ->where('consultations.doctor_id', $doctorId)
@@ -191,7 +195,8 @@ class DashboardController extends BaseController
                 ->where('admin_patients.id IS NOT NULL') // Only get records that actually have admin_patient
                 ->orderBy('consultations.consultation_date', 'ASC')
                 ->orderBy('consultations.consultation_time', 'ASC')
-                ->findAll();
+                ->get()
+                ->getResultArray();
             
             // Add to awaiting consultation, avoiding duplicates
             foreach ($adminConsultations as $consult) {
@@ -578,6 +583,18 @@ class DashboardController extends BaseController
                 ->getResultArray();
             
             foreach ($admittedFromAdmin as $adm) {
+                // Get visit_type from admin_patients table
+                $visitType = null;
+                if (!empty($adm['patient_id'])) {
+                    $adminPatient = $db->table('admin_patients')
+                        ->select('visit_type, type')
+                        ->where('id', $adm['patient_id'])
+                        ->get()
+                        ->getRowArray();
+                    $visitType = $adminPatient['visit_type'] ?? null;
+                    $patientType = $adminPatient['type'] ?? null;
+                }
+                
                 $admittedPatients[] = [
                     'id' => $adm['id'],
                     'admission_id' => $adm['id'],
@@ -590,6 +607,8 @@ class DashboardController extends BaseController
                     'admission_reason' => $adm['admission_reason'] ?? null,
                     'pending_orders_count' => $adm['pending_orders_count'] ?? 0,
                     'source' => 'admin',
+                    'type' => $patientType ?? 'In-Patient',
+                    'visit_type' => $visitType ?? 'Admission',
                 ];
             }
         }
@@ -630,6 +649,8 @@ class DashboardController extends BaseController
                     'admission_reason' => $patient['purpose'] ?? 'In-Patient Admission',
                     'pending_orders_count' => 0,
                     'source' => 'receptionist',
+                    'type' => $patient['type'] ?? 'In-Patient',
+                    'visit_type' => $patient['visit_type'] ?? 'Admission',
                 ];
             }
         }

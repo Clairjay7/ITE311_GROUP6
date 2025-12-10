@@ -100,19 +100,6 @@
                 </a>
             </li>
 
-            <li class="nav-item">
-                <a href="<?= site_url('doctor/consultations/upcoming') ?>">
-                    <i class="fa-regular fa-calendar-check sidebar-icon"></i>
-                    <span class="text">Upcoming Consultations</span>
-                </a>
-            </li>
-
-            <li class="nav-item">
-                <a href="<?= site_url('doctor/consultations/my-schedule') ?>">
-                    <i class="fa-solid fa-calendar sidebar-icon"></i>
-                    <span class="text">My Schedule</span>
-                </a>
-            </li>
 
             <?php
             // Check if doctor is a pediatrician
@@ -154,12 +141,6 @@
                 </a>
             </li>
 
-            <li class="nav-item">
-                <a href="<?= site_url('doctor/admission-orders') ?>">
-                    <i class="fa-solid fa-hospital sidebar-icon"></i>
-                    <span class="text">Admitted Patients</span>
-                </a>
-            </li>
 
             <li class="nav-item">
                 <a href="<?= site_url('doctor/discharge') ?>">

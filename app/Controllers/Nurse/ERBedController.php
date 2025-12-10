@@ -8,7 +8,6 @@ use App\Models\BedModel;
 use App\Models\AdminPatientModel;
 use App\Models\PatientModel;
 use App\Models\TriageModel;
-use App\Models\AdmissionModel;
 
 class ERBedController extends BaseController
 {
@@ -17,7 +16,6 @@ class ERBedController extends BaseController
     protected $adminPatientModel;
     protected $patientModel;
     protected $triageModel;
-    protected $admissionModel;
 
     public function __construct()
     {
@@ -26,7 +24,6 @@ class ERBedController extends BaseController
         $this->adminPatientModel = new AdminPatientModel();
         $this->patientModel = new PatientModel();
         $this->triageModel = new TriageModel();
-        $this->admissionModel = new AdmissionModel();
     }
 
     /**

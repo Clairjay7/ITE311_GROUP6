@@ -3,19 +3,16 @@
 namespace App\Controllers\Accountant;
 
 use App\Controllers\BaseController;
-use App\Models\AdmissionModel;
 use App\Models\ChargeModel;
 use App\Models\DischargeOrderModel;
 
 class DischargeController extends BaseController
 {
-    protected $admissionModel;
     protected $chargeModel;
     protected $dischargeOrderModel;
 
     public function __construct()
     {
-        $this->admissionModel = new AdmissionModel();
         $this->chargeModel = new ChargeModel();
         $this->dischargeOrderModel = new DischargeOrderModel();
     }
@@ -133,12 +130,13 @@ class DischargeController extends BaseController
         $db = \Config\Database::connect();
         $userId = session()->get('user_id');
 
-        // Get admission
-        $admission = $this->admissionModel
+        // Get admission using direct database query
+        $admission = $db->table('admissions')
             ->where('id', $admissionId)
             ->where('discharge_status', 'discharge_pending')
             ->where('status', 'admitted')
-            ->first();
+            ->get()
+            ->getRowArray();
 
         if (!$admission) {
             return redirect()->back()->with('error', 'Admission not found or not pending discharge.');
@@ -167,11 +165,13 @@ class DischargeController extends BaseController
             }
 
             // Update admission status to discharged
-            $this->admissionModel->update($admissionId, [
-                'discharge_status' => 'discharged',
-                'status' => 'discharged',
-                'discharge_date' => date('Y-m-d H:i:s'),
-            ]);
+            $db->table('admissions')
+                ->where('id', $admissionId)
+                ->update([
+                    'discharge_status' => 'discharged',
+                    'status' => 'discharged',
+                    'discharge_date' => date('Y-m-d H:i:s'),
+                ]);
 
             // Update discharge order status
             $dischargeOrder = $this->dischargeOrderModel

@@ -3,19 +3,16 @@
 namespace App\Controllers\Doctor;
 
 use App\Controllers\BaseController;
-use App\Models\AdmissionModel;
 use App\Models\DischargeOrderModel;
 use App\Models\AdminPatientModel;
 
 class DischargeController extends BaseController
 {
-    protected $admissionModel;
     protected $dischargeOrderModel;
     protected $patientModel;
 
     public function __construct()
     {
-        $this->admissionModel = new AdmissionModel();
         $this->dischargeOrderModel = new DischargeOrderModel();
         $this->patientModel = new AdminPatientModel();
     }
@@ -130,11 +127,13 @@ class DischargeController extends BaseController
         $admissionId = $this->request->getPost('admission_id');
         
         // Verify admission belongs to this doctor
-        $admission = $this->admissionModel
+        $db = \Config\Database::connect();
+        $admission = $db->table('admissions')
             ->where('id', $admissionId)
             ->where('attending_physician_id', $doctorId)
             ->where('status', 'admitted')
-            ->first();
+            ->get()
+            ->getRowArray();
 
         if (!$admission) {
             return redirect()->back()->with('error', 'Admission not found or you do not have permission.');
@@ -163,9 +162,11 @@ class DischargeController extends BaseController
             }
 
             // Update admission discharge_status to discharge_pending
-            $this->admissionModel->update($admissionId, [
-                'discharge_status' => 'discharge_pending',
-            ]);
+            $db->table('admissions')
+                ->where('id', $admissionId)
+                ->update([
+                    'discharge_status' => 'discharge_pending',
+                ]);
 
             $db->transComplete();
 

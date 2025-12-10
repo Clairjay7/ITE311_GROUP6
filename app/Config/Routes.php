@@ -513,21 +513,6 @@ $routes->group('doctor', ['namespace' => 'App\\Controllers', 'filter' => 'auth:d
         $routes->post('approve-admission', 'Doctor\PatientController::approveAdmission'); // Approve admission request
     });
 
-    // Consultation Schedule
-    $routes->group('consultations', function($routes) {
-        $routes->get('upcoming', 'Doctor\ConsultationController::upcoming');
-        $routes->get('my-schedule', 'Doctor\ConsultationController::mySchedule');
-        $routes->get('create', 'Doctor\ConsultationController::create');
-        $routes->post('store', 'Doctor\ConsultationController::store');
-        $routes->get('start/(:num)/(:any)', 'Doctor\ConsultationController::startConsultation/$1/$2');
-        $routes->post('save-consultation', 'Doctor\ConsultationController::saveConsultation');
-        $routes->get('edit/(:num)', 'Doctor\ConsultationController::edit/$1');
-        $routes->post('update/(:num)', 'Doctor\ConsultationController::update/$1');
-        $routes->get('delete/(:num)', 'Doctor\ConsultationController::delete/$1');
-        $routes->get('pediatrics', 'Doctor\ConsultationController::pediatricsList');
-        $routes->get('pediatrics/consult/(:num)', 'Doctor\ConsultationController::pediatricsConsult/$1');
-        $routes->post('pediatrics/save', 'Doctor\ConsultationController::savePediatricsConsultation');
-    });
     
     // Lab Requests from Nurses
     $routes->group('lab-requests', function($routes) {
@@ -548,14 +533,7 @@ $routes->group('doctor', ['namespace' => 'App\\Controllers', 'filter' => 'auth:d
         $routes->post('cancel/(:num)', 'Doctor\OrderController::cancel/$1');
     });
     
-    // Admission Orders (After patient is admitted)
-    $routes->group('admission-orders', function($routes) {
-        $routes->get('/', 'Doctor\AdmissionOrdersController::index');
-        $routes->get('view/(:num)', 'Doctor\AdmissionOrdersController::view/$1');
-        $routes->get('create/(:num)', 'Doctor\AdmissionOrdersController::create/$1');
-        $routes->post('store', 'Doctor\AdmissionOrdersController::store');
-    });
-
+    
     // Doctor Discharge (Primary role - creates discharge orders)
     $routes->group('discharge', function($routes) {
         $routes->get('/', 'Doctor\DischargeController::index');

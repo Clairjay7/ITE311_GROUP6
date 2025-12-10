@@ -10,7 +10,6 @@ use App\Models\PaymentReportModel;
 use App\Models\ExpenseModel;
 use App\Models\ChargeModel;
 use App\Models\BillingItemModel;
-use App\Models\AdmissionModel;
 use App\Models\DischargeOrderModel;
 
 class BillingController extends BaseController
@@ -22,7 +21,6 @@ class BillingController extends BaseController
     protected $expenseModel;
     protected $chargeModel;
     protected $billingItemModel;
-    protected $admissionModel;
     protected $dischargeOrderModel;
 
     public function __construct()
@@ -35,7 +33,6 @@ class BillingController extends BaseController
         $this->expenseModel = new ExpenseModel();
         $this->chargeModel = new ChargeModel();
         $this->billingItemModel = new BillingItemModel();
-        $this->admissionModel = new AdmissionModel();
         $this->dischargeOrderModel = new DischargeOrderModel();
     }
 
@@ -878,12 +875,13 @@ class BillingController extends BaseController
         $db = \Config\Database::connect();
         $userId = session()->get('user_id');
 
-        // Get admission
-        $admission = $this->admissionModel
+        // Get admission using direct database query
+        $admission = $db->table('admissions')
             ->where('id', $admissionId)
             ->where('discharge_status', 'discharge_pending')
             ->where('status', 'admitted')
-            ->first();
+            ->get()
+            ->getRowArray();
 
         if (!$admission) {
             return redirect()->back()->with('error', 'Admission not found or not pending discharge.');
@@ -912,11 +910,13 @@ class BillingController extends BaseController
             }
 
             // Update admission status to discharged
-            $this->admissionModel->update($admissionId, [
-                'discharge_status' => 'discharged',
-                'status' => 'discharged',
-                'discharge_date' => date('Y-m-d H:i:s'),
-            ]);
+            $db->table('admissions')
+                ->where('id', $admissionId)
+                ->update([
+                    'discharge_status' => 'discharged',
+                    'status' => 'discharged',
+                    'discharge_date' => date('Y-m-d H:i:s'),
+                ]);
 
             // Update discharge order status
             $dischargeOrder = $this->dischargeOrderModel

@@ -3,17 +3,14 @@
 namespace App\Controllers\Nurse;
 
 use App\Controllers\BaseController;
-use App\Models\AdmissionModel;
 use App\Models\DischargeOrderModel;
 
 class DischargeController extends BaseController
 {
-    protected $admissionModel;
     protected $dischargeOrderModel;
 
     public function __construct()
     {
-        $this->admissionModel = new AdmissionModel();
         $this->dischargeOrderModel = new DischargeOrderModel();
     }
 

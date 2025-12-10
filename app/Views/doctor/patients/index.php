@@ -421,33 +421,67 @@
                                                 }
                                             }
                                             ?>
-                                            <?php if (!$hasCompletedConsultation): ?>
-                                                <?php if ($canStartConsultation): ?>
-                                                    <a href="<?= site_url('doctor/consultations/start/' . $consultationPatientId . '/' . $consultationSource) ?>" 
-                                                       class="btn-modern btn-modern-primary btn-sm-modern" title="Start Consultation">
-                                                        <i class="fas fa-stethoscope"></i> Start Consultation
-                                                    </a>
+                                            <?php 
+                                            // Hide "Start Consultation" button for patients from inpatient registration
+                                            // Check if patient is from inpatient registration
+                                            $patientType = trim($patient['type'] ?? '');
+                                            $visitTypeRaw = trim($patient['visit_type'] ?? '');
+                                            $visitType = strtoupper($visitTypeRaw);
+                                            
+                                            // Debug: Log the values (remove in production)
+                                            // var_dump("Patient: {$patient['firstname']} {$patient['lastname']}, Type: {$patientType}, VisitType: {$visitTypeRaw}, Source: {$patientSource}");
+                                            
+                                            // Check if it's an inpatient admission:
+                                            // 1. Patient source is 'receptionist' AND type is 'In-Patient' (from patients table - direct admission)
+                                            // 2. OR visit_type is 'Admission' (case-insensitive check)
+                                            // 3. OR patient type is 'In-Patient' with visit_type 'Admission' (regardless of source)
+                                            $isInpatientRegistration = (($patientSource === 'receptionist' && $patientType === 'In-Patient')) || 
+                                                                      ($visitType === 'ADMISSION') ||
+                                                                      ($patientType === 'In-Patient' && $visitType === 'ADMISSION');
+                                            ?>
+                                            <?php if (!$isInpatientRegistration): ?>
+                                                <?php if (!$hasCompletedConsultation): ?>
+                                                    <?php if ($canStartConsultation): ?>
+                                                        <a href="<?= site_url('doctor/consultations/start/' . $consultationPatientId . '/' . $consultationSource) ?>" 
+                                                           class="btn-modern btn-modern-primary btn-sm-modern" title="Start Consultation">
+                                                            <i class="fas fa-stethoscope"></i> Start Consultation
+                                                        </a>
+                                                    <?php else: ?>
+                                                        <span class="btn-modern btn-sm-modern" 
+                                                              style="background: #fef3c7; color: #92400e; cursor: not-allowed; opacity: 0.7;" 
+                                                              title="<?= esc($appointmentInfo) ?>">
+                                                            <i class="fas fa-clock"></i> Not Yet
+                                                        </span>
+                                                        <span style="font-size: 11px; color: #92400e; display: block; margin-top: 4px;" title="<?= esc($appointmentInfo) ?>">
+                                                            <?= esc($appointmentInfo) ?>
+                                                        </span>
+                                                    <?php endif; ?>
                                                 <?php else: ?>
                                                     <span class="btn-modern btn-sm-modern" 
-                                                          style="background: #fef3c7; color: #92400e; cursor: not-allowed; opacity: 0.7;" 
-                                                          title="<?= esc($appointmentInfo) ?>">
-                                                        <i class="fas fa-clock"></i> Not Yet
-                                                    </span>
-                                                    <span style="font-size: 11px; color: #92400e; display: block; margin-top: 4px;" title="<?= esc($appointmentInfo) ?>">
-                                                        <?= esc($appointmentInfo) ?>
+                                                          style="background: #d1fae5; color: #065f46; cursor: default;" 
+                                                          title="Consultation already completed today">
+                                                        <i class="fas fa-check-circle"></i> Consultation Done
                                                     </span>
                                                 <?php endif; ?>
                                             <?php else: ?>
+                                                <!-- For admitted patients, show View Patient button and Admission badge -->
+                                                <a href="<?= site_url('doctor/patients/view/' . $viewId) ?>" 
+                                                   class="btn-modern btn-modern-info btn-sm-modern" 
+                                                   title="View Patient Details">
+                                                    <i class="fas fa-eye"></i> View Patient
+                                                </a>
                                                 <span class="btn-modern btn-sm-modern" 
-                                                      style="background: #d1fae5; color: #065f46; cursor: default;" 
-                                                      title="Consultation already completed today">
-                                                    <i class="fas fa-check-circle"></i> Consultation Done
+                                                      style="background: #dbeafe; color: #1e40af; cursor: default;" 
+                                                      title="Direct Inpatient Admission - No consultation needed">
+                                                    <i class="fas fa-hospital"></i> Admission
                                                 </span>
                                             <?php endif; ?>
+                                            <?php if (!$isInpatientRegistration): ?>
                                             <a href="<?= site_url('doctor/patients/view/' . $viewId) ?>" 
                                                class="btn-modern btn-modern-info btn-sm-modern" title="View Details">
                                                 <i class="fas fa-eye"></i>
                                             </a>
+                                            <?php endif; ?>
                                             <a href="<?= site_url('doctor/patients/edit/' . $editId) ?>" 
                                                class="btn-modern btn-modern-warning btn-sm-modern" title="Edit Patient">
                                                 <i class="fas fa-edit"></i>

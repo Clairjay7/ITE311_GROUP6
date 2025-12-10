@@ -229,6 +229,17 @@ class Patients extends BaseController
             return redirect()->back()->withInput();
         }
 
+        // Additional validation: date_of_birth must not be in the future
+        $dateOfBirth = $this->request->getPost('date_of_birth');
+        if (!empty($dateOfBirth)) {
+            $today = date('Y-m-d');
+            if ($dateOfBirth > $today) {
+                return redirect()->back()->withInput()->with('errors', [
+                    'date_of_birth' => 'Ang date of birth ay hindi maaaring nasa hinaharap. Dapat ngayon o sa nakaraan.'
+                ]);
+            }
+        }
+
         // Additional validation for In-Patient: admission_date must not be in the past
         if ($type === 'In-Patient') {
             $admissionDate = $this->request->getPost('admission_date');
@@ -372,15 +383,39 @@ class Patients extends BaseController
             return redirect()->back()->withInput()->with('error', 'Duplicate patient detected.');
         }
 
-        $visitType = $this->request->getPost('visit_type') ?: 'Consultation';
+        // For In-Patient, set visit_type to "Admission" instead of "Consultation"
+        if ($type === 'In-Patient') {
+            $visitType = 'Admission'; // Always set to Admission for In-Patient registrations
+        } else {
+            $visitType = $this->request->getPost('visit_type') ?: 'Consultation';
+        }
         $doctorId = $this->request->getPost('doctor_id') ?: null;
+
+        // Normalize insurance data (allow multiple selections)
+        $insuranceProviderRaw = $this->request->getPost('insurance_provider');
+        $insuranceProviders = is_array($insuranceProviderRaw)
+            ? implode(', ', array_filter($insuranceProviderRaw))
+            : ($insuranceProviderRaw ?: null);
+        $insuranceNumber = $this->request->getPost('insurance_number') ?: null;
+
+        // Normalize insurance data (allow multiple selections)
+        $insuranceProviderRaw = $this->request->getPost('insurance_provider');
+        $insuranceProviders = is_array($insuranceProviderRaw)
+            ? implode(', ', array_filter($insuranceProviderRaw))
+            : ($insuranceProviderRaw ?: null);
+        $insuranceNumber = $this->request->getPost('insurance_number') ?: null;
         
         // For Consultation, doctor_id is required
         if ($visitType === 'Consultation' && empty($doctorId)) {
             return redirect()->back()->withInput()->with('error', 'Doctor assignment is required for Consultation. Please select a doctor.');
         }
         
-        // Only allow doctor assignment for Consultation, Check-up, Follow-up
+        // For Admission (In-Patient), doctor_id is required
+        if ($visitType === 'Admission' && empty($doctorId)) {
+            return redirect()->back()->withInput()->with('error', 'Doctor assignment is required for In-Patient admission. Please select a doctor.');
+        }
+        
+        // Only allow doctor assignment for Consultation, Check-up, Follow-up, Admission
         if ($visitType === 'Emergency') {
             $doctorId = null; // Emergency cases go to triage first
         }
@@ -443,8 +478,8 @@ class Patients extends BaseController
             'existing_conditions' => $this->request->getPost('existing_conditions') ?: null,
             'allergies' => $this->request->getPost('allergies') ?: null,
             // Insurance Information
-            'insurance_provider' => $this->request->getPost('insurance_provider') ?: null,
-            'insurance_number' => $this->request->getPost('insurance_number') ?: null,
+            'insurance_provider' => $insuranceProviders,
+            'insurance_number' => $insuranceNumber,
             // Emergency Contact
             'emergency_name' => $this->request->getPost('emergency_name') ?: null,
             'emergency_relationship' => $this->request->getPost('emergency_relationship') ?: null,
@@ -592,9 +627,10 @@ class Patients extends BaseController
             }
         }
 
-        // For Consultation, ensure patient is immediately assigned to doctor and appears in doctor's patient list
+        // For Consultation/Admission, ensure patient is immediately assigned to doctor and appears in doctor's patient list
         // Create admin_patients record if doctor is assigned (for doctor orders compatibility)
-        if ($patientId && $doctorId && in_array($visitType, ['Consultation', 'Check-up', 'Follow-up'])) {
+        // For In-Patient Admission, create admin_patients record but don't create consultation
+        if ($patientId && $doctorId && in_array($visitType, ['Consultation', 'Check-up', 'Follow-up', 'Admission'])) {
             $db = \Config\Database::connect();
             
             // Extract name parts for admin_patients
@@ -656,26 +692,28 @@ class Patients extends BaseController
                 }
             }
             
-            // Create consultation record (uses admin_patients.id)
-            // Get appointment_date from hidden field (set by JavaScript from appointment_day dropdown)
-            $appointmentDate = $this->request->getPost('appointment_date');
-            // If appointment_date is empty, try to get from appointment_day (which is now the actual date)
-            if (empty($appointmentDate)) {
-                $appointmentDay = $this->request->getPost('appointment_day');
-                if (!empty($appointmentDay)) {
-                    // appointment_day is now the actual date (YYYY-MM-DD format)
-                    $appointmentDate = $appointmentDay;
-                } else {
-                    $appointmentDate = date('Y-m-d');
+            // Create consultation record only for Consultation, Check-up, Follow-up (NOT for Admission)
+            // For Admission (In-Patient), skip consultation creation
+            if (in_array($visitType, ['Consultation', 'Check-up', 'Follow-up'])) {
+                // Get appointment_date from hidden field (set by JavaScript from appointment_day dropdown)
+                $appointmentDate = $this->request->getPost('appointment_date');
+                // If appointment_date is empty, try to get from appointment_day (which is now the actual date)
+                if (empty($appointmentDate)) {
+                    $appointmentDay = $this->request->getPost('appointment_day');
+                    if (!empty($appointmentDay)) {
+                        // appointment_day is now the actual date (YYYY-MM-DD format)
+                        $appointmentDate = $appointmentDay;
+                    } else {
+                        $appointmentDate = date('Y-m-d');
+                    }
                 }
-            }
-            $appointmentTimeInput = $this->request->getPost('appointment_time') ?: '09:00';
-            // Convert time format from HH:MM to HH:MM:SS
-            $appointmentTime = $appointmentTimeInput . ':00';
-            
-            // Create consultation record - use patients.patient_id (not admin_patients.id)
-            // consultations table has foreign key to patients.patient_id
-            if ($db->tableExists('consultations') && !empty($patientId) && !empty($doctorId) && !empty($appointmentDate) && !empty($appointmentTime)) {
+                $appointmentTimeInput = $this->request->getPost('appointment_time') ?: '09:00';
+                // Convert time format from HH:MM to HH:MM:SS
+                $appointmentTime = $appointmentTimeInput . ':00';
+                
+                // Create consultation record - use patients.patient_id (not admin_patients.id)
+                // consultations table has foreign key to patients.patient_id
+                if ($db->tableExists('consultations') && !empty($patientId) && !empty($doctorId) && !empty($appointmentDate) && !empty($appointmentTime)) {
                 $consultationModel = new \App\Models\ConsultationModel();
                 try {
                     $consultationData = [
@@ -710,12 +748,14 @@ class Patients extends BaseController
                 if (empty($doctorId)) $missing[] = 'doctorId';
                 if (empty($appointmentDate)) $missing[] = 'appointmentDate';
                 if (empty($appointmentTime)) $missing[] = 'appointmentTime';
-                log_message('warning', "Cannot create consultation - missing: " . implode(', ', $missing) . ". patientId: {$patientId}, doctorId: {$doctorId}, appointmentDate: {$appointmentDate}, appointmentTime: {$appointmentTime}");
+                    log_message('warning', "Cannot create consultation - missing: " . implode(', ', $missing) . ". patientId: {$patientId}, doctorId: {$doctorId}, appointmentDate: {$appointmentDate}, appointmentTime: {$appointmentTime}");
+                }
             }
             
-            // Create schedule entry in schedules table for doctor's schedule
+            // Create schedule entry in schedules table for doctor's schedule (only for Consultation, Check-up, Follow-up)
             // This ensures the appointment appears immediately in the doctor's schedule
-            if ($db->tableExists('schedules') && !empty($adminPatientId) && $doctorId && $appointmentDate) {
+            // For Admission, skip schedule creation
+            if (in_array($visitType, ['Consultation', 'Check-up', 'Follow-up']) && $db->tableExists('schedules') && !empty($adminPatientId) && $doctorId && !empty($appointmentDate)) {
                 // Get doctor's name from users table
                 $doctorUser = $db->table('users')
                     ->where('id', $doctorId)
@@ -766,9 +806,9 @@ class Patients extends BaseController
                 }
             }
             
-            // For Consultation, ensure patient record is updated with doctor_id and timestamp
+            // For Consultation/Admission, ensure patient record is updated with doctor_id and timestamp
             // This ensures the patient appears immediately in doctor's patient list
-            if ($visitType === 'Consultation' && $doctorId) {
+            if (in_array($visitType, ['Consultation', 'Admission']) && $doctorId) {
                 $this->patientModel->update($patientId, [
                     'doctor_id' => $doctorId,
                     'updated_at' => date('Y-m-d H:i:s'), // Force update timestamp for immediate visibility
@@ -1171,6 +1211,17 @@ class Patients extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
         
+        // Additional validation: date_of_birth must not be in the future
+        $dateOfBirth = $this->request->getPost('date_of_birth');
+        if (!empty($dateOfBirth)) {
+            $today = date('Y-m-d');
+            if ($dateOfBirth > $today) {
+                return redirect()->back()->withInput()->with('errors', [
+                    'date_of_birth' => 'Ang date of birth ay hindi maaaring nasa hinaharap. Dapat ngayon o sa nakaraan.'
+                ]);
+            }
+        }
+        
         // Additional validation for In-Patient: admission_date must not be in the past
         $patientType = $this->request->getPost('type');
         if ($patientType === 'In-Patient') {
@@ -1258,8 +1309,8 @@ class Patients extends BaseController
             'current_medications' => $this->request->getPost('current_medications') ?: null,
             'past_surgeries' => $this->request->getPost('past_surgeries') ?: null,
             'family_history' => $this->request->getPost('family_history') ?: null,
-            'insurance_provider' => $this->request->getPost('insurance_provider') ?: null,
-            'insurance_number' => $this->request->getPost('insurance_number') ?: null,
+            'insurance_provider' => $insuranceProviders,
+            'insurance_number' => $insuranceNumber,
             'philhealth_number' => $this->request->getPost('philhealth_number') ?: null,
             'billing_address' => $this->request->getPost('billing_address') ?: null,
             'payment_type' => $this->request->getPost('payment_type') ?: null,

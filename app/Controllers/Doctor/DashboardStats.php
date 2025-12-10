@@ -4,7 +4,6 @@ namespace App\Controllers\Doctor;
 
 use App\Controllers\BaseController;
 use App\Models\AdminPatientModel;
-use App\Models\ConsultationModel;
 use App\Models\LabRequestModel;
 use App\Models\DoctorOrderModel;
 use App\Models\DoctorNotificationModel;
@@ -20,25 +19,30 @@ class DashboardStats extends BaseController
 
         $doctorId = session()->get('user_id');
         $patientModel = new AdminPatientModel();
-        $consultationModel = new ConsultationModel();
+        $db = \Config\Database::connect();
 
         try {
             // Get dashboard statistics
             $today = date('Y-m-d');
             
             // Today's appointments
-            $appointmentsCount = $consultationModel
-                ->where('doctor_id', $doctorId)
-                ->where('consultation_date', $today)
-                ->where('status', 'approved')
-                ->countAllResults();
+            $appointmentsCount = 0;
+            $patientsSeenToday = 0;
+            
+            if ($db->tableExists('consultations')) {
+                $appointmentsCount = $db->table('consultations')
+                    ->where('doctor_id', $doctorId)
+                    ->where('consultation_date', $today)
+                    ->where('status', 'approved')
+                    ->countAllResults();
 
-            // Patients seen today
-            $patientsSeenToday = $consultationModel
-                ->where('doctor_id', $doctorId)
-                ->where('consultation_date', $today)
-                ->where('type', 'completed')
-                ->countAllResults();
+                // Patients seen today
+                $patientsSeenToday = $db->table('consultations')
+                    ->where('doctor_id', $doctorId)
+                    ->where('consultation_date', $today)
+                    ->where('type', 'completed')
+                    ->countAllResults();
+            }
 
             // Initialize database connection
             $db = \Config\Database::connect();
@@ -153,8 +157,8 @@ class DashboardStats extends BaseController
             }
             
             // Also check admin_patients if they have consultations (backward compatibility)
-            if ($db->tableExists('admin_patients')) {
-                $adminConsultations = $consultationModel
+            if ($db->tableExists('admin_patients') && $db->tableExists('consultations')) {
+                $adminConsultations = $db->table('consultations')
                     ->select('consultations.*, admin_patients.firstname, admin_patients.lastname, admin_patients.birthdate, admin_patients.gender, admin_patients.id as patient_id, admin_patients.visit_type')
                     ->join('admin_patients', 'admin_patients.id = consultations.patient_id', 'left')
                     ->where('consultations.doctor_id', $doctorId)
@@ -164,7 +168,8 @@ class DashboardStats extends BaseController
                     ->where('admin_patients.id IS NOT NULL') // Only get records that actually have admin_patient
                     ->orderBy('consultations.consultation_date', 'ASC')
                     ->orderBy('consultations.consultation_time', 'ASC')
-                    ->findAll();
+                    ->get()
+                    ->getResultArray();
                 
                 // Add to awaiting consultation, avoiding duplicates
                 foreach ($adminConsultations as $consult) {
@@ -190,19 +195,24 @@ class DashboardStats extends BaseController
             });
 
             // Pending consultations
-            $pendingConsultations = $consultationModel
-                ->where('doctor_id', $doctorId)
-                ->where('status', 'pending')
-                ->countAllResults();
+            $pendingConsultations = 0;
+            if ($db->tableExists('consultations')) {
+                $pendingConsultations = $db->table('consultations')
+                    ->where('doctor_id', $doctorId)
+                    ->where('status', 'pending')
+                    ->countAllResults();
 
-            // Upcoming consultations (next 7 days)
-            $upcomingConsultations = $consultationModel
-                ->where('doctor_id', $doctorId)
-                ->where('consultation_date >=', $today)
-                ->where('consultation_date <=', date('Y-m-d', strtotime('+7 days')))
-                ->where('status', 'approved')
-                ->where('type', 'upcoming')
-                ->countAllResults();
+                // Upcoming consultations (next 7 days)
+                $upcomingConsultations = $db->table('consultations')
+                    ->where('doctor_id', $doctorId)
+                    ->where('consultation_date >=', $today)
+                    ->where('consultation_date <=', date('Y-m-d', strtotime('+7 days')))
+                    ->where('status', 'approved')
+                    ->where('type', 'upcoming')
+                    ->countAllResults();
+            } else {
+                $upcomingConsultations = 0;
+            }
 
             // Get assigned patient IDs
             $assignedPatientIds = $patientModel

@@ -3,7 +3,6 @@
 namespace App\Controllers;
 
 use App\Controllers\BaseController;
-use App\Models\AdmissionModel;
 use App\Models\ConsultationModel;
 use App\Models\AdminPatientModel;
 use App\Models\RoomModel;
@@ -14,7 +13,6 @@ use App\Models\DoctorModel;
 
 class AdmissionController extends BaseController
 {
-    protected $admissionModel;
     protected $consultationModel;
     protected $patientModel;
     protected $roomModel;
@@ -25,7 +23,6 @@ class AdmissionController extends BaseController
 
     public function __construct()
     {
-        $this->admissionModel = new AdmissionModel();
         $this->consultationModel = new ConsultationModel();
         $this->patientModel = new AdminPatientModel();
         $this->roomModel = new RoomModel();
@@ -191,16 +188,12 @@ class AdmissionController extends BaseController
         $db->transStart();
 
         try {
-            // Validate admission data before insert
-            if (!$this->admissionModel->insert($admissionData)) {
-                $errors = $this->admissionModel->errors();
+            // Insert admission data using direct database query
+            if (!$db->table('admissions')->insert($admissionData)) {
                 $errorMessage = 'Failed to create admission record';
-                if (!empty($errors)) {
-                    $errorMessage .= ': ' . implode(', ', array_values($errors));
-                }
                 throw new \Exception($errorMessage);
             }
-            $admissionId = $this->admissionModel->getInsertID();
+            $admissionId = $db->insertID();
 
             // Update room status - check if room exists first
             $roomToUpdate = $this->roomModel->find($this->request->getPost('room_id'));
