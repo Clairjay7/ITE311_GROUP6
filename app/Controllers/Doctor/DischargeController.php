@@ -65,6 +65,7 @@ class DischargeController extends BaseController
         $doctorId = session()->get('user_id');
         $db = \Config\Database::connect();
 
+        // First, try to find admission by ID
         $admission = $db->table('admissions a')
             ->select('a.*, ap.firstname, ap.lastname, ap.gender, ap.birthdate,
                      r.room_number, r.ward, r.room_type,
@@ -73,21 +74,109 @@ class DischargeController extends BaseController
             ->join('rooms r', 'r.id = a.room_id', 'left')
             ->join('consultations c', 'c.id = a.consultation_id', 'left')
             ->where('a.id', $admissionId)
-            ->where('a.attending_physician_id', $doctorId)
             ->where('a.status', 'admitted')
             ->where('a.deleted_at', null)
             ->get()
             ->getRowArray();
 
-        if (!$admission) {
-            return redirect()->to('/doctor/discharge')->with('error', 'Admission not found or you do not have permission.');
+        // If admission found, check if doctor has permission
+        if ($admission) {
+            // Check if doctor is the attending physician OR if patient is assigned to this doctor
+            $hasPermission = false;
+            
+            // Check attending_physician_id
+            if ($admission['attending_physician_id'] == $doctorId) {
+                $hasPermission = true;
+            } else {
+                // Check if patient is assigned to this doctor
+                $patientId = $admission['patient_id'];
+                $patient = $db->table('admin_patients')
+                    ->where('id', $patientId)
+                    ->where('doctor_id', $doctorId)
+                    ->get()
+                    ->getRowArray();
+                
+                if ($patient) {
+                    $hasPermission = true;
+                }
+            }
+            
+            if (!$hasPermission) {
+                return redirect()->to('/doctor/discharge')->with('error', 'Admission not found or you do not have permission.');
+            }
+        } else {
+            // If no admission record found, check if it's a direct admission (patient ID passed)
+            // Check if patient exists and is assigned to this doctor
+            $patient = $db->table('admin_patients')
+                ->where('id', $admissionId)
+                ->where('doctor_id', $doctorId)
+                ->get()
+                ->getRowArray();
+            
+            if (!$patient) {
+                // Try patients table
+                $hmsPatient = $db->table('patients')
+                    ->where('patient_id', $admissionId)
+                    ->where('doctor_id', $doctorId)
+                    ->get()
+                    ->getRowArray();
+                
+                if (!$hmsPatient) {
+                    return redirect()->to('/doctor/discharge')->with('error', 'Admission not found or you do not have permission.');
+                }
+                
+                // For HMS patients, create a virtual admission record for display
+                $admission = [
+                    'id' => null,
+                    'patient_id' => $admissionId,
+                    'patient_source' => 'patients',
+                    'firstname' => $hmsPatient['first_name'] ?? '',
+                    'lastname' => $hmsPatient['last_name'] ?? '',
+                    'gender' => $hmsPatient['gender'] ?? '',
+                    'birthdate' => $hmsPatient['date_of_birth'] ?? null,
+                    'room_number' => $hmsPatient['room_number'] ?? 'N/A',
+                    'ward' => 'N/A',
+                    'room_type' => 'N/A',
+                    'consultation_date' => null,
+                    'diagnosis' => null,
+                    'consultation_notes' => null,
+                    'is_direct_admission' => true,
+                ];
+            } else {
+                // For admin patients, create a virtual admission record for display
+                $admission = [
+                    'id' => null,
+                    'patient_id' => $admissionId,
+                    'patient_source' => 'admin',
+                    'firstname' => $patient['firstname'] ?? '',
+                    'lastname' => $patient['lastname'] ?? '',
+                    'gender' => $patient['gender'] ?? '',
+                    'birthdate' => $patient['birthdate'] ?? null,
+                    'room_number' => 'N/A',
+                    'ward' => 'N/A',
+                    'room_type' => 'N/A',
+                    'consultation_date' => null,
+                    'diagnosis' => null,
+                    'consultation_notes' => null,
+                    'is_direct_admission' => true,
+                ];
+            }
         }
 
-        // Check if discharge order already exists
-        $existingOrder = $this->dischargeOrderModel
-            ->where('admission_id', $admissionId)
-            ->where('status !=', 'cancelled')
-            ->first();
+        // Check if discharge order already exists (only if admission has an ID)
+        $existingOrder = null;
+        if (!empty($admission['id'])) {
+            $existingOrder = $this->dischargeOrderModel
+                ->where('admission_id', $admission['id'])
+                ->where('status !=', 'cancelled')
+                ->first();
+        } else {
+            // For direct admissions, check by patient_id
+            $existingOrder = $this->dischargeOrderModel
+                ->where('patient_id', $admission['patient_id'])
+                ->where('status !=', 'cancelled')
+                ->first();
+        }
 
         $data = [
             'title' => 'Create Discharge Order',
@@ -125,18 +214,73 @@ class DischargeController extends BaseController
         }
 
         $admissionId = $this->request->getPost('admission_id');
+        $patientId = $this->request->getPost('patient_id');
         
         // Verify admission belongs to this doctor
         $db = \Config\Database::connect();
-        $admission = $db->table('admissions')
-            ->where('id', $admissionId)
-            ->where('attending_physician_id', $doctorId)
-            ->where('status', 'admitted')
-            ->get()
-            ->getRowArray();
-
-        if (!$admission) {
+        $admission = null;
+        
+        // If admission_id is provided and not empty/null, check admission record
+        if (!empty($admissionId) && $admissionId !== 'null' && $admissionId !== '0') {
+            $admission = $db->table('admissions')
+                ->where('id', $admissionId)
+                ->where('status', 'admitted')
+                ->get()
+                ->getRowArray();
+            
+            if ($admission) {
+                // Check if doctor has permission
+                $hasPermission = false;
+                if ($admission['attending_physician_id'] == $doctorId) {
+                    $hasPermission = true;
+                } else {
+                    // Check if patient is assigned to this doctor
+                    $patient = $db->table('admin_patients')
+                        ->where('id', $admission['patient_id'])
+                        ->where('doctor_id', $doctorId)
+                        ->get()
+                        ->getRowArray();
+                    
+                    if ($patient) {
+                        $hasPermission = true;
+                    }
+                }
+                
+                if (!$hasPermission) {
+                    return redirect()->back()->with('error', 'Admission not found or you do not have permission.');
+                }
+            }
+        }
+        
+        // If no admission record found, verify patient is assigned to this doctor (direct admission)
+        if (!$admission && !empty($patientId)) {
+            $patient = $db->table('admin_patients')
+                ->where('id', $patientId)
+                ->where('doctor_id', $doctorId)
+                ->get()
+                ->getRowArray();
+            
+            if (!$patient) {
+                // Try patients table
+                $hmsPatient = $db->table('patients')
+                    ->where('patient_id', $patientId)
+                    ->where('doctor_id', $doctorId)
+                    ->get()
+                    ->getRowArray();
+                
+                if (!$hmsPatient) {
+                    return redirect()->back()->with('error', 'Patient not found or you do not have permission.');
+                }
+            }
+            
+            // For direct admission, set admission_id to null
+            $admissionId = null;
+        } elseif (!$admission) {
             return redirect()->back()->with('error', 'Admission not found or you do not have permission.');
+        } else {
+            // Use the admission ID from the found admission
+            $admissionId = $admission['id'];
+            $patientId = $admission['patient_id'];
         }
 
         $db = \Config\Database::connect();
@@ -145,8 +289,8 @@ class DischargeController extends BaseController
         try {
             // Create discharge order
             $dischargeData = [
-                'admission_id' => $admissionId,
-                'patient_id' => $this->request->getPost('patient_id'),
+                'admission_id' => $admissionId, // Can be null for direct admissions
+                'patient_id' => $patientId,
                 'doctor_id' => $doctorId,
                 'final_diagnosis' => $this->request->getPost('final_diagnosis'),
                 'treatment_summary' => $this->request->getPost('treatment_summary'),
@@ -161,12 +305,14 @@ class DischargeController extends BaseController
                 throw new \Exception('Failed to create discharge order');
             }
 
-            // Update admission discharge_status to discharge_pending
-            $db->table('admissions')
-                ->where('id', $admissionId)
-                ->update([
-                    'discharge_status' => 'discharge_pending',
-                ]);
+            // Update admission discharge_status to discharge_pending (only if admission exists)
+            if (!empty($admissionId)) {
+                $db->table('admissions')
+                    ->where('id', $admissionId)
+                    ->update([
+                        'discharge_status' => 'discharge_pending',
+                    ]);
+            }
 
             $db->transComplete();
 

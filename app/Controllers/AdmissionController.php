@@ -145,8 +145,25 @@ class AdmissionController extends BaseController
 
         // Check if room is available
         $room = $this->roomModel->find($this->request->getPost('room_id'));
-        if (!$room || $room['status'] !== 'Available') {
-            return redirect()->back()->withInput()->with('error', 'Selected room is not available.');
+        if (!$room) {
+            return redirect()->back()->withInput()->with('error', 'Selected room not found.');
+        }
+        
+        // STRICT VALIDATION: Check if room is already occupied by ANY patient
+        $roomStatus = strtolower(trim($room['status'] ?? ''));
+        $isRoomOccupied = ($roomStatus === 'occupied') || !empty($room['current_patient_id']);
+        
+        if ($isRoomOccupied) {
+            // Room is occupied - REJECT assignment regardless of which patient
+            $currentRoomPatientId = $room['current_patient_id'] ?? null;
+            $db = \Config\Database::connect();
+            $occupiedPatient = $db->table('admin_patients')
+                ->where('id', $currentRoomPatientId)
+                ->get()
+                ->getRowArray();
+            $occupiedPatientName = $occupiedPatient ? ($occupiedPatient['firstname'] ?? '') . ' ' . ($occupiedPatient['lastname'] ?? '') : 'Patient ID: ' . $currentRoomPatientId;
+            
+            return redirect()->back()->withInput()->with('error', "Room {$room['room_number']} is already occupied by {$occupiedPatientName}. Please select a different room.");
         }
 
         // Check if bed is available (if bed_id is provided)
@@ -159,9 +176,23 @@ class AdmissionController extends BaseController
             if (!$bed) {
                 return redirect()->back()->withInput()->with('error', 'Selected bed not found.');
             }
-            if ($bed['status'] !== 'available') {
-                return redirect()->back()->withInput()->with('error', 'Selected bed is not available.');
+            
+            // STRICT VALIDATION: Check if bed is already occupied by ANY patient
+            $bedStatus = strtolower(trim($bed['status'] ?? ''));
+            $isBedOccupied = ($bedStatus === 'occupied') || !empty($bed['current_patient_id']);
+            
+            if ($isBedOccupied) {
+                // Bed is occupied - REJECT assignment regardless of which patient
+                $currentBedPatientId = $bed['current_patient_id'] ?? null;
+                $occupiedPatient = $db->table('admin_patients')
+                    ->where('id', $currentBedPatientId)
+                    ->get()
+                    ->getRowArray();
+                $occupiedPatientName = $occupiedPatient ? ($occupiedPatient['firstname'] ?? '') . ' ' . ($occupiedPatient['lastname'] ?? '') : 'Patient ID: ' . $currentBedPatientId;
+                
+                return redirect()->back()->withInput()->with('error', "Bed {$bed['bed_number']} is already occupied by {$occupiedPatientName}. Please select a different bed.");
             }
+            
             if ($bed['room_id'] != $this->request->getPost('room_id')) {
                 return redirect()->back()->withInput()->with('error', 'Selected bed does not belong to the selected room.');
             }
@@ -256,7 +287,7 @@ class AdmissionController extends BaseController
             }
 
 
-            // Generate admission charge
+            // Generate admission charge and room charge
             if ($db->tableExists('charges') && $db->tableExists('billing_items')) {
                 $chargeNumber = $this->chargeModel->generateChargeNumber();
                 $admissionFee = 1000.00; // Default admission fee
@@ -286,6 +317,88 @@ class AdmissionController extends BaseController
                         'related_type' => 'admission',
                     ]);
                 }
+
+                // Generate room charge (daily rate) - ALWAYS CREATE THIS
+                // Get room price, if not set, use default prices based on room type
+                $roomPricePerDay = (float)($room['price'] ?? 0);
+                $roomType = $admissionData['room_type'] ?? $room['room_type'] ?? 'Ward';
+                
+                // If room doesn't have price set, use default prices based on room type
+                if ($roomPricePerDay <= 0) {
+                    $defaultPrices = [
+                        'Private' => 5000.00,
+                        'Semi-Private' => 3000.00,
+                        'Ward' => 1000.00,
+                        'ICU' => 8000.00,
+                        'Isolation' => 6000.00,
+                        'NICU' => 10000.00,
+                        'OR' => 15000.00,
+                    ];
+                    $roomPricePerDay = $defaultPrices[$roomType] ?? 1000.00; // Default to Ward price if unknown
+                }
+                
+                // Always create room charge - this is REQUIRED
+                $roomChargeNumber = $this->chargeModel->generateChargeNumber();
+                $roomChargeAmount = $roomPricePerDay; // Initial charge for 1 day
+                
+                $roomChargeData = [
+                    'consultation_id' => $this->request->getPost('consultation_id') ?: null,
+                    'patient_id' => $this->request->getPost('patient_id'),
+                    'charge_number' => $roomChargeNumber,
+                    'total_amount' => $roomChargeAmount,
+                    'status' => 'pending',
+                    'notes' => 'Room charge - ' . ($room['room_number'] ?? 'N/A') . ' (' . $roomType . ') - Day 1',
+                ];
+
+                // Insert room charge - throw exception if it fails
+                if (!$this->chargeModel->insert($roomChargeData)) {
+                    $errors = $this->chargeModel->errors();
+                    $errorMsg = !empty($errors) ? implode(', ', $errors) : 'Database insert failed';
+                    log_message('error', 'CRITICAL: Failed to create room charge for admission ID: ' . $admissionId . ', errors: ' . $errorMsg . ', data: ' . json_encode($roomChargeData));
+                    throw new \Exception('Failed to create room charge: ' . $errorMsg);
+                }
+                
+                $roomChargeId = $this->chargeModel->getInsertID();
+                
+                if (!$roomChargeId) {
+                    log_message('error', 'CRITICAL: Room charge insert succeeded but no ID returned for admission ID: ' . $admissionId);
+                    throw new \Exception('Room charge created but no ID returned');
+                }
+                
+                log_message('info', 'Room charge created successfully - charge_id: ' . $roomChargeId . ', patient_id: ' . $this->request->getPost('patient_id') . ', amount: ' . $roomChargeAmount);
+                
+                // Add room charge billing item - throw exception if it fails
+                $bedInfo = $bedNumber ? ' - Bed ' . $bedNumber : '';
+                $billingItemData = [
+                    'charge_id' => $roomChargeId,
+                    'item_type' => 'room_charge',
+                    'item_name' => 'Room Charge',
+                    'description' => 'Room: ' . ($room['room_number'] ?? 'N/A') . $bedInfo . ' - ' . $roomType . ' (Day 1)',
+                    'quantity' => 1.00, // 1 day
+                    'unit_price' => $roomPricePerDay,
+                    'total_price' => $roomChargeAmount,
+                    'related_id' => $admissionId,
+                    'related_type' => 'admission',
+                ];
+                
+                if (!$this->billingItemModel->insert($billingItemData)) {
+                    $errors = $this->billingItemModel->errors();
+                    $errorMsg = !empty($errors) ? implode(', ', $errors) : 'Database insert failed';
+                    log_message('error', 'CRITICAL: Failed to create room charge billing item - charge_id: ' . $roomChargeId . ', errors: ' . $errorMsg);
+                    throw new \Exception('Failed to create room charge billing item: ' . $errorMsg);
+                }
+                
+                log_message('info', 'Room charge billing item created successfully - charge_id: ' . $roomChargeId);
+                
+                // Verify the charge was actually created
+                $verifyCharge = $this->chargeModel->find($roomChargeId);
+                if (!$verifyCharge) {
+                    log_message('error', 'CRITICAL: Room charge verification failed - charge_id: ' . $roomChargeId . ' not found after creation');
+                    throw new \Exception('Room charge verification failed - charge not found in database');
+                }
+            } else {
+                log_message('error', 'CRITICAL: charges or billing_items table does not exist');
+                throw new \Exception('Required tables (charges, billing_items) do not exist');
             }
 
             $db->transComplete();
@@ -294,7 +407,7 @@ class AdmissionController extends BaseController
                 throw new \Exception('Transaction failed');
             }
 
-            return redirect()->to('/admission/view/' . $admissionId)->with('success', 'Patient admitted successfully. Admission charge has been generated.');
+            return redirect()->to('/admission/view/' . $admissionId)->with('success', 'Patient admitted successfully. Admission charge and room charge have been generated.');
 
         } catch (\Exception $e) {
             $db->transRollback();
@@ -346,6 +459,7 @@ class AdmissionController extends BaseController
 
     /**
      * Get available beds for a room (AJAX)
+     * Only returns beds with status 'available' - excludes occupied and maintenance beds
      */
     public function getBeds($roomId)
     {
@@ -354,11 +468,21 @@ class AdmissionController extends BaseController
             return $this->response->setJSON(['error' => 'Unauthorized'])->setStatusCode(401);
         }
 
-        $beds = $this->bedModel
+        // Only get beds that are available (not occupied or in maintenance)
+        // Use database query builder for case-insensitive check and current_patient_id check
+        $db = \Config\Database::connect();
+        $beds = $db->table('beds')
+            ->select('id, bed_number, status, current_patient_id, room_id')
             ->where('room_id', $roomId)
-            ->where('status', 'available')
+            ->where('(LOWER(status) = "available" OR status IS NULL)', null, false)
+            ->where('(LOWER(status) != "occupied" OR status IS NULL)', null, false)
+            ->where('current_patient_id IS NULL', null, false)
             ->orderBy('bed_number', 'ASC')
-            ->findAll();
+            ->get()
+            ->getResultArray();
+
+        // Log for debugging
+        log_message('info', "Admission getBeds: Found " . count($beds) . " available beds for room_id={$roomId}");
 
         return $this->response->setJSON(['beds' => $beds]);
     }

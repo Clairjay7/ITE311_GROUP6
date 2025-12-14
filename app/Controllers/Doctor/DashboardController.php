@@ -751,8 +751,39 @@ class DashboardController extends BaseController
             $patientsWithNurseAssessment = array_values($patientVitalsMap);
         }
         
+        // Get assigned surgeries for this doctor (where assigned_doctor_id matches)
+        $assignedSurgeries = [];
+        if ($db->tableExists('surgeries')) {
+            $assignedSurgeries = $db->table('surgeries s')
+                ->select('s.*, 
+                    COALESCE(ap.first_name, hp.first_name, "") as patient_first_name,
+                    COALESCE(ap.last_name, hp.last_name, "") as patient_last_name,
+                    COALESCE(ap.patient_id, hp.patient_id, "") as patient_number,
+                    r.room_number as or_room_number,
+                    r.ward as or_ward')
+                ->join('admin_patients ap', 'ap.id = s.patient_id AND s.patient_source = "admin"', 'left')
+                ->join('patients hp', 'hp.patient_id = s.patient_id AND s.patient_source = "patients"', 'left')
+                ->join('rooms r', 'r.id = s.or_room_id', 'left')
+                ->where('s.assigned_doctor_id', $doctorId)
+                ->where('s.deleted_at', null)
+                ->where('s.status', 'scheduled')
+                ->orderBy('s.surgery_date', 'ASC')
+                ->orderBy('s.surgery_time', 'ASC')
+                ->limit(10)
+                ->get()
+                ->getResultArray();
+            
+            // Format patient names
+            foreach ($assignedSurgeries as &$surgery) {
+                $surgery['patient_name'] = trim(($surgery['patient_first_name'] ?? '') . ' ' . ($surgery['patient_last_name'] ?? ''));
+                if (empty($surgery['patient_name'])) {
+                    $surgery['patient_name'] = 'Patient #' . ($surgery['patient_number'] ?? $surgery['patient_id']);
+                }
+            }
+        }
+        
         // Debug: Log patient counts
-        log_message('debug', "Doctor Dashboard - doctor_id: {$doctorId}, assignedPatientsCount: {$assignedPatientsCount}, hmsPatientsCount: " . count($hmsPatients) . ", total: " . count($allAssignedPatients) . ", admittedPatients: " . count($admittedPatients));
+        log_message('debug', "Doctor Dashboard - doctor_id: {$doctorId}, assignedPatientsCount: {$assignedPatientsCount}, hmsPatientsCount: " . count($hmsPatients) . ", total: " . count($allAssignedPatients) . ", admittedPatients: " . count($admittedPatients) . ", assignedSurgeries: " . count($assignedSurgeries));
         if (!empty($hmsPatients)) {
             log_message('debug', "Sample hmsPatient: " . json_encode($hmsPatients[0] ?? []));
         }
@@ -783,6 +814,7 @@ class DashboardController extends BaseController
             'doctorSpecialization' => $doctorSpecialization,
             'patientsWithNurseAssessment' => $patientsWithNurseAssessment, // Patients with recent vital signs from assigned nurses
             'patientsWithRecentVitals' => $patientsWithRecentVitals ?? [], // Map of patient_id => has_recent_vitals
+            'assignedSurgeries' => $assignedSurgeries, // Surgeries assigned to this doctor
         ];
 
         return view('doctor/dashboard/index', $data);

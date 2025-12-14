@@ -47,6 +47,8 @@ class AddPriceToRooms extends Migration
             'Ward' => 1000.00,            // Cheapest
             'ICU' => 8000.00,             // Specialized rate (highest)
             'Isolation' => 6000.00,       // Special rate
+            'OR' => 15000.00,             // Operating Room rate
+            'NICU' => 10000.00,           // Neonatal ICU rate
         ];
         
         // Update existing rooms with prices based on room_type

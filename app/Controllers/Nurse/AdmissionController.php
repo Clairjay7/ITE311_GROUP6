@@ -163,11 +163,14 @@ class AdmissionController extends BaseController
             ])->setStatusCode(404);
         }
 
-        // Check if room is available
-        if (($room['status'] ?? '') !== 'Available' && ($room['status'] ?? '') !== 'available') {
+        // STRICT VALIDATION: Check if room is already occupied by ANY patient
+        $roomStatus = strtolower(trim($room['status'] ?? ''));
+        $isRoomOccupied = ($roomStatus === 'occupied') || !empty($room['current_patient_id']);
+        
+        if ($isRoomOccupied) {
             return $this->response->setJSON([
                 'success' => false,
-                'message' => 'Selected room is not available.'
+                'message' => 'Selected room is already occupied. Please select a different room.'
             ])->setStatusCode(400);
         }
 
@@ -175,7 +178,7 @@ class AdmissionController extends BaseController
         $db->transStart();
 
         try {
-            // Update room status
+            // Update room status (room already validated as available above)
             $db->table('rooms')
                 ->where('id', $roomId)
                 ->update([

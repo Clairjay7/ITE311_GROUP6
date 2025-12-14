@@ -331,8 +331,10 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($allOrders as $order): ?>
-                                <tr>
+                            <?php foreach ($allOrders as $order): 
+                                $isCompleted = ($order['status'] ?? 'pending') === 'completed';
+                            ?>
+                                <tr style="<?= $isCompleted ? 'background: #f0fdf4; border-left: 4px solid #10b981;' : '' ?>">
                                     <td><strong>#<?= esc($order['id']) ?></strong></td>
                                     <td>
                                         <strong style="color: #1e293b;">
@@ -400,24 +402,29 @@
                                     </td>
                                     <td><?= esc(date('M d, Y', strtotime($order['created_at']))) ?></td>
                                     <td>
-                                        <?php if ($order['order_type'] === 'medication' && ($order['status'] ?? 'pending') === 'completed'): ?>
-                                            <div>
-                                                <strong style="color: #065f46;">
-                                                    <i class="fas fa-check-circle"></i> Administered
+                                        <?php if (($order['status'] ?? 'pending') === 'completed'): ?>
+                                            <div style="padding: 8px; background: #d1fae5; border-radius: 8px; border-left: 4px solid #10b981;">
+                                                <strong style="color: #065f46; display: flex; align-items: center; gap: 6px; margin-bottom: 6px;">
+                                                    <i class="fas fa-check-circle"></i> 
+                                                    <?php if ($order['order_type'] === 'medication'): ?>
+                                                        Administered
+                                                    <?php else: ?>
+                                                        Completed
+                                                    <?php endif; ?>
                                                 </strong>
-                                                <br>
-                                                <small style="color: #64748b;">
-                                                    By: <?= esc($order['completed_by_name'] ?? 'Nurse') ?>
-                                                </small>
+                                                <?php if ($order['completed_by_name']): ?>
+                                                <div style="font-size: 12px; color: #047857; margin-bottom: 4px;">
+                                                    <i class="fas fa-user-nurse"></i> <strong>By:</strong> <?= esc($order['completed_by_name']) ?>
+                                                </div>
+                                                <?php endif; ?>
                                                 <?php if ($order['completed_at']): ?>
-                                                <br>
-                                                <small style="color: #64748b;">
-                                                    At: <?= date('M d, Y h:i A', strtotime($order['completed_at'])) ?>
-                                                </small>
+                                                <div style="font-size: 12px; color: #047857;">
+                                                    <i class="fas fa-clock"></i> <strong>At:</strong> <?= date('M d, Y h:i A', strtotime($order['completed_at'])) ?>
+                                                </div>
                                                 <?php endif; ?>
                                             </div>
                                         <?php else: ?>
-                                            <?= esc($order['completed_by_name'] ?? 'N/A') ?>
+                                            <span style="color: #94a3b8;">—</span>
                                         <?php endif; ?>
                                     </td>
                                     <td>
@@ -574,7 +581,7 @@
                         </thead>
                         <tbody>
                             <?php foreach ($completedOrders as $order): ?>
-                                <tr>
+                                <tr style="background: #f0fdf4; border-left: 4px solid #10b981;">
                                     <td><strong>#<?= esc($order['id']) ?></strong></td>
                                     <td><strong><?= esc(ucfirst($order['firstname']) . ' ' . ucfirst($order['lastname'])) ?></strong></td>
                                     <td>
@@ -585,8 +592,43 @@
                                     </td>
                                     <td><span class="badge-modern" style="background: #e0f2fe; color: #0369a1;"><?= esc(ucfirst(str_replace('_', ' ', $order['order_type']))) ?></span></td>
                                     <td><?= esc(substr($order['order_description'], 0, 60)) ?><?= strlen($order['order_description']) > 60 ? '...' : '' ?></td>
-                                    <td><?= esc($order['completed_by_name'] ?? 'N/A') ?></td>
-                                    <td><?= esc($order['completed_at'] ? date('M d, Y h:i A', strtotime($order['completed_at'])) : 'N/A') ?></td>
+                                    <td>
+                                        <?php if ($order['completed_by_name']): ?>
+                                            <div style="padding: 8px; background: #d1fae5; border-radius: 8px; border-left: 4px solid #10b981;">
+                                                <strong style="color: #065f46; display: flex; align-items: center; gap: 6px;">
+                                                    <i class="fas fa-user-nurse"></i> <?= esc($order['completed_by_name']) ?>
+                                                </strong>
+                                                <?php 
+                                                // Show role if available
+                                                $orderTypeLabel = ucfirst(str_replace('_', ' ', $order['order_type']));
+                                                if ($order['order_type'] === 'lab_test') {
+                                                    $orderTypeLabel = 'Lab Staff';
+                                                } elseif ($order['order_type'] === 'medication') {
+                                                    $orderTypeLabel = 'Nurse';
+                                                }
+                                                ?>
+                                                <small style="display: block; color: #047857; font-size: 11px; margin-top: 4px;">
+                                                    <?= $orderTypeLabel ?>
+                                                </small>
+                                            </div>
+                                        <?php else: ?>
+                                            <span style="color: #94a3b8; padding: 8px; background: #f8fafc; border-radius: 8px; display: inline-block;">N/A</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td>
+                                        <?php if ($order['completed_at']): ?>
+                                            <div style="padding: 8px; background: #d1fae5; border-radius: 8px; border-left: 4px solid #10b981;">
+                                                <strong style="color: #065f46; display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+                                                    <i class="fas fa-check-circle"></i> <?= date('M d, Y', strtotime($order['completed_at'])) ?>
+                                                </strong>
+                                                <div style="font-size: 12px; color: #047857;">
+                                                    <i class="fas fa-clock"></i> <?= date('h:i A', strtotime($order['completed_at'])) ?>
+                                                </div>
+                                            </div>
+                                        <?php else: ?>
+                                            <span style="color: #94a3b8; padding: 8px; background: #f8fafc; border-radius: 8px; display: inline-block;">N/A</span>
+                                        <?php endif; ?>
+                                    </td>
                                     <td>
                                         <a href="<?= site_url('doctor/orders/view/' . $order['id']) ?>" class="btn-sm-modern btn-info">
                                             <i class="fas fa-eye"></i>

@@ -29,6 +29,11 @@ class HMSPatientModel extends Model
         'registration_date', 'registered_by', 'signature_patient', 'signature_staff', 'date_signed',
         // Visit type and triage
         'visit_type', 'triage_status',
+        // Doctor check flag
+        'is_doctor_checked',
+        // Check status fields
+        'doctor_check_status',
+        'nurse_vital_status',
     ];
 
     protected $useTimestamps = true;

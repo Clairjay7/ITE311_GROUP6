@@ -1,6 +1,6 @@
 <?= $this->extend('template/header') ?>
 
-<?= $this->section('title') ?>Patient Information<?= $this->endSection() ?>
+<?= $this->section('title') ?>My Assigned Patients<?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
 <style>
@@ -159,7 +159,7 @@
     <div class="page-header">
         <h1>
             <i class="fas fa-hospital-user"></i>
-            Patient Information
+            My Assigned Patients
         </h1>
     </div>
     
@@ -226,8 +226,8 @@
             <?php else: ?>
                 <div class="empty-state">
                     <i class="fas fa-users"></i>
-                    <h5>No Patients Found</h5>
-                    <p>No patients are currently registered in the system.</p>
+                    <h5>No Assigned Patients</h5>
+                    <p>You don't have any patients assigned to you yet. Patients will appear here once they are assigned to you by a doctor.</p>
                 </div>
             <?php endif; ?>
         </div>

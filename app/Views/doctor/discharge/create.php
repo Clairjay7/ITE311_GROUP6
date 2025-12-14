@@ -105,7 +105,7 @@
             <div>
                 <label style="font-size: 12px; color: #64748b;">Admission Date</label>
                 <div style="font-weight: 600; color: #1e293b;">
-                    <?= date('M d, Y', strtotime($admission['admission_date'])) ?>
+                    <?= !empty($admission['admission_date']) ? date('M d, Y', strtotime($admission['admission_date'])) : 'N/A' ?>
                 </div>
             </div>
         </div>
@@ -119,7 +119,7 @@
     <div class="card-body-modern">
         <form action="<?= site_url('doctor/discharge/store') ?>" method="post">
             <?= csrf_field() ?>
-            <input type="hidden" name="admission_id" value="<?= esc($admission['id']) ?>">
+            <input type="hidden" name="admission_id" value="<?= !empty($admission['id']) ? esc($admission['id']) : '' ?>">
             <input type="hidden" name="patient_id" value="<?= esc($admission['patient_id']) ?>">
             
             <div style="margin-bottom: 24px;">

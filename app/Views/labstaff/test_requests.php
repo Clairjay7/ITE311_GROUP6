@@ -181,24 +181,47 @@
                                             <?= esc($request['charge_number']) ?>
                                         </small>
                                     <?php endif; ?>
-                                    <?php if ($chargeStatus !== 'paid'): ?>
-                                        <small style="display: block; color: #ef4444; font-size: 11px; margin-top: 4px;">
-                                            <i class="fas fa-exclamation-triangle"></i> Waiting for accountant to process payment
-                                        </small>
+                                    <?php 
+                                    $isAdmitted = $request['is_admitted'] ?? false;
+                                    if ($chargeStatus !== 'paid'): 
+                                        if ($isAdmitted): ?>
+                                            <small style="display: block; color: #0288d1; font-size: 11px; margin-top: 4px;">
+                                                <i class="fas fa-hospital"></i> Admitted patient - will be billed
+                                            </small>
+                                        <?php else: ?>
+                                            <small style="display: block; color: #ef4444; font-size: 11px; margin-top: 4px;">
+                                                <i class="fas fa-exclamation-triangle"></i> Waiting for accountant to process payment
+                                            </small>
+                                        <?php endif; ?>
                                     <?php endif; ?>
                                 </td>
                                 <td>
-                                    <?php if ($paymentStatus === 'paid'): ?>
+                                    <?php 
+                                    // Check if patient is admitted - admitted patients can proceed without upfront payment
+                                    $isAdmitted = $request['is_admitted'] ?? false;
+                                    $canProceed = ($paymentStatus === 'paid') || $isAdmitted;
+                                    ?>
+                                    <?php if ($canProceed): ?>
                                         <?php if ($request['status'] === 'specimen_collected'): ?>
                                             <!-- Nurse has collected specimen, lab staff needs to mark as collected to start testing -->
                                             <button onclick="markCollected(<?= $request['id'] ?>)" class="btn-modern btn-primary" style="margin-bottom: 4px;">
                                                 <i class="fas fa-vial"></i> Mark Collected (Start Test)
                                             </button>
+                                            <?php if ($isAdmitted && $paymentStatus !== 'paid'): ?>
+                                                <small style="display: block; color: #0288d1; font-size: 11px; margin-top: 4px;">
+                                                    <i class="fas fa-info-circle"></i> Will be billed to patient
+                                                </small>
+                                            <?php endif; ?>
                                         <?php elseif ($request['status'] === 'in_progress'): ?>
                                             <!-- Lab staff is testing, can now complete and generate result -->
                                             <button onclick="openCompleteModal(<?= $request['id'] ?>, '<?= esc($request['test_name']) ?>')" class="btn-modern btn-info" style="margin-bottom: 4px;">
                                                 <i class="fas fa-check-circle"></i> Mark Completed (Generate Result)
                                             </button>
+                                            <?php if ($isAdmitted && $paymentStatus !== 'paid'): ?>
+                                                <small style="display: block; color: #0288d1; font-size: 11px; margin-top: 4px;">
+                                                    <i class="fas fa-info-circle"></i> Will be billed to patient
+                                                </small>
+                                            <?php endif; ?>
                                         <?php elseif ($request['status'] === 'pending'): ?>
                                             <?php 
                                             // Check if this is a without_specimen test (no nurse_id means no specimen collection needed)
@@ -208,8 +231,18 @@
                                                 <button onclick="openCompleteModal(<?= $request['id'] ?>, '<?= esc($request['test_name']) ?>')" class="btn-modern btn-info" style="margin-bottom: 4px;">
                                                     <i class="fas fa-flask"></i> Start Test (No Specimen)
                                                 </button>
+                                                <?php if ($isAdmitted && $paymentStatus !== 'paid'): ?>
+                                                    <small style="display: block; color: #0288d1; font-size: 11px; margin-top: 4px;">
+                                                        <i class="fas fa-info-circle"></i> Will be billed to patient
+                                                    </small>
+                                                <?php endif; ?>
                                             <?php else: ?>
                                                 <span class="text-muted" style="font-size: 12px;">Waiting for nurse to collect specimen</span>
+                                                <?php if ($isAdmitted && $paymentStatus !== 'paid'): ?>
+                                                    <small style="display: block; color: #0288d1; font-size: 11px; margin-top: 4px;">
+                                                        <i class="fas fa-info-circle"></i> Will be billed to patient
+                                                    </small>
+                                                <?php endif; ?>
                                             <?php endif; ?>
                                         <?php endif; ?>
                                     <?php else: ?>

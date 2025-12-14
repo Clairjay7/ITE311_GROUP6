@@ -24,6 +24,9 @@ class AdminPatientModel extends Model
         'assigned_nurse_id',
         'visit_type',
         'triage_status',
+        'is_doctor_checked',
+        'doctor_check_status',
+        'nurse_vital_status',
     ];
 
     protected $useTimestamps = true;

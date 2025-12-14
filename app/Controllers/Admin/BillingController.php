@@ -3,972 +3,705 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
-use App\Models\BillingModel;
 use App\Models\AdminPatientModel;
-use App\Models\FinanceOverviewModel;
-use App\Models\PaymentReportModel;
-use App\Models\ExpenseModel;
 use App\Models\ChargeModel;
 use App\Models\BillingItemModel;
-use App\Models\DischargeOrderModel;
 
 class BillingController extends BaseController
 {
-    protected $billingModel;
     protected $patientModel;
-    protected $financeOverviewModel;
-    protected $paymentReportModel;
-    protected $expenseModel;
     protected $chargeModel;
     protected $billingItemModel;
-    protected $dischargeOrderModel;
 
     public function __construct()
     {
-        helper(['form', 'url']);
-        $this->billingModel = new BillingModel();
         $this->patientModel = new AdminPatientModel();
-        $this->financeOverviewModel = new FinanceOverviewModel();
-        $this->paymentReportModel = new PaymentReportModel();
-        $this->expenseModel = new ExpenseModel();
         $this->chargeModel = new ChargeModel();
         $this->billingItemModel = new BillingItemModel();
-        $this->dischargeOrderModel = new DischargeOrderModel();
-    }
-
-    public function index()
-    {
-        // Redirect to dashboard instead of simple billing list
-        return redirect()->to('/admin/billing/dashboard');
     }
 
     /**
-     * Billing Dashboard
+     * Index method - redirects to patient billing page
      */
-    public function dashboard()
+    public function index()
+    {
+        return redirect()->to('/admin/billing/patient_billing');
+    }
+
+    public function patientBilling()
     {
         if (!session()->get('logged_in') || session()->get('role') !== 'admin') {
             return redirect()->to('/auth')->with('error', 'You must be logged in as Admin to access this page.');
         }
 
         $db = \Config\Database::connect();
-        $today = date('Y-m-d');
+        $patientId = $this->request->getGet('patient_id');
 
-        // Get basic stats for initial display
-        $todayRevenue = 0.0;
-        $pendingBills = 0;
-        $outstandingBalance = 0.0;
+        $patients = $this->patientModel->findAll();
+        $patientBills = [];
+        $selectedPatient = null;
+        $totalAmount = 0.0;
+        $paidAmount = 0.0;
+        $pendingAmount = 0.0;
+        $patientInsuranceInfo = null; // Initialize insurance info variable
 
-        if ($db->tableExists('billing')) {
-            $revenue = $db->table('billing')
-                ->selectSum('amount', 'sum')
-                ->where('status', 'paid')
-                ->where('DATE(created_at)', $today)
-                ->get()->getRow();
-            $todayRevenue = (float) ($revenue->sum ?? 0);
+        if ($patientId) {
+            $selectedPatient = $this->patientModel->find($patientId);
+            
+            // Get patient insurance information from patients table
+            if ($selectedPatient && $db->tableExists('patients')) {
+                // Try to match by name (firstname + lastname)
+                $patientInsuranceInfo = $db->table('patients')
+                    ->where('first_name', $selectedPatient['firstname'] ?? '')
+                    ->where('last_name', $selectedPatient['lastname'] ?? '')
+                    ->where('type', 'In-Patient')
+                    ->orderBy('patient_id', 'DESC')
+                    ->limit(1)
+                    ->get()
+                    ->getRowArray();
+                
+                // If not found, try to match by patient_id if available
+                if (!$patientInsuranceInfo && !empty($selectedPatient['patient_id'])) {
+                    $patientInsuranceInfo = $db->table('patients')
+                        ->where('patient_id', $selectedPatient['patient_id'])
+                        ->where('type', 'In-Patient')
+                        ->orderBy('patient_id', 'DESC')
+                        ->limit(1)
+                        ->get()
+                        ->getRowArray();
+                }
+            }
+            
+            if ($selectedPatient) {
+                // Get all bills for this patient from billing table (including IV Fluid Administration)
+                $patientBillsRaw = $db->table('billing')
+                    ->where('patient_id', $patientId)
+                    ->where('deleted_at', null) // Exclude soft-deleted records
+                    ->orderBy('created_at', 'DESC')
+                    ->get()
+                    ->getResultArray();
 
-            $pendingBills = $db->table('billing')
-                ->where('status', 'pending')
-                ->countAllResults();
+                // Format bills to include medicine name in service description
+                $patientBills = [];
+                foreach ($patientBillsRaw as $bill) {
+                    // Build service description with medicine name if available
+                    $serviceDescription = $bill['service'] ?? 'Service';
+                    if ($bill['service'] === 'Medication Administration' && !empty($bill['medicine_name'])) {
+                        $serviceDescription = 'Medication Administration: ' . $bill['medicine_name'];
+                        // Add dosage if available
+                        if (!empty($bill['dosage'])) {
+                            $serviceDescription .= ' (' . $bill['dosage'] . ')';
+                        }
+                    } elseif ($bill['service'] === 'IV Fluid Administration' && !empty($bill['order_description'])) {
+                        // For IV Fluids, use order_description which contains fluid name
+                        $serviceDescription = 'IV Fluid Administration: ' . $bill['order_description'];
+                    } elseif ($bill['service'] === 'IV Fluid Administration' && !empty($bill['medicine_name'])) {
+                        // Fallback if order_description is not available
+                        $serviceDescription = 'IV Fluid Administration: ' . $bill['medicine_name'];
+                    }
+                    
+                    $formattedBill = $bill;
+                    $formattedBill['service'] = $serviceDescription;
+                    $patientBills[] = $formattedBill;
+                    
+                    // Calculate totals
+                    $totalAmount += (float)($bill['amount'] ?? 0);
+                    if ($bill['status'] === 'paid') {
+                        $paidAmount += (float)($bill['amount'] ?? 0);
+                    } else {
+                        $pendingAmount += (float)($bill['amount'] ?? 0);
+                    }
+                }
 
-            $outstanding = $db->table('billing')
-                ->selectSum('amount', 'sum')
-                ->where('status', 'pending')
-                ->get()->getRow();
-            $outstandingBalance = (float) ($outstanding->sum ?? 0);
+                // Also get charges for this patient
+                // Try to find charges by patient_id (admin_patients.id)
+                // Also check if there are charges linked via surgeries table
+                $patientCharges = $db->table('charges')
+                    ->where('patient_id', $patientId)
+                    ->where('deleted_at', null)
+                    ->orderBy('created_at', 'DESC')
+                    ->get()
+                    ->getResultArray();
+                
+                // Debug: Log charge query
+                log_message('info', "Patient Billing: Querying charges for patient_id={$patientId}, found " . count($patientCharges) . " charges");
+                
+                // Fallback: Also check charges by patient name (in case patient_id mismatch)
+                // This helps find charges created with different patient_id but same patient
+                $patientFirstName = $selectedPatient['firstname'] ?? '';
+                $patientLastName = $selectedPatient['lastname'] ?? '';
+                if (!empty($patientFirstName) && !empty($patientLastName)) {
+                    // Get all charges with OR Room in notes or billing items
+                    $allORCharges = $db->table('charges c')
+                        ->select('c.*')
+                        ->join('admin_patients ap', 'ap.id = c.patient_id', 'left')
+                        ->where("(c.notes LIKE '%OR Room%' OR c.notes LIKE '%Operating Room%')")
+                        ->where('ap.firstname', $patientFirstName)
+                        ->where('ap.lastname', $patientLastName)
+                        ->where('c.deleted_at', null)
+                        ->get()
+                        ->getResultArray();
+                    
+                    // Add any OR charges found by name that aren't already in the list
+                    foreach ($allORCharges as $orCharge) {
+                        $alreadyInList = false;
+                        foreach ($patientCharges as $existingCharge) {
+                            if ($existingCharge['id'] == $orCharge['id']) {
+                                $alreadyInList = true;
+                                break;
+                            }
+                        }
+                        if (!$alreadyInList) {
+                            log_message('info', "Patient Billing: Found OR charge by name match - charge_id={$orCharge['id']}, patient_id in charge={$orCharge['patient_id']}, selected patient_id={$patientId}");
+                            $patientCharges[] = $orCharge;
+                        }
+                    }
+                }
+                
+                // Also check for charges linked via surgeries (in case patient_id mismatch)
+                // Get surgeries for this patient and find related charges
+                if ($db->tableExists('surgeries')) {
+                    // First, try to find surgeries by patient_id
+                    $surgeries = $db->table('surgeries')
+                        ->where('patient_id', $patientId)
+                        ->where('deleted_at', null)
+                        ->get()
+                        ->getResultArray();
+                    
+                    // Also try to find surgeries by patient name (in case patient_id is from patients table)
+                    if (empty($surgeries) && !empty($patientFirstName) && !empty($patientLastName)) {
+                        // Check if patient exists in patients table and find surgeries there
+                        if ($db->tableExists('patients')) {
+                            $hmsPatient = $db->table('patients')
+                                ->where('first_name', $patientFirstName)
+                                ->where('last_name', $patientLastName)
+                                ->get()
+                                ->getRowArray();
+                            
+                            if ($hmsPatient) {
+                                $surgeries = $db->table('surgeries')
+                                    ->where('patient_id', $hmsPatient['patient_id'])
+                                    ->where('deleted_at', null)
+                                    ->get()
+                                    ->getResultArray();
+                                log_message('info', "Patient Billing: Found " . count($surgeries) . " surgeries for patient from patients table");
+                            }
+                        }
+                    }
+                    
+                    log_message('info', "Patient Billing: Found " . count($surgeries) . " surgeries for patient_id={$patientId}");
+                    
+                    foreach ($surgeries as $surgery) {
+                        // Find charges linked to this surgery via billing_items
+                        if ($db->tableExists('billing_items')) {
+                            $surgeryBillingItems = $db->table('billing_items')
+                                ->where('related_type', 'surgery')
+                                ->where('related_id', $surgery['id'])
+                                ->get()
+                                ->getResultArray();
+                            
+                            log_message('info', "Patient Billing: Found " . count($surgeryBillingItems) . " billing items for surgery_id={$surgery['id']}");
+                            
+                            foreach ($surgeryBillingItems as $item) {
+                                // Get the charge for this billing item
+                                $surgeryCharge = $db->table('charges')
+                                    ->where('id', $item['charge_id'])
+                                    ->where('deleted_at', null)
+                                    ->get()
+                                    ->getRowArray();
+                                
+                                if ($surgeryCharge) {
+                                    // Check if this charge is already in the list
+                                    $alreadyInList = false;
+                                    foreach ($patientCharges as $existingCharge) {
+                                        if ($existingCharge['id'] == $surgeryCharge['id']) {
+                                            $alreadyInList = true;
+                                            break;
+                                        }
+                                    }
+                                    
+                                    if (!$alreadyInList) {
+                                        log_message('info', "Patient Billing: Found OR charge via surgery - charge_id={$surgeryCharge['id']}, patient_id in charge={$surgeryCharge['patient_id']}, selected patient_id={$patientId}, amount={$surgeryCharge['total_amount']}");
+                                        $patientCharges[] = $surgeryCharge;
+                                    }
+                                } else {
+                                    log_message('warning', "Patient Billing: Billing item found but charge not found - charge_id={$item['charge_id']}");
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Also directly query for OR charges that might be linked to any surgery for this patient
+                    // This is a catch-all to find any OR charges
+                    $allORChargesDirect = $db->table('charges')
+                        ->where("(notes LIKE '%OR Room%' OR notes LIKE '%Operating Room%')")
+                        ->where('deleted_at', null)
+                        ->orderBy('created_at', 'DESC')
+                        ->get()
+                        ->getResultArray();
+                    
+                    foreach ($allORChargesDirect as $orCharge) {
+                        // Check if this charge has a billing item linked to a surgery for this patient
+                        if ($db->tableExists('billing_items')) {
+                            $chargeBillingItems = $db->table('billing_items')
+                                ->where('charge_id', $orCharge['id'])
+                                ->where('related_type', 'surgery')
+                                ->get()
+                                ->getResultArray();
+                            
+                            foreach ($chargeBillingItems as $bi) {
+                                $relatedSurgery = $db->table('surgeries')
+                                    ->where('id', $bi['related_id'])
+                                    ->where('deleted_at', null)
+                                    ->get()
+                                    ->getRowArray();
+                                
+                                if ($relatedSurgery) {
+                                    // Check if this surgery belongs to the selected patient
+                                    $surgeryBelongsToPatient = false;
+                                    
+                                    // Check by patient_id
+                                    if ($relatedSurgery['patient_id'] == $patientId) {
+                                        $surgeryBelongsToPatient = true;
+                                    }
+                                    
+                                    // Also check by patient name if patient_id doesn't match
+                                    if (!$surgeryBelongsToPatient && !empty($patientFirstName) && !empty($patientLastName)) {
+                                        // Check if surgery patient matches selected patient name
+                                        if ($db->tableExists('admin_patients')) {
+                                            $surgeryPatient = $db->table('admin_patients')
+                                                ->where('id', $relatedSurgery['patient_id'])
+                                                ->where('firstname', $patientFirstName)
+                                                ->where('lastname', $patientLastName)
+                                                ->where('deleted_at', null)
+                                                ->get()
+                                                ->getRowArray();
+                                            if ($surgeryPatient) {
+                                                $surgeryBelongsToPatient = true;
+                                            }
+                                        }
+                                    }
+                                    
+                                    if ($surgeryBelongsToPatient) {
+                                        // Check if already in list
+                                        $alreadyInList = false;
+                                        foreach ($patientCharges as $existingCharge) {
+                                            if ($existingCharge['id'] == $orCharge['id']) {
+                                                $alreadyInList = true;
+                                                break;
+                                            }
+                                        }
+                                        
+                                        if (!$alreadyInList) {
+                                            log_message('info', "Patient Billing: Found OR charge via direct query - charge_id={$orCharge['id']}, patient_id in charge={$orCharge['patient_id']}, selected patient_id={$patientId}, amount={$orCharge['total_amount']}");
+                                            $patientCharges[] = $orCharge;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Add charges to bills array with billing items details
+                foreach ($patientCharges as $charge) {
+                    // Get billing items for this charge to show detailed breakdown
+                    $billingItems = [];
+                    if ($db->tableExists('billing_items')) {
+                        $billingItems = $db->table('billing_items')
+                            ->where('charge_id', $charge['id'])
+                            ->get()
+                            ->getResultArray();
+                    }
+                    
+                    // Build service description from billing items or use charge notes
+                    $serviceDescription = $charge['notes'] ?? 'Charge';
+                    
+                    // Check if this is an OR charge (from notes or billing items)
+                    $isORCharge = false;
+                    if (stripos($charge['notes'] ?? '', 'OR Room') !== false || 
+                        stripos($charge['notes'] ?? '', 'Operating Room') !== false) {
+                        $isORCharge = true;
+                    }
+                    
+                    if (!empty($billingItems)) {
+                        $itemDescriptions = [];
+                        foreach ($billingItems as $item) {
+                            $itemName = $item['item_name'] ?? '';
+                            $itemDesc = $item['description'] ?? $itemName;
+                            $itemType = $item['item_type'] ?? '';
+                            
+                            if ($itemType === 'lab_test') {
+                                $itemDescriptions[] = 'Lab Test: ' . $itemName;
+                            } elseif ($itemType === 'room_charge') {
+                                // Room charge items - display prominently
+                                $itemDescriptions[] = $itemDesc;
+                            } elseif ($itemType === 'procedure') {
+                                // Check if it's OR Room charge
+                                if (stripos($itemDesc, 'OR Room') !== false || 
+                                    stripos($itemDesc, 'Operating Room') !== false ||
+                                    stripos($itemName, 'OR Room') !== false) {
+                                    $itemDescriptions[] = $itemDesc; // OR Room charges
+                                    $isORCharge = true;
+                                } else {
+                                    $itemDescriptions[] = $itemDesc;
+                                }
+                            } else {
+                                $itemDescriptions[] = $itemDesc;
+                            }
+                        }
+                        if (!empty($itemDescriptions)) {
+                            $serviceDescription = implode('; ', $itemDescriptions);
+                        }
+                    }
+                    
+                    // If charge notes contain "Room charge" but no billing items, use notes
+                    if (stripos($charge['notes'] ?? '', 'Room charge') !== false && empty($billingItems)) {
+                        $serviceDescription = $charge['notes'];
+                    }
+                    
+                    // If it's an OR charge but no billing items, use the notes
+                    if ($isORCharge && empty($billingItems)) {
+                        $serviceDescription = $charge['notes'] ?? 'OR Room Charge';
+                    }
+                    
+                    $patientBills[] = [
+                        'id' => 'CHG-' . $charge['id'],
+                        'type' => 'charge',
+                        'service' => $serviceDescription,
+                        'amount' => $charge['total_amount'] ?? 0,
+                        'status' => $charge['status'] ?? 'pending',
+                        'created_at' => $charge['created_at'] ?? date('Y-m-d H:i:s'),
+                        'charge_number' => $charge['charge_number'] ?? null,
+                        'billing_items' => $billingItems, // Include for detailed view if needed
+                    ];
+                    $totalAmount += (float)($charge['total_amount'] ?? 0);
+                    if ($charge['status'] === 'paid') {
+                        $paidAmount += (float)($charge['total_amount'] ?? 0);
+                    } else {
+                        $pendingAmount += (float)($charge['total_amount'] ?? 0);
+                    }
+                }
+
+                // Sort by date
+                usort($patientBills, function($a, $b) {
+                    return strtotime($b['created_at']) - strtotime($a['created_at']);
+                });
+            }
         }
 
+        // Parse insurance information if available
+        $availableInsurances = [];
+        if ($patientInsuranceInfo) {
+            $insuranceProviders = !empty($patientInsuranceInfo['insurance_provider']) 
+                ? explode(', ', $patientInsuranceInfo['insurance_provider']) 
+                : [];
+            $insuranceNumbers = !empty($patientInsuranceInfo['insurance_number']) 
+                ? $patientInsuranceInfo['insurance_number'] 
+                : '';
+            
+            // Parse insurance numbers (format: "Provider1: Number1 | Provider2: Number2")
+            $insuranceNumberPairs = [];
+            if (!empty($insuranceNumbers)) {
+                $pairs = explode(' | ', $insuranceNumbers);
+                foreach ($pairs as $pair) {
+                    if (strpos($pair, ':') !== false) {
+                        list($provider, $number) = explode(':', $pair, 2);
+                        $insuranceNumberPairs[trim($provider)] = trim($number);
+                    }
+                }
+            }
+            
+            // Build available insurances array
+            foreach ($insuranceProviders as $provider) {
+                $provider = trim($provider);
+                if (!empty($provider)) {
+                    // Calculate used insurance amount for this provider
+                    $usedAmount = 0;
+                    if ($patientId && $db->tableExists('payment_reports')) {
+                        $insurancePayments = $db->table('payment_reports')
+                            ->where('patient_id', $patientId)
+                            ->where('payment_method', 'insurance')
+                            ->where('status', 'completed')
+                            ->like('notes', '%Insurance: ' . $provider . '%')
+                            ->get()
+                            ->getResultArray();
+                        
+                        // Extract insurance amounts from notes
+                        foreach ($insurancePayments as $payment) {
+                            if (preg_match('/Insurance: ' . preg_quote($provider, '/') . ' \(Covered: ₱([\d,]+\.?\d*)\)/', $payment['notes'] ?? '', $matches)) {
+                                $coveredAmount = str_replace(',', '', $matches[1]);
+                                $usedAmount += floatval($coveredAmount);
+                            }
+                        }
+                    }
+                    
+                    $availableInsurances[] = [
+                        'provider' => $provider,
+                        'number' => $insuranceNumberPairs[$provider] ?? '',
+                        'used_amount' => $usedAmount
+                    ];
+                }
+            }
+        }
+        
         $data = [
-            'title' => 'Billing Service Dashboard',
-            'todayRevenue' => $todayRevenue,
-            'pendingBills' => $pendingBills,
-            'outstandingBalance' => $outstandingBalance,
+            'title' => 'Patient Billing',
+            'patients' => $patients,
+            'selectedPatient' => $selectedPatient,
+            'patientBills' => $patientBills,
+            'totalAmount' => $totalAmount,
+            'paidAmount' => $paidAmount,
+            'pendingAmount' => $pendingAmount,
+            'patientId' => $patientId,
+            'availableInsurances' => $availableInsurances,
+            'patientInsuranceInfo' => $patientInsuranceInfo,
         ];
 
-        return view('admin/billing/dashboard', $data);
+        return view('admin/billing/patient_billing', $data);
     }
 
     /**
-     * Dashboard Stats API Endpoint
+     * Process bill payment with insurance support
      */
-    public function dashboardStats()
+    public function processBillPayment()
+    {
+        if (!session()->get('logged_in') || session()->get('role') !== 'admin') {
+            return $this->response->setContentType('application/json')
+                ->setJSON(['success' => false, 'message' => 'Unauthorized'])->setStatusCode(401);
+        }
+
+        $db = \Config\Database::connect();
+        $requestData = $this->request->getJSON(true);
+        
+        // Support both single bill and multiple bills
+        $billIds = $requestData['bill_ids'] ?? (isset($requestData['bill_id']) ? [$requestData['bill_id']] : []);
+        $billTypes = $requestData['bill_types'] ?? (isset($requestData['bill_type']) ? [$requestData['bill_type']] : ['billing']);
+        $paymentMethod = $requestData['payment_method'] ?? 'cash';
+        $insuranceProvider = $requestData['insurance_provider'] ?? null;
+        $patientPaymentMethod = $requestData['patient_payment_method'] ?? null;
+        $amount = $requestData['amount'] ?? 0;
+        $totalAmount = $requestData['total_amount'] ?? 0;
+
+        if (empty($billIds)) {
+            return $this->response->setContentType('application/json')
+                ->setJSON(['success' => false, 'message' => 'Bill ID(s) is required']);
+        }
+
+        // Ensure billTypes array matches billIds array length
+        while (count($billTypes) < count($billIds)) {
+            $billTypes[] = 'billing';
+        }
+
+        // Insurance coverage percentages
+        $insuranceCoverageRates = [
+            'PhilHealth' => 80,
+            'Maxicare' => 90,
+            'Medicard' => 85,
+            'Intellicare' => 90,
+            'Pacific Cross' => 85,
+            'Cocolife' => 85,
+            'AXA' => 80,
+            'Sun Life' => 85,
+            'Pru Life UK' => 85,
+            'Other' => 70,
+        ];
+
+        // Calculate insurance coverage if applicable
+        $insuranceAmount = 0;
+        $patientPays = $amount;
+        if ($paymentMethod === 'insurance' && $insuranceProvider) {
+            $coveragePercent = $insuranceCoverageRates[$insuranceProvider] ?? $insuranceCoverageRates['Other'];
+            $insuranceAmount = $totalAmount * $coveragePercent / 100;
+            $patientPays = $totalAmount - $insuranceAmount;
+        }
+
+        // Process all bills
+        $processedCount = 0;
+        $failedBills = [];
+        $patientId = null;
+        
+        foreach ($billIds as $index => $billId) {
+            $billType = $billTypes[$index] ?? 'billing';
+            
+            // Get bill from appropriate table
+            if ($billType === 'charge') {
+                $bill = $db->table('charges')->where('id', str_replace('CHG-', '', $billId))->get()->getRowArray();
+                $tableName = 'charges';
+            } else {
+                $bill = $db->table('billing')->where('id', $billId)->get()->getRowArray();
+                $tableName = 'billing';
+            }
+            
+            if (!$bill) {
+                $failedBills[] = $billId;
+                continue;
+            }
+            
+            if (($bill['status'] ?? 'pending') === 'paid') {
+                continue; // Skip already paid bills
+            }
+            
+            if (!$patientId) {
+                $patientId = $bill['patient_id'] ?? null;
+            }
+            
+            // Update bill status
+            $updateData = [
+                'status' => 'paid',
+                'processed_by' => session()->get('user_id'),
+                'paid_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ];
+            
+            if ($db->table($tableName)->where('id', $billId)->update($updateData)) {
+                $processedCount++;
+            } else {
+                $failedBills[] = $billId;
+            }
+        }
+        
+        // Create payment record for all bills
+        if ($processedCount > 0 && $db->tableExists('payment_reports') && $patientId) {
+            $paymentReportModel = new \App\Models\PaymentReportModel();
+            $paymentNotes = 'Payment for ' . count($billIds) . ' bill(s)';
+            if ($insuranceProvider) {
+                $paymentNotes .= ' | Insurance: ' . $insuranceProvider . ' (Covered: ₱' . number_format($insuranceAmount, 2) . ')';
+            }
+            if ($patientPaymentMethod && $patientPays > 0) {
+                $paymentNotes .= ' | Patient Payment: ' . ucfirst(str_replace('_', ' ', $patientPaymentMethod)) . ' (₱' . number_format($patientPays, 2) . ')';
+            }
+            
+            $paymentData = [
+                'report_date' => date('Y-m-d'),
+                'patient_id' => $patientId,
+                'billing_id' => implode(',', $billIds), // Store all bill IDs
+                'payment_method' => $paymentMethod,
+                'amount' => $patientPays,
+                'reference_number' => 'BILLS-' . implode('-', $billIds),
+                'status' => 'completed',
+                'payment_date' => date('Y-m-d H:i:s'),
+                'processed_by' => session()->get('user_id'),
+                'notes' => $paymentNotes,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ];
+            
+            $paymentReportModel->skipValidation(true);
+            $paymentReportModel->insert($paymentData);
+            $paymentReportModel->skipValidation(false);
+        }
+        
+        if ($processedCount > 0) {
+            $message = "Payment processed successfully for {$processedCount} bill(s).";
+            if (!empty($failedBills)) {
+                $message .= " Failed to process " . count($failedBills) . " bill(s).";
+            }
+            
+            return $this->response->setContentType('application/json')
+                ->setJSON([
+                    'success' => true,
+                    'message' => $message,
+                    'insurance_amount' => $insuranceAmount,
+                    'patient_pays' => $patientPays,
+                    'processed_count' => $processedCount,
+                ]);
+        } else {
+            return $this->response->setContentType('application/json')
+                ->setJSON(['success' => false, 'message' => 'Failed to process any bills']);
+        }
+    }
+    
+    /**
+     * Debug method to check OR charges for a patient
+     * This helps verify if charges exist and why they might not be showing
+     */
+    public function debugORCharges()
     {
         if (!session()->get('logged_in') || session()->get('role') !== 'admin') {
             return $this->response->setJSON(['error' => 'Unauthorized'])->setStatusCode(401);
         }
-
-        // Use the same logic as Accountant DashboardStats
-        $accountantStats = new \App\Controllers\Accountant\DashboardStats();
-        return $accountantStats->stats();
-    }
-
-    public function create()
-    {
-        $patients = $this->patientModel->findAll();
         
-        $data = [
-            'title' => 'Create Bill',
-            'patients' => $patients,
-            'validation' => \Config\Services::validation(),
-        ];
-
-        return view('admin/billing/create', $data);
-    }
-
-    public function store()
-    {
-        $rules = [
-            'patient_id' => 'required|integer',
-            'service' => 'required|max_length[255]',
-            'amount' => 'required|decimal',
-            'status' => 'required|in_list[pending,paid,cancelled]',
-        ];
-
-        if (!$this->validate($rules)) {
-            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+        $patientId = $this->request->getGet('patient_id');
+        if (!$patientId) {
+            return $this->response->setJSON(['error' => 'patient_id required']);
         }
-
-        $data = [
-            'patient_id' => $this->request->getPost('patient_id'),
-            'service' => $this->request->getPost('service'),
-            'amount' => $this->request->getPost('amount'),
-            'status' => $this->request->getPost('status'),
-        ];
-
-        $this->billingModel->insert($data);
-
-        return redirect()->to('/admin/billing')->with('success', 'Bill created successfully.');
-    }
-
-    public function edit($id)
-    {
-        $billing = $this->billingModel->find($id);
         
-        if (!$billing) {
-            return redirect()->to('/admin/billing')->with('error', 'Bill not found.');
-        }
-
-        $patients = $this->patientModel->findAll();
-
-        $data = [
-            'title' => 'Edit Bill',
-            'billing' => $billing,
-            'patients' => $patients,
-            'validation' => \Config\Services::validation(),
-        ];
-
-        return view('admin/billing/edit', $data);
-    }
-
-    public function update($id)
-    {
-        $billing = $this->billingModel->find($id);
+        $db = \Config\Database::connect();
+        $patient = $this->patientModel->find($patientId);
         
-        if (!$billing) {
-            return redirect()->to('/admin/billing')->with('error', 'Bill not found.');
+        if (!$patient) {
+            return $this->response->setJSON(['error' => 'Patient not found']);
         }
-
-        $rules = [
-            'patient_id' => 'required|integer',
-            'service' => 'required|max_length[255]',
-            'amount' => 'required|decimal',
-            'status' => 'required|in_list[pending,paid,cancelled]',
-        ];
-
-        if (!$this->validate($rules)) {
-            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
-        }
-
-        $data = [
-            'patient_id' => $this->request->getPost('patient_id'),
-            'service' => $this->request->getPost('service'),
-            'amount' => $this->request->getPost('amount'),
-            'status' => $this->request->getPost('status'),
-        ];
-
-        $this->billingModel->update($id, $data);
-
-        return redirect()->to('/admin/billing')->with('success', 'Bill updated successfully.');
-    }
-
-    public function delete($id)
-    {
-        $billing = $this->billingModel->find($id);
         
-        if (!$billing) {
-            return redirect()->to('/admin/billing')->with('error', 'Bill not found.');
-        }
-
-        $this->billingModel->delete($id);
-
-        return redirect()->to('/admin/billing')->with('success', 'Bill deleted successfully.');
-    }
-
-    // ========== FINANCE OVERVIEW METHODS ==========
-    
-    public function finance()
-    {
-        if (!session()->get('logged_in') || session()->get('role') !== 'admin') {
-            return redirect()->to('/auth')->with('error', 'You must be logged in as Admin to access this page.');
-        }
-
-        $db = \Config\Database::connect();
-
-        // Get cross-role financial data
-        $crossRoleData = [
-            'receptionist_payments' => $db->tableExists('payment_reports') ? 
-                $db->table('payment_reports')
-                    ->select('payment_reports.*, admin_patients.firstname, admin_patients.lastname')
-                    ->join('admin_patients', 'admin_patients.id = payment_reports.patient_id', 'left')
-                    ->where('payment_reports.status', 'completed')
-                    ->orderBy('payment_reports.created_at', 'DESC')
-                    ->limit(10)
-                    ->get()->getResultArray() : [],
-            
-            'consultation_charges' => $db->tableExists('consultations') ?
-                $db->table('consultations')
-                    ->select('consultations.*, admin_patients.firstname, admin_patients.lastname, users.username as doctor_name')
-                    ->join('admin_patients', 'admin_patients.id = consultations.patient_id', 'left')
-                    ->join('users', 'users.id = consultations.doctor_id', 'left')
-                    ->where('consultations.status', 'completed')
-                    ->orderBy('consultations.created_at', 'DESC')
-                    ->limit(10)
-                    ->get()->getResultArray() : [],
-            
-            'lab_test_charges' => $db->tableExists('lab_requests') ?
-                $db->table('lab_requests')
-                    ->select('lab_requests.*, admin_patients.firstname, admin_patients.lastname')
-                    ->join('admin_patients', 'admin_patients.id = lab_requests.patient_id', 'left')
-                    ->where('lab_requests.status', 'completed')
-                    ->orderBy('lab_requests.created_at', 'DESC')
-                    ->limit(10)
-                    ->get()->getResultArray() : [],
-            
-            'pharmacy_expenses' => $db->tableExists('pharmacy') ?
-                $db->table('pharmacy')
-                    ->select('pharmacy.*')
-                    ->orderBy('pharmacy.created_at', 'DESC')
-                    ->limit(10)
-                    ->get()->getResultArray() : [],
+        $debug = [
+            'patient' => [
+                'id' => $patient['id'],
+                'name' => ($patient['firstname'] ?? '') . ' ' . ($patient['lastname'] ?? ''),
+            ],
+            'direct_charges' => [],
+            'charges_by_name' => [],
+            'surgeries' => [],
+            'charges_via_surgeries' => [],
         ];
-
-        $data = [
-            'title' => 'Finance Overview',
-            'finance_overviews' => $this->financeOverviewModel
-                ->select('finance_overview.*, users.username as created_by_name')
-                ->join('users', 'users.id = finance_overview.created_by', 'left')
-                ->orderBy('finance_overview.created_at', 'DESC')
-                ->findAll(),
-            'cross_role_data' => $crossRoleData,
-        ];
-
-        return view('admin/billing/finance/index', $data);
-    }
-
-    public function financeCreate()
-    {
-        if (!session()->get('logged_in') || session()->get('role') !== 'admin') {
-            return redirect()->to('/auth')->with('error', 'You must be logged in as Admin to access this page.');
-        }
-
-        $data = [
-            'title' => 'Create Finance Overview',
-        ];
-
-        return view('admin/billing/finance/create', $data);
-    }
-
-    public function financeStore()
-    {
-        if (!session()->get('logged_in') || session()->get('role') !== 'admin') {
-            return redirect()->to('/auth')->with('error', 'You must be logged in as Admin to access this page.');
-        }
-
-        $rules = [
-            'period_type' => 'required|in_list[daily,weekly,monthly,yearly]',
-            'period_start' => 'required|valid_date',
-            'period_end' => 'required|valid_date',
-            'total_revenue' => 'permit_empty|decimal',
-            'total_expenses' => 'permit_empty|decimal',
-        ];
-
-        if (!$this->validate($rules)) {
-            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
-        }
-
-        $data = [
-            'period_type' => $this->request->getPost('period_type'),
-            'period_start' => $this->request->getPost('period_start'),
-            'period_end' => $this->request->getPost('period_end'),
-            'total_revenue' => $this->request->getPost('total_revenue') ?? 0.00,
-            'total_expenses' => $this->request->getPost('total_expenses') ?? 0.00,
-            'net_profit' => ($this->request->getPost('total_revenue') ?? 0.00) - ($this->request->getPost('total_expenses') ?? 0.00),
-            'total_bills' => $this->request->getPost('total_bills') ?? 0,
-            'paid_bills' => $this->request->getPost('paid_bills') ?? 0,
-            'pending_bills' => $this->request->getPost('pending_bills') ?? 0,
-            'insurance_claims_total' => $this->request->getPost('insurance_claims_total') ?? 0.00,
-            'notes' => $this->request->getPost('notes'),
-            'created_by' => session()->get('user_id'),
-        ];
-
-        if ($this->financeOverviewModel->insert($data)) {
-            return redirect()->to('/admin/billing/finance')->with('success', 'Finance overview created successfully.');
-        } else {
-            return redirect()->back()->withInput()->with('error', 'Failed to create finance overview.');
-        }
-    }
-
-    public function financeEdit($id)
-    {
-        if (!session()->get('logged_in') || session()->get('role') !== 'admin') {
-            return redirect()->to('/auth')->with('error', 'You must be logged in as Admin to access this page.');
-        }
-
-        $financeOverview = $this->financeOverviewModel->find($id);
-
-        if (!$financeOverview) {
-            return redirect()->to('/admin/billing/finance')->with('error', 'Finance overview not found.');
-        }
-
-        $data = [
-            'title' => 'Edit Finance Overview',
-            'finance_overview' => $financeOverview,
-        ];
-
-        return view('admin/billing/finance/edit', $data);
-    }
-
-    public function financeUpdate($id)
-    {
-        if (!session()->get('logged_in') || session()->get('role') !== 'admin') {
-            return redirect()->to('/auth')->with('error', 'You must be logged in as Admin to access this page.');
-        }
-
-        $financeOverview = $this->financeOverviewModel->find($id);
-
-        if (!$financeOverview) {
-            return redirect()->to('/admin/billing/finance')->with('error', 'Finance overview not found.');
-        }
-
-        $rules = [
-            'period_type' => 'required|in_list[daily,weekly,monthly,yearly]',
-            'period_start' => 'required|valid_date',
-            'period_end' => 'required|valid_date',
-            'total_revenue' => 'permit_empty|decimal',
-            'total_expenses' => 'permit_empty|decimal',
-        ];
-
-        if (!$this->validate($rules)) {
-            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
-        }
-
-        $data = [
-            'period_type' => $this->request->getPost('period_type'),
-            'period_start' => $this->request->getPost('period_start'),
-            'period_end' => $this->request->getPost('period_end'),
-            'total_revenue' => $this->request->getPost('total_revenue') ?? 0.00,
-            'total_expenses' => $this->request->getPost('total_expenses') ?? 0.00,
-            'net_profit' => ($this->request->getPost('total_revenue') ?? 0.00) - ($this->request->getPost('total_expenses') ?? 0.00),
-            'total_bills' => $this->request->getPost('total_bills') ?? 0,
-            'paid_bills' => $this->request->getPost('paid_bills') ?? 0,
-            'pending_bills' => $this->request->getPost('pending_bills') ?? 0,
-            'insurance_claims_total' => $this->request->getPost('insurance_claims_total') ?? 0.00,
-            'notes' => $this->request->getPost('notes'),
-        ];
-
-        if ($this->financeOverviewModel->update($id, $data)) {
-            return redirect()->to('/admin/billing/finance')->with('success', 'Finance overview updated successfully.');
-        } else {
-            return redirect()->back()->withInput()->with('error', 'Failed to update finance overview.');
-        }
-    }
-
-    public function financeDelete($id)
-    {
-        if (!session()->get('logged_in') || session()->get('role') !== 'admin') {
-            return redirect()->to('/auth')->with('error', 'You must be logged in as Admin to access this page.');
-        }
-
-        $financeOverview = $this->financeOverviewModel->find($id);
-
-        if (!$financeOverview) {
-            return redirect()->to('/admin/billing/finance')->with('error', 'Finance overview not found.');
-        }
-
-        if ($this->financeOverviewModel->delete($id)) {
-            return redirect()->to('/admin/billing/finance')->with('success', 'Finance overview deleted successfully.');
-        } else {
-            return redirect()->to('/admin/billing/finance')->with('error', 'Failed to delete finance overview.');
-        }
-    }
-
-    // ========== PAYMENT REPORTS METHODS ==========
-
-    public function paymentReports()
-    {
-        if (!session()->get('logged_in') || session()->get('role') !== 'admin') {
-            return redirect()->to('/auth')->with('error', 'You must be logged in as Admin to access this page.');
-        }
-
-        $db = \Config\Database::connect();
-
-        // Get billing data from Receptionist (patient payments)
-        $billingPayments = [];
-        if ($db->tableExists('billing')) {
-            $billingPayments = $db->table('billing')
-                ->select('billing.*, admin_patients.firstname, admin_patients.lastname')
-                ->join('admin_patients', 'admin_patients.id = billing.patient_id', 'left')
-                ->where('billing.status', 'paid')
-                ->where('billing.service !=', 'Medication Administration')
-                ->orderBy('billing.updated_at', 'DESC')
-                ->limit(20)
-                ->get()->getResultArray();
-        }
-
-        // Get payment reports including medication billing payments
-        $paymentReports = $this->paymentReportModel
-            ->select('payment_reports.*, admin_patients.firstname, admin_patients.lastname, 
-                     users.username as processed_by_name, billing.service as billing_service,
-                     billing.medicine_name, billing.invoice_number as billing_invoice')
-            ->join('admin_patients', 'admin_patients.id = payment_reports.patient_id', 'left')
-            ->join('users', 'users.id = payment_reports.processed_by', 'left')
-            ->join('billing', 'billing.id = payment_reports.billing_id', 'left')
-            ->orderBy('payment_reports.created_at', 'DESC')
-            ->findAll();
-
-        // Separate medication payments from other payments
-        $medicationPayments = array_filter($paymentReports, function($report) {
-            return !empty($report['billing_service']) && $report['billing_service'] === 'Medication Administration';
-        });
-        $otherPayments = array_filter($paymentReports, function($report) {
-            return empty($report['billing_service']) || $report['billing_service'] !== 'Medication Administration';
-        });
-
-        $data = [
-            'title' => 'Payment Reports',
-            'payment_reports' => $paymentReports,
-            'medication_payments' => $medicationPayments,
-            'other_payments' => $otherPayments,
-            'billing_payments' => $billingPayments,
-            'userRole' => 'admin',
-        ];
-
-        return view('admin/billing/payment_reports/index', $data);
-    }
-
-    public function paymentReportsCreate()
-    {
-        if (!session()->get('logged_in') || session()->get('role') !== 'admin') {
-            return redirect()->to('/auth')->with('error', 'You must be logged in as Admin to access this page.');
-        }
-
-        $data = [
-            'title' => 'Create Payment Report',
-            'patients' => $this->patientModel->findAll(),
-        ];
-
-        return view('admin/billing/payment_reports/create', $data);
-    }
-
-    public function paymentReportsStore()
-    {
-        if (!session()->get('logged_in') || session()->get('role') !== 'admin') {
-            return redirect()->to('/auth')->with('error', 'You must be logged in as Admin to access this page.');
-        }
-
-        $rules = [
-            'report_date' => 'required|valid_date',
-            'payment_method' => 'required|in_list[cash,credit_card,debit_card,bank_transfer,check,insurance,other]',
-            'amount' => 'required|decimal|greater_than[0]',
-            'status' => 'required|in_list[pending,completed,failed,refunded]',
-        ];
-
-        if (!$this->validate($rules)) {
-            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
-        }
-
-        $data = [
-            'report_date' => $this->request->getPost('report_date'),
-            'patient_id' => $this->request->getPost('patient_id') ?: null,
-            'billing_id' => $this->request->getPost('billing_id') ?: null,
-            'payment_method' => $this->request->getPost('payment_method'),
-            'amount' => $this->request->getPost('amount'),
-            'reference_number' => $this->request->getPost('reference_number'),
-            'status' => $this->request->getPost('status'),
-            'payment_date' => $this->request->getPost('payment_date') ?: date('Y-m-d H:i:s'),
-            'processed_by' => session()->get('user_id'),
-            'notes' => $this->request->getPost('notes'),
-        ];
-
-        if ($this->paymentReportModel->insert($data)) {
-            return redirect()->to('/admin/billing/payment_reports')->with('success', 'Payment report created successfully.');
-        } else {
-            return redirect()->back()->withInput()->with('error', 'Failed to create payment report.');
-        }
-    }
-
-    public function paymentReportsEdit($id)
-    {
-        if (!session()->get('logged_in') || session()->get('role') !== 'admin') {
-            return redirect()->to('/auth')->with('error', 'You must be logged in as Admin to access this page.');
-        }
-
-        $paymentReport = $this->paymentReportModel->find($id);
-
-        if (!$paymentReport) {
-            return redirect()->to('/admin/billing/payment_reports')->with('error', 'Payment report not found.');
-        }
-
-        $data = [
-            'title' => 'Edit Payment Report',
-            'payment_report' => $paymentReport,
-            'patients' => $this->patientModel->findAll(),
-        ];
-
-        return view('admin/billing/payment_reports/edit', $data);
-    }
-
-    public function paymentReportsUpdate($id)
-    {
-        if (!session()->get('logged_in') || session()->get('role') !== 'admin') {
-            return redirect()->to('/auth')->with('error', 'You must be logged in as Admin to access this page.');
-        }
-
-        $paymentReport = $this->paymentReportModel->find($id);
-
-        if (!$paymentReport) {
-            return redirect()->to('/admin/billing/payment_reports')->with('error', 'Payment report not found.');
-        }
-
-        $rules = [
-            'report_date' => 'required|valid_date',
-            'payment_method' => 'required|in_list[cash,credit_card,debit_card,bank_transfer,check,insurance,other]',
-            'amount' => 'required|decimal|greater_than[0]',
-            'status' => 'required|in_list[pending,completed,failed,refunded]',
-        ];
-
-        if (!$this->validate($rules)) {
-            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
-        }
-
-        $data = [
-            'report_date' => $this->request->getPost('report_date'),
-            'patient_id' => $this->request->getPost('patient_id') ?: null,
-            'billing_id' => $this->request->getPost('billing_id') ?: null,
-            'payment_method' => $this->request->getPost('payment_method'),
-            'amount' => $this->request->getPost('amount'),
-            'reference_number' => $this->request->getPost('reference_number'),
-            'status' => $this->request->getPost('status'),
-            'payment_date' => $this->request->getPost('payment_date') ?: date('Y-m-d H:i:s'),
-            'notes' => $this->request->getPost('notes'),
-        ];
-
-        if ($this->paymentReportModel->update($id, $data)) {
-            return redirect()->to('/admin/billing/payment_reports')->with('success', 'Payment report updated successfully.');
-        } else {
-            return redirect()->back()->withInput()->with('error', 'Failed to update payment report.');
-        }
-    }
-
-    public function paymentReportsDelete($id)
-    {
-        if (!session()->get('logged_in') || session()->get('role') !== 'admin') {
-            return redirect()->to('/auth')->with('error', 'You must be logged in as Admin to access this page.');
-        }
-
-        $paymentReport = $this->paymentReportModel->find($id);
-
-        if (!$paymentReport) {
-            return redirect()->to('/admin/billing/payment_reports')->with('error', 'Payment report not found.');
-        }
-
-        if ($this->paymentReportModel->delete($id)) {
-            return redirect()->to('/admin/billing/payment_reports')->with('success', 'Payment report deleted successfully.');
-        } else {
-            return redirect()->to('/admin/billing/payment_reports')->with('error', 'Failed to delete payment report.');
-        }
-    }
-
-    // ========== EXPENSES METHODS ==========
-
-    public function expenses()
-    {
-        if (!session()->get('logged_in') || session()->get('role') !== 'admin') {
-            return redirect()->to('/auth')->with('error', 'You must be logged in as Admin to access this page.');
-        }
-
-        $db = \Config\Database::connect();
-
-        // Get Pharmacy → Medication Expenses
-        $pharmacyExpenses = [];
-        if ($db->tableExists('pharmacy')) {
-            $pharmacyExpenses = $db->table('pharmacy')
-                ->select('pharmacy.*')
-                ->where('pharmacy.quantity >', 0)
-                ->orderBy('pharmacy.created_at', 'DESC')
-                ->limit(20)
-                ->get()->getResultArray();
-        }
-
-        // Get Lab Staff → Lab Test Expenses
-        $labTestExpenses = [];
-        if ($db->tableExists('lab_requests')) {
-            $labTestExpenses = $db->table('lab_requests')
-                ->select('lab_requests.*, admin_patients.firstname, admin_patients.lastname')
-                ->join('admin_patients', 'admin_patients.id = lab_requests.patient_id', 'left')
-                ->where('lab_requests.status', 'completed')
-                ->orderBy('lab_requests.created_at', 'DESC')
-                ->limit(20)
-                ->get()->getResultArray();
-        }
-
-        $data = [
-            'title' => 'Expense Tracking',
-            'expenses' => $this->expenseModel
-                ->select('expenses.*, users.username as created_by_name, approver.username as approved_by_name')
-                ->join('users', 'users.id = expenses.created_by', 'left')
-                ->join('users as approver', 'approver.id = expenses.approved_by', 'left')
-                ->orderBy('expenses.created_at', 'DESC')
-                ->findAll(),
-            'pharmacy_expenses' => $pharmacyExpenses,
-            'lab_test_expenses' => $labTestExpenses,
-        ];
-
-        return view('admin/billing/expenses/index', $data);
-    }
-
-    public function expensesCreate()
-    {
-        if (!session()->get('logged_in') || session()->get('role') !== 'admin') {
-            return redirect()->to('/auth')->with('error', 'You must be logged in as Admin to access this page.');
-        }
-
-        $data = [
-            'title' => 'Create Expense',
-        ];
-
-        return view('admin/billing/expenses/create', $data);
-    }
-
-    public function expensesStore()
-    {
-        if (!session()->get('logged_in') || session()->get('role') !== 'admin') {
-            return redirect()->to('/auth')->with('error', 'You must be logged in as Admin to access this page.');
-        }
-
-        $rules = [
-            'expense_date' => 'required|valid_date',
-            'category' => 'required|in_list[medical_supplies,equipment,utilities,salaries,maintenance,office_supplies,insurance,rent,other]',
-            'description' => 'required|min_length[3]|max_length[255]',
-            'amount' => 'required|decimal|greater_than[0]',
-            'payment_method' => 'required|in_list[cash,check,bank_transfer,credit_card,other]',
-            'status' => 'required|in_list[pending,approved,paid,rejected]',
-        ];
-
-        if (!$this->validate($rules)) {
-            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
-        }
-
-        $data = [
-            'expense_date' => $this->request->getPost('expense_date'),
-            'category' => $this->request->getPost('category'),
-            'description' => $this->request->getPost('description'),
-            'amount' => $this->request->getPost('amount'),
-            'vendor' => $this->request->getPost('vendor'),
-            'invoice_number' => $this->request->getPost('invoice_number'),
-            'payment_method' => $this->request->getPost('payment_method'),
-            'status' => $this->request->getPost('status'),
-            'created_by' => session()->get('user_id'),
-            'notes' => $this->request->getPost('notes'),
-        ];
-
-        // Auto-approve if status is approved
-        if ($this->request->getPost('status') === 'approved') {
-            $data['approved_by'] = session()->get('user_id');
-            $data['approved_at'] = date('Y-m-d H:i:s');
-        }
-
-        if ($this->expenseModel->insert($data)) {
-            return redirect()->to('/admin/billing/expenses')->with('success', 'Expense created successfully.');
-        } else {
-            return redirect()->back()->withInput()->with('error', 'Failed to create expense.');
-        }
-    }
-
-    public function expensesEdit($id)
-    {
-        if (!session()->get('logged_in') || session()->get('role') !== 'admin') {
-            return redirect()->to('/auth')->with('error', 'You must be logged in as Admin to access this page.');
-        }
-
-        $expense = $this->expenseModel->find($id);
-
-        if (!$expense) {
-            return redirect()->to('/admin/billing/expenses')->with('error', 'Expense not found.');
-        }
-
-        $data = [
-            'title' => 'Edit Expense',
-            'expense' => $expense,
-        ];
-
-        return view('admin/billing/expenses/edit', $data);
-    }
-
-    public function expensesUpdate($id)
-    {
-        if (!session()->get('logged_in') || session()->get('role') !== 'admin') {
-            return redirect()->to('/auth')->with('error', 'You must be logged in as Admin to access this page.');
-        }
-
-        $expense = $this->expenseModel->find($id);
-
-        if (!$expense) {
-            return redirect()->to('/admin/billing/expenses')->with('error', 'Expense not found.');
-        }
-
-        $rules = [
-            'expense_date' => 'required|valid_date',
-            'category' => 'required|in_list[medical_supplies,equipment,utilities,salaries,maintenance,office_supplies,insurance,rent,other]',
-            'description' => 'required|min_length[3]|max_length[255]',
-            'amount' => 'required|decimal|greater_than[0]',
-            'payment_method' => 'required|in_list[cash,check,bank_transfer,credit_card,other]',
-            'status' => 'required|in_list[pending,approved,paid,rejected]',
-        ];
-
-        if (!$this->validate($rules)) {
-            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
-        }
-
-        $data = [
-            'expense_date' => $this->request->getPost('expense_date'),
-            'category' => $this->request->getPost('category'),
-            'description' => $this->request->getPost('description'),
-            'amount' => $this->request->getPost('amount'),
-            'vendor' => $this->request->getPost('vendor'),
-            'invoice_number' => $this->request->getPost('invoice_number'),
-            'payment_method' => $this->request->getPost('payment_method'),
-            'status' => $this->request->getPost('status'),
-            'notes' => $this->request->getPost('notes'),
-        ];
-
-        // Update approval if status changed to approved
-        if ($this->request->getPost('status') === 'approved' && $expense['status'] !== 'approved') {
-            $data['approved_by'] = session()->get('user_id');
-            $data['approved_at'] = date('Y-m-d H:i:s');
-        }
-
-        if ($this->expenseModel->update($id, $data)) {
-            return redirect()->to('/admin/billing/expenses')->with('success', 'Expense updated successfully.');
-        } else {
-            return redirect()->back()->withInput()->with('error', 'Failed to update expense.');
-        }
-    }
-
-    public function expensesDelete($id)
-    {
-        if (!session()->get('logged_in') || session()->get('role') !== 'admin') {
-            return redirect()->to('/auth')->with('error', 'You must be logged in as Admin to access this page.');
-        }
-
-        $expense = $this->expenseModel->find($id);
-
-        if (!$expense) {
-            return redirect()->to('/admin/billing/expenses')->with('error', 'Expense not found.');
-        }
-
-        if ($this->expenseModel->delete($id)) {
-            return redirect()->to('/admin/billing/expenses')->with('success', 'Expense deleted successfully.');
-        } else {
-            return redirect()->to('/admin/billing/expenses')->with('error', 'Failed to delete expense.');
-        }
-    }
-
-    // ========== DISCHARGE METHODS ==========
-
-    public function discharge()
-    {
-        if (!session()->get('logged_in') || session()->get('role') !== 'admin') {
-            return redirect()->to('/auth')->with('error', 'You must be logged in as Admin to access this page.');
-        }
-
-        $db = \Config\Database::connect();
-
-        // Get all discharge pending admissions
-        $dischargePending = [];
-        if ($db->tableExists('admissions') && $db->tableExists('discharge_orders')) {
-            $dischargePending = $db->table('admissions a')
-                ->select('a.*, ap.firstname, ap.lastname, ap.contact,
-                         r.room_number, r.ward,
-                         do.id as discharge_order_id, do.discharge_date as planned_discharge_date,
-                         u.username as doctor_name,
-                         (SELECT SUM(total_amount) FROM charges WHERE patient_id = a.patient_id AND status = "pending" AND deleted_at IS NULL) as total_charges')
-                ->join('admin_patients ap', 'ap.id = a.patient_id', 'left')
-                ->join('rooms r', 'r.id = a.room_id', 'left')
-                ->join('discharge_orders do', 'do.admission_id = a.id', 'left')
-                ->join('users u', 'u.id = do.doctor_id', 'left')
-                ->where('a.discharge_status', 'discharge_pending')
-                ->where('a.status', 'admitted')
-                ->where('do.status', 'pending')
-                ->where('a.deleted_at', null)
-                ->orderBy('do.discharge_date', 'ASC')
+        
+        // 1. Direct charges by patient_id
+        $directCharges = $db->table('charges')
+            ->where('patient_id', $patientId)
+            ->where('deleted_at', null)
+            ->get()
+            ->getResultArray();
+        $debug['direct_charges'] = $directCharges;
+        
+        // 2. Charges by patient name
+        $chargesByName = $db->table('charges c')
+            ->select('c.*')
+            ->join('admin_patients ap', 'ap.id = c.patient_id', 'left')
+            ->where("(c.notes LIKE '%OR Room%' OR c.notes LIKE '%Operating Room%')")
+            ->where('ap.firstname', $patient['firstname'] ?? '')
+            ->where('ap.lastname', $patient['lastname'] ?? '')
+            ->where('c.deleted_at', null)
+            ->get()
+            ->getResultArray();
+        $debug['charges_by_name'] = $chargesByName;
+        
+        // 3. Surgeries for this patient
+        if ($db->tableExists('surgeries')) {
+            $surgeries = $db->table('surgeries')
+                ->where('patient_id', $patientId)
+                ->where('deleted_at', null)
                 ->get()
                 ->getResultArray();
-        }
-
-        $data = [
-            'title' => 'Discharge Billing',
-            'dischargePending' => $dischargePending,
-        ];
-
-        return view('admin/billing/discharge/index', $data);
-    }
-
-    public function dischargeFinalize($admissionId)
-    {
-        if (!session()->get('logged_in') || session()->get('role') !== 'admin') {
-            return redirect()->to('/auth')->with('error', 'You must be logged in as Admin to access this page.');
-        }
-
-        $db = \Config\Database::connect();
-
-        // Get admission with discharge order
-        $admission = $db->table('admissions a')
-            ->select('a.*, ap.firstname, ap.lastname,
-                     do.id as discharge_order_id')
-            ->join('admin_patients ap', 'ap.id = a.patient_id', 'left')
-            ->join('discharge_orders do', 'do.admission_id = a.id', 'left')
-            ->where('a.id', $admissionId)
-            ->where('a.discharge_status', 'discharge_pending')
-            ->where('a.status', 'admitted')
-            ->where('a.deleted_at', null)
-            ->get()
-            ->getRowArray();
-
-        if (!$admission) {
-            return redirect()->to('/admin/billing/dashboard')->with('error', 'Admission not found or not pending discharge.');
-        }
-
-        // Get all pending charges for this patient
-        $pendingCharges = $db->table('charges')
-            ->where('patient_id', $admission['patient_id'])
-            ->where('status', 'pending')
-            ->where('deleted_at', null)
-            ->get()
-            ->getResultArray();
-
-        $data = [
-            'title' => 'Finalize Billing for Discharge',
-            'admission' => $admission,
-            'pendingCharges' => $pendingCharges,
-        ];
-
-        return view('admin/billing/discharge/finalize', $data);
-    }
-
-    public function dischargeProcess($admissionId)
-    {
-        if (!session()->get('logged_in') || session()->get('role') !== 'admin') {
-            return redirect()->to('/auth')->with('error', 'You must be logged in as Admin to access this page.');
-        }
-
-        $db = \Config\Database::connect();
-        $userId = session()->get('user_id');
-
-        // Get admission using direct database query
-        $admission = $db->table('admissions')
-            ->where('id', $admissionId)
-            ->where('discharge_status', 'discharge_pending')
-            ->where('status', 'admitted')
-            ->get()
-            ->getRowArray();
-
-        if (!$admission) {
-            return redirect()->back()->with('error', 'Admission not found or not pending discharge.');
-        }
-
-        // Get all charges for this patient
-        $charges = $db->table('charges')
-            ->where('patient_id', $admission['patient_id'])
-            ->where('status !=', 'cancelled')
-            ->where('deleted_at', null)
-            ->get()
-            ->getResultArray();
-
-        $db->transStart();
-
-        try {
-            // Mark all pending charges as paid
-            foreach ($charges as $charge) {
-                if ($charge['status'] === 'pending') {
-                    $this->chargeModel->update($charge['id'], [
-                        'status' => 'paid',
-                        'processed_by' => $userId,
-                        'paid_at' => date('Y-m-d H:i:s'),
-                    ]);
-                }
-            }
-
-            // Update admission status to discharged
-            $db->table('admissions')
-                ->where('id', $admissionId)
-                ->update([
-                    'discharge_status' => 'discharged',
-                    'status' => 'discharged',
-                    'discharge_date' => date('Y-m-d H:i:s'),
-                ]);
-
-            // Update discharge order status
-            $dischargeOrder = $this->dischargeOrderModel
-                ->where('admission_id', $admissionId)
-                ->first();
+            $debug['surgeries'] = $surgeries;
             
-            if ($dischargeOrder) {
-                $this->dischargeOrderModel->update($dischargeOrder['id'], [
-                    'status' => 'completed',
-                ]);
-            }
-
-            // Free up room and bed
-            if ($admission['room_id']) {
-                $db->table('rooms')
-                    ->where('id', $admission['room_id'])
-                    ->update([
-                        'status' => 'Available',
-                        'current_patient_id' => null,
-                    ]);
-            }
-
-            // Free up bed if exists
-            if (!empty($admission['bed_number'])) {
-                $bed = $db->table('beds')
-                    ->where('room_id', $admission['room_id'])
-                    ->where('bed_number', $admission['bed_number'])
-                    ->get()
-                    ->getRowArray();
-                
-                if ($bed) {
-                    $db->table('beds')
-                        ->where('id', $bed['id'])
-                        ->update([
-                            'status' => 'available',
-                            'current_patient_id' => null,
-                        ]);
+            // 4. Charges via surgeries
+            foreach ($surgeries as $surgery) {
+                if ($db->tableExists('billing_items')) {
+                    $billingItems = $db->table('billing_items')
+                        ->where('related_type', 'surgery')
+                        ->where('related_id', $surgery['id'])
+                        ->get()
+                        ->getResultArray();
+                    
+                    foreach ($billingItems as $item) {
+                        $charge = $db->table('charges')
+                            ->where('id', $item['charge_id'])
+                            ->where('deleted_at', null)
+                            ->get()
+                            ->getRowArray();
+                        if ($charge) {
+                            $debug['charges_via_surgeries'][] = [
+                                'surgery_id' => $surgery['id'],
+                                'billing_item' => $item,
+                                'charge' => $charge,
+                            ];
+                        }
+                    }
                 }
             }
-
-            $db->transComplete();
-
-            if ($db->transStatus() === false) {
-                throw new \Exception('Transaction failed');
-            }
-
-            return redirect()->to('/admin/billing/dashboard')->with('success', 'Patient discharged successfully. All charges have been paid and room/bed are now available.');
-
-        } catch (\Exception $e) {
-            $db->transRollback();
-            return redirect()->back()->with('error', 'Failed to process discharge: ' . $e->getMessage());
         }
+        
+        return $this->response->setJSON($debug);
     }
 
     // ========== CHARGES METHODS ==========
@@ -982,14 +715,16 @@ class BillingController extends BaseController
         $db = \Config\Database::connect();
 
         // Get charges with patient and doctor information
-        // Include lab test charges (which don't have consultation_id)
+        // Include lab test charges and OR charges (which don't have consultation_id)
         $charges = $db->table('charges c')
             ->select('c.*, ap.firstname, ap.lastname, ap.contact, 
                      u.username as doctor_name,
                      COUNT(bi.id) as item_count,
                      MAX(CASE WHEN bi.item_type = "lab_test" THEN 1 ELSE 0 END) as has_lab_test,
+                     MAX(CASE WHEN bi.item_type = "procedure" THEN 1 ELSE 0 END) as has_procedure,
                      MAX(CASE WHEN bi.item_type = "lab_test" THEN bi.item_name ELSE NULL END) as test_name,
                      MAX(CASE WHEN bi.item_type = "lab_test" THEN bi.description ELSE NULL END) as test_description,
+                     MAX(CASE WHEN bi.item_type = "procedure" THEN bi.description ELSE NULL END) as procedure_description,
                      lr.nurse_id as lab_nurse_id,
                      lr.instructions as lab_instructions,
                      users_nurse.username as nurse_name')
@@ -1111,85 +846,11 @@ class BillingController extends BaseController
                 ->setJSON(['success' => false, 'message' => 'Only pending charges can be approved']);
         }
 
-        $db = \Config\Database::connect();
-        
         if ($this->chargeModel->update($id, ['status' => 'approved'])) {
-            // Update lab_request payment_status to 'approved' if this charge is linked to a lab request
-            if ($db->tableExists('lab_requests')) {
-                $labRequest = $db->table('lab_requests')
-                    ->where('charge_id', $id)
-                    ->get()
-                    ->getRowArray();
-                
-                if ($labRequest) {
-                    // Check if test requires specimen by checking instructions or lab_tests table
-                    $requiresSpecimen = true; // Default to true
-                    $instructions = $labRequest['instructions'] ?? '';
-                    
-                    // Check if specimen_category is stored in instructions
-                    if (preg_match('/SPECIMEN_CATEGORY:(without_specimen|with_specimen)/', $instructions, $matches)) {
-                        $requiresSpecimen = ($matches[1] === 'with_specimen');
-                    } else {
-                        // Fallback: Check lab_tests table
-                        if ($db->tableExists('lab_tests') && !empty($labRequest['test_name'])) {
-                            $labTest = $db->table('lab_tests')
-                                ->where('test_name', $labRequest['test_name'])
-                                ->where('is_active', 1)
-                                ->get()
-                                ->getRowArray();
-                            if ($labTest) {
-                                $requiresSpecimen = ($labTest['specimen_category'] ?? 'with_specimen') === 'with_specimen';
-                            }
-                        }
-                    }
-                    
-                    $patientModel = new \App\Models\AdminPatientModel();
-                    $patient = $patientModel->find($labRequest['patient_id']);
-                    $patientName = ($patient ? $patient['firstname'] . ' ' . $patient['lastname'] : 'Patient');
-                    
-                    if ($requiresSpecimen) {
-                        // WITH SPECIMEN: Update payment status and notify nurse
-                        $db->table('lab_requests')
-                            ->where('charge_id', $id)
-                            ->update([
-                                'payment_status' => 'approved', // Approved - nurse can proceed
-                                'updated_at' => date('Y-m-d H:i:s')
-                            ]);
-                        
-                        // Notify assigned nurse that payment is approved and they can collect specimen
-                        if (!empty($labRequest['nurse_id']) && $db->tableExists('nurse_notifications')) {
-                            $db->table('nurse_notifications')->insert([
-                                'nurse_id' => $labRequest['nurse_id'],
-                                'type' => 'lab_specimen_collection',
-                                'title' => 'Lab Test Payment Approved - Collect Specimen',
-                                'message' => 'Payment for lab test (' . ($labRequest['test_name'] ?? 'Lab Test') . ') for patient ' . $patientName . ' has been approved. Please collect the specimen.',
-                                'related_id' => $labRequest['id'],
-                                'related_type' => 'lab_request',
-                                'is_read' => 0,
-                                'created_at' => date('Y-m-d H:i:s'),
-                            ]);
-                        }
-                        
-                        $message = 'Charge approved successfully. Nurse has been notified to collect specimen.';
-                    } else {
-                        // WITHOUT SPECIMEN: Update payment status to 'approved' (NOT ready for lab yet - must process payment first)
-                        $db->table('lab_requests')
-                            ->where('charge_id', $id)
-                            ->update([
-                                'payment_status' => 'approved', // Approved - but NOT paid yet, so NOT ready for lab
-                                'updated_at' => date('Y-m-d H:i:s')
-                                // Status stays 'pending' - will be updated to ready when payment is processed
-                            ]);
-                        
-                        $message = 'Charge approved successfully. Please process payment to proceed to laboratory (no specimen required).';
-                    }
-                }
-            }
-            
             return $this->response->setContentType('application/json')
                 ->setJSON([
                     'success' => true,
-                    'message' => $message ?? 'Charge approved successfully.'
+                    'message' => 'Charge approved successfully.'
                 ]);
         } else {
             return $this->response->setContentType('application/json')
@@ -1219,7 +880,6 @@ class BillingController extends BaseController
                 ->setJSON(['success' => false, 'message' => 'This charge has already been paid']);
         }
 
-        $db = \Config\Database::connect();
         $userId = session()->get('user_id');
 
         // Update charge status to paid
@@ -1230,114 +890,11 @@ class BillingController extends BaseController
         ];
         
         if ($this->chargeModel->update($id, $updateData)) {
-            // Update lab_request payment_status to 'paid' if this charge is linked to a lab request
-            if ($db->tableExists('lab_requests')) {
-                $labRequest = $db->table('lab_requests')
-                    ->where('charge_id', $id)
-                    ->get()
-                    ->getRowArray();
-                
-                if ($labRequest) {
-                    // Check if test requires specimen
-                    $requiresSpecimen = true; // Default to true
-                    $instructions = $labRequest['instructions'] ?? '';
-                    
-                    // Check if specimen_category is stored in instructions
-                    if (preg_match('/SPECIMEN_CATEGORY:(without_specimen|with_specimen)/', $instructions, $matches)) {
-                        $requiresSpecimen = ($matches[1] === 'with_specimen');
-                    } else {
-                        // Fallback: Check lab_tests table
-                        if ($db->tableExists('lab_tests') && !empty($labRequest['test_name'])) {
-                            $labTest = $db->table('lab_tests')
-                                ->where('test_name', $labRequest['test_name'])
-                                ->where('is_active', 1)
-                                ->get()
-                                ->getRowArray();
-                            if ($labTest) {
-                                $requiresSpecimen = ($labTest['specimen_category'] ?? 'with_specimen') === 'with_specimen';
-                            }
-                        }
-                    }
-                    
-                    $patientModel = new \App\Models\AdminPatientModel();
-                    $patient = $patientModel->find($labRequest['patient_id']);
-                    $patientName = ($patient ? $patient['firstname'] . ' ' . $patient['lastname'] : 'Patient');
-                    
-                    if ($requiresSpecimen) {
-                        // WITH SPECIMEN: Update payment status and notify nurse
-                        $db->table('lab_requests')
-                            ->where('charge_id', $id)
-                            ->update([
-                                'payment_status' => 'paid',
-                                'updated_at' => date('Y-m-d H:i:s')
-                            ]);
-                        
-                        // Notify assigned nurse that payment is approved and they can collect specimen
-                        if (!empty($labRequest['nurse_id']) && $db->tableExists('nurse_notifications')) {
-                            $db->table('nurse_notifications')->insert([
-                                'nurse_id' => $labRequest['nurse_id'],
-                                'type' => 'lab_specimen_collection',
-                                'title' => 'Lab Test Payment Approved - Collect Specimen',
-                                'message' => 'Payment for lab test (' . ($labRequest['test_name'] ?? 'Lab Test') . ') for patient ' . $patientName . ' has been approved. Please collect the specimen.',
-                                'related_id' => $labRequest['id'],
-                                'related_type' => 'lab_request',
-                                'is_read' => 0,
-                                'created_at' => date('Y-m-d H:i:s'),
-                            ]);
-                        }
-                    } else {
-                        // WITHOUT SPECIMEN: Update payment status and status to 'pending' (ready for lab testing)
-                        $db->table('lab_requests')
-                            ->where('charge_id', $id)
-                            ->update([
-                                'payment_status' => 'paid',
-                                'status' => 'pending', // Ready for lab testing (no specimen collection needed)
-                                'updated_at' => date('Y-m-d H:i:s')
-                            ]);
-                        
-                        // Notify lab staff that a test is ready (no specimen required)
-                        if ($db->tableExists('lab_notifications')) {
-                            $db->table('lab_notifications')->insert([
-                                'type' => 'test_ready',
-                                'title' => 'Lab Test Ready - No Specimen Required',
-                                'message' => 'Payment processed for lab test (' . ($labRequest['test_name'] ?? 'Lab Test') . ') for patient ' . $patientName . '. Test is ready for processing (no specimen collection required).',
-                                'related_id' => $labRequest['id'],
-                                'related_type' => 'lab_request',
-                                'is_read' => 0,
-                                'created_at' => date('Y-m-d H:i:s'),
-                            ]);
-                        }
-                    }
-                }
-            }
-            
-            // Create payment record
-            if ($db->tableExists('payment_reports')) {
-                $paymentData = [
-                    'report_date' => date('Y-m-d'),
-                    'patient_id' => $charge['patient_id'],
-                    'billing_id' => null, // Not linked to old billing table
-                    'payment_method' => $this->request->getPost('payment_method') ?? 'cash',
-                    'amount' => $charge['total_amount'],
-                    'reference_number' => $charge['charge_number'],
-                    'status' => 'completed',
-                    'payment_date' => date('Y-m-d H:i:s'),
-                    'processed_by' => $userId,
-                    'notes' => 'Payment for charge ' . $charge['charge_number'],
-                    'created_at' => date('Y-m-d H:i:s'),
-                    'updated_at' => date('Y-m-d H:i:s'),
-                ];
-
-                $this->paymentReportModel->skipValidation(true);
-                $this->paymentReportModel->insert($paymentData);
-                $this->paymentReportModel->skipValidation(false);
-            }
-
             return $this->response->setContentType('application/json')
                 ->setJSON([
                     'success' => true,
                     'message' => 'Payment processed successfully. Receipt can be printed.',
-                    'charge_id' => $id // Return charge_id for receipt printing
+                    'charge_id' => $id
                 ]);
         } else {
             return $this->response->setContentType('application/json')
@@ -1381,92 +938,4 @@ class BillingController extends BaseController
                 ]);
         }
     }
-
-    // ========== PATIENT BILLING METHOD ==========
-
-    public function patientBilling()
-    {
-        if (!session()->get('logged_in') || session()->get('role') !== 'admin') {
-            return redirect()->to('/auth')->with('error', 'You must be logged in as Admin to access this page.');
-        }
-
-        $db = \Config\Database::connect();
-        $patientId = $this->request->getGet('patient_id');
-
-        $patients = $this->patientModel->findAll();
-        $patientBills = [];
-        $selectedPatient = null;
-        $totalAmount = 0.0;
-        $paidAmount = 0.0;
-        $pendingAmount = 0.0;
-
-        if ($patientId) {
-            $selectedPatient = $this->patientModel->find($patientId);
-            
-            if ($selectedPatient) {
-                // Get all bills for this patient from billing table
-                $patientBills = $db->table('billing')
-                    ->where('patient_id', $patientId)
-                    ->orderBy('created_at', 'DESC')
-                    ->get()
-                    ->getResultArray();
-
-                // Calculate totals
-                foreach ($patientBills as $bill) {
-                    $totalAmount += (float)($bill['amount'] ?? 0);
-                    if ($bill['status'] === 'paid') {
-                        $paidAmount += (float)($bill['amount'] ?? 0);
-                    } else {
-                        $pendingAmount += (float)($bill['amount'] ?? 0);
-                    }
-                }
-
-                // Also get charges for this patient
-                $patientCharges = $db->table('charges')
-                    ->where('patient_id', $patientId)
-                    ->where('deleted_at', null)
-                    ->orderBy('created_at', 'DESC')
-                    ->get()
-                    ->getResultArray();
-
-                // Add charges to bills array
-                foreach ($patientCharges as $charge) {
-                    $patientBills[] = [
-                        'id' => 'CHG-' . $charge['id'],
-                        'type' => 'charge',
-                        'service' => $charge['notes'] ?? 'Charge',
-                        'amount' => $charge['total_amount'] ?? 0,
-                        'status' => $charge['status'] ?? 'pending',
-                        'created_at' => $charge['created_at'] ?? date('Y-m-d H:i:s'),
-                        'charge_number' => $charge['charge_number'] ?? null,
-                    ];
-                    $totalAmount += (float)($charge['total_amount'] ?? 0);
-                    if ($charge['status'] === 'paid') {
-                        $paidAmount += (float)($charge['total_amount'] ?? 0);
-                    } else {
-                        $pendingAmount += (float)($charge['total_amount'] ?? 0);
-                    }
-                }
-
-                // Sort by date
-                usort($patientBills, function($a, $b) {
-                    return strtotime($b['created_at']) - strtotime($a['created_at']);
-                });
-            }
-        }
-
-        $data = [
-            'title' => 'Patient Billing',
-            'patients' => $patients,
-            'selectedPatient' => $selectedPatient,
-            'patientBills' => $patientBills,
-            'totalAmount' => $totalAmount,
-            'paidAmount' => $paidAmount,
-            'pendingAmount' => $pendingAmount,
-            'patientId' => $patientId,
-        ];
-
-        return view('admin/billing/patient_billing', $data);
-    }
 }
-

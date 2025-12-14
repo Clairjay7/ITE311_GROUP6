@@ -146,12 +146,14 @@ class LaboratoryController extends BaseController
             ])->setStatusCode(403);
         }
 
-        // Check if payment is approved or paid
+        // Check payment status - Payment must be approved/paid OR patient must be admitted
         $paymentStatus = $request['payment_status'] ?? 'unpaid';
-        if (!in_array($paymentStatus, ['approved', 'paid'])) {
+        $isAdmitted = $this->isPatientAdmitted($request['patient_id']);
+        
+        if (!in_array($paymentStatus, ['approved', 'paid']) && !$isAdmitted) {
             return $this->response->setJSON([
                 'success' => false,
-                'message' => 'Payment must be approved by accountant before collecting specimen. Current status: ' . ucfirst($paymentStatus)
+                'message' => 'Payment must be approved by accountant before collecting specimen, unless patient is admitted. Current status: ' . ucfirst($paymentStatus)
             ])->setStatusCode(400);
         }
 
@@ -313,6 +315,61 @@ class LaboratoryController extends BaseController
         // Nurses CANNOT upload results or mark lab requests as completed
         // Only laboratory staff can complete lab tests and upload results
         return redirect()->back()->with('error', 'You do not have permission to upload lab results. Only laboratory staff can complete lab tests and upload results. Please contact the laboratory department.');
+    }
+    
+    /**
+     * Check if patient is admitted
+     * @param int $patientId Admin patient ID
+     * @return bool
+     */
+    private function isPatientAdmitted($patientId)
+    {
+        if (empty($patientId)) {
+            return false;
+        }
+        
+        $db = \Config\Database::connect();
+        
+        // Check if patient has active admission
+        if ($db->tableExists('admissions')) {
+            $activeAdmission = $db->table('admissions')
+                ->where('patient_id', $patientId)
+                ->where('status', 'admitted')
+                ->where('discharge_status', 'admitted')
+                ->where('deleted_at', null)
+                ->get()
+                ->getRowArray();
+            
+            if ($activeAdmission) {
+                return true;
+            }
+        }
+        
+        // Also check admin_patients table for visit_type = 'Admission' or 'ADMISSION'
+        $patientModel = new AdminPatientModel();
+        $patient = $patientModel->find($patientId);
+        if ($patient) {
+            $visitType = strtoupper(trim($patient['visit_type'] ?? ''));
+            if ($visitType === 'ADMISSION') {
+                return true;
+            }
+        }
+        
+        // Check patients table (HMS patients) for type = 'In-Patient' and visit_type = 'Admission'
+        if ($db->tableExists('patients')) {
+            $hmsPatient = $db->table('patients')
+                ->where('patient_id', $patientId)
+                ->where('LOWER(type)', 'in-patient')
+                ->where('LOWER(visit_type)', 'admission')
+                ->where('deleted_at', null)
+                ->get()
+                ->getRowArray();
+            if ($hmsPatient) {
+                return true;
+            }
+        }
+        
+        return false;
     }
 }
 

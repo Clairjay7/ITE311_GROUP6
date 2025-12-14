@@ -47,12 +47,12 @@ class DashboardController extends BaseController
 
         $db = \Config\Database::connect();
         
-        // Get assigned patients from medication orders
+        // Get assigned patients from medication and IV fluids orders
         $assignedPatientsFromOrders = $db->table('doctor_orders do')
             ->select('ap.*, "medication_order" as assignment_type, "admin_patients" as source')
             ->join('admin_patients ap', 'ap.id = do.patient_id', 'left')
             ->where('do.nurse_id', $nurseId)
-            ->where('do.order_type', 'medication')
+            ->whereIn('do.order_type', ['medication', 'iv_fluids_order'])
             ->where('ap.id IS NOT NULL', null, false)
             ->groupBy('ap.id')
             ->get()
@@ -113,6 +113,9 @@ class DashboardController extends BaseController
                     'type' => $patient['type'] ?? 'Out-Patient',
                     'assignment_type' => 'direct_assignment',
                     'source' => 'patients', // Mark as from patients table
+                    'is_doctor_checked' => $patient['is_doctor_checked'] ?? 0,
+                    'doctor_check_status' => $patient['doctor_check_status'] ?? 'available', // Include doctor_check_status
+                    'nurse_vital_status' => $patient['nurse_vital_status'] ?? 'not_required', // Include nurse_vital_status
                 ];
             }
         }
@@ -169,13 +172,19 @@ class DashboardController extends BaseController
         // Re-index array
         $assignedPatients = array_values($uniqueAssignedPatients);
 
-        // Get medication orders assigned to this nurse with pharmacy status
+        // Get medication orders that this nurse can administer:
+        // 1. Orders assigned to this nurse (nurse_id = $nurseId)
+        // 2. Orders with pharmacy_status = 'dispensed' (WAITING FOR NURSE) where patient's assigned_nurse_id = $nurseId
         $medicationOrders = $db->table('doctor_orders do')
-            ->select('do.*, ap.firstname, ap.lastname, u.username as doctor_name')
+            ->select('do.*, ap.firstname, ap.lastname, u.username as doctor_name, ap.assigned_nurse_id')
             ->join('admin_patients ap', 'ap.id = do.patient_id', 'left')
             ->join('users u', 'u.id = do.doctor_id', 'left')
-            ->where('do.order_type', 'medication')
-            ->where('do.nurse_id', $nurseId)
+            ->whereIn('do.order_type', ['medication', 'iv_fluids_order'])
+            ->where('do.status !=', 'completed') // Only show non-completed orders
+            ->groupStart()
+                ->where('do.nurse_id', $nurseId) // Orders assigned to this nurse
+                ->orWhere('(do.pharmacy_status = "dispensed" AND ap.assigned_nurse_id = ' . (int)$nurseId . ' AND do.nurse_id IS NULL)', null, false) // Orders dispensed by pharmacy for patient assigned to this nurse
+            ->groupEnd()
             ->orderBy('do.created_at', 'DESC')
             ->get()
             ->getResultArray();
@@ -201,14 +210,15 @@ class DashboardController extends BaseController
         // Get vitals pending (patients without vitals today)
         $vitalsPending = $this->getVitalsPendingCount($today);
 
-        // Get pending doctor orders
+        // Get pending doctor orders assigned to this nurse (ALL order types)
         $pendingOrders = $orderModel
             ->select('doctor_orders.*, admin_patients.firstname, admin_patients.lastname, users.username as doctor_name')
             ->join('admin_patients', 'admin_patients.id = doctor_orders.patient_id', 'left')
             ->join('users', 'users.id = doctor_orders.doctor_id', 'left')
             ->where('doctor_orders.status', 'pending')
+            ->where('doctor_orders.nurse_id', $nurseId) // Only orders assigned to this nurse
             ->orderBy('doctor_orders.created_at', 'DESC')
-            ->limit(5)
+            ->limit(10) // Increased limit to show more orders
             ->findAll();
 
         // Get pending lab requests
@@ -221,14 +231,17 @@ class DashboardController extends BaseController
             ->limit(5)
             ->findAll();
 
-        // Get approved lab requests (in progress)
+        // Get lab requests ready for specimen collection (assigned to this nurse, status pending)
+        // These are "with specimen" tests that need nurse to collect specimen
+        // Show all regardless of payment status (payment will be billed to patient)
         $approvedLabRequests = $labRequestModel
-            ->select('lab_requests.*, admin_patients.firstname, admin_patients.lastname')
+            ->select('lab_requests.*, admin_patients.firstname, admin_patients.lastname, charges.charge_number, charges.total_amount, charges.status as charge_status')
             ->join('admin_patients', 'admin_patients.id = lab_requests.patient_id', 'left')
-            ->where('lab_requests.nurse_id', $nurseId)
-            ->where('lab_requests.status', 'in_progress')
-            ->orderBy('lab_requests.updated_at', 'DESC')
-            ->limit(5)
+            ->join('charges', 'charges.id = lab_requests.charge_id', 'left')
+            ->where('lab_requests.nurse_id', $nurseId) // Only "with specimen" tests have nurse_id
+            ->where('lab_requests.status', 'pending') // Ready for nurse to collect specimen
+            ->orderBy('lab_requests.created_at', 'DESC')
+            ->limit(10)
             ->findAll();
 
         // Get completed lab results

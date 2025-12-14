@@ -96,6 +96,11 @@
         color: white;
     }
     
+    .room-type-badge.or {
+        background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+        color: white;
+    }
+    
     .form-card {
         background: white;
         border-radius: 16px;
@@ -267,6 +272,7 @@
             elseif ($roomType === 'ICU') $badgeClass = 'icu';
             elseif ($roomType === 'Isolation') $badgeClass = 'isolation';
             elseif ($roomType === 'NICU') $badgeClass = 'nicu';
+            elseif ($roomType === 'OR') $badgeClass = 'or';
             ?>
             <span class="room-type-badge <?= $badgeClass ?>">
                 <?= esc($roomType) ?>

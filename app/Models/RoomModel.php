@@ -30,17 +30,27 @@ class RoomModel extends Model
 
     public function getAvailableByWard(string $ward): array
     {
-        return $this->where('ward', $ward)
-            ->where('status', 'Available')
+        $db = \Config\Database::connect();
+        return $db->table('rooms')
+            ->where('ward', $ward)
+            ->where('(LOWER(status) = "available" OR status IS NULL)', null, false)
+            ->where('(LOWER(status) != "occupied" OR status IS NULL)', null, false)
+            ->where('current_patient_id IS NULL', null, false)
             ->orderBy('room_number', 'ASC')
-            ->findAll();
+            ->get()
+            ->getResultArray();
     }
 
     public function getAvailableByType(string $roomType): array
     {
-        return $this->where('room_type', $roomType)
-            ->where('status', 'Available')
+        $db = \Config\Database::connect();
+        return $db->table('rooms')
+            ->where('room_type', $roomType)
+            ->where('(LOWER(status) = "available" OR status IS NULL)', null, false)
+            ->where('(LOWER(status) != "occupied" OR status IS NULL)', null, false)
+            ->where('current_patient_id IS NULL', null, false)
             ->orderBy('room_number', 'ASC')
-            ->findAll();
+            ->get()
+            ->getResultArray();
     }
 }

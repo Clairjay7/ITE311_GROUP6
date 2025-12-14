@@ -820,25 +820,56 @@ $errorMessage = session()->getFlashdata('error');
                         <div class="form-row">
                             <div class="form-group">
                                 <label class="form-label">Insurance Provider(s) <span class="required">*</span></label>
-                                <select name="insurance_provider[]" class="form-select" id="insurance_provider" multiple size="6">
-                                    <option value="PhilHealth" <?= set_select('insurance_provider', 'PhilHealth') ?>>PhilHealth</option>
-                                    <option value="Maxicare" <?= set_select('insurance_provider', 'Maxicare') ?>>Maxicare</option>
-                                    <option value="Medicard" <?= set_select('insurance_provider', 'Medicard') ?>>Medicard</option>
-                                    <option value="Intellicare" <?= set_select('insurance_provider', 'Intellicare') ?>>Intellicare</option>
-                                    <option value="Pacific Cross" <?= set_select('insurance_provider', 'Pacific Cross') ?>>Pacific Cross</option>
-                                    <option value="Cocolife" <?= set_select('insurance_provider', 'Cocolife') ?>>Cocolife</option>
-                                    <option value="AXA" <?= set_select('insurance_provider', 'AXA') ?>>AXA Philippines</option>
-                                    <option value="Sun Life" <?= set_select('insurance_provider', 'Sun Life') ?>>Sun Life</option>
-                                    <option value="Pru Life UK" <?= set_select('insurance_provider', 'Pru Life UK') ?>>Pru Life UK</option>
-                                    <option value="Other" <?= set_select('insurance_provider', 'Other') ?>>Other</option>
-                                </select>
+                                <div class="insurance-checkboxes" id="insurance_checkboxes" style="border: 1px solid #ddd; border-radius: 4px; padding: 15px; max-height: 200px; overflow-y: auto; background: #f9f9f9;">
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input insurance-checkbox" type="checkbox" name="insurance_provider[]" value="PhilHealth" id="insurance_philhealth" <?= set_checkbox('insurance_provider[]', 'PhilHealth') ?>>
+                                        <label class="form-check-label" for="insurance_philhealth">PhilHealth</label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input insurance-checkbox" type="checkbox" name="insurance_provider[]" value="Maxicare" id="insurance_maxicare" <?= set_checkbox('insurance_provider[]', 'Maxicare') ?>>
+                                        <label class="form-check-label" for="insurance_maxicare">Maxicare</label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input insurance-checkbox" type="checkbox" name="insurance_provider[]" value="Medicard" id="insurance_medicard" <?= set_checkbox('insurance_provider[]', 'Medicard') ?>>
+                                        <label class="form-check-label" for="insurance_medicard">Medicard</label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input insurance-checkbox" type="checkbox" name="insurance_provider[]" value="Intellicare" id="insurance_intellicare" <?= set_checkbox('insurance_provider[]', 'Intellicare') ?>>
+                                        <label class="form-check-label" for="insurance_intellicare">Intellicare</label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input insurance-checkbox" type="checkbox" name="insurance_provider[]" value="Pacific Cross" id="insurance_pacific" <?= set_checkbox('insurance_provider[]', 'Pacific Cross') ?>>
+                                        <label class="form-check-label" for="insurance_pacific">Pacific Cross</label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input insurance-checkbox" type="checkbox" name="insurance_provider[]" value="Cocolife" id="insurance_cocolife" <?= set_checkbox('insurance_provider[]', 'Cocolife') ?>>
+                                        <label class="form-check-label" for="insurance_cocolife">Cocolife</label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input insurance-checkbox" type="checkbox" name="insurance_provider[]" value="AXA" id="insurance_axa" <?= set_checkbox('insurance_provider[]', 'AXA') ?>>
+                                        <label class="form-check-label" for="insurance_axa">AXA Philippines</label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input insurance-checkbox" type="checkbox" name="insurance_provider[]" value="Sun Life" id="insurance_sunlife" <?= set_checkbox('insurance_provider[]', 'Sun Life') ?>>
+                                        <label class="form-check-label" for="insurance_sunlife">Sun Life</label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input insurance-checkbox" type="checkbox" name="insurance_provider[]" value="Pru Life UK" id="insurance_prulife" <?= set_checkbox('insurance_provider[]', 'Pru Life UK') ?>>
+                                        <label class="form-check-label" for="insurance_prulife">Pru Life UK</label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input insurance-checkbox" type="checkbox" name="insurance_provider[]" value="Other" id="insurance_other" <?= set_checkbox('insurance_provider[]', 'Other') ?>>
+                                        <label class="form-check-label" for="insurance_other">Other</label>
+                                    </div>
+                                </div>
                                 <small class="form-text text-muted">Puwedeng pumili ng isa o higit pa.</small>
                             </div>
                             
-                            <div class="form-group">
+                            <div class="form-group" style="width: 100%;">
                                 <label class="form-label">Insurance Number / Member ID <span class="required">*</span></label>
-                                <input type="text" name="insurance_number" class="form-control" id="insurance_number"
-                                       value="<?= set_value('insurance_number') ?>" placeholder="Auto-generated" readonly>
+                                <div id="insurance_numbers_container" style="border: 1px solid #ddd; border-radius: 4px; padding: 15px; background: #fff; min-height: 50px;">
+                                    <p class="text-muted mb-0" id="insurance_numbers_placeholder">Pumili ng Insurance Provider para makita ang Insurance Number fields</p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -905,6 +936,24 @@ $errorMessage = session()->getFlashdata('error');
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Prevent debugbar errors from blocking form functionality
+    if (typeof CI !== 'undefined' && CI.debugbar) {
+        try {
+            // Suppress debugbar initialization errors
+            const originalInit = CI.debugbar.init;
+            CI.debugbar.init = function() {
+                try {
+                    return originalInit.apply(this, arguments);
+                } catch (e) {
+                    console.warn('Debugbar initialization error (non-critical):', e);
+                    return false;
+                }
+            };
+        } catch (e) {
+            // Ignore debugbar errors
+        }
+    }
+    
     // Step-by-Step Form Navigation
     let currentStep = 1;
     const totalSteps = 5;
@@ -913,6 +962,30 @@ document.addEventListener('DOMContentLoaded', function() {
     const prevBtn = document.getElementById('prevStep');
     const nextBtn = document.getElementById('nextStep');
     const submitBtn = document.getElementById('submitForm');
+    
+    // Force enable submit button immediately
+    if (submitBtn) {
+        submitBtn.removeAttribute('disabled');
+        submitBtn.disabled = false;
+        submitBtn.style.pointerEvents = 'auto';
+        submitBtn.style.opacity = '1';
+        submitBtn.style.cursor = 'pointer';
+        
+        // Add direct click handler as primary method
+        submitBtn.addEventListener('click', function(e) {
+            console.log('Submit button clicked directly');
+            e.stopPropagation();
+            const form = document.getElementById('inpatientForm');
+            if (form) {
+                // Trigger form submission
+                if (form.requestSubmit) {
+                    form.requestSubmit();
+                } else {
+                    form.submit();
+                }
+            }
+        }, true); // Use capture phase to ensure it fires first
+    }
     
     // Define required fields for each step
     const stepRequiredFields = {
@@ -969,14 +1042,60 @@ document.addEventListener('DOMContentLoaded', function() {
         if (step === 4) {
             const hasInsurance = document.getElementById('insurance_yes')?.checked;
             if (hasInsurance) {
-                const provider = document.getElementById('insurance_provider');
-                const number = document.getElementById('insurance_number');
-                const selectedProviders = provider ? Array.from(provider.selectedOptions).map(opt => opt.value).filter(Boolean) : [];
-                if (selectedProviders.length === 0 || !number?.value.trim()) {
-                    errors.push('insurance_provider', 'insurance_number');
-                    if (provider) provider.classList.add('is-invalid');
-                    if (number) number.classList.add('is-invalid');
+                // Check for selected insurance providers (checkboxes)
+                const insuranceCheckboxes = document.querySelectorAll('.insurance-checkbox');
+                const selectedProviders = Array.from(insuranceCheckboxes)
+                    .filter(checkbox => checkbox.checked)
+                    .map(checkbox => checkbox.value)
+                    .filter(Boolean);
+                
+                if (selectedProviders.length === 0) {
+                    errors.push('insurance_provider');
+                    // Mark checkboxes container as invalid
+                    const checkboxesContainer = document.getElementById('insurance_checkboxes');
+                    if (checkboxesContainer) {
+                        checkboxesContainer.style.borderColor = '#dc3545';
+                    }
+                } else {
+                    // Check if all insurance number fields are filled for SELECTED providers only
+                    const insuranceNumberInputs = document.querySelectorAll('.insurance-number-input');
+                    let allFilled = true;
+                    let hasVisibleInputs = false;
+                    
+                    insuranceNumberInputs.forEach(input => {
+                        // Only check inputs that are visible (for selected providers)
+                        if (input.offsetParent !== null) { // Check if element is visible
+                            hasVisibleInputs = true;
+                            if (!input.value.trim()) {
+                                allFilled = false;
+                                input.classList.add('is-invalid');
+                            } else {
+                                input.classList.remove('is-invalid');
+                            }
+                        }
+                    });
+                    
+                    // Only validate if there are visible insurance number inputs
+                    if (hasVisibleInputs && !allFilled) {
+                        errors.push('insurance_number');
+                    }
+                    
+                    // Remove invalid style from checkboxes container if providers are selected
+                    const checkboxesContainer = document.getElementById('insurance_checkboxes');
+                    if (checkboxesContainer) {
+                        checkboxesContainer.style.borderColor = '#ddd';
+                    }
                 }
+            } else {
+                // If insurance is "No", clear any validation errors
+                const checkboxesContainer = document.getElementById('insurance_checkboxes');
+                if (checkboxesContainer) {
+                    checkboxesContainer.style.borderColor = '#ddd';
+                }
+                const insuranceNumberInputs = document.querySelectorAll('.insurance-number-input');
+                insuranceNumberInputs.forEach(input => {
+                    input.classList.remove('is-invalid');
+                });
             }
         }
         
@@ -1017,6 +1136,19 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         if (submitBtn) {
             submitBtn.style.display = step === totalSteps ? 'inline-flex' : 'none';
+            if (step === totalSteps) {
+                // Force enable button and make it clickable
+                submitBtn.removeAttribute('disabled');
+                submitBtn.disabled = false;
+                submitBtn.style.pointerEvents = 'auto';
+                submitBtn.style.opacity = '1';
+                submitBtn.style.cursor = 'pointer';
+                submitBtn.style.zIndex = '9999';
+                submitBtn.style.position = 'relative';
+                
+                // Log for debugging
+                console.log('Submit button enabled on step', step);
+            }
         }
         
         // Scroll to top of form
@@ -1358,20 +1490,30 @@ document.addEventListener('DOMContentLoaded', function() {
     const insuranceNumber = document.getElementById('insurance_number');
     
     function toggleInsuranceFields() {
+        const insuranceCheckboxes = document.querySelectorAll('.insurance-checkbox');
+        const insuranceNumbersContainer = document.getElementById('insurance_numbers_container');
+        
         if (insuranceYes && insuranceYes.checked) {
             insuranceFields.classList.add('show');
-            if (insuranceProvider) insuranceProvider.required = true;
-            if (insuranceNumber) insuranceNumber.required = true;
+            // Mark checkboxes as required (at least one must be checked)
+            insuranceCheckboxes.forEach(checkbox => {
+                checkbox.required = true;
+            });
         } else {
             insuranceFields.classList.remove('show');
-            if (insuranceProvider) {
-                insuranceProvider.required = false;
-                Array.from(insuranceProvider.options).forEach(opt => opt.selected = false);
-            }
-            if (insuranceNumber) {
-                insuranceNumber.required = false;
-                insuranceNumber.value = '';
-                insuranceNumber.readOnly = true;
+            // Uncheck all checkboxes and remove required
+            insuranceCheckboxes.forEach(checkbox => {
+                checkbox.required = false;
+                checkbox.checked = false;
+            });
+            // Clear insurance numbers container
+            if (insuranceNumbersContainer) {
+                insuranceNumbersContainer.innerHTML = '';
+                const placeholder = document.createElement('p');
+                placeholder.className = 'text-muted mb-0';
+                placeholder.id = 'insurance_numbers_placeholder';
+                placeholder.textContent = 'Pumili ng Insurance Provider para makita ang Insurance Number fields';
+                insuranceNumbersContainer.appendChild(placeholder);
             }
         }
     }
@@ -1379,8 +1521,13 @@ document.addEventListener('DOMContentLoaded', function() {
     if (insuranceYes) insuranceYes.addEventListener('change', toggleInsuranceFields);
     if (insuranceNo) insuranceNo.addEventListener('change', toggleInsuranceFields);
     
-    // Auto-fill insurance number based on provider (supports multiple selection)
-    if (insuranceProvider && insuranceNumber) {
+    // Auto-fill insurance number based on provider (supports multiple selection via checkboxes)
+    // Each provider gets its own separate Insurance Number field
+    const insuranceCheckboxes = document.querySelectorAll('.insurance-checkbox');
+    const insuranceNumbersContainer = document.getElementById('insurance_numbers_container');
+    const insuranceNumbersPlaceholder = document.getElementById('insurance_numbers_placeholder');
+    
+    if (insuranceCheckboxes.length > 0 && insuranceNumbersContainer) {
         const insuranceFormats = {
             'PhilHealth': () => 'PH-' + Math.floor(100000000000 + Math.random() * 900000000000).toString(),
             'Maxicare': () => 'MC-' + Math.floor(10000000 + Math.random() * 90000000).toString(),
@@ -1394,35 +1541,85 @@ document.addEventListener('DOMContentLoaded', function() {
             'Other': () => ''
         };
 
+        // Store generated numbers to prevent regeneration when unchecking/checking
+        const generatedNumbers = {};
+
         function updateInsuranceNumbers() {
-            const selectedProviders = Array.from(insuranceProvider.selectedOptions).map(opt => opt.value).filter(Boolean);
+            // Get all checked insurance providers
+            const selectedProviders = Array.from(insuranceCheckboxes)
+                .filter(checkbox => checkbox.checked)
+                .map(checkbox => checkbox.value)
+                .filter(Boolean);
+            
+            // Clear container
+            insuranceNumbersContainer.innerHTML = '';
             
             if (selectedProviders.length === 0) {
-                insuranceNumber.value = '';
-                insuranceNumber.readOnly = true;
+                const placeholder = document.createElement('p');
+                placeholder.className = 'text-muted mb-0';
+                placeholder.id = 'insurance_numbers_placeholder';
+                placeholder.textContent = 'Pumili ng Insurance Provider para makita ang Insurance Number fields';
+                insuranceNumbersContainer.appendChild(placeholder);
                 return;
             }
 
-            if (selectedProviders.includes('Other')) {
-                insuranceNumber.readOnly = false;
-                insuranceNumber.placeholder = 'Enter Member ID for Other';
-                insuranceNumber.value = '';
-                return;
-            }
-
-            const numbers = selectedProviders.map(provider => {
-                if (insuranceFormats[provider]) {
-                    return insuranceFormats[provider]();
+            // Create a field for each selected provider
+            selectedProviders.forEach(provider => {
+                const fieldWrapper = document.createElement('div');
+                fieldWrapper.className = 'mb-3';
+                fieldWrapper.id = `insurance_field_${provider.replace(/\s+/g, '_')}`;
+                
+                const label = document.createElement('label');
+                label.className = 'form-label';
+                label.textContent = `${provider} - Insurance Number / Member ID`;
+                label.htmlFor = `insurance_number_${provider.replace(/\s+/g, '_')}`;
+                
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.name = `insurance_number[${provider}]`;
+                input.id = `insurance_number_${provider.replace(/\s+/g, '_')}`;
+                input.className = 'form-control insurance-number-input';
+                input.required = true;
+                
+                // Generate or reuse number
+                if (!generatedNumbers[provider]) {
+                    if (insuranceFormats[provider]) {
+                        generatedNumbers[provider] = insuranceFormats[provider]();
+                    } else {
+                        generatedNumbers[provider] = '';
+                    }
                 }
-                return provider;
+                
+                input.value = generatedNumbers[provider];
+                
+                // Handle "Other" provider - make it editable
+                if (provider === 'Other') {
+                    input.readOnly = false;
+                    input.placeholder = 'Enter Member ID for Other';
+                    input.value = generatedNumbers[provider] || '';
+                } else {
+                    input.readOnly = true;
+                    input.placeholder = 'Auto-generated';
+                }
+                
+                fieldWrapper.appendChild(label);
+                fieldWrapper.appendChild(input);
+                insuranceNumbersContainer.appendChild(fieldWrapper);
             });
-
-            insuranceNumber.readOnly = true;
-            insuranceNumber.placeholder = 'Auto-generated';
-            insuranceNumber.value = numbers.join(', ');
         }
 
-        insuranceProvider.addEventListener('change', updateInsuranceNumbers);
+        // Add event listener to all checkboxes
+        insuranceCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                // If unchecking, remove the generated number for that provider
+                if (!checkbox.checked) {
+                    delete generatedNumbers[checkbox.value];
+                }
+                updateInsuranceNumbers();
+            });
+        });
+        
+        // Initialize on page load
         updateInsuranceNumbers();
     }
     
@@ -1650,6 +1847,19 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         filteredRooms.forEach(room => {
+            // STRICT CLIENT-SIDE VALIDATION: Skip occupied rooms
+            const roomStatus = room.status ? room.status.toLowerCase().trim() : '';
+            if (roomStatus === 'occupied') {
+                return; // Skip occupied rooms
+            }
+            if (room.current_patient_id && room.current_patient_id !== '' && room.current_patient_id !== null) {
+                return; // Skip rooms with assigned patients
+            }
+            // Only show available rooms (status = 'available' or null/empty)
+            if (roomStatus && roomStatus !== 'available') {
+                return; // Skip non-available rooms
+            }
+            
             const option = document.createElement('option');
             // Use room_number as value for display, but store room_id separately
             option.value = room.room_number || 'Room ' + (room.id || '');
@@ -1719,8 +1929,21 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        // Add beds to dropdown
+        // Add beds to dropdown (only available beds)
         beds.forEach(bed => {
+            // STRICT CLIENT-SIDE VALIDATION: Skip occupied beds
+            const bedStatus = bed.status ? bed.status.toLowerCase().trim() : '';
+            if (bedStatus === 'occupied') {
+                return; // Skip occupied beds
+            }
+            if (bed.current_patient_id && bed.current_patient_id !== '' && bed.current_patient_id !== null) {
+                return; // Skip beds with assigned patients
+            }
+            // Only show available beds (status = 'available' or null/empty)
+            if (bedStatus && bedStatus !== 'available') {
+                return; // Skip non-available beds
+            }
+            
             const option = document.createElement('option');
             option.value = bed.bed_number || '';
             option.dataset.bedId = bed.id || '';
@@ -1909,10 +2132,101 @@ document.addEventListener('DOMContentLoaded', function() {
         filterNICUOption();
         filterICUOption();
     
-    // Form validation before submit
+    // Force enable submit button and add direct click handler
+    if (submitBtn) {
+        // Remove any disabled attributes
+        submitBtn.removeAttribute('disabled');
+        submitBtn.disabled = false;
+        
+        // Force enable button styles
+        submitBtn.style.pointerEvents = 'auto';
+        submitBtn.style.opacity = '1';
+        submitBtn.style.cursor = 'pointer';
+        submitBtn.style.display = 'inline-flex';
+        
+        // Add direct click handler as primary method
+        submitBtn.addEventListener('click', function(e) {
+            console.log('Submit button clicked directly');
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const form = document.getElementById('inpatientForm');
+            if (!form) return false;
+            
+            // Validate all steps
+            let allValid = true;
+            let firstInvalidStep = null;
+            for (let step = 1; step <= totalSteps; step++) {
+                const validation = validateStep(step);
+                console.log('Step', step, 'validation:', validation);
+                if (!validation.valid) {
+                    allValid = false;
+                    if (!firstInvalidStep) firstInvalidStep = step;
+                }
+            }
+            
+            if (!allValid && firstInvalidStep) {
+                currentStep = firstInvalidStep;
+                showStep(firstInvalidStep);
+                alert('Please fill in all required fields before submitting.');
+                return false;
+            }
+            
+            // Additional insurance validation
+            const insuranceYes = document.getElementById('insurance_yes');
+            if (insuranceYes && insuranceYes.checked) {
+                const insuranceCheckboxes = document.querySelectorAll('.insurance-checkbox');
+                const selectedProviders = Array.from(insuranceCheckboxes)
+                    .filter(checkbox => checkbox.checked)
+                    .map(checkbox => checkbox.value)
+                    .filter(Boolean);
+                    
+                if (selectedProviders.length === 0) {
+                    currentStep = 4;
+                    showStep(4);
+                    alert('Please select at least one Insurance Provider.');
+                    return false;
+                }
+                
+                // Check insurance numbers
+                const insuranceNumberInputs = document.querySelectorAll('.insurance-number-input');
+                let allFilled = true;
+                let hasVisibleInputs = false;
+                
+                insuranceNumberInputs.forEach(input => {
+                    if (input.offsetParent !== null) {
+                        hasVisibleInputs = true;
+                        if (!input.value.trim()) {
+                            allFilled = false;
+                        }
+                    }
+                });
+                
+                if (hasVisibleInputs && !allFilled) {
+                    currentStep = 4;
+                    showStep(4);
+                    alert('Please enter the Insurance Number / Member ID for all selected providers.');
+                    return false;
+                }
+            }
+            
+            // If all valid, submit the form
+            console.log('All validations passed, submitting form');
+            form.submit();
+            return false;
+        }, true); // Use capture phase to ensure it fires first
+    }
+    
+    // Form validation before submit (as backup)
     const form = document.getElementById('inpatientForm');
     if (form) {
         form.addEventListener('submit', function(e) {
+            // Don't prevent if already handled by button click
+            if (e.submitter && e.submitter.id === 'submitForm') {
+                // Let the button handler take care of validation
+                return true;
+            }
+            
             // Validate all steps before submitting
             let allValid = true;
             for (let step = 1; step <= totalSteps; step++) {
@@ -1932,22 +2246,48 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             // Check if insurance is selected but fields are empty
+            const insuranceYes = document.getElementById('insurance_yes');
             if (insuranceYes && insuranceYes.checked) {
-                const selectedProviders = Array.from(insuranceProvider.selectedOptions).map(opt => opt.value).filter(Boolean);
+                const insuranceCheckboxes = document.querySelectorAll('.insurance-checkbox');
+                const selectedProviders = Array.from(insuranceCheckboxes)
+                    .filter(checkbox => checkbox.checked)
+                    .map(checkbox => checkbox.value)
+                    .filter(Boolean);
                 if (selectedProviders.length === 0) {
                     e.preventDefault();
                     currentStep = 4;
                     showStep(4);
                     alert('Please select at least one Insurance Provider.');
-                    insuranceProvider.focus();
+                    if (insuranceCheckboxes.length > 0) {
+                        insuranceCheckboxes[0].focus();
+                    }
                     return false;
                 }
-                if (!insuranceNumber.value.trim()) {
+                
+                // Check if all insurance number fields are filled (only for visible/selected providers)
+                const insuranceNumberInputs = document.querySelectorAll('.insurance-number-input');
+                let allFilled = true;
+                let emptyField = null;
+                let hasVisibleInputs = false;
+                
+                insuranceNumberInputs.forEach(input => {
+                    // Only check inputs that are visible (for selected providers)
+                    if (input.offsetParent !== null) { // Check if element is visible
+                        hasVisibleInputs = true;
+                        if (!input.value.trim()) {
+                            allFilled = false;
+                            if (!emptyField) emptyField = input;
+                        }
+                    }
+                });
+                
+                // Only validate if there are visible insurance number inputs
+                if (hasVisibleInputs && !allFilled) {
                     e.preventDefault();
                     currentStep = 4;
                     showStep(4);
-                    alert('Please enter the Insurance Number / Member ID.');
-                    insuranceNumber.focus();
+                    alert('Please enter the Insurance Number / Member ID for all selected providers.');
+                    if (emptyField) emptyField.focus();
                     return false;
                 }
             }

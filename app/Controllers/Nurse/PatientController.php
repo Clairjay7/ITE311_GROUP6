@@ -19,17 +19,112 @@ class PatientController extends BaseController
             return redirect()->to('/auth')->with('error', 'You must be logged in as a nurse to access this page.');
         }
 
+        $nurseId = session()->get('user_id');
+        $db = \Config\Database::connect();
         $patientModel = new AdminPatientModel();
         
-        // Get all patients (nurses can view all patients)
-        $patients = $patientModel
-            ->orderBy('lastname', 'ASC')
-            ->orderBy('firstname', 'ASC')
-            ->findAll();
+        // Get only patients assigned to this nurse
+        // From admin_patients table (directly assigned via assigned_nurse_id)
+        $assignedPatientsFromAdmin = [];
+        if ($db->tableExists('admin_patients')) {
+            $assignedPatientsFromAdmin = $db->table('admin_patients')
+                ->where('assigned_nurse_id', $nurseId)
+                ->where('deleted_at IS NULL', null, false)
+                ->orderBy('lastname', 'ASC')
+                ->orderBy('firstname', 'ASC')
+                ->get()
+                ->getResultArray();
+        }
+        
+        // From patients table (directly assigned via assigned_nurse_id)
+        $assignedPatientsFromHms = [];
+        if ($db->tableExists('patients')) {
+            $assignedPatientsFromHmsRaw = $db->table('patients')
+                ->where('assigned_nurse_id', $nurseId)
+                ->orderBy('last_name', 'ASC')
+                ->orderBy('first_name', 'ASC')
+                ->get()
+                ->getResultArray();
+            
+            // Format HMS patients to match admin_patients structure
+            foreach ($assignedPatientsFromHmsRaw as $patient) {
+                $nameParts = [];
+                $fullName = '';
+                
+                if (!empty($patient['first_name']) && !empty($patient['last_name'])) {
+                    $nameParts = [$patient['first_name'], $patient['last_name']];
+                    $fullName = trim($patient['first_name'] . ' ' . $patient['last_name']);
+                } elseif (!empty($patient['full_name'])) {
+                    $fullName = trim($patient['full_name']);
+                    $parts = explode(' ', $fullName, 3);
+                    if (count($parts) >= 2) {
+                        $nameParts = [$parts[0], $parts[count($parts) - 1]];
+                    } else {
+                        $nameParts = [$parts[0] ?? '', ''];
+                    }
+                }
+                
+                // Try to find corresponding admin_patients record
+                $adminPatient = null;
+                if (!empty($nameParts[0]) && !empty($nameParts[1]) && $db->tableExists('admin_patients')) {
+                    $adminPatient = $db->table('admin_patients')
+                        ->where('firstname', $nameParts[0])
+                        ->where('lastname', $nameParts[1])
+                        ->where('assigned_nurse_id', $nurseId)
+                        ->where('deleted_at IS NULL', null, false)
+                        ->get()
+                        ->getRowArray();
+                }
+                
+                // Only add if no corresponding admin_patients record exists (avoid duplicates)
+                if (!$adminPatient) {
+                    $assignedPatientsFromHms[] = [
+                        'id' => $patient['patient_id'] ?? $patient['id'] ?? null,
+                        'firstname' => $nameParts[0] ?? '',
+                        'lastname' => $nameParts[1] ?? '',
+                        'birthdate' => $patient['date_of_birth'] ?? $patient['birthdate'] ?? null,
+                        'gender' => strtolower($patient['gender'] ?? ''),
+                        'contact' => $patient['contact'] ?? null,
+                        'address' => $patient['address'] ?? null,
+                    ];
+                }
+            }
+        }
+        
+        // Merge and remove duplicates
+        $allPatients = array_merge($assignedPatientsFromAdmin, $assignedPatientsFromHms);
+        
+        // Remove duplicates based on name + birthdate
+        $uniquePatients = [];
+        $seenKeys = [];
+        
+        foreach ($allPatients as $patient) {
+            $firstName = strtolower(trim($patient['firstname'] ?? ''));
+            $lastName = strtolower(trim($patient['lastname'] ?? ''));
+            $birthdate = $patient['birthdate'] ?? '';
+            $uniqueKey = md5($firstName . '|' . $lastName . '|' . $birthdate);
+            
+            if (!isset($seenKeys[$uniqueKey])) {
+                $uniquePatients[] = $patient;
+                $seenKeys[$uniqueKey] = true;
+            }
+        }
+        
+        // Sort by lastname, then firstname
+        usort($uniquePatients, function($a, $b) {
+            $lastA = strtolower($a['lastname'] ?? '');
+            $lastB = strtolower($b['lastname'] ?? '');
+            if ($lastA !== $lastB) {
+                return strcmp($lastA, $lastB);
+            }
+            $firstA = strtolower($a['firstname'] ?? '');
+            $firstB = strtolower($b['firstname'] ?? '');
+            return strcmp($firstA, $firstB);
+        });
 
         $data = [
-            'title' => 'Patient Information',
-            'patients' => $patients
+            'title' => 'My Assigned Patients',
+            'patients' => $uniquePatients
         ];
 
         return view('nurse/patients/view', $data);
@@ -42,14 +137,58 @@ class PatientController extends BaseController
             return redirect()->to('/auth')->with('error', 'You must be logged in as a nurse to access this page.');
         }
 
+        $nurseId = session()->get('user_id');
         $patientModel = new AdminPatientModel();
         $vitalModel = new PatientVitalModel();
         $noteModel = new NurseNoteModel();
         $orderModel = new DoctorOrderModel();
+        $db = \Config\Database::connect();
 
+        // Get patient and verify nurse is assigned
         $patient = $patientModel->find($id);
+        $patientSource = 'admin_patients';
+        
+        // If not found in admin_patients, check patients table
+        if (!$patient && $db->tableExists('patients')) {
+            $hmsPatient = $db->table('patients')
+                ->where('patient_id', $id)
+                ->get()
+                ->getRowArray();
+            
+            if ($hmsPatient) {
+                // Find corresponding admin_patients record
+                $nameParts = [];
+                if (!empty($hmsPatient['first_name'])) $nameParts[] = $hmsPatient['first_name'];
+                if (!empty($hmsPatient['last_name'])) $nameParts[] = $hmsPatient['last_name'];
+                if (empty($nameParts) && !empty($hmsPatient['full_name'])) {
+                    $parts = explode(' ', $hmsPatient['full_name'], 2);
+                    $nameParts = [$parts[0] ?? '', $parts[1] ?? ''];
+                }
+                
+                if (!empty($nameParts[0]) && !empty($nameParts[1]) && $db->tableExists('admin_patients')) {
+                    $adminPatient = $db->table('admin_patients')
+                        ->where('firstname', $nameParts[0])
+                        ->where('lastname', $nameParts[1])
+                        ->where('deleted_at IS NULL', null, false)
+                        ->get()
+                        ->getRowArray();
+                    
+                    if ($adminPatient) {
+                        $patient = $adminPatient;
+                        $id = $adminPatient['id']; // Use admin_patients.id for queries
+                    }
+                }
+            }
+        }
+        
         if (!$patient) {
             return redirect()->to('/nurse/patients/view')->with('error', 'Patient not found.');
+        }
+        
+        // VALIDATION: Verify the nurse is assigned to this patient
+        $assignedNurseId = $patient['assigned_nurse_id'] ?? null;
+        if ($assignedNurseId != $nurseId) {
+            return redirect()->to('/nurse/patients/view')->with('error', 'You are not assigned to this patient. You can only view patients assigned to you.');
         }
 
         // Get patient vitals (latest 10)
@@ -195,9 +334,36 @@ class PatientController extends BaseController
             return redirect()->to('/nurse/dashboard')->with('error', 'You are not assigned to this patient.');
         }
 
+        // BACKEND VALIDATION: Check if doctor has checked the patient and status is 'pending_nurse'
+        // Nurse cannot check vitals unless doctor has clicked "Check" button and status is 'pending_nurse'
+        $isDoctorChecked = $patient['is_doctor_checked'] ?? 0;
+        $doctorCheckStatus = $patient['doctor_check_status'] ?? 'available';
+        
+        if (!$isDoctorChecked) {
+            return redirect()->to('/nurse/dashboard')->with('error', 'You can only add vital signs when the doctor requests a vitals check via the "Check" button in My Patients page.');
+        }
+        
+        // BACKEND VALIDATION: Prevent nurse from accessing vitals form if status is not 'pending_nurse'
+        if ($doctorCheckStatus !== 'pending_nurse') {
+            return redirect()->to('/nurse/dashboard')->with('error', 'Vitals check is not currently pending. Doctor must click "Check" button first.');
+        }
+
+        // Get previous vitals for comparison
+        $previousVitals = null;
+        if ($db->tableExists('patient_vitals')) {
+            $previousVitals = $db->table('patient_vitals')
+                ->where('patient_id', $patient['id'])
+                ->orderBy('created_at', 'DESC')
+                ->orderBy('recorded_at', 'DESC')
+                ->limit(1)
+                ->get()
+                ->getRowArray();
+        }
+
         $data = [
             'title' => 'Add Vital Signs',
             'patient' => $patient,
+            'previousVitals' => $previousVitals,
             'validation' => \Config\Services::validation()
         ];
 
@@ -295,6 +461,28 @@ class PatientController extends BaseController
             return redirect()->back()->withInput()->with('error', 'You are not assigned to this patient. Cannot record vital signs.');
         }
 
+        // BACKEND VALIDATION: Check if doctor has checked the patient and status is pending_nurse
+        // Nurse cannot check vitals unless doctor has clicked "Check" button and status is 'pending_nurse'
+        $isDoctorChecked = null;
+        $doctorCheckStatus = null;
+        if ($patient) {
+            $isDoctorChecked = $patient['is_doctor_checked'] ?? 0;
+            $doctorCheckStatus = $patient['doctor_check_status'] ?? 'available';
+        } else {
+            $adminPatient = $db->table('admin_patients')->where('id', $adminPatientId)->get()->getRowArray();
+            $isDoctorChecked = $adminPatient['is_doctor_checked'] ?? 0;
+            $doctorCheckStatus = $adminPatient['doctor_check_status'] ?? 'available';
+        }
+
+        if (!$isDoctorChecked) {
+            return redirect()->back()->withInput()->with('error', 'You can only add vital signs when the doctor requests a vitals check via the "Check" button in My Patients page.');
+        }
+
+        // BACKEND VALIDATION: Prevent nurse from checking vitals if status is not 'pending_nurse'
+        if ($doctorCheckStatus !== 'pending_nurse') {
+            return redirect()->back()->withInput()->with('error', 'Vitals check is not currently pending. Doctor must click "Check" button first.');
+        }
+
         $validation = $this->validate([
             'blood_pressure_systolic' => 'permit_empty|integer|greater_than[0]|less_than[300]',
             'blood_pressure_diastolic' => 'permit_empty|integer|greater_than[0]|less_than[300]',
@@ -326,6 +514,69 @@ class PatientController extends BaseController
         ];
 
         if ($vitalModel->insert($data)) {
+            $vitalId = $vitalModel->getInsertID();
+            
+            // WORKFLOW UPDATE: After nurse saves vitals, set status to 'pending_order'
+            // Doctor must now create an order from the vital signs before Check button is enabled again
+            $updateData = [
+                'is_doctor_checked' => 1, // Keep as checked
+                'doctor_check_status' => 'pending_order', // Lock button - waiting for doctor to create order
+                'nurse_vital_status' => 'completed', // Mark vitals as completed
+            ];
+            
+            $patientModel->update($adminPatientId, $updateData);
+            
+            // Also update patients table if corresponding record exists
+            if ($db->tableExists('patients')) {
+                $adminPatientForUpdate = $db->table('admin_patients')->where('id', $adminPatientId)->get()->getRowArray();
+                if ($adminPatientForUpdate) {
+                    $nameParts = [
+                        $adminPatientForUpdate['firstname'] ?? '',
+                        $adminPatientForUpdate['lastname'] ?? ''
+                    ];
+                    
+                    if (!empty($nameParts[0]) && !empty($nameParts[1])) {
+                        $hmsPatient = $db->table('patients')
+                            ->where('first_name', $nameParts[0])
+                            ->where('last_name', $nameParts[1])
+                            ->where('doctor_id', $adminPatientForUpdate['doctor_id'] ?? null)
+                            ->get()
+                            ->getRowArray();
+                        
+                        if ($hmsPatient) {
+                            $db->table('patients')
+                                ->where('patient_id', $hmsPatient['patient_id'])
+                                ->update($updateData);
+                        }
+                    }
+                }
+            }
+            
+            // Get patient information for notification
+            $patientForNotification = $patient;
+            if (!$patientForNotification) {
+                $patientForNotification = $db->table('admin_patients')->where('id', $adminPatientId)->get()->getRowArray();
+            }
+            
+            // Notify the attending doctor
+            if ($patientForNotification && !empty($patientForNotification['doctor_id'])) {
+                $doctorNotificationModel = new DoctorNotificationModel();
+                $patientName = trim(($patientForNotification['firstname'] ?? '') . ' ' . ($patientForNotification['lastname'] ?? ''));
+                if (empty($patientName)) {
+                    $patientName = 'Patient';
+                }
+                
+                $doctorNotificationModel->insert([
+                    'doctor_id' => $patientForNotification['doctor_id'],
+                    'type' => 'vitals_recorded',
+                    'title' => 'Vital Signs Recorded',
+                    'message' => 'Vital signs have been recorded for ' . $patientName . '. Please perform Doctor Initial Assessment.',
+                    'related_id' => $adminPatientId,
+                    'related_type' => 'patient_vitals',
+                    'is_read' => 0,
+                ]);
+            }
+            
             return redirect()->to('/nurse/patients/details/' . $adminPatientId)->with('success', 'Vital signs recorded successfully.');
         } else {
             return redirect()->back()->withInput()->with('error', 'Failed to record vital signs.');
@@ -400,6 +651,7 @@ class PatientController extends BaseController
         $orderModel = new DoctorOrderModel();
         $logModel = new OrderStatusLogModel();
         $nurseId = session()->get('user_id');
+        $db = \Config\Database::connect(); // Initialize database connection
 
         $order = $orderModel->find($orderId);
         if (!$order) {
@@ -419,8 +671,6 @@ class PatientController extends BaseController
 
         // For lab_test orders: Nurses CANNOT mark as complete unless lab staff has completed the lab request
         if ($order['order_type'] === 'lab_test' && $newStatus === 'completed') {
-            $db = \Config\Database::connect();
-            
             // Find the corresponding lab_request
             $labRequest = null;
             
@@ -491,6 +741,69 @@ class PatientController extends BaseController
                 'created_at' => date('Y-m-d H:i:s'),
             ]);
 
+            // WORKFLOW UNLOCK: If ANY order type is completed and patient status is 'pending_order', unlock Check button
+            // This applies to ALL order types: medication, lab_test, procedure, diet, diagnostic_imaging, nursing_order, treatment_order, iv_fluids_order, reassessment_order, stat_order
+            if ($newStatus === 'completed') {
+                $patientModel = new AdminPatientModel();
+                $patient = $patientModel->find($order['patient_id']);
+                
+                if ($patient && ($patient['doctor_check_status'] ?? 'available') === 'pending_order') {
+                    // Check if there are any other pending orders for this patient (not just vital-linked)
+                    // If no other pending orders exist, unlock the Check button
+                    $hasOtherPendingOrders = false;
+                    if ($db->tableExists('doctor_orders')) {
+                        $otherPendingOrders = $db->table('doctor_orders')
+                            ->where('patient_id', $order['patient_id'])
+                            ->where('id !=', $orderId)
+                            ->where('status !=', 'completed')
+                            ->where('status !=', 'cancelled')
+                            ->countAllResults();
+                        
+                        $hasOtherPendingOrders = $otherPendingOrders > 0;
+                    }
+                    
+                    // Unlock if there are no other pending orders
+                    // This works for ANY order type - once completed, unlock the Check button
+                    if (!$hasOtherPendingOrders) {
+                        $unlockData = [
+                            'is_doctor_checked' => 0,
+                            'doctor_check_status' => 'available', // Unlock Check button
+                            'nurse_vital_status' => 'completed',
+                        ];
+                        
+                        // Add doctor_order_status only if column exists
+                        if ($db->fieldExists('doctor_order_status', 'admin_patients')) {
+                            $unlockData['doctor_order_status'] = 'not_required';
+                        }
+                        
+                        $patientModel->update($order['patient_id'], $unlockData);
+                        
+                        // Also update patients table if corresponding record exists
+                        if ($db->tableExists('patients')) {
+                            $nameParts = [
+                                $patient['firstname'] ?? '',
+                                $patient['lastname'] ?? ''
+                            ];
+                            
+                            if (!empty($nameParts[0]) && !empty($nameParts[1])) {
+                                $hmsPatient = $db->table('patients')
+                                    ->where('first_name', $nameParts[0])
+                                    ->where('last_name', $nameParts[1])
+                                    ->where('doctor_id', $patient['doctor_id'] ?? null)
+                                    ->get()
+                                    ->getRowArray();
+                                
+                                if ($hmsPatient) {
+                                    $db->table('patients')
+                                        ->where('patient_id', $hmsPatient['patient_id'])
+                                        ->update($unlockData);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
             // Create notification for the doctor
             $patientModel = new AdminPatientModel();
             $patient = $patientModel->find($order['patient_id']);
@@ -515,6 +828,148 @@ class PatientController extends BaseController
             return redirect()->back()->with('success', 'Order status updated successfully.');
         } else {
             return redirect()->back()->with('error', 'Failed to update order status.');
+        }
+    }
+
+    public function startMonitoring($orderId)
+    {
+        // Check if user is logged in and is a nurse
+        if (!session()->get('logged_in') || session()->get('role') !== 'nurse') {
+            return redirect()->to('/auth')->with('error', 'You must be logged in as a nurse to access this page.');
+        }
+
+        $nurseId = session()->get('user_id');
+        $orderModel = new DoctorOrderModel();
+        $db = \Config\Database::connect();
+
+        // Get the order
+        $order = $orderModel->find($orderId);
+        if (!$order) {
+            return redirect()->back()->with('error', 'Order not found.');
+        }
+
+        // Check if order is completed
+        if ($order['status'] !== 'completed') {
+            return redirect()->back()->with('error', 'Order must be completed before starting continuous monitoring.');
+        }
+
+        // Check if order is assigned to this nurse
+        if ($order['nurse_id'] != $nurseId) {
+            return redirect()->back()->with('error', 'This order is not assigned to you.');
+        }
+
+        // Create or update patient_monitoring table if it doesn't exist
+        if (!$db->tableExists('patient_monitoring')) {
+            // Create the table
+            $fields = [
+                'id' => [
+                    'type' => 'INT',
+                    'constraint' => 11,
+                    'unsigned' => true,
+                    'auto_increment' => true,
+                ],
+                'patient_id' => [
+                    'type' => 'INT',
+                    'constraint' => 11,
+                    'unsigned' => true,
+                ],
+                'order_id' => [
+                    'type' => 'INT',
+                    'constraint' => 11,
+                    'unsigned' => true,
+                ],
+                'nurse_id' => [
+                    'type' => 'INT',
+                    'constraint' => 11,
+                    'unsigned' => true,
+                ],
+                'status' => [
+                    'type' => 'ENUM',
+                    'constraint' => ['active', 'stopped'],
+                    'default' => 'active',
+                ],
+                'started_at' => [
+                    'type' => 'DATETIME',
+                    'null' => true,
+                ],
+                'stopped_at' => [
+                    'type' => 'DATETIME',
+                    'null' => true,
+                ],
+                'notes' => [
+                    'type' => 'TEXT',
+                    'null' => true,
+                ],
+                'created_at' => [
+                    'type' => 'DATETIME',
+                    'null' => true,
+                ],
+                'updated_at' => [
+                    'type' => 'DATETIME',
+                    'null' => true,
+                ],
+            ];
+            
+            $db->query("CREATE TABLE IF NOT EXISTS patient_monitoring (
+                id INT(11) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                patient_id INT(11) UNSIGNED NOT NULL,
+                order_id INT(11) UNSIGNED NOT NULL,
+                nurse_id INT(11) UNSIGNED NOT NULL,
+                status ENUM('active', 'stopped') DEFAULT 'active',
+                started_at DATETIME NULL,
+                stopped_at DATETIME NULL,
+                notes TEXT NULL,
+                created_at DATETIME NULL,
+                updated_at DATETIME NULL,
+                INDEX idx_patient_id (patient_id),
+                INDEX idx_order_id (order_id),
+                INDEX idx_status (status)
+            )");
+        }
+
+        // Check if monitoring already exists for this order
+        $existingMonitoring = $db->table('patient_monitoring')
+            ->where('order_id', $orderId)
+            ->where('status', 'active')
+            ->get()
+            ->getRowArray();
+
+        if ($existingMonitoring) {
+            return redirect()->back()->with('info', 'Continuous monitoring is already active for this order.');
+        }
+
+        // Start monitoring
+        $monitoringData = [
+            'patient_id' => $order['patient_id'],
+            'order_id' => $orderId,
+            'nurse_id' => $nurseId,
+            'status' => 'active',
+            'started_at' => date('Y-m-d H:i:s'),
+            'created_at' => date('Y-m-d H:i:s'),
+            'updated_at' => date('Y-m-d H:i:s'),
+        ];
+
+        if ($db->table('patient_monitoring')->insert($monitoringData)) {
+            // Create notification for the doctor
+            $patientModel = new AdminPatientModel();
+            $patient = $patientModel->find($order['patient_id']);
+            $notificationModel = new DoctorNotificationModel();
+            
+            $patientName = $patient ? ($patient['firstname'] . ' ' . $patient['lastname']) : 'patient';
+            
+            $notificationModel->insert([
+                'doctor_id' => $order['doctor_id'],
+                'type' => 'system',
+                'title' => 'Continuous Monitoring Started',
+                'message' => 'Nurse has started continuous monitoring for ' . $patientName . ' after completing the ' . $order['order_type'] . ' order.',
+                'related_id' => $order['patient_id'],
+                'related_type' => 'patient_monitoring',
+                'is_read' => 0,
+            ]);
+
+            return redirect()->back()->with('success', 'Continuous monitoring started successfully. Please monitor the patient\'s vital signs regularly.');
+        } else {
+            return redirect()->back()->with('error', 'Failed to start continuous monitoring.');
         }
     }
 }

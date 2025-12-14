@@ -29,7 +29,7 @@ class NurseNotificationModel extends Model
 
     protected $validationRules = [
         'nurse_id' => 'required|integer',
-        'type' => 'required|in_list[lab_request_approved,lab_result_ready,new_doctor_order,appointment_reminder,system]',
+        'type' => 'required|in_list[lab_request_approved,lab_result_ready,new_doctor_order,appointment_reminder,vitals_check_requested,system]',
         'title' => 'required|max_length[255]',
         'message' => 'required',
     ];

@@ -48,10 +48,17 @@ class LabStaffController extends BaseController
         $today = date('Y-m-d');
         $monthStart = date('Y-m-01');
 
-        // Get pending test requests (only after payment is paid - accountant must process payment first)
+        // Get pending test requests (only without_specimen tests that go directly to lab)
         $pendingTests = $this->labRequestModel
             ->where('status', 'pending')
-            ->where('payment_status', 'paid') // ONLY count after payment is PAID
+            ->where('nurse_id', null) // Only without_specimen tests (no nurse assigned)
+            ->where('status !=', 'cancelled')
+            ->countAllResults();
+        
+        // Also count specimen_collected and in_progress tests
+        $pendingTests += $this->labRequestModel
+            ->whereIn('status', ['specimen_collected', 'in_progress'])
+            ->where('status !=', 'cancelled')
             ->countAllResults();
 
         // Get completed tests today
@@ -66,10 +73,9 @@ class LabStaffController extends BaseController
             ->where('DATE(updated_at) >=', $monthStart)
             ->countAllResults();
 
-        // Get pending specimens (lab requests with status pending or in_progress, only after payment is paid)
+        // Get pending specimens (lab requests with status pending or in_progress)
         $pendingSpecimens = $this->labRequestModel
             ->whereIn('status', ['specimen_collected', 'in_progress'])
-            ->where('payment_status', 'paid') // ONLY count after payment is PAID
             ->countAllResults();
 
         $data = [
@@ -98,8 +104,8 @@ class LabStaffController extends BaseController
         $db = \Config\Database::connect();
 
         // Get all test requests with patient and doctor/nurse info
-        // Lab staff can ONLY see lab requests AFTER payment is processed (paid)
-        // Payment must be approved and processed by accountant first
+        // Show ALL requests (pending payment and paid) so lab staff can see them immediately
+        // Lab staff can see requests even before payment is processed
         $testRequests = $db->table('lab_requests')
             ->select('lab_requests.*, 
                 admin_patients.firstname as patient_firstname, 
@@ -113,25 +119,31 @@ class LabStaffController extends BaseController
             ->join('admin_patients', 'admin_patients.id = lab_requests.patient_id', 'left')
             ->join('users as doctor', 'doctor.id = lab_requests.doctor_id', 'left')
             ->join('users as nurse', 'nurse.id = lab_requests.nurse_id', 'left')
-            ->join('charges', 'charges.id = lab_requests.charge_id', 'inner') // INNER JOIN - must have charge
+            ->join('charges', 'charges.id = lab_requests.charge_id', 'left') // LEFT JOIN - show even without charge
             ->where('lab_requests.status !=', 'cancelled')
-            ->where('lab_requests.payment_status', 'paid') // ONLY show after payment is PAID (accountant must process payment first)
-            ->where('charges.status', 'paid') // ALSO verify charge status is paid (double check)
-            ->where('lab_requests.charge_id IS NOT NULL') // Must have charge_id
             ->groupStart()
                 // Include requests that are ready for testing:
-                // 1. Status = 'pending' with payment paid (without_specimen tests - no specimen needed)
-                // 2. Status = 'specimen_collected' or 'in_progress' (with_specimen tests that have been collected)
-                ->where('lab_requests.status', 'pending')
+                // 1. Status = 'pending' AND nurse_id IS NULL (without_specimen tests - go directly to lab, no nurse needed)
+                // 2. Status = 'specimen_collected' or 'in_progress' (with_specimen tests that have been collected by nurse)
+                ->groupStart()
+                    ->where('lab_requests.status', 'pending')
+                    ->where('lab_requests.nurse_id', null) // Only show pending requests without nurse (without_specimen)
                 ->groupEnd()
             ->orGroupStart()
                 ->whereIn('lab_requests.status', ['specimen_collected', 'in_progress'])
                 ->groupEnd()
+            ->groupEnd()
             ->orderBy('lab_requests.priority', 'ASC') // Urgent/Stat first
             ->orderBy('lab_requests.requested_date', 'ASC')
             ->orderBy('lab_requests.created_at', 'DESC')
             ->get()
             ->getResultArray();
+
+        // Check admission status for each request
+        foreach ($testRequests as &$request) {
+            $request['is_admitted'] = $this->isPatientAdmitted($request['patient_id']);
+        }
+        unset($request);
 
         $data = [
             'title' => 'Test Requests',
@@ -155,7 +167,7 @@ class LabStaffController extends BaseController
 
         $db = \Config\Database::connect();
 
-        // Get pending and in_progress specimens
+        // Get pending and in_progress specimens (show all, including pending payment)
         $pendingSpecimens = $db->table('lab_requests')
             ->select('lab_requests.*, 
                 admin_patients.firstname as patient_firstname, 
@@ -169,11 +181,8 @@ class LabStaffController extends BaseController
             ->join('admin_patients', 'admin_patients.id = lab_requests.patient_id', 'left')
             ->join('users as doctor', 'doctor.id = lab_requests.doctor_id', 'left')
             ->join('users as nurse', 'nurse.id = lab_requests.nurse_id', 'left')
-            ->join('charges', 'charges.id = lab_requests.charge_id', 'inner') // INNER JOIN - must have charge
+            ->join('charges', 'charges.id = lab_requests.charge_id', 'left') // LEFT JOIN - show even without charge
             ->whereIn('lab_requests.status', ['specimen_collected', 'in_progress'])
-            ->where('lab_requests.payment_status', 'paid') // ONLY show after payment is PAID (accountant must process payment first)
-            ->where('charges.status', 'paid') // ALSO verify charge status is paid (double check)
-            ->where('lab_requests.charge_id IS NOT NULL') // Must have charge_id
             ->orderBy('lab_requests.priority', 'ASC') // Urgent/Stat first
             ->orderBy('lab_requests.requested_date', 'ASC')
             ->get()
@@ -263,9 +272,12 @@ class LabStaffController extends BaseController
             ])->setStatusCode(400);
         }
 
-        // Check payment status - Payment must be paid before processing
+        // Check if patient is admitted - if admitted, allow proceeding without upfront payment (will be billed)
+        $isAdmitted = $this->isPatientAdmitted($request['patient_id']);
+        
+        // Check payment status - Payment must be paid before processing UNLESS patient is admitted
         $paymentStatus = $request['payment_status'] ?? 'unpaid';
-        if ($paymentStatus !== 'paid') {
+        if ($paymentStatus !== 'paid' && !$isAdmitted) {
             return $this->response->setJSON([
                 'success' => false,
                 'message' => 'Payment required before processing test. Please ensure payment is completed first.'
@@ -295,12 +307,17 @@ class LabStaffController extends BaseController
             $patient = $this->patientModel->find($request['patient_id']);
             $patientName = ($patient ? $patient['firstname'] . ' ' . $patient['lastname'] : 'Patient');
             
+            $isAdmitted = $this->isPatientAdmitted($request['patient_id']);
+            $paymentMessage = $isAdmitted 
+                ? 'Lab specimen for ' . $patientName . ' (' . ($request['test_name'] ?? 'Lab Test') . ') has been received by the laboratory and is now being processed. Will be billed to patient.'
+                : 'Lab specimen for ' . $patientName . ' (' . ($request['test_name'] ?? 'Lab Test') . ') has been received by the laboratory and is now being processed. Payment is required before testing.';
+            
             $nurseNotificationModel = new NurseNotificationModel();
             $nurseNotificationModel->insert([
                 'nurse_id' => $request['nurse_id'],
                 'type' => 'lab_result_ready',
                 'title' => 'Lab Specimen Received',
-                'message' => 'Lab specimen for ' . $patientName . ' (' . ($request['test_name'] ?? 'Lab Test') . ') has been received by the laboratory and is now being processed. Payment is required before testing.',
+                'message' => $paymentMessage,
                 'related_id' => $requestId,
                 'related_type' => 'lab_request',
                 'is_read' => 0,
@@ -336,9 +353,12 @@ class LabStaffController extends BaseController
             ])->setStatusCode(404);
         }
 
-        // Check payment status - Payment must be PAID (processed by accountant) before completing test
+        // Check if patient is admitted - if admitted, allow completing test without upfront payment (will be billed)
+        $isAdmitted = $this->isPatientAdmitted($request['patient_id']);
+        
+        // Check payment status - Payment must be PAID (processed by accountant) before completing test UNLESS patient is admitted
         $paymentStatus = $request['payment_status'] ?? 'unpaid';
-        if ($paymentStatus !== 'paid') {
+        if ($paymentStatus !== 'paid' && !$isAdmitted) {
             return $this->response->setJSON([
                 'success' => false,
                 'message' => 'Payment must be processed by accountant first before completing test. Current payment status: ' . ucfirst($paymentStatus)
@@ -380,21 +400,26 @@ class LabStaffController extends BaseController
             $doctorOrderId = null;
             
             // Check if linking info is stored in instructions
-            if (preg_match('/\| LINK:(.+)$/', $instructions, $matches)) {
-                $linkingInfo = json_decode($matches[1], true);
+            // Format: "Doctor Order #123 | LINK:{"doctor_order_id":123} | ..."
+            if (preg_match('/Doctor Order #(\d+)/', $instructions, $orderMatches)) {
+                $doctorOrderId = (int)$orderMatches[1];
+            } elseif (preg_match('/\| LINK:(.+?)(?:\s*\|)/', $instructions, $matches)) {
+                $linkingInfo = json_decode(trim($matches[1]), true);
                 if ($linkingInfo && isset($linkingInfo['doctor_order_id'])) {
-                    $doctorOrderId = $linkingInfo['doctor_order_id'];
+                    $doctorOrderId = (int)$linkingInfo['doctor_order_id'];
                 }
             }
             
             // If no link found, try to find by matching criteria
+            // Match by patient_id, doctor_id, order_type='lab_test', and order_description containing test_name
             if (!$doctorOrderId) {
+                $testName = $request['test_name'];
                 $matchingOrder = $db->table('doctor_orders')
                     ->where('patient_id', $request['patient_id'])
                     ->where('doctor_id', $request['doctor_id'])
                     ->where('order_type', 'lab_test')
-                    ->where('order_description', $request['test_name'])
-                    ->where('status', 'pending')
+                    ->like('order_description', $testName, 'both') // Match if description contains test_name (case-insensitive)
+                    ->whereIn('status', ['pending', 'in_progress']) // Also check in_progress orders
                     ->orderBy('created_at', 'DESC')
                     ->limit(1)
                     ->get()
@@ -402,17 +427,94 @@ class LabStaffController extends BaseController
                 
                 if ($matchingOrder) {
                     $doctorOrderId = $matchingOrder['id'];
+                    log_message('info', "Found doctor_order #{$doctorOrderId} by matching test_name '{$testName}' in order_description");
+                } else {
+                    log_message('warning', "Could not find doctor_order for lab_request #{$requestId}, test_name: {$testName}, patient_id: {$request['patient_id']}, doctor_id: {$request['doctor_id']}");
                 }
+            } else {
+                log_message('info', "Found doctor_order #{$doctorOrderId} from instructions link for lab_request #{$requestId}");
             }
             
             // Update doctor_order status if found
             if ($doctorOrderId) {
+                $userId = session()->get('user_id');
                 $db->table('doctor_orders')
                     ->where('id', $doctorOrderId)
                     ->update([
                         'status' => 'completed',
+                        'completed_by' => $userId, // Set who completed it (lab staff)
+                        'completed_at' => date('Y-m-d H:i:s'), // Set completion time
                         'updated_at' => date('Y-m-d H:i:s')
                     ]);
+                
+                log_message('info', "Doctor order #{$doctorOrderId} marked as completed by lab staff (user_id: {$userId}) for lab test: {$request['test_name']}");
+                
+                // WORKFLOW UNLOCK: If ANY order type is completed and patient status is 'pending_order', unlock Check button
+                // This applies to ALL order types, not just lab tests
+                $completedOrder = $db->table('doctor_orders')
+                    ->where('id', $doctorOrderId)
+                    ->get()
+                    ->getRowArray();
+                
+                // Check if we need to unlock the workflow
+                if ($completedOrder) {
+                    $patientModel = new \App\Models\AdminPatientModel();
+                    $patient = $patientModel->find($completedOrder['patient_id']);
+                    
+                    if ($patient && ($patient['doctor_check_status'] ?? 'available') === 'pending_order') {
+                        // Check if there are any other pending orders for this patient (not just vital-linked)
+                        // If no other pending orders exist, unlock the Check button
+                        $hasOtherPendingOrders = false;
+                        $otherPendingOrders = $db->table('doctor_orders')
+                            ->where('patient_id', $completedOrder['patient_id'])
+                            ->where('id !=', $doctorOrderId)
+                            ->where('status !=', 'completed')
+                            ->where('status !=', 'cancelled')
+                            ->countAllResults();
+                        
+                        $hasOtherPendingOrders = $otherPendingOrders > 0;
+                        
+                        // Unlock if there are no other pending orders
+                        // This works for ANY order type - once completed, unlock the Check button
+                        if (!$hasOtherPendingOrders) {
+                            $unlockData = [
+                                'is_doctor_checked' => 0,
+                                'doctor_check_status' => 'available', // Unlock Check button
+                                'nurse_vital_status' => 'completed',
+                            ];
+                            
+                            // Add doctor_order_status only if column exists
+                            if ($db->fieldExists('doctor_order_status', 'admin_patients')) {
+                                $unlockData['doctor_order_status'] = 'not_required';
+                            }
+                            
+                            $patientModel->update($completedOrder['patient_id'], $unlockData);
+                            
+                            // Also update patients table if corresponding record exists
+                            if ($db->tableExists('patients')) {
+                                $nameParts = [
+                                    $patient['firstname'] ?? '',
+                                    $patient['lastname'] ?? ''
+                                ];
+                                
+                                if (!empty($nameParts[0]) && !empty($nameParts[1])) {
+                                    $hmsPatient = $db->table('patients')
+                                        ->where('first_name', $nameParts[0])
+                                        ->where('last_name', $nameParts[1])
+                                        ->where('doctor_id', $patient['doctor_id'] ?? null)
+                                        ->get()
+                                        ->getRowArray();
+                                    
+                                    if ($hmsPatient) {
+                                        $db->table('patients')
+                                            ->where('patient_id', $hmsPatient['patient_id'])
+                                            ->update($unlockData);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -804,6 +906,62 @@ class LabStaffController extends BaseController
         ];
 
         return view('labstaff/print_result', $data);
+    }
+
+    /**
+     * Check if patient is admitted
+     * @param int $patientId Admin patient ID
+     * @return bool
+     */
+    private function isPatientAdmitted($patientId)
+    {
+        if (empty($patientId)) {
+            return false;
+        }
+        
+        $db = \Config\Database::connect();
+        
+        // Check if patient has active admission
+        if ($db->tableExists('admissions')) {
+            $activeAdmission = $db->table('admissions')
+                ->where('patient_id', $patientId)
+                ->where('status', 'admitted')
+                ->where('discharge_status', 'admitted')
+                ->where('deleted_at', null)
+                ->get()
+                ->getRowArray();
+            
+            if ($activeAdmission) {
+                return true;
+            }
+        }
+        
+        // Also check admin_patients table for visit_type = 'Admission' or 'ADMISSION'
+        $patient = $this->patientModel->find($patientId);
+        if ($patient) {
+            $visitType = strtoupper(trim($patient['visit_type'] ?? ''));
+            if ($visitType === 'ADMISSION') {
+                return true;
+            }
+        }
+        
+        // Check patients table (HMS patients) for type = 'In-Patient' and visit_type = 'Admission'
+        if ($db->tableExists('patients')) {
+            $hmsPatient = $db->table('patients')
+                ->where('patient_id', $patientId)
+                ->get()
+                ->getRowArray();
+            
+            if ($hmsPatient) {
+                $patientType = $hmsPatient['type'] ?? '';
+                $visitType = strtoupper(trim($hmsPatient['visit_type'] ?? ''));
+                if ($patientType === 'In-Patient' && $visitType === 'ADMISSION') {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
     }
 
     /**

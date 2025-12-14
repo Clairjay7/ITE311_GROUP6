@@ -478,6 +478,9 @@
                     // For patients from patients table, we need to find the admin_patients ID
                     // The addVitals route expects admin_patients.id
                     $vitalsPatientId = $patientId;
+                    $isDoctorChecked = $patient['is_doctor_checked'] ?? 0;
+                    $doctorCheckStatus = $patient['doctor_check_status'] ?? 'available';
+                    
                     if ($patientSource === 'patients' && $patientId) {
                         // Try to find corresponding admin_patients record
                         $db = \Config\Database::connect();
@@ -495,9 +498,14 @@
                             
                             if ($adminPatient) {
                                 $vitalsPatientId = $adminPatient['id'];
+                                $isDoctorChecked = $adminPatient['is_doctor_checked'] ?? 0;
+                                $doctorCheckStatus = $adminPatient['doctor_check_status'] ?? 'available';
                             }
                         }
                     }
+                    
+                    // Button enabled only when doctor_check_status = 'pending_nurse' (doctor clicked Check, waiting for nurse)
+                    $canCheckVitals = ($vitalsPatientId && $isDoctorChecked && $doctorCheckStatus === 'pending_nurse');
                     ?>
                     <div style="background: #f8fafc; padding: 16px; border-radius: 8px; border-left: 4px solid <?= $badgeColor ?>; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                         <div style="margin-bottom: 12px;">
@@ -509,22 +517,44 @@
                             </span>
                         </div>
                         <div style="margin-top: 12px;">
-                            <?php if ($vitalsPatientId): ?>
+                            <?php if ($canCheckVitals): ?>
+                                <!-- FRONTEND VALIDATION: Button enabled only when doctor_check_status = 'pending_nurse' -->
                                 <a href="<?= site_url('nurse/patients/add-vitals/' . $vitalsPatientId) ?>" 
                                    style="display: inline-block; background: linear-gradient(135deg, #10b981 0%, #059669 100%); 
                                           color: white; padding: 8px 16px; border-radius: 6px; 
                                           text-decoration: none; font-size: 13px; font-weight: 600;
                                           box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
-                                          transition: all 0.3s ease;"
+                                          transition: all 0.3s ease; cursor: pointer;"
                                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(16, 185, 129, 0.4)';"
                                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(16, 185, 129, 0.3)';">
                                     <i class="fas fa-heartbeat"></i> Check Vitals
                                 </a>
                             <?php else: ?>
+                                <!-- FRONTEND VALIDATION: Button disabled if doctor hasn't checked or status is not pending_nurse -->
                                 <span style="display: inline-block; background: #e5e7eb; 
                                           color: #64748b; padding: 8px 16px; border-radius: 6px; 
-                                          font-size: 13px; font-weight: 600; cursor: not-allowed;">
+                                          font-size: 13px; font-weight: 600; cursor: not-allowed;"
+                                          title="<?php 
+                                            if (!$vitalsPatientId) {
+                                                echo 'Patient ID not found';
+                                            } elseif (!$isDoctorChecked) {
+                                                echo 'Doctor must check patient first via "Check" button in My Patients page';
+                                            } elseif ($doctorCheckStatus !== 'pending_nurse') {
+                                                echo 'Doctor has not clicked "Check" button yet. Waiting for doctor action.';
+                                            }
+                                          ?>">
                                     <i class="fas fa-heartbeat"></i> Check Vitals
+                                    <?php if (!$isDoctorChecked || $doctorCheckStatus !== 'pending_nurse'): ?>
+                                        <small style="display: block; font-size: 10px; margin-top: 4px; color: #ef4444;">
+                                            <?php 
+                                            if ($doctorCheckStatus === 'available') {
+                                                echo '(Waiting for doctor to click "Check")';
+                                            } else {
+                                                echo '(Waiting for doctor check)';
+                                            }
+                                            ?>
+                                        </small>
+                                    <?php endif; ?>
                                 </span>
                             <?php endif; ?>
                         </div>
@@ -721,7 +751,10 @@
     <div class="section-card">
         <h3>
             <i class="fas fa-prescription"></i>
-            Pending Doctor Orders (Non-Medication)
+            Pending Doctor Orders
+            <small style="font-size: 12px; color: #64748b; font-weight: normal;">
+                (All order types assigned to you)
+            </small>
         </h3>
         <div class="table-container">
             <div id="pendingOrdersContainer">
@@ -836,8 +869,11 @@
             <!-- Approved Requests -->
             <div>
                 <h5 style="color: #10b981; margin-bottom: 12px;">
-                    <i class="fas fa-check-circle"></i>
-                    Approved (<?= count($approvedLabRequests ?? []) ?>)
+                    <i class="fas fa-vial"></i>
+                    Specimen Collection Required (<?= count($approvedLabRequests ?? []) ?>)
+                    <small style="font-size: 11px; color: #64748b; font-weight: normal; margin-left: 8px;">
+                        (With Specimen Tests)
+                    </small>
                 </h5>
                 <div id="approvedLabRequestsContainer">
                     <?php if (!empty($approvedLabRequests)): ?>

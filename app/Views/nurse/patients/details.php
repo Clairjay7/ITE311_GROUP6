@@ -502,9 +502,39 @@
                                                 </form>
                                             <?php endif; ?>
                                         <?php else: ?>
-                                            <span style="color: #10b981; font-weight: 600;">
-                                                <i class="fas fa-check-circle"></i> Completed
-                                            </span>
+                                            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                                <span style="color: #10b981; font-weight: 600;">
+                                                    <i class="fas fa-check-circle"></i> Completed
+                                                </span>
+                                                <?php 
+                                                // Check if continuous monitoring is already started
+                                                $db = \Config\Database::connect();
+                                                $isMonitoring = false;
+                                                if ($db->tableExists('patient_monitoring')) {
+                                                    $monitoring = $db->table('patient_monitoring')
+                                                        ->where('patient_id', $order['patient_id'])
+                                                        ->where('order_id', $order['id'])
+                                                        ->where('status', 'active')
+                                                        ->get()
+                                                        ->getRowArray();
+                                                    $isMonitoring = !empty($monitoring);
+                                                }
+                                                ?>
+                                                <?php if (!$isMonitoring): ?>
+                                                    <a href="<?= site_url('nurse/patients/start-monitoring/' . $order['id']) ?>" 
+                                                       class="btn-modern btn-modern-info btn-sm-modern"
+                                                       onclick="return confirm('Start continuous monitoring for this patient? This will enable regular vital signs monitoring.')"
+                                                       style="background: #0288d1; color: white; padding: 6px 12px; font-size: 12px;">
+                                                        <i class="fas fa-heartbeat"></i>
+                                                        Start Continuous Monitoring
+                                                    </a>
+                                                <?php else: ?>
+                                                    <span style="background: #d1fae5; color: #065f46; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600;">
+                                                        <i class="fas fa-heartbeat"></i>
+                                                        Monitoring Active
+                                                    </span>
+                                                <?php endif; ?>
+                                            </div>
                                         <?php endif; ?>
                                     </td>
                                 </tr>

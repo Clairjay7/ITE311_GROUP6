@@ -115,11 +115,12 @@ class Patients extends BaseController
         if ($prefType === 'In-Patient' && $db->tableExists('rooms')) {
             $roomTypes = ['Private', 'Semi-Private', 'Ward', 'ICU', 'Isolation', 'NICU'];
             foreach ($roomTypes as $roomType) {
-                // Get available rooms for this type (case-insensitive status check)
+                // Get available rooms for this type (case-insensitive status check, exclude occupied)
                 $rooms = $db->table('rooms')
-                    ->select('id, room_number, room_type, ward, bed_count, price, status')
+                    ->select('id, room_number, room_type, ward, bed_count, price, status, current_patient_id')
                     ->where('room_type', $roomType)
-                    ->where('(status = "available" OR status = "Available" OR status = "AVAILABLE")', null, false)
+                    ->where('(LOWER(status) = "available" OR status IS NULL)', null, false)
+                    ->where('(LOWER(status) != "occupied" OR status IS NULL)', null, false)
                     ->where('current_patient_id IS NULL', null, false)
                     ->orderBy('room_number', 'ASC')
                     ->get()
@@ -129,9 +130,10 @@ class Patients extends BaseController
                 foreach ($rooms as &$room) {
                     if ($db->tableExists('beds')) {
                         $beds = $db->table('beds')
-                            ->select('id, bed_number, status')
+                            ->select('id, bed_number, status, current_patient_id')
                             ->where('room_id', $room['id'])
-                            ->where('(status = "available" OR status = "Available" OR status = "AVAILABLE")', null, false)
+                            ->where('(LOWER(status) = "available" OR status IS NULL)', null, false)
+                            ->where('(LOWER(status) != "occupied" OR status IS NULL)', null, false)
                             ->where('current_patient_id IS NULL', null, false)
                             ->orderBy('bed_number', 'ASC')
                             ->get()
@@ -391,19 +393,28 @@ class Patients extends BaseController
         }
         $doctorId = $this->request->getPost('doctor_id') ?: null;
 
-        // Normalize insurance data (allow multiple selections)
+        // Normalize insurance data (allow multiple selections with individual numbers)
         $insuranceProviderRaw = $this->request->getPost('insurance_provider');
         $insuranceProviders = is_array($insuranceProviderRaw)
             ? implode(', ', array_filter($insuranceProviderRaw))
             : ($insuranceProviderRaw ?: null);
-        $insuranceNumber = $this->request->getPost('insurance_number') ?: null;
-
-        // Normalize insurance data (allow multiple selections)
-        $insuranceProviderRaw = $this->request->getPost('insurance_provider');
-        $insuranceProviders = is_array($insuranceProviderRaw)
-            ? implode(', ', array_filter($insuranceProviderRaw))
-            : ($insuranceProviderRaw ?: null);
-        $insuranceNumber = $this->request->getPost('insurance_number') ?: null;
+        
+        // Handle insurance numbers as array indexed by provider name
+        $insuranceNumberRaw = $this->request->getPost('insurance_number');
+        $insuranceNumber = null;
+        if (is_array($insuranceNumberRaw) && !empty($insuranceNumberRaw) && is_array($insuranceProviderRaw)) {
+            // Combine provider names with their numbers
+            $insurancePairs = [];
+            foreach ($insuranceProviderRaw as $provider) {
+                if (isset($insuranceNumberRaw[$provider]) && !empty(trim($insuranceNumberRaw[$provider]))) {
+                    $insurancePairs[] = $provider . ': ' . trim($insuranceNumberRaw[$provider]);
+                }
+            }
+            $insuranceNumber = !empty($insurancePairs) ? implode(' | ', $insurancePairs) : null;
+        } else {
+            // Fallback for old format (single insurance number)
+            $insuranceNumber = is_string($insuranceNumberRaw) ? $insuranceNumberRaw : null;
+        }
         
         // For Consultation, doctor_id is required
         if ($visitType === 'Consultation' && empty($doctorId)) {
@@ -583,8 +594,37 @@ class Patients extends BaseController
                 $room = $this->roomModel->find($selectedRoomId);
                 
                 if ($room) {
-                    // AUTOMATIC ASSIGNMENT: Always assign the selected room to the patient
-                    // This ensures the patient appears in the room management immediately after registration
+                    // STRICT VALIDATION: Check if room is already occupied by ANY patient
+                    $roomStatus = strtolower(trim($room['status'] ?? ''));
+                    $isRoomOccupied = ($roomStatus === 'occupied') || !empty($room['current_patient_id']);
+                    
+                    if ($isRoomOccupied) {
+                        // Room is occupied - REJECT assignment regardless of which patient
+                        $occupiedPatientId = $room['current_patient_id'] ?? 'Unknown';
+                        return redirect()->back()->withInput()->with('error', "Room {$selectedRoomNumber} is already occupied. Please select a different room.");
+                    }
+                    
+                    // STRICT VALIDATION: Check if bed is already occupied (if bed is selected)
+                    if ($selectedBedId && $db->tableExists('beds')) {
+                        $bed = $db->table('beds')
+                            ->where('id', $selectedBedId)
+                            ->where('room_id', $selectedRoomId)
+                            ->get()
+                            ->getRowArray();
+                        
+                        if ($bed) {
+                            $bedStatus = strtolower(trim($bed['status'] ?? ''));
+                            $isBedOccupied = ($bedStatus === 'occupied') || !empty($bed['current_patient_id']);
+                            
+                            if ($isBedOccupied) {
+                                // Bed is occupied - REJECT assignment regardless of which patient
+                                $occupiedPatientId = $bed['current_patient_id'] ?? 'Unknown';
+                                return redirect()->back()->withInput()->with('error', "Bed {$selectedBedNumber} in Room {$selectedRoomNumber} is already occupied. Please select a different bed.");
+                            }
+                        }
+                    }
+                    
+                    // Room and bed are available - proceed with assignment
                     $this->roomModel->update($selectedRoomId, [
                         'current_patient_id' => $patientId,
                         'status' => 'Occupied',
@@ -596,7 +636,7 @@ class Patients extends BaseController
                         'room_id' => $selectedRoomId,
                     ]);
                     
-                    // Handle bed assignment if bed is selected
+                    // Handle bed assignment if bed is selected (already validated above)
                     if ($selectedBedId && $db->tableExists('beds')) {
                         $bed = $db->table('beds')
                             ->where('id', $selectedBedId)
@@ -605,7 +645,7 @@ class Patients extends BaseController
                             ->getRowArray();
                         
                         if ($bed) {
-                            // Update bed status (assign bed to patient)
+                            // Bed was already validated as available above, so safe to assign
                             $db->table('beds')
                                 ->where('id', $selectedBedId)
                                 ->update([
@@ -624,6 +664,22 @@ class Patients extends BaseController
                 }
             } else {
                 log_message('warning', "No room selected for In-Patient registration - patient {$patientId} registered without room assignment");
+            }
+        }
+        
+        // Store room info for later room charge creation (after admin_patients is created)
+        $roomInfoForCharge = null;
+        if ($selectedRoomId && $type === 'In-Patient' && $visitType !== 'Emergency') {
+            $db = \Config\Database::connect();
+            $room = $this->roomModel->find($selectedRoomId);
+            if ($room) {
+                $roomInfoForCharge = [
+                    'room' => $room,
+                    'selectedRoomId' => $selectedRoomId,
+                    'selectedRoomNumber' => $selectedRoomNumber,
+                    'selectedBedId' => $selectedBedId,
+                    'selectedBedNumber' => $selectedBedNumber,
+                ];
             }
         }
 
@@ -803,6 +859,80 @@ class Patients extends BaseController
                     log_message('info', "Schedule created for patient {$adminPatientId} with doctor {$doctorName} on {$appointmentDate} at {$appointmentTime}");
                 } else {
                     log_message('info', "Schedule already exists for patient {$adminPatientId} on {$appointmentDate} - skipping");
+                }
+            }
+            
+            // Create room charge for In-Patient registration (AFTER admin_patients is created)
+            if ($type === 'In-Patient' && !empty($adminPatientId) && !empty($roomInfoForCharge)) {
+                $room = $roomInfoForCharge['room'];
+                $selectedRoomId = $roomInfoForCharge['selectedRoomId'];
+                $selectedRoomNumber = $roomInfoForCharge['selectedRoomNumber'];
+                $selectedBedId = $roomInfoForCharge['selectedBedId'];
+                $selectedBedNumber = $roomInfoForCharge['selectedBedNumber'];
+                
+                if ($db->tableExists('charges') && $db->tableExists('billing_items')) {
+                    // Get room price
+                    $roomPricePerDay = (float)($room['price'] ?? 0);
+                    $roomType = $room['room_type'] ?? 'Ward';
+                    
+                    // If room doesn't have price set, use default prices
+                    if ($roomPricePerDay <= 0) {
+                        $defaultPrices = [
+                            'Private' => 5000.00,
+                            'Semi-Private' => 3000.00,
+                            'Ward' => 1000.00,
+                            'ICU' => 8000.00,
+                            'Isolation' => 6000.00,
+                            'NICU' => 10000.00,
+                            'OR' => 15000.00,
+                        ];
+                        $roomPricePerDay = $defaultPrices[$roomType] ?? 1000.00;
+                    }
+                    
+                    // Create room charge using admin_patient_id (required by foreign key)
+                    $chargeModel = new \App\Models\ChargeModel();
+                    $billingItemModel = new \App\Models\BillingItemModel();
+                    
+                    $roomChargeNumber = $chargeModel->generateChargeNumber();
+                    $roomChargeAmount = $roomPricePerDay; // Initial charge for 1 day
+                    
+                    $roomChargeData = [
+                        'patient_id' => $adminPatientId, // Use admin_patient_id (required by FK)
+                        'charge_number' => $roomChargeNumber,
+                        'total_amount' => $roomChargeAmount,
+                        'status' => 'pending',
+                        'notes' => 'Room charge - ' . ($room['room_number'] ?? 'N/A') . ' (' . $roomType . ') - Day 1',
+                    ];
+                    
+                    if ($chargeModel->insert($roomChargeData)) {
+                        $roomChargeId = $chargeModel->getInsertID();
+                        
+                        if ($roomChargeId) {
+                            // Add room charge billing item
+                            $bedInfo = $selectedBedNumber ? ' - Bed ' . $selectedBedNumber : '';
+                            $billingItemData = [
+                                'charge_id' => $roomChargeId,
+                                'item_type' => 'room_charge',
+                                'item_name' => 'Room Charge',
+                                'description' => 'Room: ' . ($room['room_number'] ?? 'N/A') . $bedInfo . ' - ' . $roomType . ' (Day 1)',
+                                'quantity' => 1.00,
+                                'unit_price' => $roomPricePerDay,
+                                'total_price' => $roomChargeAmount,
+                                'related_id' => $patientId,
+                                'related_type' => 'admission',
+                            ];
+                            
+                            if ($billingItemModel->insert($billingItemData)) {
+                                log_message('info', "Room charge created successfully - charge_id: {$roomChargeId}, admin_patient_id: {$adminPatientId}, amount: {$roomChargeAmount}");
+                            } else {
+                                $errors = $billingItemModel->errors();
+                                log_message('error', 'Failed to create room charge billing item - errors: ' . json_encode($errors));
+                            }
+                        }
+                    } else {
+                        $errors = $chargeModel->errors();
+                        log_message('error', 'Failed to create room charge - errors: ' . json_encode($errors));
+                    }
                 }
             }
             
@@ -1272,6 +1402,29 @@ class Patients extends BaseController
         $addressCity = trim((string)$this->request->getPost('address_city'));
         $addressProvince = trim((string)$this->request->getPost('address_province'));
         $composedAddress = $address ?: trim(implode(', ', array_filter([$addressStreet, $addressBarangay, $addressCity, $addressProvince])));
+
+        // Normalize insurance data (allow multiple selections with individual numbers)
+        $insuranceProviderRaw = $this->request->getPost('insurance_provider');
+        $insuranceProviders = is_array($insuranceProviderRaw)
+            ? implode(', ', array_filter($insuranceProviderRaw))
+            : ($insuranceProviderRaw ?: null);
+        
+        // Handle insurance numbers as array indexed by provider name
+        $insuranceNumberRaw = $this->request->getPost('insurance_number');
+        $insuranceNumber = null;
+        if (is_array($insuranceNumberRaw) && !empty($insuranceNumberRaw) && is_array($insuranceProviderRaw)) {
+            // Combine provider names with their numbers
+            $insurancePairs = [];
+            foreach ($insuranceProviderRaw as $provider) {
+                if (isset($insuranceNumberRaw[$provider]) && !empty(trim($insuranceNumberRaw[$provider]))) {
+                    $insurancePairs[] = $provider . ': ' . trim($insuranceNumberRaw[$provider]);
+                }
+            }
+            $insuranceNumber = !empty($insurancePairs) ? implode(' | ', $insurancePairs) : null;
+        } else {
+            // Fallback for old format (single insurance number)
+            $insuranceNumber = is_string($insuranceNumberRaw) ? $insuranceNumberRaw : null;
+        }
 
         $data = [
             'patient_id' => $id,

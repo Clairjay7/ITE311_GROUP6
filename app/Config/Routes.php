@@ -162,6 +162,7 @@ $routes->group('admin', ['namespace' => 'App\\Controllers\\Admin', 'filter' => '
         
         // Patient Billing
         $routes->get('patient_billing', 'BillingController::patientBilling');
+        $routes->post('process-bill-payment', 'BillingController::processBillPayment');
         
         // Charges Management
         $routes->get('charges', 'BillingController::charges');
@@ -430,6 +431,7 @@ $routes->group('accounting', ['namespace' => 'App\\Controllers\\Accountant', 'fi
     
     // Patient Billing
     $routes->get('patient-billing', 'PaymentReportController::patientBilling');
+    $routes->post('process-bill-payment', 'PaymentReportController::processBillPayment');
 });
 
 // Doctor read-only access to medication billing
@@ -514,6 +516,7 @@ $routes->group('doctor', ['namespace' => 'App\\Controllers', 'filter' => 'auth:d
         $routes->get('get-available-nurses', 'Doctor\PatientController::getAvailableNurses'); // Get available nurses
         $routes->post('assign-nurse', 'Doctor\PatientController::assignNurse'); // Assign nurse to patient
         $routes->get('nurse-assessment/(:num)', 'Doctor\PatientController::nurseAssessment/$1'); // View nurse assessment
+        $routes->get('request-vitals-check/(:num)', 'Doctor\PatientController::requestVitalsCheck/$1'); // Request nurse to check vitals
     });
 
     
@@ -543,6 +546,15 @@ $routes->group('doctor', ['namespace' => 'App\\Controllers', 'filter' => 'auth:d
         $routes->get('create/(:num)', 'Doctor\DischargeController::create/$1');
         $routes->post('store', 'Doctor\DischargeController::store');
         $routes->get('view/(:num)', 'Doctor\DischargeController::view/$1');
+    });
+    
+    // Doctor Surgery
+    $routes->group('surgery', function($routes) {
+        $routes->get('/', 'Doctor\SurgeryController::index');
+        $routes->get('create/(:num)', 'Doctor\SurgeryController::create/$1');
+        $routes->post('store', 'Doctor\SurgeryController::store');
+        $routes->post('check-move-back', 'Doctor\SurgeryController::checkAndMovePatientsBack');
+        $routes->get('get-beds/(:num)', 'Doctor\SurgeryController::getBeds/$1');
     });
     
     // Doctor Notifications
@@ -606,6 +618,7 @@ $routes->group('nurse', ['namespace' => 'App\\Controllers\\Nurse', 'filter' => '
         $routes->get('add-note/(:num)', 'PatientController::addNote/$1');
         $routes->post('store-note/(:num)', 'PatientController::storeNote/$1');
         $routes->post('update-order-status/(:num)', 'PatientController::updateOrderStatus/$1');
+        $routes->get('start-monitoring/(:num)', 'PatientController::startMonitoring/$1');
     });
     
     // Appointment Queue

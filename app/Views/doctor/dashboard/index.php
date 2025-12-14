@@ -531,6 +531,91 @@
         </div>
     <?php endif; ?>
 
+    <!-- Assigned Surgeries Section -->
+    <?php if (!empty($assignedSurgeries ?? [])): ?>
+        <div class="patients-section">
+            <h3>
+                <i class="fas fa-procedures"></i>
+                My Assigned Surgeries
+                <a href="<?= site_url('doctor/surgery') ?>" style="margin-left: auto; font-size: 14px; color: #2e7d32; text-decoration: none;">
+                    View All <i class="fas fa-arrow-right"></i>
+                </a>
+            </h3>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Patient</th>
+                            <th>Surgery Type</th>
+                            <th>Date & Time</th>
+                            <th>Duration</th>
+                            <th>OR Room</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($assignedSurgeries as $surgery): ?>
+                            <tr>
+                                <td>
+                                    <strong><?= esc($surgery['patient_name'] ?? 'Unknown') ?></strong>
+                                    <br>
+                                    <small style="color: #6b7280;">ID: <?= esc($surgery['patient_number'] ?? $surgery['patient_id']) ?></small>
+                                </td>
+                                <td><?= esc($surgery['surgery_type'] ?? 'N/A') ?></td>
+                                <td>
+                                    <strong><?= !empty($surgery['surgery_date']) ? date('M d, Y', strtotime($surgery['surgery_date'])) : 'N/A' ?></strong>
+                                    <br>
+                                    <small style="color: #6b7280;">
+                                        <?php if (!empty($surgery['surgery_time'])): ?>
+                                            <?= date('g:i A', strtotime($surgery['surgery_time'])) ?>
+                                            <?php if (!empty($surgery['surgery_end_time'])): ?>
+                                                - <?= date('g:i A', strtotime($surgery['surgery_end_time'])) ?>
+                                            <?php endif; ?>
+                                        <?php else: ?>
+                                            N/A
+                                        <?php endif; ?>
+                                    </small>
+                                </td>
+                                <td>
+                                    <?php if (!empty($surgery['operation_duration'])): ?>
+                                        <span style="background: #e0f2fe; color: #0369a1; padding: 4px 12px; border-radius: 8px; font-size: 12px; font-weight: 600;">
+                                            <?= number_format((float)$surgery['operation_duration'], 1) ?> hrs
+                                        </span>
+                                    <?php else: ?>
+                                        N/A
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <?php if (!empty($surgery['or_room_number'])): ?>
+                                        <?= esc($surgery['or_room_number']) ?>
+                                        <?php if (!empty($surgery['or_ward'])): ?>
+                                            <br><small style="color: #6b7280;"><?= esc($surgery['or_ward']) ?></small>
+                                        <?php endif; ?>
+                                    <?php else: ?>
+                                        N/A
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <span style="background: <?= 
+                                        $surgery['status'] == 'completed' ? '#d1fae5' : 
+                                        ($surgery['status'] == 'in_progress' ? '#fef3c7' : 
+                                        ($surgery['status'] == 'cancelled' ? '#fee2e2' : '#dbeafe')); 
+                                    ?>; color: <?= 
+                                        $surgery['status'] == 'completed' ? '#065f46' : 
+                                        ($surgery['status'] == 'in_progress' ? '#92400e' : 
+                                        ($surgery['status'] == 'cancelled' ? '#991b1b' : '#1e40af')); 
+                                    ?>; padding: 4px 12px; border-radius: 8px; font-size: 12px; font-weight: 600;">
+                                        <?= esc(ucfirst($surgery['status'] ?? 'Scheduled')) ?>
+                                    </span>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    <?php endif; ?>
+
     <!-- Recent Orders Section -->
     <?php if (!empty($recentOrders ?? [])): ?>
         <div class="patients-section">

@@ -48,10 +48,17 @@ class DashboardStats extends BaseController
 
             $db = \Config\Database::connect();
             
-            // Get medication orders assigned to this nurse with pharmacy status
+            // Get medication and IV fluids orders that this nurse can administer:
+            // 1. Orders assigned to this nurse (nurse_id = $nurseId)
+            // 2. Orders with pharmacy_status = 'dispensed' (WAITING FOR NURSE) where patient's assigned_nurse_id = $nurseId
             $medicationOrders = $db->table('doctor_orders do')
-                ->where('do.order_type', 'medication')
-                ->where('do.nurse_id', $nurseId)
+                ->join('admin_patients ap', 'ap.id = do.patient_id', 'left')
+                ->whereIn('do.order_type', ['medication', 'iv_fluids_order'])
+                ->where('do.status !=', 'completed') // Only show non-completed orders
+                ->groupStart()
+                    ->where('do.nurse_id', $nurseId) // Orders assigned to this nurse
+                    ->orWhere('(do.pharmacy_status = "dispensed" AND ap.assigned_nurse_id = ' . (int)$nurseId . ' AND do.nurse_id IS NULL)', null, false) // Orders dispensed by pharmacy for patient assigned to this nurse
+                ->groupEnd()
                 ->get()
                 ->getResultArray();
 
@@ -72,27 +79,27 @@ class DashboardStats extends BaseController
             // Get vitals pending
             $vitalsPending = $this->getVitalsPendingCount($today);
 
-            // Get pending doctor orders
+            // Get pending doctor orders assigned to this nurse (ALL order types)
             $pendingOrders = $orderModel
                 ->select('doctor_orders.*, admin_patients.firstname, admin_patients.lastname, users.username as doctor_name')
                 ->join('admin_patients', 'admin_patients.id = doctor_orders.patient_id', 'left')
                 ->join('users', 'users.id = doctor_orders.doctor_id', 'left')
                 ->where('doctor_orders.status', 'pending')
+                ->where('doctor_orders.nurse_id', $nurseId) // Only orders assigned to this nurse
                 ->orderBy('doctor_orders.created_at', 'DESC')
-                ->limit(5)
+                ->limit(10) // Increased limit to show more orders
                 ->findAll();
 
-            // Get lab orders from doctor orders (nurse can see but cannot approve)
-            // Lab orders bypass nurse approval - they go directly to lab staff
-            $labOrdersFromDoctor = $orderModel
-                ->select('doctor_orders.*, admin_patients.firstname, admin_patients.lastname, users.username as doctor_name')
-                ->join('admin_patients', 'admin_patients.id = doctor_orders.patient_id', 'left')
-                ->join('users', 'users.id = doctor_orders.doctor_id', 'left')
-                ->where('doctor_orders.order_type', 'lab_test')
-                ->where('doctor_orders.nurse_id', $nurseId)
-                ->where('doctor_orders.status', 'pending')
-                ->orderBy('doctor_orders.created_at', 'DESC')
-                ->limit(5)
+            // Get lab requests ready for specimen collection (assigned to this nurse, status pending)
+            // These are "with specimen" tests that need nurse to collect specimen
+            $approvedLabRequests = $labRequestModel
+                ->select('lab_requests.*, admin_patients.firstname, admin_patients.lastname, charges.charge_number, charges.total_amount, charges.status as charge_status')
+                ->join('admin_patients', 'admin_patients.id = lab_requests.patient_id', 'left')
+                ->join('charges', 'charges.id = lab_requests.charge_id', 'left')
+                ->where('lab_requests.nurse_id', $nurseId) // Only "with specimen" tests have nurse_id
+                ->where('lab_requests.status', 'pending') // Ready for nurse to collect specimen
+                ->orderBy('lab_requests.created_at', 'DESC')
+                ->limit(10)
                 ->findAll();
 
             // Get pending lab requests (nurse-created requests that need doctor approval)
@@ -106,16 +113,17 @@ class DashboardStats extends BaseController
                 ->limit(5)
                 ->findAll();
 
-            // Get lab requests ready for specimen collection (payment approved, status pending, assigned to this nurse)
+            // Get lab requests ready for specimen collection (assigned to this nurse, status pending)
+            // These are "with specimen" tests that need nurse to collect specimen
+            // Show all regardless of payment status (payment will be billed to patient)
             $approvedLabRequests = $labRequestModel
                 ->select('lab_requests.*, admin_patients.firstname, admin_patients.lastname, charges.charge_number, charges.total_amount, charges.status as charge_status')
                 ->join('admin_patients', 'admin_patients.id = lab_requests.patient_id', 'left')
                 ->join('charges', 'charges.id = lab_requests.charge_id', 'left')
-                ->where('lab_requests.nurse_id', $nurseId)
-                ->whereIn('lab_requests.payment_status', ['approved', 'paid']) // Payment approved or paid - nurse can proceed
+                ->where('lab_requests.nurse_id', $nurseId) // Only "with specimen" tests have nurse_id
                 ->where('lab_requests.status', 'pending') // Ready for nurse to collect specimen
-                ->orderBy('lab_requests.updated_at', 'DESC')
-                ->limit(5)
+                ->orderBy('lab_requests.created_at', 'DESC')
+                ->limit(10)
                 ->findAll();
 
             // Get completed lab results

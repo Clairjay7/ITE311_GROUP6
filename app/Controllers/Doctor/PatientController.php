@@ -238,6 +238,338 @@ class PatientController extends BaseController
                 
                 $patient['assigned_nurse_id'] = $assignedNurseId;
                 $patient['assigned_nurse_name'] = $assignedNurseName;
+                
+                // Check if patient has active admission (for discharge button)
+                $activeAdmission = null;
+                $admissionId = null;
+                $isDirectAdmission = false;
+                
+                // First, check if patient has visit_type = 'Admission' (direct admission indicator)
+                $visitType = strtoupper(trim($patient['visit_type'] ?? ''));
+                $patientType = strtoupper(trim($patient['type'] ?? ''));
+                if ($visitType === 'ADMISSION' || ($patientType === 'IN-PATIENT' && ($visitType === 'ADMISSION' || empty($visitType)))) {
+                    $isDirectAdmission = true;
+                }
+                
+                // Get the correct patient ID for admissions check
+                $admissionPatientId = null;
+                if ($patientSource === 'admin' || $patientSource === 'admin_patients') {
+                    $admissionPatientId = $patientId;
+                } else {
+                    // For patients table, find corresponding admin_patients.id
+                    $nameParts = [];
+                    if (!empty($patient['firstname'])) $nameParts[] = $patient['firstname'];
+                    if (!empty($patient['lastname'])) $nameParts[] = $patient['lastname'];
+                    
+                    if (!empty($nameParts[0]) && !empty($nameParts[1])) {
+                        $adminPatient = $db->table('admin_patients')
+                            ->where('firstname', $nameParts[0])
+                            ->where('lastname', $nameParts[1])
+                            ->where('doctor_id', $doctorId)
+                            ->where('deleted_at IS NULL', null, false)
+                            ->get()
+                            ->getRowArray();
+                        
+                        if ($adminPatient) {
+                            $admissionPatientId = $adminPatient['id'];
+                        }
+                    }
+                }
+                
+                // Check for active admission record
+                if ($db->tableExists('admissions') && $admissionPatientId) {
+                    // Check for active admission - try with attending_physician_id first, then without
+                    $activeAdmission = $db->table('admissions')
+                        ->where('patient_id', $admissionPatientId)
+                        ->groupStart()
+                            ->where('attending_physician_id', $doctorId)
+                            ->orWhere('attending_physician_id', null) // Also check if no attending physician assigned yet
+                        ->groupEnd()
+                        ->where('status', 'admitted')
+                        ->where('discharge_status', 'admitted')
+                        ->where('deleted_at', null)
+                        ->orderBy('admission_date', 'DESC')
+                        ->get()
+                        ->getRowArray();
+                    
+                    // If not found with doctor filter, try without doctor filter (for patients assigned to this doctor)
+                    if (!$activeAdmission) {
+                        $activeAdmission = $db->table('admissions')
+                            ->where('patient_id', $admissionPatientId)
+                            ->where('status', 'admitted')
+                            ->where('discharge_status', 'admitted')
+                            ->where('deleted_at', null)
+                            ->orderBy('admission_date', 'DESC')
+                            ->get()
+                            ->getRowArray();
+                    }
+                    
+                    if ($activeAdmission) {
+                        $admissionId = $activeAdmission['id'];
+                    }
+                }
+                
+                // If no admission record but patient is direct admission, use patient ID as reference
+                if (!$admissionId && $isDirectAdmission && $admissionPatientId) {
+                    $admissionId = $admissionPatientId; // Use patient ID for direct admission
+                }
+                
+                $patient['admission_id'] = $admissionId;
+                $patient['has_active_admission'] = !empty($activeAdmission) || $isDirectAdmission;
+                $patient['is_direct_admission'] = $isDirectAdmission;
+                
+                // Check if patient is in OR room (surgery room)
+                $isInORRoom = false;
+                $surgeryDateTime = null;
+                $surgeryEndDateTime = null;
+                if ($db->tableExists('rooms') && $db->tableExists('surgeries')) {
+                    // Check if patient has a scheduled surgery with OR room
+                    $surgery = $db->table('surgeries')
+                        ->where('patient_id', $patientId)
+                        ->whereIn('status', ['scheduled', 'completed']) // Check both scheduled and completed
+                        ->where('deleted_at', null)
+                        ->orderBy('surgery_date', 'DESC')
+                        ->orderBy('surgery_time', 'DESC')
+                        ->get()
+                        ->getRowArray();
+                    
+                    if ($surgery && !empty($surgery['or_room_id'])) {
+                        // If surgery is completed, don't show as in OR
+                        if ($surgery['status'] === 'completed') {
+                            log_message('info', "Patient #{$patientId} surgery is completed - not showing as in OR");
+                            $isInORRoom = false;
+                        } else if ($surgery['status'] === 'scheduled') {
+                            // Check if countdown has finished
+                            $countdownFinished = false;
+                            if (!empty($surgery['surgery_date']) && !empty($surgery['surgery_time'])) {
+                                $surgeryDateTime = $surgery['surgery_date'] . ' ' . $surgery['surgery_time'];
+                                $surgeryStart = strtotime($surgeryDateTime);
+                                $surgeryEnd = $surgeryStart + (2 * 60 * 60); // 2 hours
+                                $countdownFinished = (time() >= $surgeryEnd);
+                                
+                                log_message('info', "Patient #{$patientId} surgery check - start: {$surgeryDateTime}, end: " . date('Y-m-d H:i:s', $surgeryEnd) . ", now: " . date('Y-m-d H:i:s') . ", finished: " . ($countdownFinished ? 'YES' : 'NO'));
+                            }
+                            
+                            // If countdown finished, move patient back immediately
+                            if ($countdownFinished) {
+                                log_message('info', "Patient #{$patientId} countdown finished - auto-moving back from OR");
+                                try {
+                                    $surgeryController = new \App\Controllers\Doctor\SurgeryController();
+                                    $moveResult = $surgeryController->movePatientBackFromOR($surgery);
+                                    
+                                    if ($moveResult) {
+                                        log_message('info', "Patient #{$patientId} successfully moved back from OR");
+                                        // Re-check patient room after moving back
+                                        $patient = $this->adminPatientModel->find($patientId);
+                                        if ($patient) {
+                                            $patient['room_id'] = $patient['room_id'] ?? null;
+                                            $patient['room_number'] = $patient['room_number'] ?? null;
+                                        }
+                                    } else {
+                                        log_message('warning', "Patient #{$patientId} move back returned false");
+                                    }
+                                    // Always set to false if countdown finished, regardless of move result
+                                    $isInORRoom = false;
+                                } catch (\Exception $e) {
+                                    log_message('error', "Failed to auto-move patient back: " . $e->getMessage());
+                                    // Still set to false if countdown finished - don't show as in OR
+                                    $isInORRoom = false;
+                                }
+                            } else {
+                                // Check if OR room is occupied by this patient
+                                $orRoom = $db->table('rooms')
+                                    ->where('id', $surgery['or_room_id'])
+                                    ->where('room_type', 'OR')
+                                    ->where('current_patient_id', $patientId)
+                                    ->get()
+                                    ->getRowArray();
+                                
+                                if ($orRoom) {
+                                    // Get surgery datetime for countdown FIRST, before setting isInORRoom
+                                    $countdownStillActive = true;
+                                    if (!empty($surgery['surgery_date']) && !empty($surgery['surgery_time'])) {
+                                        $surgeryDateTime = $surgery['surgery_date'] . ' ' . $surgery['surgery_time'];
+                                        // Calculate end time (2 hours from surgery start)
+                                        $surgeryStart = strtotime($surgeryDateTime);
+                                        $surgeryEnd = $surgeryStart + (2 * 60 * 60); // 2 hours
+                                        $surgeryEndDateTime = date('Y-m-d H:i:s', $surgeryEnd);
+                                        
+                                        // Check if countdown has finished
+                                        $countdownStillActive = (time() < $surgeryEnd);
+                                        
+                                        // If countdown finished, move patient back and don't show as in OR
+                                        if (!$countdownStillActive) {
+                                            log_message('info', "Patient #{$patientId} countdown finished (OR room check) - auto-moving back from OR");
+                                            try {
+                                                $surgeryController = new \App\Controllers\Doctor\SurgeryController();
+                                                $moveResult = $surgeryController->movePatientBackFromOR($surgery);
+                                                $isInORRoom = false;
+                                                $surgeryEndDateTime = null;
+                                            } catch (\Exception $e) {
+                                                log_message('error', "Failed to auto-move patient back: " . $e->getMessage());
+                                                $isInORRoom = false;
+                                                $surgeryEndDateTime = null;
+                                            }
+                                        } else {
+                                            // Countdown still active - show as in OR
+                                            $isInORRoom = true;
+                                        }
+                                    } else {
+                                        // No surgery date/time - don't show as in OR
+                                        $isInORRoom = false;
+                                        $surgeryEndDateTime = null;
+                                    }
+                                } else {
+                                    log_message('info', "Patient #{$patientId} has scheduled surgery but not in OR room");
+                                    $isInORRoom = false;
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Also check if patient's room_id points to an OR room AND surgery is still scheduled
+                    if (!$isInORRoom) {
+                        $patientRoomId = $patient['room_id'] ?? null;
+                        if ($patientRoomId) {
+                            $patientRoom = $db->table('rooms')
+                                ->where('id', $patientRoomId)
+                                ->where('room_type', 'OR')
+                                ->where('current_patient_id', $patientId)
+                                ->get()
+                                ->getRowArray();
+                            
+                            if ($patientRoom) {
+                                // Check for any surgery (scheduled or completed) - if completed but still in OR, need to move back
+                                $activeSurgery = $db->table('surgeries')
+                                    ->where('patient_id', $patientId)
+                                    ->where('or_room_id', $patientRoomId)
+                                    ->whereIn('status', ['scheduled', 'completed']) // Check both scheduled and completed
+                                    ->where('deleted_at', null)
+                                    ->orderBy('created_at', 'DESC')
+                                    ->get()
+                                    ->getRowArray();
+                                
+                                if ($activeSurgery) {
+                                    // Only show as in OR if status is scheduled (not completed) AND countdown hasn't finished
+                                    if ($activeSurgery['status'] === 'scheduled') {
+                                        // Check if countdown has finished
+                                        $countdownFinished = false;
+                                        if (!empty($activeSurgery['surgery_date']) && !empty($activeSurgery['surgery_time'])) {
+                                            $surgeryDateTime = $activeSurgery['surgery_date'] . ' ' . $activeSurgery['surgery_time'];
+                                            $surgeryStart = strtotime($surgeryDateTime);
+                                            $surgeryEnd = $surgeryStart + (2 * 60 * 60); // 2 hours
+                                            $countdownFinished = (time() >= $surgeryEnd);
+                                        }
+                                        
+                                        if ($countdownFinished) {
+                                            // Countdown finished - move patient back
+                                            log_message('info', "Patient #{$patientId} countdown finished (fallback check) - auto-moving back from OR");
+                                            try {
+                                                $surgeryController = new \App\Controllers\Doctor\SurgeryController();
+                                                $surgeryController->movePatientBackFromOR($activeSurgery);
+                                                $isInORRoom = false; // Don't show as in OR
+                                            } catch (\Exception $e) {
+                                                log_message('error', "Failed to auto-move patient back: " . $e->getMessage());
+                                                $isInORRoom = false; // Don't show as in OR if countdown finished
+                                            }
+                                        } else {
+                                            // Countdown not finished yet - check if countdown actually hasn't finished
+                                            $countdownStillActive = true;
+                                            if (!empty($activeSurgery['surgery_date']) && !empty($activeSurgery['surgery_time'])) {
+                                                $surgeryDateTime = $activeSurgery['surgery_date'] . ' ' . $activeSurgery['surgery_time'];
+                                                $surgeryStart = strtotime($surgeryDateTime);
+                                                $surgeryEnd = $surgeryStart + (2 * 60 * 60); // 2 hours
+                                                $countdownStillActive = (time() < $surgeryEnd);
+                                            }
+                                            
+                                            if ($countdownStillActive) {
+                                                $isInORRoom = true;
+                                                // Try to get surgery info if available
+                                                if (!empty($activeSurgery['surgery_date']) && !empty($activeSurgery['surgery_time'])) {
+                                                    $surgeryDateTime = $activeSurgery['surgery_date'] . ' ' . $activeSurgery['surgery_time'];
+                                                    $surgeryStart = strtotime($surgeryDateTime);
+                                                    $surgeryEndDateTime = date('Y-m-d H:i:s', $surgeryStart + (2 * 60 * 60)); // Add 2 hours
+                                                }
+                                            } else {
+                                                // Countdown finished - don't show as in OR
+                                                $isInORRoom = false;
+                                                $surgeryEndDateTime = null;
+                                            }
+                                        }
+                                    } else if ($activeSurgery['status'] === 'completed') {
+                                        // Surgery is completed but patient still in OR - auto-move back
+                                        log_message('warning', "Patient #{$patientId} has completed surgery but still in OR room - auto-moving back");
+                                        try {
+                                            $surgeryController = new \App\Controllers\Doctor\SurgeryController();
+                                            $moveResult = $surgeryController->movePatientBackFromOR($activeSurgery);
+                                            $isInORRoom = false; // Don't show as in OR if surgery is completed
+                                        } catch (\Exception $e) {
+                                            log_message('error', "Failed to auto-move patient back: " . $e->getMessage());
+                                            $isInORRoom = false; // Don't show as in OR if surgery is completed
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                // FINAL CHECK: If countdown finished, always set to false (regardless of any previous checks)
+                if ($surgeryEndDateTime) {
+                    $endTime = strtotime($surgeryEndDateTime);
+                    $now = time();
+                    if ($now >= $endTime) {
+                        // Countdown finished - force to false
+                        $isInORRoom = false;
+                        $surgeryEndDateTime = null;
+                        log_message('info', "Patient #{$patientId} FINAL CHECK: Countdown finished - forcing isInORRoom to false");
+                    }
+                }
+                
+                $patient['is_in_or_room'] = $isInORRoom;
+                $patient['surgery_end_datetime'] = $surgeryEndDateTime;
+                
+                // Check if patient has active continuous monitoring
+                $isMonitoring = false;
+                if ($db->tableExists('patient_monitoring')) {
+                    // Get the correct patient ID for monitoring check
+                    $monitoringPatientId = null;
+                    if ($patientSource === 'admin' || $patientSource === 'admin_patients') {
+                        $monitoringPatientId = $patientId;
+                    } else {
+                        // For patients table, find corresponding admin_patients.id
+                        $nameParts = [];
+                        if (!empty($patient['firstname'])) $nameParts[] = $patient['firstname'];
+                        if (!empty($patient['lastname'])) $nameParts[] = $patient['lastname'];
+                        
+                        if (!empty($nameParts[0]) && !empty($nameParts[1])) {
+                            $adminPatient = $db->table('admin_patients')
+                                ->where('firstname', $nameParts[0])
+                                ->where('lastname', $nameParts[1])
+                                ->where('doctor_id', $doctorId)
+                                ->where('deleted_at IS NULL', null, false)
+                                ->get()
+                                ->getRowArray();
+                            
+                            if ($adminPatient) {
+                                $monitoringPatientId = $adminPatient['id'];
+                            }
+                        }
+                    }
+                    
+                    if ($monitoringPatientId) {
+                        $monitoring = $db->table('patient_monitoring')
+                            ->where('patient_id', $monitoringPatientId)
+                            ->where('status', 'active')
+                            ->orderBy('started_at', 'DESC')
+                            ->get()
+                            ->getRowArray();
+                        
+                        $isMonitoring = !empty($monitoring);
+                    }
+                }
+                
+                $patient['is_monitoring'] = $isMonitoring;
             }
             unset($patient); // Break reference
         }
@@ -356,10 +688,9 @@ class PatientController extends BaseController
             // Check each nurse's schedule availability
             foreach ($nurses as $nurse) {
                 $nurseId = $nurse['id'];
-                $isAvailable = false;
                 $scheduleInfo = null;
 
-                // Check if nurse has an active schedule for today
+                // Check if nurse has an active schedule for the selected date
                 if ($db->tableExists('nurse_schedules')) {
                     $schedule = $db->table('nurse_schedules')
                         ->where('nurse_id', $nurseId)
@@ -372,20 +703,17 @@ class PatientController extends BaseController
                         $startTime = $schedule['start_time'];
                         $endTime = $schedule['end_time'];
 
-                        // Check if current time is within the shift time
-                        if ($currentTime >= $startTime && $currentTime <= $endTime) {
-                            $isAvailable = true;
-                            $scheduleInfo = [
-                                'shift_type' => $schedule['shift_type'] ?? 'N/A',
-                                'start_time' => substr($startTime, 0, 5),
-                                'end_time' => substr($endTime, 0, 5),
-                            ];
-                        }
+                        // Include nurse if they have a schedule (regardless of current time)
+                        $scheduleInfo = [
+                            'shift_type' => $schedule['shift_type'] ?? 'N/A',
+                            'start_time' => substr($startTime, 0, 5),
+                            'end_time' => substr($endTime, 0, 5),
+                        ];
                     }
                 }
 
-                // Only include available nurses
-                if ($isAvailable) {
+                // Include nurses who have schedules for the selected date
+                if ($scheduleInfo) {
                     $nurseName = trim(($nurse['first_name'] ?? '') . ' ' . ($nurse['last_name'] ?? ''));
                     if (empty($nurseName)) {
                         $nurseName = $nurse['username'] ?? 'Nurse ' . $nurseId;
@@ -479,16 +807,13 @@ class PatientController extends BaseController
                     ->getRowArray();
 
                 if ($schedule) {
-                    $startTime = $schedule['start_time'];
-                    $endTime = $schedule['end_time'];
-                    if ($currentTime >= $startTime && $currentTime <= $endTime) {
-                        $isAvailable = true;
-                    }
+                    // Nurse has a schedule for this date - allow assignment
+                    $isAvailable = true;
                 }
             }
 
             if (!$isAvailable) {
-                throw new \Exception('Nurse is not available at this time. Please select a nurse with an active schedule.');
+                throw new \Exception('Nurse does not have an active schedule for this date. Please select a nurse with an active schedule.');
             }
 
             // Update patient record with assigned nurse
@@ -905,6 +1230,25 @@ class PatientController extends BaseController
                 ->getRowArray();
         }
 
+        // Get active admission for this patient (for discharge button)
+        $activeAdmission = null;
+        $admissionId = null;
+        if ($db->tableExists('admissions')) {
+            $activeAdmission = $db->table('admissions')
+                ->where('patient_id', $adminPatientIdForQueries)
+                ->where('attending_physician_id', $doctorId)
+                ->where('status', 'admitted')
+                ->where('discharge_status', 'admitted')
+                ->where('deleted_at', null)
+                ->orderBy('admission_date', 'DESC')
+                ->get()
+                ->getRowArray();
+            
+            if ($activeAdmission) {
+                $admissionId = $activeAdmission['id'];
+            }
+        }
+
         // Get vital signs from assigned nurse (for Medical Information section)
         $vitalSigns = [];
         $latestVitals = null;
@@ -952,6 +1296,283 @@ class PatientController extends BaseController
             // Get the most recent vital signs
             if (!empty($vitalSigns)) {
                 $latestVitals = $vitalSigns[0];
+                
+                // Check if doctor has created an order after the latest vitals were recorded
+                $hasOrderForLatestVitals = false;
+                if ($latestVitals && $db->tableExists('doctor_orders')) {
+                    $latestVitalsTime = $latestVitals['recorded_at'] ?? $latestVitals['created_at'];
+                    $orderAfterVitals = $db->table('doctor_orders')
+                        ->where('patient_id', $vitalsPatientId)
+                        ->where('doctor_id', $doctorId)
+                        ->where('created_at >=', $latestVitalsTime)
+                        ->limit(1)
+                        ->get()
+                        ->getRowArray();
+                    
+                    $hasOrderForLatestVitals = !empty($orderAfterVitals);
+                }
+                $latestVitals['has_order'] = $hasOrderForLatestVitals;
+                
+                // Add comparison status for each vital sign and check if order exists
+                foreach ($vitalSigns as $index => &$vital) {
+                    // Get previous vital sign (next in array since ordered DESC)
+                    $previousVital = null;
+                    if ($index < count($vitalSigns) - 1) {
+                        $previousVital = $vitalSigns[$index + 1];
+                    }
+                    
+                    // Calculate status for each vital sign
+                    $vital['status'] = $this->calculateVitalStatus($vital, $previousVital);
+                    
+                    // Check if doctor has created an order after this vital was recorded
+                    $hasOrderForThisVital = false;
+                    if ($db->tableExists('doctor_orders')) {
+                        $vitalTime = $vital['recorded_at'] ?? $vital['created_at'];
+                        $orderAfterVital = $db->table('doctor_orders')
+                            ->where('patient_id', $vitalsPatientId)
+                            ->where('doctor_id', $doctorId)
+                            ->where('created_at >=', $vitalTime)
+                            ->limit(1)
+                            ->get()
+                            ->getRowArray();
+                        
+                        $hasOrderForThisVital = !empty($orderAfterVital);
+                    }
+                    $vital['has_order'] = $hasOrderForThisVital;
+                    
+                    // Add admission_id for discharge button (only for latest vital)
+                    if ($index === 0 && $admissionId) {
+                        $vital['admission_id'] = $admissionId;
+                    }
+                }
+                unset($vital); // Break reference
+            }
+        }
+
+        // Get completed lab test results for this patient
+        $labResults = [];
+        if ($db->tableExists('lab_requests') && $db->tableExists('lab_results')) {
+            $labResults = $db->table('lab_requests lr')
+                ->select('lr.*, lr_result.result, lr_result.result_file, lr_result.completed_at, 
+                         lr_result.completed_by, users.username as completed_by_name')
+                ->join('lab_results lr_result', 'lr_result.lab_request_id = lr.id', 'inner')
+                ->join('users', 'users.id = lr_result.completed_by', 'left')
+                ->where('lr.patient_id', $adminPatientIdForQueries ?? $patientId)
+                ->where('lr.doctor_id', $doctorId)
+                ->where('lr.status', 'completed')
+                ->orderBy('lr_result.completed_at', 'DESC')
+                ->get()
+                ->getResultArray();
+        }
+
+        // Get all orders for this patient (including completed ones)
+        $allPatientOrders = [];
+        if ($db->tableExists('doctor_orders')) {
+            $allPatientOrders = $db->table('doctor_orders do')
+                ->select('do.*, users.username as completed_by_name, nurse_users.username as nurse_name')
+                ->join('users', 'users.id = do.completed_by', 'left')
+                ->join('users as nurse_users', 'nurse_users.id = do.nurse_id', 'left')
+                ->where('do.patient_id', $adminPatientIdForQueries)
+                ->where('do.doctor_id', $doctorId)
+                ->orderBy('do.created_at', 'DESC')
+                ->get()
+                ->getResultArray();
+        }
+
+        // Check if patient is in OR room (surgery room)
+        $isInORRoom = false;
+        $surgeryEndDateTime = null; // Initialize variable - MUST be initialized before use
+        if ($db->tableExists('rooms') && $db->tableExists('surgeries')) {
+            $patientIdForSurgery = $adminPatientIdForQueries ?? $id;
+            
+            // Check if patient has a scheduled surgery with OR room
+            $surgery = $db->table('surgeries')
+                ->where('patient_id', $patientIdForSurgery)
+                ->whereIn('status', ['scheduled', 'completed']) // Check both scheduled and completed
+                ->where('deleted_at', null)
+                ->orderBy('surgery_date', 'DESC')
+                ->orderBy('surgery_time', 'DESC')
+                ->get()
+                ->getRowArray();
+            
+            if ($surgery && !empty($surgery['or_room_id'])) {
+                // If surgery is completed, don't show as in OR
+                if ($surgery['status'] === 'completed') {
+                    log_message('info', "Patient #{$patientIdForSurgery} surgery is completed (view) - not showing as in OR");
+                    $isInORRoom = false;
+                } else if ($surgery['status'] === 'scheduled') {
+                    // Check if countdown has finished
+                    $countdownFinished = false;
+                    if (!empty($surgery['surgery_date']) && !empty($surgery['surgery_time'])) {
+                        $surgeryDateTime = $surgery['surgery_date'] . ' ' . $surgery['surgery_time'];
+                        $surgeryStart = strtotime($surgeryDateTime);
+                        $surgeryEnd = $surgeryStart + (2 * 60 * 60); // 2 hours
+                        $countdownFinished = (time() >= $surgeryEnd);
+                        
+                        log_message('info', "Patient #{$patientIdForSurgery} surgery check (view) - start: {$surgeryDateTime}, end: " . date('Y-m-d H:i:s', $surgeryEnd) . ", now: " . date('Y-m-d H:i:s') . ", finished: " . ($countdownFinished ? 'YES' : 'NO'));
+                    }
+                    
+                    // If countdown finished, move patient back immediately
+                    if ($countdownFinished) {
+                        log_message('info', "Patient #{$patientIdForSurgery} countdown finished (view page) - auto-moving back from OR");
+                        try {
+                            $surgeryController = new \App\Controllers\Doctor\SurgeryController();
+                            $moveResult = $surgeryController->movePatientBackFromOR($surgery);
+                            
+                            if ($moveResult) {
+                                log_message('info', "Patient #{$patientIdForSurgery} successfully moved back from OR (view)");
+                                // Re-check patient room after moving back
+                                $adminPatient = $this->adminPatientModel->find($adminPatientIdForQueries ?? $id);
+                                if ($adminPatient) {
+                                    $patient['room_id'] = $adminPatient['room_id'] ?? null;
+                                    $patient['room_number'] = $adminPatient['room_number'] ?? null;
+                                }
+                            } else {
+                                log_message('warning', "Patient #{$patientIdForSurgery} move back returned false (view)");
+                            }
+                            // Always set to false if countdown finished, regardless of move result
+                            $isInORRoom = false;
+                        } catch (\Exception $e) {
+                            log_message('error', "Failed to auto-move patient back (view): " . $e->getMessage());
+                            // Still set to false if countdown finished - don't show as in OR
+                            $isInORRoom = false;
+                        }
+                    } else {
+                        // Check if OR room is occupied by this patient
+                        $orRoom = $db->table('rooms')
+                            ->where('id', $surgery['or_room_id'])
+                            ->where('room_type', 'OR')
+                            ->where('current_patient_id', $patientIdForSurgery)
+                            ->get()
+                            ->getRowArray();
+                        
+                        if ($orRoom) {
+                            // Get surgery datetime for countdown FIRST, before setting isInORRoom
+                            $countdownStillActive = true;
+                            if (!empty($surgery['surgery_date']) && !empty($surgery['surgery_time'])) {
+                                $surgeryDateTime = $surgery['surgery_date'] . ' ' . $surgery['surgery_time'];
+                                // Calculate end time (2 hours from surgery start)
+                                $surgeryStart = strtotime($surgeryDateTime);
+                                $surgeryEnd = $surgeryStart + (2 * 60 * 60); // 2 hours
+                                $surgeryEndDateTime = date('Y-m-d H:i:s', $surgeryEnd);
+                                
+                                // Check if countdown has finished
+                                $countdownStillActive = (time() < $surgeryEnd);
+                                
+                                // If countdown finished, move patient back and don't show as in OR
+                                if (!$countdownStillActive) {
+                                    log_message('info', "Patient #{$patientIdForSurgery} countdown finished (view OR room check) - auto-moving back from OR");
+                                    try {
+                                        $surgeryController = new \App\Controllers\Doctor\SurgeryController();
+                                        $moveResult = $surgeryController->movePatientBackFromOR($surgery);
+                                        $isInORRoom = false;
+                                        $surgeryEndDateTime = null;
+                                    } catch (\Exception $e) {
+                                        log_message('error', "Failed to auto-move patient back: " . $e->getMessage());
+                                        $isInORRoom = false;
+                                        $surgeryEndDateTime = null;
+                                    }
+                                } else {
+                                    // Countdown still active - show as in OR
+                                    $isInORRoom = true;
+                                }
+                            } else {
+                                // No surgery date/time - don't show as in OR
+                                $isInORRoom = false;
+                                $surgeryEndDateTime = null;
+                            }
+                        } else {
+                            log_message('info', "Patient #{$patientIdForSurgery} has scheduled surgery but not in OR room (view)");
+                            $isInORRoom = false;
+                        }
+                    }
+                }
+            }
+            
+            // Also check if patient's room_id points to an OR room AND surgery is still scheduled
+            if (!$isInORRoom) {
+                $patientRoomId = $patient['room_id'] ?? null;
+                if ($patientRoomId) {
+                    $patientRoom = $db->table('rooms')
+                        ->where('id', $patientRoomId)
+                        ->where('room_type', 'OR')
+                        ->where('current_patient_id', $patientIdForSurgery)
+                        ->get()
+                        ->getRowArray();
+                    
+                    if ($patientRoom) {
+                        // Check for any surgery (scheduled or completed) - if completed but still in OR, need to move back
+                        $activeSurgery = $db->table('surgeries')
+                            ->where('patient_id', $patientIdForSurgery)
+                            ->where('or_room_id', $patientRoomId)
+                            ->whereIn('status', ['scheduled', 'completed']) // Check both scheduled and completed
+                            ->where('deleted_at', null)
+                            ->orderBy('created_at', 'DESC')
+                            ->get()
+                            ->getRowArray();
+                        
+                        if ($activeSurgery) {
+                            // Only show as in OR if status is scheduled (not completed) AND countdown hasn't finished
+                            if ($activeSurgery['status'] === 'scheduled') {
+                                // Check if countdown has finished
+                                $countdownFinished = false;
+                                if (!empty($activeSurgery['surgery_date']) && !empty($activeSurgery['surgery_time'])) {
+                                    $surgeryDateTime = $activeSurgery['surgery_date'] . ' ' . $activeSurgery['surgery_time'];
+                                    $surgeryStart = strtotime($surgeryDateTime);
+                                    $surgeryEnd = $surgeryStart + (2 * 60 * 60); // 2 hours
+                                    $countdownFinished = (time() >= $surgeryEnd);
+                                }
+                                
+                                if ($countdownFinished) {
+                                    // Countdown finished - move patient back
+                                    log_message('info', "Patient #{$patientIdForSurgery} countdown finished (fallback check view) - auto-moving back from OR");
+                                    try {
+                                        $surgeryController = new \App\Controllers\Doctor\SurgeryController();
+                                        $surgeryController->movePatientBackFromOR($activeSurgery);
+                                        $isInORRoom = false; // Don't show as in OR
+                                        $surgeryEndDateTime = null;
+                                    } catch (\Exception $e) {
+                                        log_message('error', "Failed to auto-move patient back: " . $e->getMessage());
+                                        $isInORRoom = false; // Don't show as in OR if countdown finished
+                                        $surgeryEndDateTime = null;
+                                    }
+                                } else {
+                                    // Countdown still active - show as in OR
+                                    $isInORRoom = true;
+                                    // Try to get surgery info if available
+                                    if (!empty($activeSurgery['surgery_date']) && !empty($activeSurgery['surgery_time'])) {
+                                        $surgeryDateTime = $activeSurgery['surgery_date'] . ' ' . $activeSurgery['surgery_time'];
+                                        $surgeryStart = strtotime($surgeryDateTime);
+                                        $surgeryEndDateTime = date('Y-m-d H:i:s', $surgeryStart + (2 * 60 * 60)); // Add 2 hours
+                                    }
+                                }
+                            } else if ($activeSurgery['status'] === 'completed') {
+                                // Surgery is completed but patient still in OR - auto-move back
+                                log_message('warning', "Patient #{$patientIdForSurgery} has completed surgery but still in OR room - auto-moving back");
+                                try {
+                                    $surgeryController = new \App\Controllers\Doctor\SurgeryController();
+                                    $moveResult = $surgeryController->movePatientBackFromOR($activeSurgery);
+                                    $isInORRoom = false; // Don't show as in OR if surgery is completed
+                                } catch (\Exception $e) {
+                                    log_message('error', "Failed to auto-move patient back: " . $e->getMessage());
+                                    $isInORRoom = false; // Don't show as in OR if surgery is completed
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        // FINAL CHECK for view page: If countdown finished, always set to false
+        if (isset($surgeryEndDateTime) && $surgeryEndDateTime) {
+            $endTime = strtotime($surgeryEndDateTime);
+            $now = time();
+            if ($now >= $endTime) {
+                // Countdown finished - force to false
+                $isInORRoom = false;
+                $surgeryEndDateTime = null;
+                log_message('info', "Patient #{$id} FINAL CHECK (view): Countdown finished - forcing isInORRoom to false");
             }
         }
 
@@ -963,6 +1584,11 @@ class PatientController extends BaseController
             'admissionRequest' => $admissionRequest,
             'vitalSigns' => $vitalSigns, // All vital signs history
             'latestVitals' => $latestVitals, // Most recent vital signs
+            'vitalsPatientId' => $vitalsPatientId ?? $adminPatientIdForQueries ?? null, // Patient ID used for vitals queries (admin_patients.id)
+            'labResults' => $labResults, // Completed lab test results
+            'allPatientOrders' => $allPatientOrders, // All orders (pending, in_progress, completed)
+            'isInORRoom' => $isInORRoom,
+            'surgeryEndDateTime' => $surgeryEndDateTime,
         ];
 
         return view('doctor/patients/view', $data);
@@ -1260,5 +1886,293 @@ class PatientController extends BaseController
         ];
 
         return view('doctor/patients/nurse_assessment', $data);
+    }
+
+    public function requestVitalsCheck($patientId)
+    {
+        // Check if user is logged in and is a doctor
+        if (!session()->get('logged_in') || session()->get('role') !== 'doctor') {
+            return redirect()->to('/auth')->with('error', 'You must be logged in as a doctor to access this page.');
+        }
+
+        $doctorId = session()->get('user_id');
+        $db = \Config\Database::connect();
+        $patientModel = new AdminPatientModel();
+
+        // Get patient
+        $patient = $patientModel->find($patientId);
+        $patientSource = 'admin_patients';
+        
+        // If not found in admin_patients, check patients table
+        if (!$patient && $db->tableExists('patients')) {
+            $patient = $db->table('patients')
+                ->where('patient_id', $patientId)
+                ->get()
+                ->getRowArray();
+            $patientSource = 'patients';
+        }
+
+        if (!$patient) {
+            return redirect()->back()->with('error', 'Patient not found.');
+        }
+
+        // Verify patient is assigned to this doctor
+        $patientDoctorId = null;
+        if ($patientSource === 'admin_patients') {
+            $patientDoctorId = $patient['doctor_id'] ?? null;
+        } else {
+            $patientDoctorId = $patient['doctor_id'] ?? null;
+        }
+
+        if ($patientDoctorId != $doctorId) {
+            return redirect()->back()->with('error', 'Patient is not assigned to you.');
+        }
+
+        // BACKEND VALIDATION: Prevent doctor from clicking Check multiple times
+        // Check if doctor_check_status is already 'pending_nurse' or 'pending_order'
+        $currentStatus = $patient['doctor_check_status'] ?? 'available';
+        if ($currentStatus === 'pending_nurse') {
+            return redirect()->back()->with('error', 'Vitals check is already in progress. Please wait for the nurse to complete the vital signs check.');
+        }
+        if ($currentStatus === 'pending_order') {
+            return redirect()->back()->with('error', 'Please create and complete a medical order from the Vital Signs History before checking this patient again.');
+        }
+
+        // Set status to 'pending_nurse' to lock the workflow
+        // This disables the Check button and enables nurse to check vitals
+        $updateData = [
+            'is_doctor_checked' => 1,
+            'doctor_check_status' => 'pending_nurse',
+            'nurse_vital_status' => 'pending',
+        ];
+
+        // Update both admin_patients and patients tables if needed
+        if ($patientSource === 'admin_patients') {
+            $patientModel->update($patientId, $updateData);
+            
+            // Also update patients table if corresponding record exists
+            if ($db->tableExists('patients')) {
+                $nameParts = [
+                    $patient['firstname'] ?? '',
+                    $patient['lastname'] ?? ''
+                ];
+                
+                if (!empty($nameParts[0]) && !empty($nameParts[1])) {
+                    $hmsPatient = $db->table('patients')
+                        ->where('first_name', $nameParts[0])
+                        ->where('last_name', $nameParts[1])
+                        ->where('doctor_id', $doctorId)
+                        ->get()
+                        ->getRowArray();
+                    
+                    if ($hmsPatient) {
+                        $db->table('patients')
+                            ->where('patient_id', $hmsPatient['patient_id'])
+                            ->update($updateData);
+                    }
+                }
+            }
+        } else {
+            // Update patients table
+            $db->table('patients')
+                ->where('patient_id', $patientId)
+                ->update($updateData);
+            
+            // Also update admin_patients if corresponding record exists
+            $nameParts = [];
+            if (!empty($patient['first_name'])) $nameParts[] = $patient['first_name'];
+            if (!empty($patient['last_name'])) $nameParts[] = $patient['last_name'];
+            if (empty($nameParts) && !empty($patient['full_name'])) {
+                $parts = explode(' ', $patient['full_name'], 2);
+                $nameParts = [$parts[0] ?? '', $parts[1] ?? ''];
+            }
+            
+            if (!empty($nameParts[0]) && !empty($nameParts[1]) && $db->tableExists('admin_patients')) {
+                $adminPatient = $db->table('admin_patients')
+                    ->where('firstname', $nameParts[0])
+                    ->where('lastname', $nameParts[1])
+                    ->where('doctor_id', $doctorId)
+                    ->where('deleted_at IS NULL', null, false)
+                    ->get()
+                    ->getRowArray();
+                
+                if ($adminPatient) {
+                    $patientModel->update($adminPatient['id'], $updateData);
+                }
+            }
+        }
+
+        // Get assigned nurse for notification
+        $assignedNurseId = null;
+        if ($patientSource === 'admin_patients') {
+            $assignedNurseId = $patient['assigned_nurse_id'] ?? null;
+        } else {
+            $assignedNurseId = $patient['assigned_nurse_id'] ?? null;
+        }
+
+        // Get patient name
+        $patientName = '';
+        $notificationPatientId = $patientId;
+        if ($patientSource === 'admin_patients') {
+            $patientName = trim(($patient['firstname'] ?? '') . ' ' . ($patient['lastname'] ?? ''));
+            $notificationPatientId = $patientId;
+        } else {
+            $patientName = trim(($patient['first_name'] ?? '') . ' ' . ($patient['last_name'] ?? ''));
+            if (empty($patientName) && !empty($patient['full_name'])) {
+                $patientName = $patient['full_name'];
+            }
+            // Find admin_patients ID for notification
+            if ($db->tableExists('admin_patients') && !empty($nameParts[0]) && !empty($nameParts[1])) {
+                $adminPatient = $db->table('admin_patients')
+                    ->where('firstname', $nameParts[0])
+                    ->where('lastname', $nameParts[1])
+                    ->where('doctor_id', $doctorId)
+                    ->where('deleted_at IS NULL', null, false)
+                    ->get()
+                    ->getRowArray();
+                
+                if ($adminPatient) {
+                    $notificationPatientId = $adminPatient['id'];
+                }
+            }
+        }
+
+        // Create notification for nurse if assigned
+        if ($assignedNurseId && $db->tableExists('nurse_notifications')) {
+            $doctorName = session()->get('name') ?? session()->get('username') ?? 'Doctor';
+            
+            $db->table('nurse_notifications')->insert([
+                'nurse_id' => $assignedNurseId,
+                'type' => 'vitals_check_requested',
+                'title' => 'Doctor Checked Patient - Vitals Check Enabled',
+                'message' => 'Dr. ' . $doctorName . ' has checked ' . $patientName . '. You can now check and record vital signs for this patient.',
+                'related_id' => $notificationPatientId,
+                'related_type' => 'patient_vitals',
+                'is_read' => 0,
+                'created_at' => date('Y-m-d H:i:s'),
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Patient checked successfully. Nurse can now check vital signs for this patient.');
+    }
+
+    /**
+     * Calculate vital sign status (Improving/Worsening/Stable) compared to previous reading
+     */
+    private function calculateVitalStatus($current, $previous)
+    {
+        if (!$previous) {
+            return [
+                'overall' => 'new',
+                'bp' => null,
+                'hr' => null,
+                'temp' => null,
+                'o2' => null,
+                'rr' => null
+            ];
+        }
+
+        $status = [
+            'overall' => 'stable',
+            'bp' => null,
+            'hr' => null,
+            'temp' => null,
+            'o2' => null,
+            'rr' => null
+        ];
+
+        // Blood Pressure (Systolic)
+        if (!empty($current['blood_pressure_systolic']) && !empty($previous['blood_pressure_systolic'])) {
+            $diff = $current['blood_pressure_systolic'] - $previous['blood_pressure_systolic'];
+            if ($diff > 10) {
+                $status['bp'] = 'worsening';
+            } elseif ($diff < -10 && $current['blood_pressure_systolic'] > 90) {
+                $status['bp'] = 'improving';
+            } else {
+                $status['bp'] = 'stable';
+            }
+        }
+
+        // Heart Rate
+        if (!empty($current['heart_rate']) && !empty($previous['heart_rate'])) {
+            $currentHR = $current['heart_rate'];
+            $previousHR = $previous['heart_rate'];
+            
+            if ($currentHR > 100 || ($previousHR <= 100 && $currentHR > $previousHR + 15)) {
+                $status['hr'] = 'worsening';
+            } elseif ($currentHR < 60 || ($previousHR >= 60 && $currentHR < $previousHR - 15)) {
+                $status['hr'] = 'worsening';
+            } elseif ($previousHR > 100 && $currentHR <= 100) {
+                $status['hr'] = 'improving';
+            } elseif ($previousHR < 60 && $currentHR >= 60) {
+                $status['hr'] = 'improving';
+            } else {
+                $status['hr'] = 'stable';
+            }
+        }
+
+        // Temperature
+        if (!empty($current['temperature']) && !empty($previous['temperature'])) {
+            $currentTemp = $current['temperature'];
+            $previousTemp = $previous['temperature'];
+            
+            if ($currentTemp > 37.2 || ($previousTemp <= 37.2 && $currentTemp > $previousTemp + 0.5)) {
+                $status['temp'] = 'worsening';
+            } elseif ($previousTemp > 37.2 && $currentTemp <= 37.2) {
+                $status['temp'] = 'improving';
+            } else {
+                $status['temp'] = 'stable';
+            }
+        }
+
+        // Oxygen Saturation
+        if (!empty($current['oxygen_saturation']) && !empty($previous['oxygen_saturation'])) {
+            $currentO2 = $current['oxygen_saturation'];
+            $previousO2 = $previous['oxygen_saturation'];
+            
+            if ($currentO2 < 95 || ($previousO2 >= 95 && $currentO2 < $previousO2 - 3)) {
+                $status['o2'] = 'worsening';
+            } elseif ($previousO2 < 95 && $currentO2 >= 95) {
+                $status['o2'] = 'improving';
+            } else {
+                $status['o2'] = 'stable';
+            }
+        }
+
+        // Respiratory Rate
+        if (!empty($current['respiratory_rate']) && !empty($previous['respiratory_rate'])) {
+            $currentRR = $current['respiratory_rate'];
+            $previousRR = $previous['respiratory_rate'];
+            
+            if ($currentRR > 20 || ($previousRR <= 20 && $currentRR > $previousRR + 5)) {
+                $status['rr'] = 'worsening';
+            } elseif ($currentRR < 12 || ($previousRR >= 12 && $currentRR < $previousRR - 5)) {
+                $status['rr'] = 'worsening';
+            } elseif ($previousRR > 20 && $currentRR <= 20) {
+                $status['rr'] = 'improving';
+            } elseif ($previousRR < 12 && $currentRR >= 12) {
+                $status['rr'] = 'improving';
+            } else {
+                $status['rr'] = 'stable';
+            }
+        }
+
+        // Calculate overall status (if any vital is worsening, overall is worsening)
+        $worseningCount = 0;
+        $improvingCount = 0;
+        foreach (['bp', 'hr', 'temp', 'o2', 'rr'] as $vital) {
+            if ($status[$vital] === 'worsening') $worseningCount++;
+            if ($status[$vital] === 'improving') $improvingCount++;
+        }
+
+        if ($worseningCount > 0) {
+            $status['overall'] = 'worsening';
+        } elseif ($improvingCount > 0) {
+            $status['overall'] = 'improving';
+        } else {
+            $status['overall'] = 'stable';
+        }
+
+        return $status;
     }
 }

@@ -19,6 +19,7 @@ class BillingModel extends Model
         'service',
         'medicine_name',
         'dosage',
+        'order_description',
         'quantity',
         'unit_price',
         'administration_fee',

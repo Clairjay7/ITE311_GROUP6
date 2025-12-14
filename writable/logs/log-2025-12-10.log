@@ -3831,3 +3831,722 @@ Stack trace:
 #10 C:\xampp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
 #11 {main}
 ERROR - 2025-12-10 15:17:46 --> Error fetching Doctor Dashboard Stats: Unknown column 'assigned_doctor_id' in 'where clause'
+ERROR - 2025-12-10 16:17:34 --> mysqli_sql_exception: Unknown column 'assigned_doctor_id' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Doctor\DashboardStats.php(434): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Doctor\DashboardStats->stats()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Doctor\DashboardStats))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-12-10 16:17:34 --> Error fetching Doctor Dashboard Stats: Unknown column 'assigned_doctor_id' in 'where clause'
+ERROR - 2025-12-10 16:17:35 --> mysqli_sql_exception: Unknown column 'assigned_doctor_id' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Doctor\DashboardStats.php(434): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Doctor\DashboardStats->stats()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Doctor\DashboardStats))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-12-10 16:17:35 --> Error fetching Doctor Dashboard Stats: Unknown column 'assigned_doctor_id' in 'where clause'
+ERROR - 2025-12-10 16:17:37 --> mysqli_sql_exception: Unknown column 'assigned_doctor_id' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Doctor\DashboardStats.php(434): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Doctor\DashboardStats->stats()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Doctor\DashboardStats))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-12-10 16:17:37 --> Error fetching Doctor Dashboard Stats: Unknown column 'assigned_doctor_id' in 'where clause'
+ERROR - 2025-12-10 16:19:17 --> mysqli_sql_exception: Unknown column 'assigned_doctor_id' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Doctor\DashboardStats.php(434): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Doctor\DashboardStats->stats()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Doctor\DashboardStats))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-12-10 16:19:17 --> Error fetching Doctor Dashboard Stats: Unknown column 'assigned_doctor_id' in 'where clause'
+ERROR - 2025-12-10 16:25:24 --> mysqli_sql_exception: Unknown column 'assigned_doctor_id' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Doctor\DashboardStats.php(434): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Doctor\DashboardStats->stats()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Doctor\DashboardStats))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-12-10 16:25:24 --> Error fetching Doctor Dashboard Stats: Unknown column 'assigned_doctor_id' in 'where clause'
+ERROR - 2025-12-10 16:25:30 --> mysqli_sql_exception: Unknown column 'assigned_doctor_id' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Doctor\DashboardStats.php(434): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Doctor\DashboardStats->stats()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Doctor\DashboardStats))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-12-10 16:25:30 --> Error fetching Doctor Dashboard Stats: Unknown column 'assigned_doctor_id' in 'where clause'
+ERROR - 2025-12-10 16:26:03 --> mysqli_sql_exception: Unknown column 'assigned_doctor_id' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Doctor\DashboardStats.php(434): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Doctor\DashboardStats->stats()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Doctor\DashboardStats))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-12-10 16:26:03 --> Error fetching Doctor Dashboard Stats: Unknown column 'assigned_doctor_id' in 'where clause'
+ERROR - 2025-12-10 16:26:06 --> mysqli_sql_exception: Unknown column 'assigned_doctor_id' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Doctor\DashboardStats.php(434): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Doctor\DashboardStats->stats()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Doctor\DashboardStats))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-12-10 16:26:06 --> Error fetching Doctor Dashboard Stats: Unknown column 'assigned_doctor_id' in 'where clause'
+ERROR - 2025-12-10 16:26:06 --> mysqli_sql_exception: Unknown column 'assigned_doctor_id' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Doctor\DashboardStats.php(434): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Doctor\DashboardStats->stats()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Doctor\DashboardStats))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-12-10 16:26:06 --> Error fetching Doctor Dashboard Stats: Unknown column 'assigned_doctor_id' in 'where clause'
+ERROR - 2025-12-10 16:29:56 --> mysqli_sql_exception: Unknown column 'assigned_doctor_id' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Doctor\DashboardStats.php(434): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Doctor\DashboardStats->stats()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Doctor\DashboardStats))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-12-10 16:29:56 --> Error fetching Doctor Dashboard Stats: Unknown column 'assigned_doctor_id' in 'where clause'
+ERROR - 2025-12-10 16:31:34 --> mysqli_sql_exception: Unknown column 'assigned_doctor_id' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Doctor\DashboardStats.php(434): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Doctor\DashboardStats->stats()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Doctor\DashboardStats))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-12-10 16:31:34 --> Error fetching Doctor Dashboard Stats: Unknown column 'assigned_doctor_id' in 'where clause'
+ERROR - 2025-12-10 16:31:44 --> mysqli_sql_exception: Unknown column 'assigned_doctor_id' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Doctor\DashboardStats.php(434): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Doctor\DashboardStats->stats()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Doctor\DashboardStats))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-12-10 16:31:44 --> Error fetching Doctor Dashboard Stats: Unknown column 'assigned_doctor_id' in 'where clause'
+ERROR - 2025-12-10 16:31:54 --> mysqli_sql_exception: Unknown column 'assigned_doctor_id' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Doctor\DashboardStats.php(434): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Doctor\DashboardStats->stats()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Doctor\DashboardStats))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-12-10 16:31:54 --> Error fetching Doctor Dashboard Stats: Unknown column 'assigned_doctor_id' in 'where clause'
+ERROR - 2025-12-10 16:32:04 --> mysqli_sql_exception: Unknown column 'assigned_doctor_id' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Doctor\DashboardStats.php(434): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Doctor\DashboardStats->stats()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Doctor\DashboardStats))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-12-10 16:32:04 --> Error fetching Doctor Dashboard Stats: Unknown column 'assigned_doctor_id' in 'where clause'
+ERROR - 2025-12-10 16:32:14 --> mysqli_sql_exception: Unknown column 'assigned_doctor_id' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Doctor\DashboardStats.php(434): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Doctor\DashboardStats->stats()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Doctor\DashboardStats))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-12-10 16:32:14 --> Error fetching Doctor Dashboard Stats: Unknown column 'assigned_doctor_id' in 'where clause'
+ERROR - 2025-12-10 16:32:24 --> mysqli_sql_exception: Unknown column 'assigned_doctor_id' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Doctor\DashboardStats.php(434): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Doctor\DashboardStats->stats()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Doctor\DashboardStats))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-12-10 16:32:24 --> Error fetching Doctor Dashboard Stats: Unknown column 'assigned_doctor_id' in 'where clause'
+ERROR - 2025-12-10 16:32:34 --> mysqli_sql_exception: Unknown column 'assigned_doctor_id' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Doctor\DashboardStats.php(434): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Doctor\DashboardStats->stats()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Doctor\DashboardStats))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-12-10 16:32:34 --> Error fetching Doctor Dashboard Stats: Unknown column 'assigned_doctor_id' in 'where clause'
+ERROR - 2025-12-10 16:32:44 --> mysqli_sql_exception: Unknown column 'assigned_doctor_id' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Doctor\DashboardStats.php(434): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Doctor\DashboardStats->stats()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Doctor\DashboardStats))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-12-10 16:32:44 --> Error fetching Doctor Dashboard Stats: Unknown column 'assigned_doctor_id' in 'where clause'
+ERROR - 2025-12-10 16:32:55 --> mysqli_sql_exception: Unknown column 'assigned_doctor_id' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Doctor\DashboardStats.php(434): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Doctor\DashboardStats->stats()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Doctor\DashboardStats))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-12-10 16:32:55 --> Error fetching Doctor Dashboard Stats: Unknown column 'assigned_doctor_id' in 'where clause'
+ERROR - 2025-12-10 16:33:04 --> mysqli_sql_exception: Unknown column 'assigned_doctor_id' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Doctor\DashboardStats.php(434): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Doctor\DashboardStats->stats()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Doctor\DashboardStats))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-12-10 16:33:04 --> Error fetching Doctor Dashboard Stats: Unknown column 'assigned_doctor_id' in 'where clause'
+ERROR - 2025-12-10 16:33:14 --> mysqli_sql_exception: Unknown column 'assigned_doctor_id' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Doctor\DashboardStats.php(434): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Doctor\DashboardStats->stats()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Doctor\DashboardStats))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-12-10 16:33:14 --> Error fetching Doctor Dashboard Stats: Unknown column 'assigned_doctor_id' in 'where clause'
+ERROR - 2025-12-10 16:33:24 --> mysqli_sql_exception: Unknown column 'assigned_doctor_id' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Doctor\DashboardStats.php(434): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Doctor\DashboardStats->stats()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Doctor\DashboardStats))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-12-10 16:33:24 --> Error fetching Doctor Dashboard Stats: Unknown column 'assigned_doctor_id' in 'where clause'
+ERROR - 2025-12-10 16:33:34 --> mysqli_sql_exception: Unknown column 'assigned_doctor_id' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Doctor\DashboardStats.php(434): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Doctor\DashboardStats->stats()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Doctor\DashboardStats))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-12-10 16:33:34 --> Error fetching Doctor Dashboard Stats: Unknown column 'assigned_doctor_id' in 'where clause'
+ERROR - 2025-12-10 16:33:44 --> mysqli_sql_exception: Unknown column 'assigned_doctor_id' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Doctor\DashboardStats.php(434): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Doctor\DashboardStats->stats()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Doctor\DashboardStats))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-12-10 16:33:44 --> Error fetching Doctor Dashboard Stats: Unknown column 'assigned_doctor_id' in 'where clause'
+ERROR - 2025-12-10 16:33:54 --> mysqli_sql_exception: Unknown column 'assigned_doctor_id' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Doctor\DashboardStats.php(434): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Doctor\DashboardStats->stats()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Doctor\DashboardStats))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-12-10 16:33:54 --> Error fetching Doctor Dashboard Stats: Unknown column 'assigned_doctor_id' in 'where clause'
+ERROR - 2025-12-10 16:39:22 --> mysqli_sql_exception: Unknown column 'assigned_doctor_id' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Doctor\DashboardStats.php(434): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Doctor\DashboardStats->stats()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Doctor\DashboardStats))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-12-10 16:39:22 --> Error fetching Doctor Dashboard Stats: Unknown column 'assigned_doctor_id' in 'where clause'
+ERROR - 2025-12-10 16:53:58 --> mysqli_sql_exception: Unknown column 'assigned_doctor_id' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Doctor\DashboardStats.php(434): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Doctor\DashboardStats->stats()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Doctor\DashboardStats))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-12-10 16:53:58 --> Error fetching Doctor Dashboard Stats: Unknown column 'assigned_doctor_id' in 'where clause'
+ERROR - 2025-12-10 16:54:25 --> mysqli_sql_exception: Unknown column 'assigned_doctor_id' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Doctor\DashboardStats.php(434): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Doctor\DashboardStats->stats()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Doctor\DashboardStats))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-12-10 16:54:25 --> Error fetching Doctor Dashboard Stats: Unknown column 'assigned_doctor_id' in 'where clause'
+CRITICAL - 2025-12-10 16:54:38 --> CodeIgniter\Database\Exceptions\DataException: There is no data to update.
+[Method: POST, Route: nurse/notifications/mark-read/1]
+in SYSTEMPATH\BaseModel.php on line 1823.
+ 1 SYSTEMPATH\BaseModel.php(1823): CodeIgniter\Database\Exceptions\DataException::forEmptyDataset('update')
+ 2 SYSTEMPATH\BaseModel.php(994): CodeIgniter\BaseModel->transformDataToArray(null, 'update')
+ 3 SYSTEMPATH\Model.php(860): CodeIgniter\BaseModel->update([...], null)
+ 4 APPPATH\Models\NurseNotificationModel.php(56): CodeIgniter\Model->update([...])
+ 5 APPPATH\Controllers\Nurse\NotificationController.php(20): App\Models\NurseNotificationModel->markAsRead('1', '12')
+ 6 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Nurse\NotificationController->markAsRead('1')
+ 7 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Nurse\NotificationController))
+ 8 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+ERROR - 2025-12-10 16:55:19 --> mysqli_sql_exception: Unknown column 'assigned_doctor_id' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Doctor\DashboardStats.php(434): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Doctor\DashboardStats->stats()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Doctor\DashboardStats))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-12-10 16:55:19 --> Error fetching Doctor Dashboard Stats: Unknown column 'assigned_doctor_id' in 'where clause'
+ERROR - 2025-12-10 16:55:25 --> mysqli_sql_exception: Unknown column 'assigned_doctor_id' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Doctor\DashboardStats.php(434): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Doctor\DashboardStats->stats()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Doctor\DashboardStats))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-12-10 16:55:25 --> Error fetching Doctor Dashboard Stats: Unknown column 'assigned_doctor_id' in 'where clause'
+ERROR - 2025-12-10 16:58:54 --> mysqli_sql_exception: Unknown column 'assigned_doctor_id' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Doctor\DashboardStats.php(434): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Doctor\DashboardStats->stats()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Doctor\DashboardStats))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-12-10 16:58:54 --> Error fetching Doctor Dashboard Stats: Unknown column 'assigned_doctor_id' in 'where clause'
+ERROR - 2025-12-10 17:12:34 --> mysqli_sql_exception: Unknown column 'assigned_doctor_id' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Doctor\DashboardStats.php(434): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Doctor\DashboardStats->stats()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Doctor\DashboardStats))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-12-10 17:12:34 --> Error fetching Doctor Dashboard Stats: Unknown column 'assigned_doctor_id' in 'where clause'
+ERROR - 2025-12-10 17:38:14 --> mysqli_sql_exception: Unknown column 'assigned_doctor_id' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Doctor\DashboardStats.php(434): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Doctor\DashboardStats->stats()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Doctor\DashboardStats))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-12-10 17:38:14 --> Error fetching Doctor Dashboard Stats: Unknown column 'assigned_doctor_id' in 'where clause'
+ERROR - 2025-12-10 17:39:54 --> mysqli_sql_exception: Unknown column 'assigned_doctor_id' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Doctor\DashboardStats.php(434): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Doctor\DashboardStats->stats()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Doctor\DashboardStats))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-12-10 17:39:54 --> Error fetching Doctor Dashboard Stats: Unknown column 'assigned_doctor_id' in 'where clause'
+ERROR - 2025-12-10 17:52:49 --> mysqli_sql_exception: Unknown column 'assigned_doctor_id' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Doctor\DashboardStats.php(434): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Doctor\DashboardStats->stats()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Doctor\DashboardStats))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-12-10 17:52:49 --> Error fetching Doctor Dashboard Stats: Unknown column 'assigned_doctor_id' in 'where clause'
+ERROR - 2025-12-10 18:14:50 --> mysqli_sql_exception: Unknown column 'assigned_doctor_id' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Doctor\DashboardStats.php(434): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Doctor\DashboardStats->stats()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Doctor\DashboardStats))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-12-10 18:14:51 --> Error fetching Doctor Dashboard Stats: Unknown column 'assigned_doctor_id' in 'where clause'
+ERROR - 2025-12-10 18:14:53 --> mysqli_sql_exception: Unknown column 'assigned_doctor_id' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Doctor\DashboardStats.php(434): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Doctor\DashboardStats->stats()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Doctor\DashboardStats))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-12-10 18:14:53 --> Error fetching Doctor Dashboard Stats: Unknown column 'assigned_doctor_id' in 'where clause'
+ERROR - 2025-12-10 18:14:57 --> mysqli_sql_exception: Unknown column 'assigned_doctor_id' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Doctor\DashboardStats.php(434): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Doctor\DashboardStats->stats()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Doctor\DashboardStats))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-12-10 18:14:57 --> Error fetching Doctor Dashboard Stats: Unknown column 'assigned_doctor_id' in 'where clause'
+ERROR - 2025-12-10 18:21:38 --> mysqli_sql_exception: Unknown column 'assigned_doctor_id' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Doctor\DashboardStats.php(434): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Doctor\DashboardStats->stats()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Doctor\DashboardStats))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-12-10 18:21:38 --> Error fetching Doctor Dashboard Stats: Unknown column 'assigned_doctor_id' in 'where clause'
+ERROR - 2025-12-10 18:21:41 --> mysqli_sql_exception: Unknown column 'assigned_doctor_id' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Doctor\DashboardStats.php(434): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Doctor\DashboardStats->stats()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Doctor\DashboardStats))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-12-10 18:21:41 --> Error fetching Doctor Dashboard Stats: Unknown column 'assigned_doctor_id' in 'where clause'
+ERROR - 2025-12-10 18:21:58 --> mysqli_sql_exception: Unknown column 'assigned_doctor_id' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Doctor\DashboardStats.php(434): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Doctor\DashboardStats->stats()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Doctor\DashboardStats))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-12-10 18:21:58 --> Error fetching Doctor Dashboard Stats: Unknown column 'assigned_doctor_id' in 'where clause'
+ERROR - 2025-12-10 18:35:36 --> mysqli_sql_exception: Unknown column 'assigned_doctor_id' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Doctor\DashboardStats.php(434): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Doctor\DashboardStats->stats()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Doctor\DashboardStats))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-12-10 18:35:36 --> Error fetching Doctor Dashboard Stats: Unknown column 'assigned_doctor_id' in 'where clause'
+ERROR - 2025-12-10 18:37:09 --> mysqli_sql_exception: Unknown column 'assigned_doctor_id' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Doctor\DashboardStats.php(434): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Doctor\DashboardStats->stats()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Doctor\DashboardStats))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-12-10 18:37:09 --> Error fetching Doctor Dashboard Stats: Unknown column 'assigned_doctor_id' in 'where clause'
+ERROR - 2025-12-10 18:37:13 --> mysqli_sql_exception: Unknown column 'assigned_doctor_id' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Doctor\DashboardStats.php(434): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Doctor\DashboardStats->stats()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Doctor\DashboardStats))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-12-10 18:37:13 --> Error fetching Doctor Dashboard Stats: Unknown column 'assigned_doctor_id' in 'where clause'
+ERROR - 2025-12-10 18:37:16 --> mysqli_sql_exception: Unknown column 'assigned_doctor_id' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Doctor\DashboardStats.php(434): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Doctor\DashboardStats->stats()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Doctor\DashboardStats))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-12-10 18:37:16 --> Error fetching Doctor Dashboard Stats: Unknown column 'assigned_doctor_id' in 'where clause'
+ERROR - 2025-12-10 19:11:08 --> mysqli_sql_exception: Unknown column 'assigned_doctor_id' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Doctor\DashboardStats.php(434): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Doctor\DashboardStats->stats()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Doctor\DashboardStats))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-12-10 19:11:08 --> Error fetching Doctor Dashboard Stats: Unknown column 'assigned_doctor_id' in 'where clause'
+ERROR - 2025-12-10 19:12:54 --> mysqli_sql_exception: Unknown column 'assigned_doctor_id' in 'where clause' in F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 F:\xammp\htdocs\group6\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT *\nFROM `...', 0)
+#1 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT *\nFROM `...')
+#2 F:\xammp\htdocs\group6\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT *\nFROM `...')
+#3 F:\xammp\htdocs\group6\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT *\nFROM `...', Array, false)
+#4 F:\xammp\htdocs\group6\app\Controllers\Doctor\DashboardStats.php(434): CodeIgniter\Database\BaseBuilder->get()
+#5 F:\xammp\htdocs\group6\system\CodeIgniter.php(933): App\Controllers\Doctor\DashboardStats->stats()
+#6 F:\xammp\htdocs\group6\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Doctor\DashboardStats))
+#7 F:\xammp\htdocs\group6\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 F:\xammp\htdocs\group6\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 F:\xammp\htdocs\group6\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 F:\xammp\htdocs\group6\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-12-10 19:12:54 --> Error fetching Doctor Dashboard Stats: Unknown column 'assigned_doctor_id' in 'where clause'

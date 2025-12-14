@@ -78,6 +78,7 @@ class Rooms extends BaseController
             'icu' => 'ICU',
             'isolation' => 'Isolation',
             'nicu' => 'NICU',
+            'or' => 'OR',
         ];
 
         if (!isset($map[$slug])) {
@@ -121,6 +122,7 @@ class Rooms extends BaseController
             'ICU' => 'ICU (Intensive Care Unit)',
             'Isolation' => 'Isolation Room',
             'NICU' => 'NICU (Neonatal Intensive Care Unit)',
+            'OR' => 'OR (Operating Room)',
         ];
 
         return view('Reception/rooms/type', [
@@ -270,10 +272,42 @@ class Rooms extends BaseController
             }
         }
         
+        // STRICT VALIDATION: Check if room is already occupied by ANY patient
+        $roomStatus = strtolower(trim($room['status'] ?? ''));
+        $isRoomOccupied = ($roomStatus === 'occupied') || !empty($room['current_patient_id']);
+        
+        if ($isRoomOccupied) {
+            // Room is occupied - REJECT assignment regardless of which patient
+            return redirect()->back()->withInput()->with('error', "Room {$room['room_number']} is already occupied. Please select a different room.");
+        }
+        
         // Assign patient to room
         $selectedBedId = $this->request->getPost('bed_id');
         $selectedBedNumber = $this->request->getPost('bed_number');
         
+        // STRICT VALIDATION: Check if bed is already occupied (if bed is selected)
+        if ($selectedBedId) {
+            $db = \Config\Database::connect();
+            if ($db->tableExists('beds')) {
+                $bed = $db->table('beds')
+                    ->where('id', $selectedBedId)
+                    ->where('room_id', $roomId)
+                    ->get()
+                    ->getRowArray();
+                
+                if ($bed) {
+                    $bedStatus = strtolower(trim($bed['status'] ?? ''));
+                    $isBedOccupied = ($bedStatus === 'occupied') || !empty($bed['current_patient_id']);
+                    
+                    if ($isBedOccupied) {
+                        // Bed is occupied - REJECT assignment regardless of which patient
+                        return redirect()->back()->withInput()->with('error', "Bed {$selectedBedNumber} in Room {$room['room_number']} is already occupied. Please select a different bed.");
+                    }
+                }
+            }
+        }
+        
+        // Room and bed are available - proceed with assignment
         // Update room status (only if single bed room or no bed selected)
         if (empty($selectedBedId) || ($room['bed_count'] ?? 1) == 1) {
             $this->roomModel->update($roomId, [
@@ -288,7 +322,7 @@ class Rooms extends BaseController
             'room_number' => $room['room_number'],
         ]);
         
-        // Handle bed assignment if bed is selected
+        // Handle bed assignment if bed is selected (already validated above)
         if ($selectedBedId) {
             $db = \Config\Database::connect();
             if ($db->tableExists('beds')) {
@@ -299,20 +333,14 @@ class Rooms extends BaseController
                     ->getRowArray();
                 
                 if ($bed) {
-                    $isBedAvailable = (($bed['status'] ?? '') === 'available' || 
-                                      ($bed['status'] ?? '') === 'Available' || 
-                                      ($bed['status'] ?? '') === 'AVAILABLE') &&
-                                      empty($bed['current_patient_id']);
-                    
-                    if ($isBedAvailable) {
-                        $db->table('beds')
-                            ->where('id', $selectedBedId)
-                            ->update([
-                                'current_patient_id' => $patientId,
-                                'status' => 'occupied',
-                                'updated_at' => date('Y-m-d H:i:s'),
-                            ]);
-                    }
+                    // Bed was already validated as available above, so safe to assign
+                    $db->table('beds')
+                        ->where('id', $selectedBedId)
+                        ->update([
+                            'current_patient_id' => $patientId,
+                            'status' => 'occupied',
+                            'updated_at' => date('Y-m-d H:i:s'),
+                        ]);
                 }
             }
         }

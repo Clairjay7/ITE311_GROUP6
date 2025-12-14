@@ -24,10 +24,10 @@ class DashboardStats extends BaseController
             $labRequestModel = new LabRequestModel();
             $labResultModel = new LabResultModel();
 
-            // Pending tests (only after payment is paid - accountant must process payment first)
+            // Pending tests (show all, including pending payment)
             $pendingTests = $labRequestModel
                 ->where('status', 'pending')
-                ->where('payment_status', 'paid') // ONLY count after payment is PAID
+                ->where('status !=', 'cancelled')
                 ->countAllResults();
 
             // Completed today
@@ -52,23 +52,27 @@ class DashboardStats extends BaseController
                 ->limit(10)
                 ->findAll();
 
-            // Get pending specimens count (only after payment is paid)
+            // Get pending specimens count (show all)
             $pendingSpecimens = $labRequestModel
                 ->whereIn('status', ['specimen_collected', 'in_progress'])
-                ->where('payment_status', 'paid') // ONLY count after payment is PAID
                 ->countAllResults();
 
-            // Get urgent/stat tests count (only after payment is paid)
+            // Get urgent/stat tests count (show all)
             $urgentTests = $db->table('lab_requests')
-                ->join('charges', 'charges.id = lab_requests.charge_id', 'inner')
-                ->whereIn('lab_requests.status', ['pending', 'in_progress', 'specimen_collected'])
+                ->groupStart()
+                    ->groupStart()
+                        ->where('lab_requests.status', 'pending')
+                        ->where('lab_requests.nurse_id', null) // Only without_specimen pending tests
+                    ->groupEnd()
+                ->orGroupStart()
+                    ->whereIn('lab_requests.status', ['in_progress', 'specimen_collected'])
+                    ->groupEnd()
+                ->groupEnd()
                 ->whereIn('lab_requests.priority', ['urgent', 'stat'])
-                ->where('lab_requests.payment_status', 'paid')
-                ->where('charges.status', 'paid')
-                ->where('lab_requests.charge_id IS NOT NULL')
+                ->where('lab_requests.status !=', 'cancelled')
                 ->countAllResults();
 
-            // Get pending tests list with more details (only after payment is paid)
+            // Get pending tests list with more details (show all, including pending payment)
             $pendingTestsList = $db->table('lab_requests')
                 ->select('lab_requests.*, 
                     admin_patients.firstname, 
@@ -80,20 +84,20 @@ class DashboardStats extends BaseController
                 ->join('admin_patients', 'admin_patients.id = lab_requests.patient_id', 'left')
                 ->join('users as doctor', 'doctor.id = lab_requests.doctor_id', 'left')
                 ->join('users as nurse', 'nurse.id = lab_requests.nurse_id', 'left')
-                ->join('charges', 'charges.id = lab_requests.charge_id', 'inner') // INNER JOIN - must have charge
+                ->join('charges', 'charges.id = lab_requests.charge_id', 'left') // LEFT JOIN - show even without charge
                 ->where('lab_requests.status !=', 'cancelled')
-                ->where('lab_requests.payment_status', 'paid') // ONLY show after payment is PAID
-                ->where('charges.status', 'paid') // ALSO verify charge status is paid
-                ->where('lab_requests.charge_id IS NOT NULL') // Must have charge_id
                 ->groupStart()
                     // Include requests that are ready for testing:
-                    // 1. Status = 'pending' with payment paid (without_specimen tests)
-                    ->where('lab_requests.status', 'pending')
+                    // 1. Status = 'pending' AND nurse_id IS NULL (without_specimen tests - go directly to lab)
+                    ->groupStart()
+                        ->where('lab_requests.status', 'pending')
+                        ->where('lab_requests.nurse_id', null) // Only show pending requests without nurse (without_specimen)
                     ->groupEnd()
                 ->orGroupStart()
                     // 2. Status = 'specimen_collected' or 'in_progress' (with_specimen tests that have been collected)
                     ->whereIn('lab_requests.status', ['specimen_collected', 'in_progress'])
                     ->groupEnd()
+                ->groupEnd()
                 ->orderBy('lab_requests.priority', 'ASC') // Urgent/Stat first
                 ->orderBy('lab_requests.requested_date', 'ASC')
                 ->orderBy('lab_requests.created_at', 'DESC')

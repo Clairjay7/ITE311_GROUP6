@@ -48,37 +48,37 @@ class PharmacyController extends BaseController
         ];
 
         try {
-            // Get medication orders (prescriptions) with pharmacy status
+            // Get medication and IV fluids orders with pharmacy status
             if ($db->tableExists('doctor_orders')) {
                 $data['prescriptionsToday'] = $this->orderModel
-                    ->where('order_type', 'medication')
+                    ->whereIn('order_type', ['medication', 'iv_fluids_order'])
                     ->where('DATE(created_at)', $today)
                     ->countAllResults();
 
-                // Count by pharmacy status
+                // Count by pharmacy status (medication + IV fluids)
                 $data['pendingFulfillment'] = $db->table('doctor_orders')
-                    ->where('order_type', 'medication')
+                    ->whereIn('order_type', ['medication', 'iv_fluids_order'])
                     ->where('pharmacy_status', 'pending')
                     ->countAllResults();
                 
                 $data['approvedCount'] = $db->table('doctor_orders')
-                    ->where('order_type', 'medication')
+                    ->whereIn('order_type', ['medication', 'iv_fluids_order'])
                     ->where('pharmacy_status', 'approved')
                     ->countAllResults();
                 
                 $data['preparedCount'] = $db->table('doctor_orders')
-                    ->where('order_type', 'medication')
+                    ->whereIn('order_type', ['medication', 'iv_fluids_order'])
                     ->where('pharmacy_status', 'prepared')
                     ->countAllResults();
                 
                 $data['dispensedToday'] = $db->table('doctor_orders')
-                    ->where('order_type', 'medication')
+                    ->whereIn('order_type', ['medication', 'iv_fluids_order'])
                     ->where('pharmacy_status', 'dispensed')
                     ->where('DATE(pharmacy_dispensed_at)', $today)
                     ->countAllResults();
                 
                 $data['administeredCount'] = $db->table('doctor_orders')
-                    ->where('order_type', 'medication')
+                    ->whereIn('order_type', ['medication', 'iv_fluids_order'])
                     ->where('pharmacy_status', 'dispensed')
                     ->where('status', 'completed')
                     ->countAllResults();
@@ -132,7 +132,7 @@ class PharmacyController extends BaseController
 
         $db = \Config\Database::connect();
         
-        // Get medication orders with pharmacy status (including dispensed and administered)
+        // Get medication and IV fluids orders with pharmacy status (including dispensed and administered)
         $prescriptions = $db->table('doctor_orders do')
             ->select('do.*, ap.firstname as patient_first, ap.lastname as patient_last, 
                       u.username as doctor_name, nu.username as nurse_name, 
@@ -141,13 +141,13 @@ class PharmacyController extends BaseController
             ->join('users u', 'u.id = do.doctor_id', 'left')
             ->join('users nu', 'nu.id = do.nurse_id', 'left')
             ->join('users as completed_nurse', 'completed_nurse.id = do.completed_by', 'left')
-            ->where('do.order_type', 'medication')
+            ->whereIn('do.order_type', ['medication', 'iv_fluids_order'])
             ->whereIn('do.pharmacy_status', ['pending', 'approved', 'prepared', 'dispensed'])
             ->orderBy('do.created_at', 'DESC')
             ->get()
             ->getResultArray();
 
-        // Get dispensed prescriptions (ready for nurse or already administered)
+        // Get dispensed prescriptions/IV fluids (ready for nurse or already administered)
         $dispensedPrescriptions = $db->table('doctor_orders do')
             ->select('do.*, ap.firstname as patient_first, ap.lastname as patient_last, 
                       u.username as doctor_name, nu.username as nurse_name, 
@@ -156,7 +156,7 @@ class PharmacyController extends BaseController
             ->join('users u', 'u.id = do.doctor_id', 'left')
             ->join('users nu', 'nu.id = do.nurse_id', 'left')
             ->join('users as completed_nurse', 'completed_nurse.id = do.completed_by', 'left')
-            ->where('do.order_type', 'medication')
+            ->whereIn('do.order_type', ['medication', 'iv_fluids_order'])
             ->where('do.pharmacy_status', 'dispensed')
             ->orderBy('do.pharmacy_dispensed_at', 'DESC')
             ->get()
@@ -280,9 +280,9 @@ class PharmacyController extends BaseController
                     ->setJSON(['success' => false, 'message' => 'Order not found']);
             }
 
-            if ($order['order_type'] !== 'medication') {
+            if (!in_array($order['order_type'], ['medication', 'iv_fluids_order'])) {
                 return $this->response->setContentType('application/json')
-                    ->setJSON(['success' => false, 'message' => 'This is not a medication order']);
+                    ->setJSON(['success' => false, 'message' => 'This order type is not handled by pharmacy']);
             }
 
             $currentStatus = $order['pharmacy_status'] ?? 'pending';
@@ -324,14 +324,20 @@ class PharmacyController extends BaseController
                         'pharmacy_dispensed_at' => date('Y-m-d H:i:s'),
                         'status' => 'in_progress' // Order is ready for nurse to administer
                     ];
-                    $statusMessage = 'Medicine dispensed successfully. Nurse can now administer to patient.';
                     
-                    // Get patient allergies
+                    if ($order['order_type'] === 'medication') {
+                        $statusMessage = 'Medicine dispensed successfully. Nurse can now administer to patient.';
+                    } else {
+                        $statusMessage = 'IV Fluid dispensed successfully. Nurse can now inject to patient.';
+                    }
+                    
+                    // Get patient info
                     $patient = $db->table('admin_patients')->where('id', $order['patient_id'])->get()->getRowArray();
                     $patientAllergies = $patient['allergies'] ?? null;
+                    $patientName = $patient ? ($patient['firstname'] . ' ' . $patient['lastname']) : 'patient';
                     
-                    // Save to patient_medication_records table
-                    if ($db->tableExists('patient_medication_records')) {
+                    // Save to patient_medication_records table (for medication orders only)
+                    if ($order['order_type'] === 'medication' && $db->tableExists('patient_medication_records')) {
                         $medicationRecordData = [
                             'patient_id' => $order['patient_id'],
                             'order_id' => $orderId,
@@ -350,20 +356,34 @@ class PharmacyController extends BaseController
                         $db->table('patient_medication_records')->insert($medicationRecordData);
                     }
                     
-                    // Notify nurse that medicine is ready
-                    if ($order['nurse_id']) {
-                        if ($db->tableExists('nurse_notifications')) {
-                            $db->table('nurse_notifications')->insert([
-                                'nurse_id' => $order['nurse_id'],
-                                'type' => 'medication_ready',
-                                'title' => 'Medication Ready for Administration',
-                                'message' => 'Medication for ' . ($patient ? $patient['firstname'] . ' ' . $patient['lastname'] : 'patient') . ' has been dispensed. Medicine: ' . ($order['medicine_name'] ?? 'N/A') . '. Please administer to patient.',
-                                'related_id' => $orderId,
-                                'related_type' => 'doctor_order',
-                                'is_read' => 0,
-                                'created_at' => date('Y-m-d H:i:s'),
-                            ]);
-                        }
+                    // Notify nurse that order is ready
+                    // For medication: notify assigned nurse_id if exists
+                    // For IV Fluids: notify patient's assigned_nurse_id (since order nurse_id is null)
+                    $nurseIdToNotify = null;
+                    if ($order['order_type'] === 'medication' && $order['nurse_id']) {
+                        $nurseIdToNotify = $order['nurse_id'];
+                    } elseif ($order['order_type'] === 'iv_fluids_order' && $patient && $patient['assigned_nurse_id']) {
+                        $nurseIdToNotify = $patient['assigned_nurse_id'];
+                    }
+                    
+                    if ($nurseIdToNotify && $db->tableExists('nurse_notifications')) {
+                        $orderTypeLabel = $order['order_type'] === 'medication' ? 'Medication' : 'IV Fluid';
+                        $orderItemName = $order['order_type'] === 'medication' 
+                            ? ($order['medicine_name'] ?? 'N/A')
+                            : ($order['order_description'] ?? 'N/A');
+                        
+                        $db->table('nurse_notifications')->insert([
+                            'nurse_id' => $nurseIdToNotify,
+                            'type' => $order['order_type'] === 'medication' ? 'medication_ready' : 'iv_fluids_ready',
+                            'title' => $orderTypeLabel . ' Ready for Administration',
+                            'message' => $orderTypeLabel . ' for ' . $patientName . ' has been dispensed. ' . 
+                                       ($order['order_type'] === 'medication' ? 'Medicine' : 'IV Fluid') . ': ' . $orderItemName . '. Please ' . 
+                                       ($order['order_type'] === 'medication' ? 'administer' : 'inject') . ' to patient.',
+                            'related_id' => $orderId,
+                            'related_type' => 'doctor_order',
+                            'is_read' => 0,
+                            'created_at' => date('Y-m-d H:i:s'),
+                        ]);
                     }
                     break;
 

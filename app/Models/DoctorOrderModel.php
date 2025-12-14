@@ -33,6 +33,7 @@ class DoctorOrderModel extends Model
         'pharmacy_prepared_at',
         'pharmacy_dispensed_at',
         'purchase_location',
+        'vital_id',
         'completed_by',
         'completed_at',
     ];
@@ -44,7 +45,7 @@ class DoctorOrderModel extends Model
     protected $validationRules = [
         'patient_id' => 'required|integer',
         'doctor_id' => 'required|integer',
-        'order_type' => 'required|in_list[medication,lab_test,procedure,diet,activity,other]',
+        'order_type' => 'required|in_list[medication,lab_test,diagnostic_imaging,nursing_order,treatment_order,iv_fluids_order,procedure,reassessment_order,stat_order,diet,activity,other]',
         'order_description' => 'required',
         'status' => 'required|in_list[pending,in_progress,completed,cancelled]',
     ];

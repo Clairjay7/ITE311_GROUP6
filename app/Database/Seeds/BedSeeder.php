@@ -32,6 +32,7 @@ class BedSeeder extends Seeder
             'ICU' => 1,
             'Isolation' => 1,
             'NICU' => 1,
+            'OR' => 1,
         ];
         
         foreach ($rooms as $room) {

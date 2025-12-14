@@ -146,6 +146,21 @@ class RoomSeeder extends Seeder
             ];
         }
         
+        // OR Rooms (Operating Room - ₱15,000/day - For surgeries)
+        for ($i = 1; $i <= 5; $i++) {
+            $data[] = [
+                'ward' => 'Operating Room',
+                'room_number' => 'OR' . sprintf('%02d', $i),
+                'room_type' => 'OR',
+                'bed_count' => 1,
+                'price' => 15000.00,
+                'status' => 'Available',
+                'current_patient_id' => null,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ];
+        }
+        
         $this->db->table('rooms')->insertBatch($data);
     }
 }

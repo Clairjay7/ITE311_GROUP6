@@ -177,6 +177,77 @@ class UserSeeder extends Seeder
                 'created_at' => $now,
                 'updated_at' => $now,
             ],
+            // Surgical Specialists
+            [
+                'username'   => 'dr.generalsurgery',
+                'email'      => 'gen.surgery@group6.edu.ph',
+                'password'   => password_hash('123123', PASSWORD_DEFAULT),
+                'role_id'    => $roleMap['doctor'],
+                'status'     => 'active',
+                'first_name' => 'Roberto',
+                'last_name'  => 'Fernandez',
+                'prc_license' => 'PRC-100011',
+                'specialization' => 'General Surgery',
+                'contact'    => '0912-345-6797',
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+            [
+                'username'   => 'dr.orthopedicsurgery',
+                'email'      => 'ortho.surgery@group6.edu.ph',
+                'password'   => password_hash('123123', PASSWORD_DEFAULT),
+                'role_id'    => $roleMap['doctor'],
+                'status'     => 'active',
+                'first_name' => 'Miguel',
+                'last_name'  => 'Ramos',
+                'prc_license' => 'PRC-100012',
+                'specialization' => 'Orthopedic Surgery',
+                'contact'    => '0912-345-6798',
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+            [
+                'username'   => 'dr.obgynesurgery',
+                'email'      => 'obgyne.surgery@group6.edu.ph',
+                'password'   => password_hash('123123', PASSWORD_DEFAULT),
+                'role_id'    => $roleMap['doctor'],
+                'status'     => 'active',
+                'first_name' => 'Carmen',
+                'last_name'  => 'Villanueva',
+                'prc_license' => 'PRC-100013',
+                'specialization' => 'OB-Gyne Surgery',
+                'contact'    => '0912-345-6799',
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+            [
+                'username'   => 'dr.entsurgery',
+                'email'      => 'ent.surgery@group6.edu.ph',
+                'password'   => password_hash('123123', PASSWORD_DEFAULT),
+                'role_id'    => $roleMap['doctor'],
+                'status'     => 'active',
+                'first_name' => 'Antonio',
+                'last_name'  => 'Lopez',
+                'prc_license' => 'PRC-100014',
+                'specialization' => 'ENT Surgery',
+                'contact'    => '0912-345-6800',
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+            [
+                'username'   => 'dr.urologicsurgery',
+                'email'      => 'urologic.surgery@group6.edu.ph',
+                'password'   => password_hash('123123', PASSWORD_DEFAULT),
+                'role_id'    => $roleMap['doctor'],
+                'status'     => 'active',
+                'first_name' => 'Fernando',
+                'last_name'  => 'Martinez',
+                'prc_license' => 'PRC-100015',
+                'specialization' => 'Urologic Surgery',
+                'contact'    => '0912-345-6801',
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
             // Nurse User
             [
                 'username'   => 'nurse.reyes',
@@ -377,6 +448,7 @@ class UserSeeder extends Seeder
             ->getResultArray();
         
         // Doctor specializations mapping (standardized and valid)
+        // Surgery specialists are mapped to match exactly with surgery types
         $doctorSpecializations = [
             'dr.delacruz' => 'General Practice',
             'dr.anagarcia' => 'Pediatrics',
@@ -388,6 +460,12 @@ class UserSeeder extends Seeder
             'dr.elenatorres' => 'Obstetrics and Gynecology',
             'dr.ricardomendoza' => 'Surgery',
             'dr.angelicagomez' => 'Pediatrics',
+            // Surgical Specialists - These must match exactly with surgery types
+            'dr.generalsurgery' => 'General Surgery',
+            'dr.orthopedicsurgery' => 'Orthopedic Surgery',
+            'dr.obgynesurgery' => 'OB-Gyne Surgery',
+            'dr.entsurgery' => 'ENT Surgery',
+            'dr.urologicsurgery' => 'Urologic Surgery',
         ];
         
         // Valid specializations list (for validation)
@@ -401,6 +479,11 @@ class UserSeeder extends Seeder
             'Dermatology',
             'Obstetrics and Gynecology',
             'Surgery',
+            'General Surgery',
+            'Orthopedic Surgery',
+            'OB-Gyne Surgery',
+            'ENT Surgery',
+            'Urologic Surgery',
             'Emergency Medicine',
             'Psychiatry',
             'Radiology',
@@ -421,14 +504,19 @@ class UserSeeder extends Seeder
                 continue; // Skip if already exists
             }
             
-            // Get specialization from mapping
-            $specialization = $doctorSpecializations[$username] ?? 'General Practice';
+            // Get specialization - prioritize user's specialization field, then mapping
+            $specialization = $user['specialization'] ?? $doctorSpecializations[$username] ?? 'General Practice';
             
-            // Format doctor name from username
-            $namePart = preg_replace('/^dr\./', '', $username);
-            $namePart = str_replace('.', ' ', $namePart);
-            $namePart = ucwords($namePart);
-            $doctorName = 'Dr. ' . $namePart;
+            // Use actual name from user record if available, otherwise format from username
+            if (!empty($user['first_name']) && !empty($user['last_name'])) {
+                $doctorName = 'Dr. ' . $user['first_name'] . ' ' . $user['last_name'];
+            } else {
+                // Format doctor name from username (fallback)
+                $namePart = preg_replace('/^dr\./', '', $username);
+                $namePart = str_replace('.', ' ', $namePart);
+                $namePart = ucwords($namePart);
+                $doctorName = 'Dr. ' . $namePart;
+            }
             
             // Insert doctor record
             $doctorData = [
