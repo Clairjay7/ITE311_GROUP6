@@ -90,7 +90,7 @@ class ScheduleController extends BaseController
                         ->getResultArray();
                 }
                 
-                // Also get patient appointments from schedules table
+                // Get patient appointments from schedules table
                 $patientAppointments = [];
                 if ($db->tableExists('schedules')) {
                     $appointmentQuery = $db->table('schedules')
@@ -112,9 +112,41 @@ class ScheduleController extends BaseController
                         ->getResultArray();
                 }
                 
+                // Also get appointments from appointments table (created from Reception)
+                $receptionAppointments = [];
+                if ($db->tableExists('appointments')) {
+                    $appointmentQuery = $db->table('appointments')
+                        ->select('appointments.*, 
+                            COALESCE(patients.first_name, admin_patients.firstname) as firstname,
+                            COALESCE(patients.last_name, admin_patients.lastname) as lastname,
+                            appointments.appointment_date as date,
+                            appointments.appointment_time as time,
+                            appointments.status')
+                        ->join('patients', 'patients.patient_id = appointments.patient_id', 'left')
+                        ->join('admin_patients', 'admin_patients.id = appointments.patient_id', 'left')
+                        ->where('appointments.doctor_id', $doctor['id'])
+                        ->whereNotIn('appointments.status', ['cancelled', 'no_show']);
+                    
+                    if ($viewType === 'date') {
+                        $appointmentQuery->where('appointments.appointment_date', $selectedDate);
+                    } else {
+                        $appointmentQuery->where('appointments.appointment_date >=', $startDate)
+                                         ->where('appointments.appointment_date <=', $endDate);
+                    }
+                    
+                    $receptionAppointments = $appointmentQuery
+                        ->orderBy('appointments.appointment_date', 'ASC')
+                        ->orderBy('appointments.appointment_time', 'ASC')
+                        ->get()
+                        ->getResultArray();
+                }
+                
+                // Merge appointments from both sources
+                $allAppointments = array_merge($patientAppointments, $receptionAppointments);
+                
                 // Only add doctor to list if they have schedules or appointments
                 // This ensures only doctors with manually created schedules are shown
-                if (!empty($doctorSchedules) || !empty($patientAppointments)) {
+                if (!empty($doctorSchedules) || !empty($allAppointments)) {
                     $usersWithSchedules[] = [
                         'user_id' => $doctor['id'],
                         'username' => $doctor['username'],
@@ -123,7 +155,7 @@ class ScheduleController extends BaseController
                         'role_name' => $doctor['role_name'],
                         'specialization' => $doctor['specialization'] ?? null,
                         'schedules' => $doctorSchedules,
-                        'appointments' => $patientAppointments,
+                        'appointments' => $allAppointments,
                     ];
                 }
             }
@@ -230,7 +262,8 @@ class ScheduleController extends BaseController
                     ->getResultArray();
             }
             
-            // Get patient appointments
+            // Get patient appointments from schedules table
+            $scheduleAppointments = [];
             if ($db->tableExists('schedules')) {
                 $appointmentQuery = $db->table('schedules')
                     ->select('schedules.*, admin_patients.firstname, admin_patients.lastname')
@@ -242,12 +275,42 @@ class ScheduleController extends BaseController
                     $appointmentQuery->where('DATE_FORMAT(schedules.date, "%Y-%m")', $selectedMonth);
                 }
                 
-                $appointments = $appointmentQuery
+                $scheduleAppointments = $appointmentQuery
                     ->orderBy('schedules.date', 'ASC')
                     ->orderBy('schedules.time', 'ASC')
                     ->get()
                     ->getResultArray();
             }
+            
+            // Also get appointments from appointments table (created from Reception)
+            $receptionAppointments = [];
+            if ($db->tableExists('appointments')) {
+                $appointmentQuery = $db->table('appointments')
+                    ->select('appointments.*, 
+                        COALESCE(patients.first_name, admin_patients.firstname) as firstname,
+                        COALESCE(patients.last_name, admin_patients.lastname) as lastname,
+                        appointments.appointment_date as date,
+                        appointments.appointment_time as time,
+                        appointments.status')
+                    ->join('patients', 'patients.patient_id = appointments.patient_id', 'left')
+                    ->join('admin_patients', 'admin_patients.id = appointments.patient_id', 'left')
+                    ->where('appointments.doctor_id', $userId)
+                    ->whereNotIn('appointments.status', ['cancelled', 'no_show']);
+                
+                // Filter by month if selected
+                if ($selectedMonth) {
+                    $appointmentQuery->where('DATE_FORMAT(appointments.appointment_date, "%Y-%m")', $selectedMonth);
+                }
+                
+                $receptionAppointments = $appointmentQuery
+                    ->orderBy('appointments.appointment_date', 'ASC')
+                    ->orderBy('appointments.appointment_time', 'ASC')
+                    ->get()
+                    ->getResultArray();
+            }
+            
+            // Merge appointments from both sources
+            $appointments = array_merge($scheduleAppointments, $receptionAppointments);
         } else {
             $user = $db->table('users')
                 ->select('users.id, users.username, users.email')

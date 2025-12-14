@@ -332,13 +332,17 @@ class LaboratoryController extends BaseController
         
         // Check if patient has active admission
         if ($db->tableExists('admissions')) {
-            $activeAdmission = $db->table('admissions')
+            $builder = $db->table('admissions')
                 ->where('patient_id', $patientId)
                 ->where('status', 'admitted')
-                ->where('discharge_status', 'admitted')
-                ->where('deleted_at', null)
-                ->get()
-                ->getRowArray();
+                ->where('discharge_status', 'admitted');
+            
+            // Only check deleted_at if column exists
+            if ($db->fieldExists('deleted_at', 'admissions')) {
+                $builder->where('deleted_at', null);
+            }
+            
+            $activeAdmission = $builder->get()->getRowArray();
             
             if ($activeAdmission) {
                 return true;
@@ -357,13 +361,17 @@ class LaboratoryController extends BaseController
         
         // Check patients table (HMS patients) for type = 'In-Patient' and visit_type = 'Admission'
         if ($db->tableExists('patients')) {
-            $hmsPatient = $db->table('patients')
+            $builder = $db->table('patients')
                 ->where('patient_id', $patientId)
                 ->where('LOWER(type)', 'in-patient')
-                ->where('LOWER(visit_type)', 'admission')
-                ->where('deleted_at', null)
-                ->get()
-                ->getRowArray();
+                ->where('LOWER(visit_type)', 'admission');
+            
+            // Only check deleted_at if column exists
+            if ($db->fieldExists('deleted_at', 'patients')) {
+                $builder->where('deleted_at', null);
+            }
+            
+            $hmsPatient = $builder->get()->getRowArray();
             if ($hmsPatient) {
                 return true;
             }

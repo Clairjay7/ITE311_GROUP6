@@ -49,6 +49,14 @@
         }
       }
     }
+    
+    // Ensure both arrays are sorted by patient_id DESC (newest first)
+    usort($inPatients, function($a, $b) {
+      return (int)$b['patient_id'] <=> (int)$a['patient_id'];
+    });
+    usort($outPatients, function($a, $b) {
+      return (int)$b['patient_id'] <=> (int)$a['patient_id'];
+    });
 
     $showInPatients  = ($type === '' || $type === 'In-Patient');
     $showOutPatients = ($type === '' || $type === 'Out-Patient');
@@ -62,8 +70,10 @@
             <th>ID</th>
             <th>Full Name</th>
             <th>Type</th>
+            <th>Blood Type</th>
+            <th>Visit Type</th>
+            <th>Purpose</th>
             <th>Doctor Assigned</th>
-            <th>Department</th>
             <th>Contact</th>
             <th>Actions</th>
           </tr>
@@ -74,8 +84,22 @@
               <td><?= esc($p['patient_id']) ?></td>
               <td><?= esc($p['full_name']) ?></td>
               <td><span class="badge <?= $p['type']==='In-Patient'?'bg-info':'bg-success' ?>"><?= esc($p['type']) ?></span></td>
+              <td>
+                <?php if (!empty($p['blood_type'])): ?>
+                  <span class="badge bg-danger"><?= esc($p['blood_type']) ?></span>
+                <?php else: ?>
+                  <span class="text-muted">-</span>
+                <?php endif; ?>
+              </td>
+              <td>
+                <?php if (!empty($p['visit_type'])): ?>
+                  <span class="badge bg-secondary"><?= esc($p['visit_type']) ?></span>
+                <?php else: ?>
+                  <span class="text-muted">-</span>
+                <?php endif; ?>
+              </td>
+              <td><?= esc($p['purpose'] ?? '-') ?></td>
               <td><?= esc($p['doctor_name'] ?? 'N/A') ?></td>
-              <td><?= esc($p['department_name'] ?? '-') ?></td>
               <td><?= esc($p['contact'] ?? '-') ?></td>
               <td>
                 <a class="btn btn-sm btn-outline-primary" href="<?= site_url('receptionist/patients/show/'.$p['patient_id']) ?>">View</a>
@@ -87,7 +111,7 @@
               </td>
             </tr>
           <?php endforeach; else: ?>
-            <tr><td colspan="7" class="text-center text-muted py-4 empty">No in-patient records found.</td></tr>
+            <tr><td colspan="9" class="text-center text-muted py-4 empty">No in-patient records found.</td></tr>
           <?php endif; ?>
         </tbody>
       </table>
@@ -103,8 +127,10 @@
             <th>ID</th>
             <th>Full Name</th>
             <th>Type</th>
+            <th>Blood Type</th>
+            <th>Visit Type</th>
+            <th>Purpose</th>
             <th>Doctor Assigned</th>
-            <th>Department</th>
             <th>Contact</th>
             <th>Actions</th>
           </tr>
@@ -115,8 +141,22 @@
               <td><?= esc($p['patient_id']) ?></td>
               <td><?= esc($p['full_name']) ?></td>
               <td><span class="badge <?= $p['type']==='In-Patient'?'bg-info':'bg-success' ?>"><?= esc($p['type']) ?></span></td>
+              <td>
+                <?php if (!empty($p['blood_type'])): ?>
+                  <span class="badge bg-danger"><?= esc($p['blood_type']) ?></span>
+                <?php else: ?>
+                  <span class="text-muted">-</span>
+                <?php endif; ?>
+              </td>
+              <td>
+                <?php if (!empty($p['visit_type'])): ?>
+                  <span class="badge bg-secondary"><?= esc($p['visit_type']) ?></span>
+                <?php else: ?>
+                  <span class="text-muted">-</span>
+                <?php endif; ?>
+              </td>
+              <td><?= esc($p['purpose'] ?? '-') ?></td>
               <td><?= esc($p['doctor_name'] ?? 'N/A') ?></td>
-              <td><?= esc($p['department_name'] ?? '-') ?></td>
               <td><?= esc($p['contact'] ?? '-') ?></td>
               <td>
                 <a class="btn btn-sm btn-outline-primary" href="<?= site_url('receptionist/patients/show/'.$p['patient_id']) ?>">View</a>
@@ -128,7 +168,7 @@
               </td>
             </tr>
           <?php endforeach; else: ?>
-            <tr><td colspan="7" class="text-center text-muted py-4 empty">No out-patient records found.</td></tr>
+            <tr><td colspan="9" class="text-center text-muted py-4 empty">No out-patient records found.</td></tr>
           <?php endif; ?>
         </tbody>
       </table>

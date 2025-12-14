@@ -100,6 +100,19 @@
                 </a>
             </li>
 
+            <li class="nav-item">
+                <a href="<?= site_url('doctor/consultations/completed') ?>">
+                    <i class="fa-solid fa-check-circle sidebar-icon"></i>
+                    <span class="text">Completed Consultations</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a href="<?= site_url('doctor/schedule') ?>">
+                    <i class="fa-regular fa-calendar-check sidebar-icon"></i>
+                    <span class="text">My Schedule</span>
+                </a>
+            </li>
 
             <?php
             // Check if doctor is a pediatrician
@@ -265,6 +278,13 @@
                 <a href="<?= site_url('receptionist/schedule') ?>">
                     <i class="fa-solid fa-calendar-alt sidebar-icon"></i>
                     <span class="text">View Schedules</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a href="<?= site_url('receptionist/follow-up') ?>">
+                    <i class="fa-solid fa-arrow-rotate-right sidebar-icon"></i>
+                    <span class="text">Follow Up</span>
                 </a>
             </li>
         <?php endif; ?>

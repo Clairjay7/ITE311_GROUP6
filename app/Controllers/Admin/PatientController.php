@@ -165,34 +165,90 @@ class PatientController extends BaseController
         if ($prefType === 'In-Patient' && $db->tableExists('rooms')) {
             $roomTypes = ['Private', 'Semi-Private', 'Ward', 'ICU', 'Isolation', 'NICU'];
             foreach ($roomTypes as $roomType) {
-                // Get available rooms for this type (case-insensitive status check, exclude occupied)
-                $rooms = $db->table('rooms')
+                // Get all rooms for this type (we'll filter occupied ones)
+                $allRooms = $db->table('rooms')
                     ->select('id, room_number, room_type, ward, bed_count, price, status, current_patient_id')
                     ->where('room_type', $roomType)
-                    ->where('(LOWER(status) = "available" OR status IS NULL)', null, false)
-                    ->where('(LOWER(status) != "occupied" OR status IS NULL)', null, false)
-                    ->where('current_patient_id IS NULL', null, false)
                     ->orderBy('room_number', 'ASC')
                     ->get()
                     ->getResultArray();
                 
-                // For each room, get available beds
+                // Get all occupied room IDs from patients table
+                $occupiedRoomIds = [];
+                if ($db->tableExists('patients')) {
+                    $occupiedRooms = $db->table('patients')
+                        ->select('room_id')
+                        ->where('room_id IS NOT NULL', null, false)
+                        ->where('room_id !=', '')
+                        ->get()
+                        ->getResultArray();
+                    $occupiedRoomIds = array_column($occupiedRooms, 'room_id');
+                }
+                
+                // Filter rooms: exclude occupied ones
+                $rooms = [];
+                foreach ($allRooms as $room) {
+                    $roomStatus = strtolower(trim($room['status'] ?? ''));
+                    $isOccupied = ($roomStatus === 'occupied') 
+                        || !empty($room['current_patient_id'])
+                        || in_array($room['id'], $occupiedRoomIds);
+                    
+                    if (!$isOccupied) {
+                        $room['is_available'] = true;
+                        $rooms[] = $room;
+                    } else {
+                        // Include but mark as unavailable
+                        $room['is_available'] = false;
+                        $rooms[] = $room;
+                    }
+                }
+                
+                // For each room, get beds
                 foreach ($rooms as &$room) {
                     if ($db->tableExists('beds')) {
-                        $beds = $db->table('beds')
+                        $allBeds = $db->table('beds')
                             ->select('id, bed_number, status, current_patient_id')
                             ->where('room_id', $room['id'])
-                            ->where('(LOWER(status) = "available" OR status IS NULL)', null, false)
-                            ->where('(LOWER(status) != "occupied" OR status IS NULL)', null, false)
-                            ->where('current_patient_id IS NULL', null, false)
                             ->orderBy('bed_number', 'ASC')
                             ->get()
                             ->getResultArray();
                         
-                        $room['available_beds'] = $beds;
-                        $availableBedsByRoom[$room['id']] = $beds;
+                        // Get all occupied bed IDs from patients table
+                        $occupiedBedIds = [];
+                        if ($db->tableExists('patients') && $db->fieldExists('bed_id', 'patients')) {
+                            $occupiedBeds = $db->table('patients')
+                                ->select('bed_id')
+                                ->where('bed_id IS NOT NULL', null, false)
+                                ->where('bed_id !=', '')
+                                ->get()
+                                ->getResultArray();
+                            $occupiedBedIds = array_column($occupiedBeds, 'bed_id');
+                        }
+                        
+                        // Filter beds: separate available and unavailable
+                        $availableBeds = [];
+                        $unavailableBeds = [];
+                        foreach ($allBeds as $bed) {
+                            $bedStatus = strtolower(trim($bed['status'] ?? ''));
+                            $isBedOccupied = ($bedStatus === 'occupied')
+                                || !empty($bed['current_patient_id'])
+                                || in_array($bed['id'], $occupiedBedIds);
+                            
+                            if (!$isBedOccupied) {
+                                $bed['is_available'] = true;
+                                $availableBeds[] = $bed;
+                            } else {
+                                $bed['is_available'] = false;
+                                $unavailableBeds[] = $bed;
+                            }
+                        }
+                        
+                        $room['available_beds'] = $availableBeds;
+                        $room['unavailable_beds'] = $unavailableBeds;
+                        $availableBedsByRoom[$room['id']] = $availableBeds;
                     } else {
                         $room['available_beds'] = [];
+                        $room['unavailable_beds'] = [];
                     }
                 }
                 
@@ -210,6 +266,37 @@ class PatientController extends BaseController
         // Both Out-Patient and In-Patient: Only show doctors who have schedules
         // Doctors without schedules cannot be assigned to patients
         $allDoctors = $this->doctorModel->getDoctorsWithSchedules();
+        
+        // For Out-Patient: Check doctor availability for appointment date
+        // For In-Patient: Check doctor availability for today
+        $selectedDate = $prefType === 'Out-Patient' 
+            ? ($this->request->getPost('appointment_day') ?? date('Y-m-d'))
+            : date('Y-m-d');
+        
+        $doctors = [];
+        $db = \Config\Database::connect();
+        foreach ($allDoctors as $doctor) {
+            $doctorId = $doctor['id'];
+            $isAvailable = false;
+            
+            // Check if doctor has an active schedule for the selected date
+            if ($db->tableExists('doctor_schedules')) {
+                $schedule = $db->table('doctor_schedules')
+                    ->where('doctor_id', $doctorId)
+                    ->where('shift_date', $selectedDate)
+                    ->where('status', 'active')
+                    ->get()
+                    ->getRowArray();
+                
+                if ($schedule) {
+                    $isAvailable = true;
+                }
+            }
+            
+            // Add availability flag
+            $doctor['is_available'] = $isAvailable;
+            $doctors[] = $doctor;
+        }
 
         $viewName = $prefType === 'Out-Patient'
             ? 'admin/patients/outpatient'
@@ -376,8 +463,26 @@ class PatientController extends BaseController
                 
                 // If appointment date is today, validate that time is not in the past
                 if ($appointmentDate === $today && !empty($appointmentTime)) {
-                    $currentTime = date('H:i');
-                    if ($appointmentTime < $currentTime) {
+                    // Use Philippine timezone for accurate time comparison
+                    $tz = new \DateTimeZone('Asia/Manila');
+                    $now = new \DateTime('now', $tz);
+                    $currentTime = $now->format('H:i');
+                    
+                    // Normalize appointment time format (ensure it's HH:MM)
+                    $appointmentTimeFormatted = $appointmentTime;
+                    if (strlen($appointmentTimeFormatted) === 5 && substr_count($appointmentTimeFormatted, ':') === 1) {
+                        // Already in HH:MM format
+                    } else {
+                        // Try to parse and format
+                        $timeParts = explode(':', $appointmentTimeFormatted);
+                        if (count($timeParts) >= 2) {
+                            $appointmentTimeFormatted = sprintf('%02d:%02d', (int)$timeParts[0], (int)$timeParts[1]);
+                        }
+                    }
+                    
+                    // Compare times using DateTime objects for accuracy
+                    $appointmentDateTime = new \DateTime($appointmentDate . ' ' . $appointmentTimeFormatted . ':00', $tz);
+                    if ($appointmentDateTime < $now) {
                         return redirect()->back()->withInput()->with('error', 'If appointment date is today, appointment time cannot be in the past.');
                     }
                 }
@@ -608,6 +713,12 @@ class PatientController extends BaseController
         }
         
         log_message('info', "Admin Patient Registration - patient_id: {$patientId}, doctor_id: {$doctorId}, type: {$type}, visit_type: {$visitType}");
+        
+        // Initialize room variables (for Out-Patient, these will be null)
+        $selectedRoomId = null;
+        $selectedRoomNumber = null;
+        $selectedBedId = null;
+        $selectedBedNumber = null;
         
         // Handle room assignment for In-Patient
         if ($patientId && $type === 'In-Patient') {
@@ -863,24 +974,24 @@ class PatientController extends BaseController
                     $appointmentTime = $appointmentTimeInput . ':00';
                     
                     if ($db->tableExists('consultations') && !empty($patientId) && !empty($doctorId) && !empty($appointmentDate) && !empty($appointmentTime)) {
-                    $consultationModel = new \App\Models\ConsultationModel();
-                    try {
-                        $consultationData = [
-                            'doctor_id' => $doctorId,
-                            'patient_id' => $patientId,
-                            'consultation_date' => $appointmentDate,
-                            'consultation_time' => $appointmentTime,
-                            'type' => 'upcoming',
-                            'status' => 'approved',
-                            'notes' => $this->request->getPost('purpose') ?: "Visit Type: {$visitType}",
-                            'created_at' => date('Y-m-d H:i:s'),
-                        ];
-                        
-                        $consultationModel->insert($consultationData);
-                        log_message('info', "Consultation created for patient {$patientId} with doctor {$doctorId}");
-                    } catch (\Exception $e) {
-                        log_message('error', "Failed to create consultation: " . $e->getMessage());
-                    }
+                        try {
+                            $consultationData = [
+                                'doctor_id' => $doctorId,
+                                'patient_id' => $patientId,
+                                'consultation_date' => $appointmentDate,
+                                'consultation_time' => $appointmentTime,
+                                'type' => 'upcoming',
+                                'status' => 'approved',
+                                'notes' => $this->request->getPost('purpose') ?: "Visit Type: {$visitType}",
+                                'created_at' => date('Y-m-d H:i:s'),
+                                'updated_at' => date('Y-m-d H:i:s'),
+                            ];
+                            
+                            $db->table('consultations')->insert($consultationData);
+                            log_message('info', "Consultation created for patient {$patientId} with doctor {$doctorId}");
+                        } catch (\Exception $e) {
+                            log_message('error', "Failed to create consultation: " . $e->getMessage());
+                        }
                     }
                 }
             }
@@ -1363,7 +1474,7 @@ class PatientController extends BaseController
                 ->get()
                 ->getResultArray();
             
-            // Group by date
+            // Group by date - create a map of available dates
             $datesGrouped = [];
             foreach ($schedules as $schedule) {
                 $date = $schedule['shift_date'];
@@ -1383,32 +1494,45 @@ class PatientController extends BaseController
                 }
             }
             
-            // Format for response
-            foreach ($datesGrouped as $date => $times) {
-                $dayName = date('l', strtotime($date));
-                $monthDay = date('M d', strtotime($date));
-                $fullDate = date('Y-m-d', strtotime($date));
+            // Generate all weekdays for next 30 days and mark availability
+            $currentDate = new \DateTime($today);
+            $endDate = new \DateTime(date('Y-m-d', strtotime('+60 days')));
+            $count = 0;
+            
+            while ($currentDate <= $endDate && $count < 30) {
+                $dayOfWeek = (int)$currentDate->format('w');
                 
-                $scheduleDates[] = [
-                    'date' => $fullDate,
-                    'date_formatted' => date('M d, Y (l)', strtotime($date)),
-                    'day_name' => $dayName,
-                    'month_day' => $monthDay,
-                    'display_text' => $dayName . ', ' . $monthDay,
-                    'times' => $times,
-                    'available_hours' => array_map(function($t) {
-                        return $t['start'] . ' - ' . $t['end'];
-                    }, $times)
-                ];
+                if ($dayOfWeek >= 1 && $dayOfWeek <= 5) {
+                    $dateStr = $currentDate->format('Y-m-d');
+                    $dayName = date('l', strtotime($dateStr));
+                    $monthDay = date('M d', strtotime($dateStr));
+                    
+                    // Check if doctor has schedule for this date
+                    $isAvailable = isset($datesGrouped[$dateStr]) && !empty($datesGrouped[$dateStr]);
+                    $times = $isAvailable ? $datesGrouped[$dateStr] : [];
+                    
+                    $scheduleDates[] = [
+                        'date' => $dateStr,
+                        'date_formatted' => date('M d, Y (l)', strtotime($dateStr)),
+                        'day_name' => $dayName,
+                        'month_day' => $monthDay,
+                        'display_text' => $dayName . ', ' . $monthDay,
+                        'is_available' => $isAvailable,
+                        'times' => $times,
+                        'available_hours' => $isAvailable ? array_map(function($t) {
+                            return $t['start'] . ' - ' . $t['end'];
+                        }, $times) : []
+                    ];
+                    $count++;
+                }
+                
+                $currentDate->modify('+1 day');
             }
             
             // Sort by date
             usort($scheduleDates, function($a, $b) {
                 return strcmp($a['date'], $b['date']);
             });
-            
-            // Limit to next 30 weekdays for display
-            $scheduleDates = array_slice($scheduleDates, 0, 30);
         } else {
             // If table doesn't exist, return default schedule for next 30 weekdays
             $currentDate = new \DateTime($today);
@@ -1429,8 +1553,9 @@ class PatientController extends BaseController
                         'day_name' => $dayName,
                         'month_day' => $monthDay,
                         'display_text' => $dayName . ', ' . $monthDay,
-                        'times' => $defaultSchedule,
-                        'available_hours' => ['9:00 AM - 12:00 PM', '1:00 PM - 4:00 PM']
+                        'is_available' => false,
+                        'times' => [],
+                        'available_hours' => []
                     ];
                     $count++;
                 }

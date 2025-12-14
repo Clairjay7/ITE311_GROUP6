@@ -122,33 +122,30 @@
                                 <div class="schedule-card">
                                     <div class="schedule-time-badge">
                                         <i class="fa-solid fa-clock"></i>
-                                        <strong><?= date('h:i A', strtotime($schedule['start_time'])) ?> - <?= date('h:i A', strtotime($schedule['end_time'])) ?></strong>
+                                        <strong><?= date('h:i A', strtotime($schedule['start_time'])) ?><br><?= date('h:i A', strtotime($schedule['end_time'])) ?></strong>
                                     </div>
                                     <div class="schedule-info">
-                                        <div style="display: flex; flex-direction: column; gap: 8px;">
-                                            <?php if (isset($schedule['shift_type'])): ?>
-                                                <div class="schedule-type">
-                                                    <i class="fa-solid fa-clock-rotate-left"></i>
-                                                    <span style="padding: 4px 10px; background: #e0e7ff; color: #4338ca; border-radius: 4px; font-size: 12px; font-weight: 600;">
-                                                        <?= ucfirst(str_replace('_', ' ', $schedule['shift_type'])) ?> Shift
-                                                    </span>
-                                                </div>
-                                            <?php endif; ?>
-                                            <?php if ($role === 'nurse' && isset($schedule['station_assignment'])): ?>
-                                                <div style="font-size: 13px; color: #64748b;">
-                                                    <i class="fa-solid fa-hospital"></i> Station: <strong><?= esc($schedule['station_assignment']) ?></strong>
-                                                </div>
-                                            <?php endif; ?>
-                                        </div>
-                                        <div style="display: flex; gap: 8px; align-items: center;">
+                                        <?php if (isset($schedule['shift_type'])): ?>
+                                            <div class="schedule-type">
+                                                <span style="display: inline-block; padding: 2px 6px; background: #e0e7ff; color: #4338ca; border-radius: 4px; font-size: 8px; font-weight: 600;">
+                                                    <?= ucfirst(str_replace('_', ' ', substr($schedule['shift_type'], 0, 8))) ?>
+                                                </span>
+                                            </div>
+                                        <?php endif; ?>
+                                        <?php if ($role === 'nurse' && isset($schedule['station_assignment'])): ?>
+                                            <div style="font-size: 9px; color: #64748b; margin-top: 2px;">
+                                                <i class="fa-solid fa-hospital" style="font-size: 8px;"></i> <?= esc(substr($schedule['station_assignment'], 0, 10)) ?>
+                                            </div>
+                                        <?php endif; ?>
+                                        <div>
                                             <div class="schedule-status">
                                                 <span class="badge badge-<?= esc(strtolower($schedule['status'] ?? 'active')) ?>">
                                                     <?= esc(ucfirst($schedule['status'] ?? 'Active')) ?>
                                                 </span>
                                             </div>
                                             <?php if (session()->get('role') === 'admin'): ?>
-                                            <a href="<?= base_url('admin/schedule/edit/' . $schedule['id'] . '?role=' . $role) ?>" class="btn-edit-schedule" title="Edit Schedule">
-                                                <i class="fa-solid fa-edit"></i>
+                                            <a href="<?= base_url('admin/schedule/edit/' . $schedule['id'] . '?role=' . $role) ?>" class="btn-edit-schedule" title="Edit Schedule" style="margin-top: 2px; display: inline-block; padding: 2px 6px;">
+                                                <i class="fa-solid fa-edit" style="font-size: 9px;"></i>
                                             </a>
                                             <?php endif; ?>
                                         </div>
@@ -162,23 +159,25 @@
                                 <div class="appointments-header">
                                     <i class="fa-solid fa-user-injured"></i> Patient Appointments
                                 </div>
-                                <?php foreach ($appointmentsByDate[$date] as $appointment): ?>
-                                    <div class="appointment-card">
-                                        <div class="appointment-time">
-                                            <i class="fa-solid fa-clock"></i>
-                                            <?= date('h:i A', strtotime($appointment['time'])) ?>
+                                <div class="appointment-list">
+                                    <?php foreach ($appointmentsByDate[$date] as $appointment): ?>
+                                        <div class="appointment-card">
+                                            <div class="appointment-time">
+                                                <i class="fa-solid fa-clock"></i>
+                                                <span><?= date('h:i A', strtotime($appointment['time'])) ?></span>
+                                            </div>
+                                            <div class="appointment-patient">
+                                                <i class="fa-solid fa-user"></i>
+                                                <?= esc(($appointment['firstname'] ?? '') . ' ' . ($appointment['lastname'] ?? 'N/A')) ?>
+                                            </div>
+                                            <div class="appointment-status">
+                                                <span class="badge badge-<?= esc(strtolower($appointment['status'])) ?>">
+                                                    <?= esc(ucfirst($appointment['status'])) ?>
+                                                </span>
+                                            </div>
                                         </div>
-                                        <div class="appointment-patient">
-                                            <i class="fa-solid fa-user"></i>
-                                            <?= esc(($appointment['firstname'] ?? '') . ' ' . ($appointment['lastname'] ?? 'N/A')) ?>
-                                        </div>
-                                        <div class="appointment-status">
-                                            <span class="badge badge-<?= esc(strtolower($appointment['status'])) ?>">
-                                                <?= esc(ucfirst($appointment['status'])) ?>
-                                            </span>
-                                        </div>
-                                    </div>
-                                <?php endforeach; ?>
+                                    <?php endforeach; ?>
+                                </div>
                             </div>
                         <?php endif; ?>
                     </div>
@@ -235,33 +234,30 @@
                                             <div class="schedule-card">
                                                 <div class="schedule-time-badge">
                                                     <i class="fa-solid fa-clock"></i>
-                                                    <strong><?= date('h:i A', strtotime($schedule['start_time'])) ?> - <?= date('h:i A', strtotime($schedule['end_time'])) ?></strong>
+                                                    <strong><?= date('h:i A', strtotime($schedule['start_time'])) ?><br><?= date('h:i A', strtotime($schedule['end_time'])) ?></strong>
                                                 </div>
                                                 <div class="schedule-info">
-                                                    <div style="display: flex; flex-direction: column; gap: 8px;">
-                                                        <?php if (isset($schedule['shift_type'])): ?>
-                                                            <div class="schedule-type">
-                                                                <i class="fa-solid fa-clock-rotate-left"></i>
-                                                                <span style="padding: 4px 10px; background: #e0e7ff; color: #4338ca; border-radius: 4px; font-size: 12px; font-weight: 600;">
-                                                                    <?= ucfirst(str_replace('_', ' ', $schedule['shift_type'])) ?> Shift
-                                                                </span>
-                                                            </div>
-                                                        <?php endif; ?>
-                                                        <?php if ($role === 'nurse' && isset($schedule['station_assignment'])): ?>
-                                                            <div style="font-size: 13px; color: #64748b;">
-                                                                <i class="fa-solid fa-hospital"></i> Station: <strong><?= esc($schedule['station_assignment']) ?></strong>
-                                                            </div>
-                                                        <?php endif; ?>
-                                                    </div>
-                                                    <div style="display: flex; gap: 8px; align-items: center;">
+                                                    <?php if (isset($schedule['shift_type'])): ?>
+                                                        <div class="schedule-type">
+                                                            <span style="display: inline-block; padding: 2px 6px; background: #e0e7ff; color: #4338ca; border-radius: 4px; font-size: 8px; font-weight: 600;">
+                                                                <?= ucfirst(str_replace('_', ' ', substr($schedule['shift_type'], 0, 8))) ?>
+                                                            </span>
+                                                        </div>
+                                                    <?php endif; ?>
+                                                    <?php if ($role === 'nurse' && isset($schedule['station_assignment'])): ?>
+                                                        <div style="font-size: 9px; color: #64748b; margin-top: 2px;">
+                                                            <i class="fa-solid fa-hospital" style="font-size: 8px;"></i> <?= esc(substr($schedule['station_assignment'], 0, 10)) ?>
+                                                        </div>
+                                                    <?php endif; ?>
+                                                    <div>
                                                         <div class="schedule-status">
                                                             <span class="badge badge-<?= esc(strtolower($schedule['status'] ?? 'active')) ?>">
                                                                 <?= esc(ucfirst($schedule['status'] ?? 'Active')) ?>
                                                             </span>
                                                         </div>
                                                         <?php if (session()->get('role') === 'admin'): ?>
-                                                        <a href="<?= base_url('admin/schedule/edit/' . $schedule['id'] . '?role=' . $role) ?>" class="btn-edit-schedule" title="Edit Schedule">
-                                                            <i class="fa-solid fa-edit"></i>
+                                                        <a href="<?= base_url('admin/schedule/edit/' . $schedule['id'] . '?role=' . $role) ?>" class="btn-edit-schedule" title="Edit Schedule" style="margin-top: 2px; display: inline-block; padding: 2px 6px;">
+                                                            <i class="fa-solid fa-edit" style="font-size: 9px;"></i>
                                                         </a>
                                                         <?php endif; ?>
                                                     </div>
@@ -275,23 +271,25 @@
                                             <div class="appointments-header">
                                                 <i class="fa-solid fa-user-injured"></i> Patient Appointments
                                             </div>
-                                            <?php foreach ($appointmentsByMonth[$month][$date] as $appointment): ?>
-                                                <div class="appointment-card">
-                                                    <div class="appointment-time">
-                                                        <i class="fa-solid fa-clock"></i>
-                                                        <?= date('h:i A', strtotime($appointment['time'])) ?>
+                                            <div class="appointment-list">
+                                                <?php foreach ($appointmentsByMonth[$month][$date] as $appointment): ?>
+                                                    <div class="appointment-card">
+                                                        <div class="appointment-time">
+                                                            <i class="fa-solid fa-clock"></i>
+                                                            <span><?= date('h:i A', strtotime($appointment['time'])) ?></span>
+                                                        </div>
+                                                        <div class="appointment-patient">
+                                                            <i class="fa-solid fa-user"></i>
+                                                            <?= esc(($appointment['firstname'] ?? '') . ' ' . ($appointment['lastname'] ?? 'N/A')) ?>
+                                                        </div>
+                                                        <div class="appointment-status">
+                                                            <span class="badge badge-<?= esc(strtolower($appointment['status'])) ?>">
+                                                                <?= esc(ucfirst($appointment['status'])) ?>
+                                                            </span>
+                                                        </div>
                                                     </div>
-                                                    <div class="appointment-patient">
-                                                        <i class="fa-solid fa-user"></i>
-                                                        <?= esc(($appointment['firstname'] ?? '') . ' ' . ($appointment['lastname'] ?? 'N/A')) ?>
-                                                    </div>
-                                                    <div class="appointment-status">
-                                                        <span class="badge badge-<?= esc(strtolower($appointment['status'])) ?>">
-                                                            <?= esc(ucfirst($appointment['status'])) ?>
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            <?php endforeach; ?>
+                                                <?php endforeach; ?>
+                                            </div>
                                         </div>
                                     <?php endif; ?>
                                 </div>
@@ -397,15 +395,15 @@
 }
 
 .schedule-timeline {
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
 }
 
 .timeline-day {
     background: white;
     border-radius: 12px;
-    padding: 24px;
+    padding: 16px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
@@ -413,70 +411,105 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
-    padding-bottom: 16px;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
     border-bottom: 2px solid #e5e7eb;
+    flex-wrap: wrap;
+    gap: 8px;
 }
 
 .day-date {
-    font-size: 18px;
+    font-size: 14px;
     font-weight: 700;
     color: #1e293b;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
+}
+
+.day-date i {
+    font-size: 12px;
 }
 
 .day-count {
-    font-size: 14px;
+    font-size: 11px;
     color: #64748b;
     background: #f1f5f9;
-    padding: 6px 12px;
+    padding: 4px 10px;
     border-radius: 6px;
+    white-space: nowrap;
 }
 
 .day-schedules {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
     margin-bottom: 20px;
 }
 
 .schedule-card {
     background: #f8fafc;
-    border-left: 4px solid #3b82f6;
-    border-radius: 8px;
-    padding: 16px;
+    border-left: 3px solid #3b82f6;
+    border-radius: 6px;
+    padding: 10px;
     transition: all 0.3s;
+    display: flex;
+    flex-direction: column;
+    min-height: 75px;
 }
 
 .schedule-card:hover {
     background: #f1f5f9;
-    transform: translateX(4px);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .schedule-time-badge {
-    font-size: 16px;
-    font-weight: 700;
+    font-size: 11px;
+    font-weight: 600;
     color: #1e293b;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
     display: flex;
-    align-items: center;
-    gap: 8px;
+    align-items: flex-start;
+    gap: 4px;
+    line-height: 1.3;
+}
+
+.schedule-time-badge i {
+    font-size: 9px;
+    margin-top: 2px;
+}
+
+.schedule-time-badge strong {
+    font-size: 10px;
+    display: block;
+    line-height: 1.4;
 }
 
 .schedule-info {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
 }
 
 .schedule-type {
-    font-size: 13px;
+    font-size: 10px;
     color: #64748b;
     display: flex;
     align-items: center;
+    gap: 4px;
+    margin-top: 4px;
+}
+
+.schedule-info > div:last-child {
+    display: flex;
     gap: 6px;
+    align-items: center;
+    margin-top: auto;
+    padding-top: 6px;
+    border-top: 1px solid #e5e7eb;
+    flex-wrap: wrap;
 }
 
 .day-appointments {
@@ -495,41 +528,71 @@
     gap: 8px;
 }
 
+.day-appointments .appointment-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
+}
+
 .appointment-card {
     background: #fffbeb;
-    border-left: 4px solid #f59e0b;
-    border-radius: 8px;
-    padding: 16px;
-    margin-bottom: 12px;
+    border-left: 3px solid #f59e0b;
+    border-radius: 6px;
+    padding: 10px;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 16px;
+    flex-direction: column;
+    gap: 6px;
+    min-height: 75px;
+    transition: all 0.3s;
+}
+
+.appointment-card:hover {
+    background: #fef3c7;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
 }
 
 .appointment-time {
     font-weight: 600;
     color: #1e293b;
     display: flex;
-    align-items: center;
-    gap: 8px;
+    align-items: flex-start;
+    gap: 4px;
+    font-size: 11px;
+}
+
+.appointment-time i {
+    font-size: 9px;
+    margin-top: 2px;
 }
 
 .appointment-patient {
-    flex: 1;
-    color: #64748b;
+    color: #065f46;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    margin-top: 2px;
+}
+
+.appointment-patient i {
+    font-size: 9px;
+}
+
+.appointment-status {
+    margin-top: auto;
+    padding-top: 6px;
+    border-top: 1px solid #e5e7eb;
 }
 
 .badge {
-    padding: 4px 10px;
+    padding: 3px 8px;
     border-radius: 999px;
-    font-size: 11px;
+    font-size: 9px;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.3px;
 }
 
 .badge-pending { 
@@ -647,9 +710,9 @@
 }
 
 .month-schedules {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
 }
 
 .btn-edit-schedule {

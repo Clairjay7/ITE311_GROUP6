@@ -291,7 +291,7 @@ $routes->group('it', ['namespace' => 'App\\Controllers\\ITStaff', 'filter' => 'a
 });
 
 // Mga ruta para sa schedule ng doctor
-$routes->get('/doctor/schedule', 'Doctor\Doctor::schedule', ['filter' => 'auth:admin,doctor']);
+$routes->get('/doctor/schedule', 'Doctor\ScheduleController::index', ['filter' => 'auth:doctor']);
 $routes->post('/doctor/addSchedule', 'Doctor\Doctor::addSchedule', ['filter' => 'auth:admin,doctor']);
 $routes->post('/doctor/updateSchedule/(:num)', 'Doctor\Doctor::updateSchedule/$1', ['filter' => 'auth:admin,doctor']);
 $routes->post('/doctor/deleteSchedule/(:num)', 'Doctor\Doctor::deleteSchedule/$1', ['filter' => 'auth:admin,doctor']);
@@ -323,6 +323,10 @@ $routes->get('appointments/today', 'Appointment::getTodays');
 $routes->get('appointments/upcoming', 'Appointment::getUpcoming');
 $routes->get('appointments/search', 'Appointment::search');
 $routes->get('appointments/stats', 'Appointment::getStats');
+$routes->get('appointments/get-available-dates', 'Appointment::getAvailableDates');
+$routes->get('appointments/get-doctors-by-date', 'Appointment::getDoctorsByDate');
+$routes->get('appointments/get-times-by-doctor-and-date', 'Appointment::getTimesByDoctorAndDate');
+$routes->get('appointments/get-doctor-schedule', 'Appointment::getDoctorSchedule');
 
 
 // Mga ruta para sa laboratory
@@ -461,6 +465,10 @@ $routes->group('receptionist/patients', ['namespace' => 'App\\Controllers\\Recep
     $routes->get('get-available-times', 'Patients::getAvailableTimes');
 });
 
+$routes->group('receptionist', ['namespace' => 'App\\Controllers\\Receptionist', 'filter' => 'auth:receptionist,admin'], function($routes) {
+    $routes->get('follow-up', 'FollowUpController::index');
+});
+
 // Receptionist - Assign Doctor Routes
 $routes->group('receptionist/assign-doctor', ['namespace' => 'App\\Controllers\\Receptionist', 'filter' => 'auth:receptionist,admin'], function($routes) {
     $routes->get('waiting-list', 'AssignDoctorController::waitingList');
@@ -561,6 +569,14 @@ $routes->group('doctor', ['namespace' => 'App\\Controllers', 'filter' => 'auth:d
     $routes->group('notifications', function($routes) {
         $routes->post('mark-read/(:num)', 'Doctor\NotificationController::markRead/$1');
         $routes->post('mark-all-read', 'Doctor\NotificationController::markAllRead');
+    });
+    
+    // Doctor Consultations
+    $routes->group('consultations', function($routes) {
+        $routes->get('start/(:num)/(:segment)', 'Doctor\ConsultationController::start/$1/$2');
+        $routes->get('view/(:num)', 'Doctor\ConsultationController::view/$1');
+        $routes->get('completed', 'Doctor\ConsultationController::completed');
+        $routes->post('store', 'Doctor\ConsultationController::store');
     });
 });
 

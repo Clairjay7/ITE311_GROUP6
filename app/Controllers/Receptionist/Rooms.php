@@ -89,30 +89,60 @@ class Rooms extends BaseController
         
         // Get rooms by type - use direct DB query to ensure we get all rooms
         // Join with patients table to get patient name
+        // Use DISTINCT to prevent duplicate rooms
         $db = \Config\Database::connect();
         $rooms = $db->table('rooms')
-            ->select('rooms.*, patients.full_name AS patient_name, patients.patient_id AS assigned_patient_id')
+            ->select('rooms.id, rooms.room_number, rooms.ward, rooms.room_type, rooms.status, rooms.price, rooms.current_patient_id, rooms.bed_count, rooms.created_at, rooms.updated_at, patients.full_name AS patient_name, patients.patient_id AS assigned_patient_id')
             ->where('rooms.room_type', $roomType)
             ->join('patients', 'patients.patient_id = rooms.current_patient_id', 'left')
+            ->groupBy('rooms.id') // Group by room ID to prevent duplicates
             ->orderBy('rooms.room_number', 'ASC')
             ->get()
             ->getResultArray();
 
-        // Fetch beds for each room
+        // Fetch beds for each room and ensure no duplicate rooms
+        $uniqueRooms = [];
+        $processedRoomIds = [];
+        
         foreach ($rooms as &$room) {
+            // Skip if we've already processed this room
+            if (in_array($room['id'], $processedRoomIds)) {
+                continue;
+            }
+            
             $beds = [];
             if ($db->tableExists('beds')) {
-                $beds = $db->table('beds')
-                    ->select('beds.*, patients.full_name AS patient_name')
+                $bedsQuery = $db->table('beds')
+                    ->select('beds.id, beds.room_id, beds.bed_number, beds.status, beds.current_patient_id, beds.created_at, beds.updated_at, patients.full_name AS patient_name')
                     ->where('beds.room_id', $room['id'])
                     ->join('patients', 'patients.patient_id = beds.current_patient_id', 'left')
+                    ->groupBy('beds.id') // Group by bed ID to prevent duplicates
                     ->orderBy('beds.bed_number', 'ASC')
                     ->get()
                     ->getResultArray();
+                
+                // Additional deduplication by bed_number to ensure unique beds per room
+                $uniqueBeds = [];
+                $processedBedNumbers = [];
+                foreach ($bedsQuery as $bed) {
+                    $bedKey = $bed['bed_number'] . '_' . $bed['room_id'];
+                    if (!in_array($bedKey, $processedBedNumbers)) {
+                        $uniqueBeds[] = $bed;
+                        $processedBedNumbers[] = $bedKey;
+                    }
+                }
+                $beds = $uniqueBeds;
             }
             $room['beds'] = $beds;
+            
+            // Mark this room as processed and add to unique rooms
+            $processedRoomIds[] = $room['id'];
+            $uniqueRooms[] = $room;
         }
         unset($room);
+        
+        // Use unique rooms instead of original rooms array
+        $rooms = $uniqueRooms;
 
         // Get room type display name
         $displayNames = [

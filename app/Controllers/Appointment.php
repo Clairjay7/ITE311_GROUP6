@@ -40,26 +40,105 @@ class Appointment extends BaseController
             return redirect()->to('login');
         }
 
-        $filter = $this->request->getGet('filter') ?? 'today';
-        $date   = $this->request->getGet('date');
-        $today  = date('Y-m-d'); // server/app timezone
-
-        if ($filter === 'all') {
-            $appointments = $this->appointmentModel->getAppointmentsWithDetails();
-        } elseif ($filter === 'date' && $date && preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
-            $appointments = $this->appointmentModel->getAppointmentsByDateRange($date, $date);
-        } else { // default: today
-            $appointments = $this->appointmentModel->getAppointmentsByDateRange($today, $today);
-            $filter = 'today';
-            $date = $today;
+        $selectedMonth = $this->request->getGet('month'); // Format: Y-m
+        $today = date('Y-m-d');
+        
+        // Get all appointments (default: show all - past and future)
+        $db = \Config\Database::connect();
+        $allAppointments = $db->table('appointments')
+            ->select('appointments.*, 
+                     p.first_name as patient_first_name,
+                     p.middle_name as patient_middle_name,
+                     p.last_name as patient_last_name,
+                     p.full_name as patient_name,
+                     p.contact as patient_contact,
+                     u.username AS doctor_name,
+                     d.specialization')
+            ->join('patients p', 'p.patient_id = appointments.patient_id', 'left')
+            ->join('users u', 'u.id = appointments.doctor_id', 'left')
+            ->join('doctors d', 'd.user_id = appointments.doctor_id', 'left')
+            ->whereNotIn('appointments.status', ['cancelled']) // Exclude cancelled
+            ->orderBy('appointments.appointment_date', 'ASC')
+            ->orderBy('appointments.appointment_time', 'ASC')
+            ->get()
+            ->getResultArray();
+        
+        // Group appointments by month
+        $appointmentsByMonth = [];
+        $allMonths = [];
+        foreach ($allAppointments as $apt) {
+            $month = date('Y-m', strtotime($apt['appointment_date']));
+            $date = $apt['appointment_date'];
+            
+            if (!isset($appointmentsByMonth[$month])) {
+                $appointmentsByMonth[$month] = [];
+                $allMonths[] = $month;
+            }
+            if (!isset($appointmentsByMonth[$month][$date])) {
+                $appointmentsByMonth[$month][$date] = [];
+            }
+            $appointmentsByMonth[$month][$date][] = $apt;
+        }
+        sort($allMonths);
+        
+        // Filter by selected month if provided
+        $appointmentsByDate = [];
+        $appointments = [];
+        if ($selectedMonth && isset($appointmentsByMonth[$selectedMonth])) {
+            $appointmentsByDate = $appointmentsByMonth[$selectedMonth];
+            foreach ($appointmentsByDate as $dayAppointments) {
+                $appointments = array_merge($appointments, $dayAppointments);
+            }
+        } else {
+            // Show all appointments
+            foreach ($appointmentsByMonth as $monthAppointments) {
+                foreach ($monthAppointments as $dayAppointments) {
+                    $appointments = array_merge($appointments, $dayAppointments);
+                }
+            }
+        }
+        
+        // Calculate available slots per date
+        // Get all doctor schedules to determine which dates have available slots
+        $availableSlotsByDate = [];
+        $today = date('Y-m-d');
+        
+        // Get all dates with doctor schedules (today and future)
+        $futureSchedules = $db->table('doctor_schedules')
+            ->select('shift_date, COUNT(DISTINCT doctor_id) as doctor_count')
+            ->where('shift_date >=', $today)
+            ->where('status', 'active')
+            ->groupBy('shift_date')
+            ->get()
+            ->getResultArray();
+        
+        // Calculate available slots for each date with schedules
+        foreach ($futureSchedules as $schedule) {
+            $date = $schedule['shift_date'];
+            
+            // Count booked appointments for all doctors on this date
+            $bookedSlots = $db->table('appointments')
+                ->where('appointment_date', $date)
+                ->whereNotIn('status', ['cancelled', 'no_show'])
+                ->countAllResults();
+            
+            $totalSlots = $schedule['doctor_count'] * 10; // 10 slots per doctor (8am-5pm)
+            $availableSlots = $totalSlots - $bookedSlots;
+            
+            if ($availableSlots > 0) {
+                $availableSlotsByDate[$date] = $availableSlots;
+            }
         }
 
         $data = [
-            'title' => "Appointment List",
+            'title' => "Appointment Tracker",
             'active_menu' => 'appointments',
             'appointments' => $appointments,
-            'currentFilter' => $filter,
-            'currentDate' => $date ?? $today,
+            'appointmentsByMonth' => $appointmentsByMonth,
+            'appointmentsByDate' => $appointmentsByDate,
+            'allMonths' => $allMonths,
+            'selectedMonth' => $selectedMonth,
+            'availableSlotsByDate' => $availableSlotsByDate,
         ];
 
         return view('Reception/appointments/list', $data);
@@ -117,8 +196,35 @@ class Appointment extends BaseController
             return redirect()->to('login');
         }
 
-        // Get doctors from doctors table
-        $doctors = $this->doctorModel->getAllDoctors();
+        // Get only doctors who have schedules (active schedules for today or future dates)
+        $allDoctors = $this->doctorModel->getDoctorsWithSchedules();
+        
+        // Check doctor availability for today (default) - will be updated via AJAX when date is selected
+        $selectedDate = date('Y-m-d');
+        $doctors = [];
+        $db = \Config\Database::connect();
+        foreach ($allDoctors as $doctor) {
+            $doctorId = $doctor['id'];
+            $isAvailable = false;
+            
+            // Check if doctor has an active schedule for the selected date
+            if ($db->tableExists('doctor_schedules')) {
+                $schedule = $db->table('doctor_schedules')
+                    ->where('doctor_id', $doctorId)
+                    ->where('shift_date', $selectedDate)
+                    ->where('status', 'active')
+                    ->get()
+                    ->getRowArray();
+                
+                if ($schedule) {
+                    $isAvailable = true;
+                }
+            }
+            
+            // Add availability flag
+            $doctor['is_available'] = $isAvailable;
+            $doctors[] = $doctor;
+        }
 
         $departments = $this->departmentModel->findAll();
 
@@ -143,18 +249,64 @@ class Appointment extends BaseController
             return $this->response->setJSON(['success' => false, 'message' => 'Unauthorized'])->setStatusCode(401);
         }
 
+        $doctorId = $this->request->getGet('doctor_id');
+        if (!$doctorId) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Doctor ID required'])->setStatusCode(400);
+        }
+
         $today = date('Y-m-d');
         $db = \Config\Database::connect();
+        
+        // Get all available schedule dates
         $rows = $db->table('doctor_schedules')
             ->select('shift_date')
+            ->where('doctor_id', $doctorId)
             ->where('shift_date >=', $today)
-            ->where('status !=', 'cancelled')
+            ->where('status', 'active')
             ->distinct()
             ->orderBy('shift_date', 'ASC')
             ->get()->getResultArray();
 
-        $dates = array_values(array_unique(array_map(function($r){ return $r['shift_date']; }, $rows)));
-        return $this->response->setJSON(['success' => true, 'dates' => $dates]);
+        $allDates = array_values(array_unique(array_map(function($r){ return $r['shift_date']; }, $rows)));
+        
+        // Filter out dates that are fully booked (no available time slots)
+        $availableDates = [];
+        foreach ($allDates as $date) {
+            // Get doctor's schedule for this date
+            $schedules = $db->table('doctor_schedules')
+                ->select('start_time, end_time')
+                ->where('doctor_id', $doctorId)
+                ->where('shift_date', $date)
+                ->where('status', 'active')
+                ->orderBy('start_time', 'ASC')
+                ->get()->getResultArray();
+            
+            if (empty($schedules)) {
+                continue; // Skip dates without schedule
+            }
+            
+            // Calculate total available time slots for this date
+            // Fixed slots from 8am to 5pm = 10 slots (8:00, 9:00, 10:00, 11:00, 12:00, 13:00, 14:00, 15:00, 16:00, 17:00)
+            $totalSlots = 10; // Fixed 8am-5pm slots
+            
+            // Get booked appointments for this date
+            $bookedCount = 0;
+            if ($db->tableExists('appointments')) {
+                $booked = $db->table('appointments')
+                    ->where('doctor_id', $doctorId)
+                    ->where('appointment_date', $date)
+                    ->whereNotIn('status', ['cancelled', 'no_show', 'completed'])
+                    ->countAllResults();
+                $bookedCount = $booked;
+            }
+            
+            // Only include dates that have available slots (less than 10 bookings)
+            if ($bookedCount < $totalSlots) {
+                $availableDates[] = $date;
+            }
+        }
+        
+        return $this->response->setJSON(['success' => true, 'dates' => $availableDates]);
     }
 
     /**
@@ -226,20 +378,21 @@ class Appointment extends BaseController
             $bookedSet[$t] = true;
         }
 
-        // 3) Expand schedule into 1-hour slots and remove booked ones
+        // 3) Generate time slots from 8am to 5pm (8:00 AM to 5:00 PM)
         $slots = [];
         $tz = new \DateTimeZone('Asia/Manila');
-        foreach ($rows as $r) {
-            $start = new \DateTime($date . ' ' . $r['start_time'], $tz);
-            $end = new \DateTime($date . ' ' . $r['end_time'], $tz);
-            if ($end <= $start) { // cross-midnight handling
-                $end->modify('+1 day');
-            }
-            $cursor = clone $start;
-            while ($cursor < $end) {
-                $value = $cursor->format('H:i:00'); // submit value
+        
+        // Only generate slots if doctor has a schedule for this date
+        if (!empty($rows)) {
+            // Generate slots from 8:00 AM to 5:00 PM (17:00)
+            $startTime = new \DateTime($date . ' 08:00:00', $tz);
+            $endTime = new \DateTime($date . ' 17:00:00', $tz);
+            $cursor = clone $startTime;
+            
+            while ($cursor <= $endTime) {
+                $value = $cursor->format('H:i:00'); // submit value (24-hour format)
                 if (!isset($bookedSet[$value])) {   // exclude already booked times
-                    $slots[$value] = $cursor->format('g:i A'); // display label
+                    $slots[$value] = $cursor->format('g:i A'); // display label (12-hour format)
                 }
                 $cursor->modify('+1 hour');
             }
@@ -253,6 +406,44 @@ class Appointment extends BaseController
         }
 
         return $this->response->setJSON(['success' => true, 'times' => $times]);
+    }
+    
+    /**
+     * JSON: Get doctor's schedule (all available dates and times)
+     */
+    public function getDoctorSchedule()
+    {
+        $allowedRoles = ['admin', 'nurse', 'receptionist'];
+        if (!in_array(session('role'), $allowedRoles)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Unauthorized'])->setStatusCode(401);
+        }
+
+        $doctorId = $this->request->getGet('doctor_id');
+        if (!$doctorId) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Doctor ID required'])->setStatusCode(400);
+        }
+
+        $db = \Config\Database::connect();
+        $today = date('Y-m-d');
+
+        // Get all active schedules for this doctor (today and future)
+        $schedules = [];
+        if ($db->tableExists('doctor_schedules')) {
+            $schedules = $db->table('doctor_schedules')
+                ->select('shift_date, start_time, end_time, status')
+                ->where('doctor_id', $doctorId)
+                ->where('shift_date >=', $today)
+                ->where('status', 'active')
+                ->orderBy('shift_date', 'ASC')
+                ->orderBy('start_time', 'ASC')
+                ->get()
+                ->getResultArray();
+        }
+
+        return $this->response->setJSON([
+            'success' => true,
+            'schedule' => $schedules
+        ]);
     }
     
     /**
@@ -280,46 +471,122 @@ class Appointment extends BaseController
         }
 
         // Handle patient - prefer provided patient_id from autocomplete; fallback to name lookup/create
-        $patientName = trim((string)$this->request->getPost('patient_name'));
+        $firstName = trim((string)$this->request->getPost('first_name') ?? '');
+        $middleName = trim((string)$this->request->getPost('middle_name') ?? '');
+        $surname = trim((string)$this->request->getPost('surname') ?? '');
         $patientId = (string) ($this->request->getPost('patient_id') ?? '');
         
-        if ($patientId === '' && $patientName === '') {
+        if ($patientId === '' && ($firstName === '' || $surname === '')) {
             if (!$this->request->isAJAX()) {
-                return redirect()->back()->withInput()->with('error', 'Please enter patient name');
+                return redirect()->back()->withInput()->with('error', 'Please enter first name and surname');
             }
-            return $this->response->setJSON(['success' => false, 'message' => 'Please enter patient name']);
+            return $this->response->setJSON(['success' => false, 'message' => 'Please enter first name and surname']);
         }
 
         if ($patientId === '') {
             // Try to find existing patient by name first (case-insensitive on first and last)
             $existingPatient = $this->patientModel
                 ->groupStart()
-                    ->like('first_name', $patientName)
-                    ->orLike('last_name', $patientName)
-                    ->orLike("CONCAT(first_name, ' ', last_name)", $patientName)
+                    ->where('first_name', $firstName)
+                    ->where('last_name', $surname)
                 ->groupEnd()
                 ->first();
             
             if ($existingPatient) {
                 $patientId = $existingPatient['patient_id'];
+                
+                // Update existing patient with new information if provided
+                $updateData = [];
+                $contact = trim($this->request->getPost('contact') ?? '');
+                $email = trim($this->request->getPost('email') ?? '');
+                $dateOfBirth = $this->request->getPost('date_of_birth') ?? null;
+                $gender = $this->request->getPost('gender') ?? null;
+                $address = trim($this->request->getPost('address') ?? '');
+                $bloodType = $this->request->getPost('blood_type') ?? null;
+                $addressBarangay = trim($this->request->getPost('address_barangay') ?? '');
+                $addressCity = trim($this->request->getPost('address_city') ?? '');
+                $addressProvince = trim($this->request->getPost('address_province') ?? '');
+                
+                if (!empty($middleName)) {
+                    $updateData['middle_name'] = $middleName;
+                }
+                if (!empty($contact)) {
+                    $updateData['contact'] = $contact;
+                    $updateData['phone'] = $contact;
+                }
+                if (!empty($email)) {
+                    $updateData['email'] = $email;
+                }
+                if (!empty($dateOfBirth)) {
+                    $updateData['date_of_birth'] = $dateOfBirth;
+                }
+                if (!empty($gender)) {
+                    $updateData['gender'] = $gender;
+                }
+                if (!empty($address)) {
+                    $updateData['address'] = $address;
+                }
+                if (!empty($bloodType)) {
+                    $updateData['blood_type'] = $bloodType;
+                }
+                if (!empty($addressBarangay)) {
+                    $updateData['address_barangay'] = $addressBarangay;
+                }
+                if (!empty($addressCity)) {
+                    $updateData['address_city'] = $addressCity;
+                }
+                if (!empty($addressProvince)) {
+                    $updateData['address_province'] = $addressProvince;
+                }
+                
+                // Update patient if there's new information
+                if (!empty($updateData)) {
+                    $this->patientModel->skipValidation(true);
+                    $this->patientModel->update($patientId, $updateData);
+                    $this->patientModel->skipValidation(false);
+                }
             } else {
-                // Auto-create minimal patient so booking does not depend on suggestions
-                $nameParts = explode(' ', trim($patientName), 2);
-                $firstName = $nameParts[0] ?? 'Unknown';
-                $lastName = $nameParts[1] ?? 'Unknown';
+                // Auto-create patient with provided information from appointment form
+                $lastName = $surname;
 
-                $randomNum = rand(1000, 9999);
-                $email = strtolower(str_replace(' ', '.', $firstName . '.' . $lastName)) . $randomNum . '@temp.com';
-                $phone = '09' . rand(100000000, 999999999);
+                // Get form data
+                $contact = trim($this->request->getPost('contact') ?? '');
+                $email = trim($this->request->getPost('email') ?? '');
+                $dateOfBirth = $this->request->getPost('date_of_birth') ?? null;
+                $gender = $this->request->getPost('gender') ?? 'other';
+                $age = $this->request->getPost('age') ?? null;
+                $address = trim($this->request->getPost('address') ?? '');
+
+                // Generate default values if not provided
+                if (empty($email)) {
+                    $randomNum = rand(1000, 9999);
+                    $email = strtolower(str_replace(' ', '.', $firstName . '.' . $lastName)) . $randomNum . '@temp.com';
+                }
+                if (empty($contact)) {
+                    $contact = '09' . rand(100000000, 999999999);
+                }
+                if (empty($dateOfBirth)) {
+                    // Calculate date of birth from age if provided
+                    if (!empty($age) && is_numeric($age)) {
+                        $dateOfBirth = date('Y-m-d', strtotime('-' . $age . ' years'));
+                    } else {
+                        $dateOfBirth = '1990-01-01';
+                    }
+                }
+                if (empty($address)) {
+                    $address = 'Not provided';
+                }
 
                 $newPatientData = [
                     'first_name' => $firstName,
+                    'middle_name' => $middleName,
                     'last_name' => $lastName,
                     'email' => $email,
-                    'phone' => $phone,
-                    'date_of_birth' => '1990-01-01',
-                    'gender' => 'other',
-                    'address' => 'Not provided',
+                    'phone' => $contact,
+                    'contact' => $contact,
+                    'date_of_birth' => $dateOfBirth,
+                    'gender' => $gender,
+                    'address' => $address,
                     'status' => 'active',
                     // Ensure auto-created records from booking are not listed as outpatients
                     'type' => 'walkin'
@@ -345,11 +612,24 @@ class Appointment extends BaseController
         }
 
         $rules = [
+            'first_name' => 'required|min_length[2]',
+            'surname' => 'required|min_length[2]',
+            'middle_name' => 'permit_empty|min_length[1]',
+            'contact' => 'required|min_length[10]',
             'doctor_id' => 'required',
             'appointment_date' => 'required|valid_date',
             'appointment_time' => 'required',
-            'appointment_type' => 'required|in_list[consultation,follow_up,emergency,routine_checkup]',
-            'reason' => 'permit_empty|string'
+            'appointment_type' => 'permit_empty|in_list[consultation]',
+            'reason' => 'required|min_length[5]',
+            'email' => 'permit_empty|valid_email',
+            'date_of_birth' => 'permit_empty|valid_date',
+            'gender' => 'permit_empty|in_list[male,female,other]',
+            'age' => 'permit_empty|integer|greater_than[0]|less_than[150]',
+            'address' => 'permit_empty|max_length[255]',
+            'blood_type' => 'permit_empty|in_list[A+,A-,B+,B-,AB+,AB-,O+,O-]',
+            'address_barangay' => 'permit_empty|max_length[100]',
+            'address_city' => 'permit_empty|max_length[100]',
+            'address_province' => 'permit_empty|max_length[100]'
         ];
 
         if (!$this->validate($rules)) {
@@ -364,12 +644,17 @@ class Appointment extends BaseController
             ]);
         }
 
+        $appointmentType = $this->request->getPost('appointment_type');
+        if (empty($appointmentType)) {
+            $appointmentType = 'consultation'; // Default to consultation
+        }
+        
         $data = [
             'patient_id' => $patientId,
             'doctor_id' => (string)$this->request->getPost('doctor_id'),
             'appointment_date' => $this->request->getPost('appointment_date'),
             'appointment_time' => $this->request->getPost('appointment_time'),
-            'appointment_type' => $this->request->getPost('appointment_type'),
+            'appointment_type' => $appointmentType,
             'reason' => $this->request->getPost('reason'),
             'status' => 'scheduled'
         ];
@@ -457,6 +742,140 @@ class Appointment extends BaseController
             ? 'Dr. ' . $appointment['doctor_name'] 
             : 'N/A';
 
+        // Get related consultation with prescriptions and lab results if exists
+        $db = \Config\Database::connect();
+        $prescriptions = [];
+        $labResults = [];
+        
+        if ($db->tableExists('consultations')) {
+            // Try to find consultation by matching patient, doctor
+            // First, try to find admin_patients record by patient_id or by name
+            $adminPatient = null;
+            
+            // Try direct ID match first
+            if (!empty($appointment['patient_id'])) {
+                $adminPatient = $db->table('admin_patients')
+                    ->where('id', $appointment['patient_id'])
+                    ->get()
+                    ->getRowArray();
+            }
+            
+            // If not found, try to find by name and contact
+            if (!$adminPatient && !empty($appointment['patient_first_name']) && !empty($appointment['patient_last_name'])) {
+                $adminPatient = $db->table('admin_patients')
+                    ->where('firstname', $appointment['patient_first_name'])
+                    ->where('lastname', $appointment['patient_last_name'])
+                    ->get()
+                    ->getRowArray();
+                
+                // If still not found, try with contact
+                if (!$adminPatient && !empty($appointment['patient_phone'])) {
+                    $adminPatient = $db->table('admin_patients')
+                        ->where('firstname', $appointment['patient_first_name'])
+                        ->where('lastname', $appointment['patient_last_name'])
+                        ->where('contact', $appointment['patient_phone'])
+                        ->get()
+                        ->getRowArray();
+                }
+            }
+            
+            $consultationPatientId = $adminPatient['id'] ?? null;
+            
+            // Find consultations for this patient and doctor (within last 30 days for follow-ups)
+            if ($consultationPatientId && !empty($appointment['doctor_id'])) {
+                // For follow-up appointments, search consultations within a date range
+                $dateFrom = date('Y-m-d', strtotime('-30 days'));
+                $dateTo = date('Y-m-d', strtotime('+1 day'));
+                
+                $consultations = $db->table('consultations')
+                    ->where('patient_id', $consultationPatientId)
+                    ->where('doctor_id', $appointment['doctor_id'])
+                    ->where('consultation_date >=', $dateFrom)
+                    ->where('consultation_date <=', $dateTo)
+                    ->where('status', 'completed')
+                    ->orderBy('consultation_date', 'DESC')
+                    ->orderBy('consultation_time', 'DESC')
+                    ->get()
+                    ->getResultArray();
+                
+                // Get the most recent completed consultation
+                $consultation = !empty($consultations) ? $consultations[0] : null;
+                
+                if ($consultation) {
+                    // Get prescriptions
+                    if (!empty($consultation['prescriptions'])) {
+                        // Parse prescription details
+                        $prescriptionDetails = [];
+                        if (!empty($consultation['prescription_details'])) {
+                            $prescriptionDetails = json_decode($consultation['prescription_details'], true) ?? [];
+                        }
+                        
+                        // Get medicine names for prescriptions
+                        $prescriptionIds = json_decode($consultation['prescriptions'], true) ?? [];
+                        if (!empty($prescriptionIds) && $db->tableExists('pharmacy')) {
+                            $medicines = $db->table('pharmacy')
+                                ->whereIn('id', $prescriptionIds)
+                                ->get()
+                                ->getResultArray();
+                            
+                            foreach ($prescriptionDetails as $detail) {
+                                $medicineId = $detail['medicine_id'] ?? null;
+                                $medicine = array_filter($medicines, function($m) use ($medicineId) {
+                                    return $m['id'] == $medicineId;
+                                });
+                                $medicine = !empty($medicine) ? reset($medicine) : null;
+                                
+                                if ($medicine) {
+                                    $prescriptions[] = [
+                                        'medicine_name' => $medicine['item_name'] ?? 'Unknown Medicine',
+                                        'generic_name' => $medicine['generic_name'] ?? null,
+                                        'dosage' => $detail['dosage'] ?? 'N/A',
+                                        'frequency' => $detail['frequency'] ?? 'N/A',
+                                        'duration' => $detail['duration'] ?? 'N/A',
+                                        'when_to_take' => $detail['when_to_take'] ?? 'N/A',
+                                        'instructions' => $detail['instructions'] ?? 'N/A'
+                                    ];
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Get lab results
+                    if ($db->tableExists('lab_requests') && $db->tableExists('lab_results')) {
+                        $labRequests = $db->table('lab_requests')
+                            ->where('patient_id', $consultationPatientId)
+                            ->where('doctor_id', $appointment['doctor_id'])
+                            ->where('requested_date', $consultation['consultation_date'])
+                            ->get()
+                            ->getResultArray();
+                        
+                        foreach ($labRequests as $labRequest) {
+                            $labResult = $db->table('lab_results')
+                                ->where('lab_request_id', $labRequest['id'])
+                                ->get()
+                                ->getRowArray();
+                            
+                            if ($labResult) {
+                                $labResults[] = [
+                                    'test_name' => $labRequest['test_name'] ?? 'N/A',
+                                    'test_type' => $labRequest['test_type'] ?? 'N/A',
+                                    'result' => $labResult['result'] ?? 'N/A',
+                                    'normal_range' => $labResult['normal_range'] ?? 'N/A',
+                                    'status' => $labResult['status'] ?? 'N/A',
+                                    'notes' => $labResult['notes'] ?? null,
+                                    'result_file' => $labResult['result_file'] ?? null,
+                                    'completed_at' => $labResult['created_at'] ?? null
+                                ];
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        $appointment['prescriptions'] = $prescriptions;
+        $appointment['lab_results'] = $labResults;
+
         return $this->response->setJSON([
             'success' => true,
             'appointment' => $appointment
@@ -491,7 +910,7 @@ class Appointment extends BaseController
             'doctor_id' => 'permit_empty|integer',
             'appointment_date' => 'permit_empty|valid_date',
             'appointment_time' => 'permit_empty',
-            'appointment_type' => 'permit_empty|in_list[consultation,follow_up,emergency,routine_checkup]',
+            'appointment_type' => 'permit_empty|in_list[consultation]',
             'status' => 'permit_empty|in_list[scheduled,confirmed,in_progress,completed,cancelled,no_show]',
             'reason' => 'permit_empty|string',
             'notes' => 'permit_empty|string'

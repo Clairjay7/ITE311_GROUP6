@@ -25,18 +25,30 @@ class DashboardController extends BaseController
         $appointmentsCount = 0;
         $patientsSeenToday = 0;
         
+        // Count appointments from consultations table
         if ($db->tableExists('consultations')) {
-            $appointmentsCount = $db->table('consultations')
+            $consultationsCount = $db->table('consultations')
                 ->where('doctor_id', $doctorId)
                 ->where('consultation_date', $today)
                 ->where('status', 'approved')
                 ->countAllResults();
+            $appointmentsCount += $consultationsCount;
 
             $patientsSeenToday = $db->table('consultations')
                 ->where('doctor_id', $doctorId)
                 ->where('consultation_date', $today)
                 ->where('type', 'completed')
                 ->countAllResults();
+        }
+        
+        // Count appointments from appointments table (created from Reception)
+        if ($db->tableExists('appointments')) {
+            $appointmentsTableCount = $db->table('appointments')
+                ->where('doctor_id', $doctorId)
+                ->where('appointment_date', $today)
+                ->whereNotIn('status', ['cancelled', 'no_show', 'completed'])
+                ->countAllResults();
+            $appointmentsCount += $appointmentsTableCount;
         }
 
         // Get assigned patients from admin_patients table

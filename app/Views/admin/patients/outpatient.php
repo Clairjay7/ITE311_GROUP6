@@ -545,10 +545,6 @@ $errors = session('errors') ?? [];
                     <div class="step-number">2</div>
                     <div class="step-title">Visit Details</div>
                 </div>
-                <div class="step" data-step="3">
-                    <div class="step-number">3</div>
-                    <div class="step-title">Additional</div>
-                </div>
             </div>
             
             <form method="post" action="<?= site_url('admin/patients/store') ?>" id="outpatientForm">
@@ -611,11 +607,25 @@ $errors = session('errors') ?? [];
                                 <option value="">-- Select Gender --</option>
                                 <option value="Male" <?= set_select('gender', 'Male') ?>>Male</option>
                                 <option value="Female" <?= set_select('gender', 'Female') ?>>Female</option>
-                                <option value="Other" <?= set_select('gender', 'Other') ?>>Other</option>
                             </select>
                             <?php if (isset($errors['gender'])): ?>
                                 <div class="invalid-feedback"><?= esc($errors['gender']) ?></div>
                             <?php endif; ?>
+          </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Blood Type</label>
+                            <select name="blood_type" class="form-select">
+                                <option value="">-- Select Blood Type --</option>
+                                <option value="A+" <?= set_select('blood_type', 'A+') ?>>A+</option>
+                                <option value="A-" <?= set_select('blood_type', 'A-') ?>>A-</option>
+                                <option value="B+" <?= set_select('blood_type', 'B+') ?>>B+</option>
+                                <option value="B-" <?= set_select('blood_type', 'B-') ?>>B-</option>
+                                <option value="AB+" <?= set_select('blood_type', 'AB+') ?>>AB+</option>
+                                <option value="AB-" <?= set_select('blood_type', 'AB-') ?>>AB-</option>
+                                <option value="O+" <?= set_select('blood_type', 'O+') ?>>O+</option>
+                                <option value="O-" <?= set_select('blood_type', 'O-') ?>>O-</option>
+                            </select>
           </div>
         </div>
 
@@ -626,11 +636,34 @@ $errors = session('errors') ?? [];
                                    value="<?= set_value('contact') ?>" required placeholder="09XX-XXX-XXXX">
                             <div class="form-hint">Please provide an active contact number</div>
                         </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Province <span class="required">*</span></label>
+                            <select name="address_province" id="address_province" class="form-select" required>
+                                <option value="">-- Select Province --</option>
+                            </select>
+                        </div>
                         
-                        <div class="form-group" style="grid-column: span 2;">
-                            <label class="form-label">Address <span class="required">*</span></label>
+                        <div class="form-group">
+                            <label class="form-label">City/Municipality <span class="required">*</span></label>
+                            <input type="text" name="address_city" id="address_city" class="form-control" 
+                                   value="<?= set_value('address_city') ?>" required placeholder="Enter city or municipality">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Barangay <span class="required">*</span></label>
+                            <input type="text" name="address_barangay" id="address_barangay" class="form-control" 
+                                   value="<?= set_value('address_barangay') ?>" required placeholder="Enter barangay">
+                        </div>
+          </div>
+          
+                    <div class="form-row">
+                        <div class="form-group" style="grid-column: span 3;">
+                            <label class="form-label">Complete Address (Street/House No.)</label>
                             <input type="text" name="address" class="form-control" 
-                                   value="<?= set_value('address') ?>" required placeholder="Complete home address of the patient">
+                                   value="<?= set_value('address') ?>" placeholder="House No., Street, Building, etc.">
                         </div>
           </div>
           </div>
@@ -675,10 +708,13 @@ $errors = session('errors') ?? [];
                                 <option value="">-- Choose Doctor --</option>
                 <?php if (!empty($doctors)): ?>
                   <?php foreach ($doctors as $doctor): ?>
-                    <option value="<?= esc($doctor['id']) ?>" <?= set_select('doctor_id', (string)$doctor['id']) ?> data-specialization="<?= esc(strtolower($doctor['specialization'] ?? '')) ?>">
+                    <option value="<?= esc($doctor['id']) ?>" <?= set_select('doctor_id', (string)$doctor['id']) ?> data-specialization="<?= esc(strtolower($doctor['specialization'] ?? '')) ?>" <?= (!($doctor['is_available'] ?? true)) ? 'disabled style="color: #ef4444;"' : '' ?>>
                                             Dr. <?= esc($doctor['doctor_name'] ?? $doctor['id']) ?>
                       <?php if (!empty($doctor['specialization'])): ?>
                         - <?= esc($doctor['specialization']) ?>
+                      <?php endif; ?>
+                      <?php if (!($doctor['is_available'] ?? true)): ?>
+                        (Unavailable)
                       <?php endif; ?>
                     </option>
                   <?php endforeach; ?>
@@ -736,76 +772,6 @@ $errors = session('errors') ?? [];
                 </div>
                 </div>
 
-                <!-- STEP 3: ADDITIONAL DETAILS -->
-                <div class="form-step" data-step="3">
-                <div class="form-section">
-                    <h3 class="section-title">
-                        <i class="fas fa-plus-circle"></i> Additional Details <span class="optional">(Optional)</span>
-                    </h3>
-                    
-                    <div class="form-group" style="margin-bottom: 20px;">
-                        <label class="form-label">Triage Category <span class="optional">(if applicable)</span></label>
-                        <div class="triage-options">
-                            <label class="triage-option non-urgent">
-                                <input type="radio" name="triage_category" value="non-urgent">
-                                <span style="color: #10b981; font-weight: 600;">🟢 Non-Urgent</span>
-                            </label>
-                            
-                            <label class="triage-option less-urgent">
-                                <input type="radio" name="triage_category" value="less-urgent">
-                                <span style="color: #f59e0b; font-weight: 600;">🟡 Less Urgent</span>
-                            </label>
-                            
-                            <label class="triage-option urgent">
-                                <input type="radio" name="triage_category" value="urgent">
-                                <span style="color: #ef4444; font-weight: 600;">🔴 Urgent</span>
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Vital Signs <span class="optional">(May be encoded if taken during OPD triage)</span></label>
-                        <div class="vitals-grid">
-                            <div class="vital-input">
-                                <label class="form-label" style="font-size: 12px; color: #64748b;">Blood Pressure</label>
-                                <input type="text" name="vital_bp" class="form-control" placeholder="120/80">
-                                <span class="unit">mmHg</span>
-                            </div>
-                            
-                            <div class="vital-input">
-                                <label class="form-label" style="font-size: 12px; color: #64748b;">Temperature</label>
-                                <input type="text" name="vital_temp" class="form-control" placeholder="36.5">
-                                <span class="unit">°C</span>
-                            </div>
-                            
-                            <div class="vital-input">
-                                <label class="form-label" style="font-size: 12px; color: #64748b;">Pulse Rate</label>
-                                <input type="text" name="vital_pulse" class="form-control" placeholder="72">
-                                <span class="unit">bpm</span>
-                            </div>
-                            
-                            <div class="vital-input">
-                                <label class="form-label" style="font-size: 12px; color: #64748b;">Respiratory Rate</label>
-                                <input type="text" name="vital_resp" class="form-control" placeholder="16">
-                                <span class="unit">/min</span>
-                            </div>
-                            
-                            <div class="vital-input">
-                                <label class="form-label" style="font-size: 12px; color: #64748b;">Weight</label>
-                                <input type="text" name="vital_weight" class="form-control" placeholder="65">
-                                <span class="unit">kg</span>
-                            </div>
-                            
-                            <div class="vital-input">
-                                <label class="form-label" style="font-size: 12px; color: #64748b;">Height</label>
-                                <input type="text" name="vital_height" class="form-control" placeholder="165">
-                                <span class="unit">cm</span>
-                            </div>
-            </div>
-          </div>
-        </div>
-                </div>
-
                 <!-- STEP NAVIGATION -->
                 <div class="step-navigation">
                     <button type="button" class="btn-step btn-step-prev" id="prevStep" style="display: none;">
@@ -830,7 +796,7 @@ $errors = session('errors') ?? [];
 document.addEventListener('DOMContentLoaded', function() {
     // Step-by-Step Form Navigation
     let currentStep = 1;
-    const totalSteps = 3;
+    const totalSteps = 2;
     const formSteps = document.querySelectorAll('.form-step');
     const stepIndicators = document.querySelectorAll('.step');
     const prevBtn = document.getElementById('prevStep');
@@ -840,8 +806,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Define required fields for each step
     const stepRequiredFields = {
         1: ['first_name', 'last_name', 'date_of_birth', 'gender', 'contact', 'address'],
-        2: ['visit_type', 'purpose'], // doctor_id, appointment_day, appointment_time are conditional
-        3: [] // All optional (additional details)
+        2: ['visit_type', 'purpose'] // doctor_id, appointment_day, appointment_time are conditional
     };
     
     // Function to validate a step
@@ -1392,35 +1357,55 @@ document.addEventListener('DOMContentLoaded', function() {
                     const option = document.createElement('option');
                     // Use display_text if available, otherwise use date_formatted
                     const displayText = schedule.display_text || schedule.date_formatted || schedule.date;
+                    const isAvailable = schedule.is_available !== undefined ? schedule.is_available : true;
+                    const availabilityStatus = isAvailable ? 'Available' : 'Unavailable';
+                    const statusColor = isAvailable ? '#2e7d32' : '#d32f2f';
+                    
                     option.value = schedule.date; // Store the actual date (YYYY-MM-DD)
-                    option.textContent = displayText; // Display: "Monday, Jan 15" or "Jan 15, 2025 (Monday)"
+                    option.textContent = `${displayText} - ${availabilityStatus}`; // Display: "Monday, Jan 15 - Available" or "Monday, Jan 15 - Unavailable"
                     option.setAttribute('data-date', schedule.date);
+                    option.setAttribute('data-available', isAvailable);
+                    
+                    // Disable unavailable options
+                    if (!isAvailable) {
+                        option.disabled = true;
+                        option.style.color = '#999';
+                    }
+                    
                     appointmentDaySelect.appendChild(option);
                 });
                 
                 // Show doctor's schedule
                 doctorScheduleDisplay.style.display = 'block';
                 
-                // Get unique schedule hours (usually same for all weekdays)
+                // Get unique schedule hours from available dates only
                 const scheduleHours = [];
+                const availableCount = data.schedule_dates.filter(s => s.is_available).length;
+                const unavailableCount = data.schedule_dates.filter(s => !s.is_available).length;
+                
                 data.schedule_dates.forEach(schedule => {
-                    schedule.available_hours.forEach(hour => {
-                        if (!scheduleHours.includes(hour)) {
-                            scheduleHours.push(hour);
-                        }
-                    });
+                    if (schedule.is_available && schedule.available_hours) {
+                        schedule.available_hours.forEach(hour => {
+                            if (!scheduleHours.includes(hour)) {
+                                scheduleHours.push(hour);
+                            }
+                        });
+                    }
                 });
                 
                 // Format schedule hours for display
                 let formattedHours = scheduleHours.join(', ');
                 if (scheduleHours.length === 0) {
-                    // Default schedule if not found
-                    formattedHours = '9:00 AM - 12:00 PM, 1:00 PM - 4:00 PM';
+                    formattedHours = 'No available hours';
                 }
                 
                 scheduleInfo.innerHTML = `
                     <div style="margin-bottom: 4px;"><strong>Available Hours:</strong> ${formattedHours}</div>
-                    <div style="font-size: 12px; color: #64748b;">Schedule available Monday to Friday (Saturday & Sunday are rest days)</div>
+                    <div style="margin-top: 6px; font-size: 12px;">
+                        <span style="color: #2e7d32; font-weight: 600;">✓ ${availableCount} Available</span>
+                        ${unavailableCount > 0 ? `<span style="color: #d32f2f; margin-left: 12px; font-weight: 600;">✗ ${unavailableCount} Unavailable</span>` : ''}
+                    </div>
+                    <div style="font-size: 12px; color: #64748b; margin-top: 4px;">Schedule available Monday to Friday (Saturday & Sunday are rest days)</div>
                 `;
                 
                 dateHint.textContent = 'Select a day to see available times';
@@ -1585,6 +1570,23 @@ document.addEventListener('DOMContentLoaded', function() {
         if (appointmentDaySelect) {
         appointmentDaySelect.addEventListener('change', function() {
             const selectedDate = this.value; // This is the actual date (YYYY-MM-DD)
+            const selectedOption = this.options[this.selectedIndex];
+            const isAvailable = selectedOption ? selectedOption.getAttribute('data-available') === 'true' : false;
+            
+            // Check if selected day is available
+            if (selectedDate && selectedDate !== '' && !isAvailable) {
+                alert('This day is unavailable. Please select an available day.');
+                this.value = '';
+                appointmentTimeSelect.setAttribute('disabled', 'disabled');
+                appointmentTimeSelect.disabled = true;
+                appointmentTimeSelect.style.pointerEvents = 'none';
+                appointmentTimeSelect.style.opacity = '0.6';
+                appointmentTimeSelect.innerHTML = '<option value="">-- Select Time --</option>';
+                if (appointmentDateInput) {
+                    appointmentDateInput.value = '';
+                }
+                return;
+            }
             
             // CRITICAL: Set the hidden appointment_date field immediately when day is selected
             if (appointmentDateInput && selectedDate) {
@@ -1684,5 +1686,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
-
+<script src="<?= base_url('js/philippine-address.js') ?>"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize provinces
+    if (typeof populateProvinces === 'function') {
+        populateProvinces('address_province');
+    }
+});
+</script>
 <?= $this->endSection() ?>

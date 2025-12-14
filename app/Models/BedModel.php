@@ -34,10 +34,39 @@ class BedModel extends Model
      */
     public function getAvailableBedsByRoom($roomId)
     {
-        return $this->where('room_id', $roomId)
-            ->where('status', 'available')
+        $db = \Config\Database::connect();
+        
+        // Get all beds for this room
+        $allBeds = $this->where('room_id', $roomId)
             ->orderBy('bed_number', 'ASC')
             ->findAll();
+        
+        // Get occupied bed IDs from patients table
+        $occupiedBedIds = [];
+        if ($db->tableExists('patients') && $db->fieldExists('bed_id', 'patients')) {
+            $occupiedBeds = $db->table('patients')
+                ->select('bed_id')
+                ->where('bed_id IS NOT NULL', null, false)
+                ->where('bed_id !=', '')
+                ->get()
+                ->getResultArray();
+            $occupiedBedIds = array_column($occupiedBeds, 'bed_id');
+        }
+        
+        // Filter available beds
+        $availableBeds = [];
+        foreach ($allBeds as $bed) {
+            $bedStatus = strtolower(trim($bed['status'] ?? ''));
+            $isOccupied = ($bedStatus === 'occupied')
+                || !empty($bed['current_patient_id'])
+                || in_array($bed['id'], $occupiedBedIds);
+            
+            if (!$isOccupied) {
+                $availableBeds[] = $bed;
+            }
+        }
+        
+        return $availableBeds;
     }
 }
 

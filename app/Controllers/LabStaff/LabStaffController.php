@@ -106,29 +106,30 @@ class LabStaffController extends BaseController
         // Get all test requests with patient and doctor/nurse info
         // Show ALL requests (pending payment and paid) so lab staff can see them immediately
         // Lab staff can see requests even before payment is processed
+        // Handle both admin_patients and patients tables
         $testRequests = $db->table('lab_requests')
             ->select('lab_requests.*, 
-                admin_patients.firstname as patient_firstname, 
-                admin_patients.lastname as patient_lastname,
-                admin_patients.contact as patient_contact,
+                COALESCE(admin_patients.firstname, patients.first_name) as patient_firstname, 
+                COALESCE(admin_patients.lastname, patients.last_name) as patient_lastname,
+                COALESCE(admin_patients.contact, patients.contact) as patient_contact,
                 doctor.username as doctor_name,
                 nurse.username as nurse_name,
                 charges.charge_number,
                 charges.total_amount as charge_amount,
                 charges.status as charge_status')
             ->join('admin_patients', 'admin_patients.id = lab_requests.patient_id', 'left')
+            ->join('patients', 'patients.patient_id = lab_requests.patient_id', 'left')
             ->join('users as doctor', 'doctor.id = lab_requests.doctor_id', 'left')
             ->join('users as nurse', 'nurse.id = lab_requests.nurse_id', 'left')
             ->join('charges', 'charges.id = lab_requests.charge_id', 'left') // LEFT JOIN - show even without charge
             ->where('lab_requests.status !=', 'cancelled')
             ->groupStart()
                 // Include requests that are ready for testing:
-                // 1. Status = 'pending' AND nurse_id IS NULL (without_specimen tests - go directly to lab, no nurse needed)
+                // 1. Status = 'pending' (all pending requests - both with and without specimen)
+                //    - without_specimen tests (nurse_id IS NULL) go directly to lab
+                //    - with_specimen tests (nurse_id IS NOT NULL) wait for nurse to collect specimen first
                 // 2. Status = 'specimen_collected' or 'in_progress' (with_specimen tests that have been collected by nurse)
-                ->groupStart()
-                    ->where('lab_requests.status', 'pending')
-                    ->where('lab_requests.nurse_id', null) // Only show pending requests without nurse (without_specimen)
-                ->groupEnd()
+                ->where('lab_requests.status', 'pending')
             ->orGroupStart()
                 ->whereIn('lab_requests.status', ['specimen_collected', 'in_progress'])
                 ->groupEnd()
@@ -601,6 +602,66 @@ class LabStaffController extends BaseController
             }
         }
         
+        // Auto-complete consultation if all lab tests from consultation are completed
+        $instructions = $request['instructions'] ?? '';
+        $consultationId = null;
+        
+        // Extract consultation ID from instructions (format: "From Consultation #123 | ...")
+        if (preg_match('/From Consultation #(\d+)/', $instructions, $matches)) {
+            $consultationId = (int)$matches[1];
+            
+            // Check if all lab requests from this consultation are completed
+            if ($consultationId && $db->tableExists('lab_requests') && $db->tableExists('consultations')) {
+                // Get all lab requests from this consultation
+                $allLabRequests = $db->table('lab_requests')
+                    ->where('patient_id', $request['patient_id'])
+                    ->where('doctor_id', $request['doctor_id'])
+                    ->like('instructions', 'From Consultation #' . $consultationId, 'after')
+                    ->get()
+                    ->getResultArray();
+                
+                // Only proceed if there are lab requests from this consultation
+                if (!empty($allLabRequests)) {
+                    // Check if all lab requests have results (completed)
+                    $allCompleted = true;
+                    foreach ($allLabRequests as $labReq) {
+                        $hasResult = $this->labResultModel
+                            ->where('lab_request_id', $labReq['id'])
+                            ->first();
+                        
+                        if (!$hasResult) {
+                            $allCompleted = false;
+                            break;
+                        }
+                    }
+                    
+                    // If all lab tests are completed, auto-complete the consultation
+                    if ($allCompleted) {
+                        $consultation = $db->table('consultations')
+                            ->where('id', $consultationId)
+                            ->get()
+                            ->getRowArray();
+                        
+                        // Only update if consultation is still pending/upcoming
+                        if ($consultation && ($consultation['status'] === 'pending' || $consultation['type'] === 'upcoming')) {
+                            $db->table('consultations')
+                                ->where('id', $consultationId)
+                                ->update([
+                                    'status' => 'completed',
+                                    'type' => 'completed',
+                                    'updated_at' => date('Y-m-d H:i:s')
+                                ]);
+                            
+                            log_message('info', "Auto-completed consultation #{$consultationId} - all lab results are ready");
+                            
+                            // Create consultation charge when consultation is auto-completed
+                            $this->createConsultationCharge($consultationId, $consultation['patient_id']);
+                        }
+                    }
+                }
+            }
+        }
+        
         // Notify nurse if action is needed (e.g., specimen follow-up, medication administration)
         // Check if there are any pending orders that might need nurse action based on lab results
         if ($request['nurse_id']) {
@@ -962,6 +1023,84 @@ class LabStaffController extends BaseController
         }
         
         return false;
+    }
+
+    /**
+     * Create consultation charge when consultation is completed
+     * @param int $consultationId
+     * @param int $patientId (admin_patients.id)
+     * @return bool
+     */
+    private function createConsultationCharge($consultationId, $patientId)
+    {
+        $db = \Config\Database::connect();
+        
+        // Check if charge already exists for this consultation to avoid duplicates
+        $existingCharge = $db->table('charges')
+            ->where('consultation_id', $consultationId)
+            ->where('patient_id', $patientId)
+            ->get()
+            ->getRowArray();
+        
+        if ($existingCharge) {
+            log_message('info', "Consultation charge already exists for Consultation #{$consultationId} - Charge ID: {$existingCharge['id']}");
+            return true; // Charge already exists
+        }
+        
+        if (!$db->tableExists('charges') || !$db->tableExists('billing_items')) {
+            log_message('error', "Cannot create consultation charge - charges or billing_items table does not exist");
+            return false;
+        }
+        
+        try {
+            // Consultation fee (default: 500 PHP, can be configured)
+            $consultationFee = 500.00; // Default consultation fee
+            
+            // Generate charge number
+            $chargeNumber = $this->chargeModel->generateChargeNumber();
+            
+            // Create charge record
+            $chargeData = [
+                'consultation_id' => $consultationId,
+                'patient_id' => $patientId, // Use admin_patients.id
+                'charge_number' => $chargeNumber,
+                'total_amount' => $consultationFee,
+                'status' => 'pending',
+                'notes' => 'Consultation Fee - Consultation #' . $consultationId,
+            ];
+            
+            if ($this->chargeModel->insert($chargeData)) {
+                $chargeId = $this->chargeModel->getInsertID();
+                
+                // Create billing item for consultation fee
+                $billingItemData = [
+                    'charge_id' => $chargeId,
+                    'item_type' => 'consultation',
+                    'item_name' => 'Consultation Fee',
+                    'description' => 'Doctor Consultation - Consultation #' . $consultationId,
+                    'quantity' => 1.00,
+                    'unit_price' => $consultationFee,
+                    'total_price' => $consultationFee,
+                    'related_id' => $consultationId,
+                    'related_type' => 'consultation',
+                ];
+                
+                if ($this->billingItemModel->insert($billingItemData)) {
+                    log_message('info', "✅✅✅ Consultation charge created successfully - Charge ID: {$chargeId}, Consultation ID: {$consultationId}, Patient ID: {$patientId}, Amount: {$consultationFee}");
+                    return true;
+                } else {
+                    log_message('error', "❌ Failed to create billing item for consultation charge - Charge ID: {$chargeId}");
+                    return false;
+                }
+            } else {
+                log_message('error', "❌ Failed to create consultation charge - Consultation ID: {$consultationId}, Patient ID: {$patientId}");
+                return false;
+            }
+        } catch (\Exception $e) {
+            log_message('error', "❌ Exception creating consultation charge: " . $e->getMessage());
+            log_message('error', "Stack trace: " . $e->getTraceAsString());
+            return false;
+        }
     }
 
     /**

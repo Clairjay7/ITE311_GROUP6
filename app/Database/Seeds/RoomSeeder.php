@@ -73,32 +73,50 @@ class RoomSeeder extends Seeder
         
         // Private Rooms (₱5,000/day - 1 patient, own CR)
         for ($i = 1; $i <= 5; $i++) {
-            $data[] = [
-                'ward' => 'Private Ward',
-                'room_number' => 'PRV' . sprintf('%02d', $i),
-                'room_type' => 'Private',
-                'bed_count' => 1,
-                'price' => 5000.00,
-                'status' => 'Available',
-                'current_patient_id' => null,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ];
+            $roomNumber = 'PRV' . sprintf('%02d', $i);
+            
+            // Check if room already exists
+            $exists = $this->db->table('rooms')
+                ->where('room_number', $roomNumber)
+                ->countAllResults();
+            
+            if ($exists == 0) {
+                $data[] = [
+                    'ward' => 'Private Ward',
+                    'room_number' => $roomNumber,
+                    'room_type' => 'Private',
+                    'bed_count' => 1,
+                    'price' => 5000.00,
+                    'status' => 'Available',
+                    'current_patient_id' => null,
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ];
+            }
         }
         
         // Semi-Private Rooms (₱3,000/day - 2 patients, shared CR)
         for ($i = 1; $i <= 5; $i++) {
-            $data[] = [
-                'ward' => 'Semi-Private Ward',
-                'room_number' => 'SEM' . sprintf('%02d', $i),
-                'room_type' => 'Semi-Private',
-                'bed_count' => 2,
-                'price' => 3000.00,
-                'status' => 'Available',
-                'current_patient_id' => null,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ];
+            $roomNumber = 'SEM' . sprintf('%02d', $i);
+            
+            // Check if room already exists
+            $exists = $this->db->table('rooms')
+                ->where('room_number', $roomNumber)
+                ->countAllResults();
+            
+            if ($exists == 0) {
+                $data[] = [
+                    'ward' => 'Semi-Private Ward',
+                    'room_number' => $roomNumber,
+                    'room_type' => 'Semi-Private',
+                    'bed_count' => 2,
+                    'price' => 3000.00,
+                    'status' => 'Available',
+                    'current_patient_id' => null,
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ];
+            }
         }
         
         // ICU Rooms (₱8,000/day - Critical care, special equipment)

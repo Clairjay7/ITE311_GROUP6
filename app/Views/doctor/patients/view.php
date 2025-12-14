@@ -424,10 +424,21 @@
                     </script>
                 <?php endif; ?>
             <?php else: ?>
-                <a href="<?= site_url('doctor/surgery/create/' . ($patient['id'] ?? $patient['patient_id'])) ?>" class="btn-modern" style="background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%); color: white; box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);">
-                    <i class="fas fa-procedures"></i>
-                    Surgery
-                </a>
+                <?php 
+                // Hide Surgery button for Consultation/Out-Patient visit types
+                $patientType = trim($patient['type'] ?? '');
+                $visitType = trim($patient['visit_type'] ?? '');
+                $isConsultation = ($patientType === 'Out-Patient' || 
+                                  $visitType === 'Consultation' || 
+                                  $visitType === 'Check-up' || 
+                                  $visitType === 'Follow-up');
+                
+                if (!$isConsultation): ?>
+                    <a href="<?= site_url('doctor/surgery/create/' . ($patient['id'] ?? $patient['patient_id'])) ?>" class="btn-modern" style="background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%); color: white; box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);">
+                        <i class="fas fa-procedures"></i>
+                        Surgery
+                    </a>
+                <?php endif; ?>
             <?php endif; ?>
             <a href="<?= site_url('doctor/patients') ?>" class="btn-modern btn-modern-secondary">
                 <i class="fas fa-arrow-left"></i>

@@ -72,6 +72,9 @@ $query = $query ?? '';
                     <th>Type</th>
                     <th>Birthdate</th>
                     <th>Gender</th>
+                    <th>Blood Type</th>
+                    <th>Visit Type</th>
+                    <th>Purpose</th>
                     <th>Contact</th>
                     <th>Assigned Doctor</th>
                     <th>Room Type</th>
@@ -83,7 +86,7 @@ $query = $query ?? '';
             <tbody>
                 <?php if (empty($patients)): ?>
                     <tr>
-                        <td colspan="11" class="text-center">No patients found.</td>
+                        <td colspan="14" class="text-center">No patients found.</td>
                     </tr>
                 <?php else: ?>
                     <?php foreach ($patients as $patient): ?>
@@ -102,6 +105,25 @@ $query = $query ?? '';
                             </td>
                             <td><?= esc($patient['date_of_birth'] ?? $patient['birthdate'] ?? '-') ?></td>
                             <td><?= esc(ucfirst($patient['gender'] ?? '-')) ?></td>
+                            <td>
+                                <?php if (!empty($patient['blood_type'])): ?>
+                                    <span style="padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; background: #fee2e2; color: #991b1b;">
+                                        <?= esc($patient['blood_type']) ?>
+                                    </span>
+                                <?php else: ?>
+                                    <span class="text-muted">-</span>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <?php if (!empty($patient['visit_type'])): ?>
+                                    <span style="padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; background: #e5e7eb; color: #374151;">
+                                        <?= esc($patient['visit_type']) ?>
+                                    </span>
+                                <?php else: ?>
+                                    <span class="text-muted">-</span>
+                                <?php endif; ?>
+                            </td>
+                            <td><?= esc($patient['purpose'] ?? '-') ?></td>
                             <td><?= esc($patient['contact'] ?? '-') ?></td>
                             <td><?= esc($patient['doctor_full_name'] ?? $patient['doctor_name'] ?? 'Not Assigned') ?></td>
                             <td><?= esc($patient['room_type'] ?? '-') ?></td>

@@ -652,11 +652,25 @@ $errorMessage = session()->getFlashdata('error');
                                 <option value="">-- Select Gender --</option>
                                 <option value="Male" <?= set_select('gender', 'Male') ?>>Male</option>
                                 <option value="Female" <?= set_select('gender', 'Female') ?>>Female</option>
-                                <option value="Other" <?= set_select('gender', 'Other') ?>>Other</option>
                             </select>
                             <?php if (isset($errors['gender'])): ?>
                                 <div class="invalid-feedback"><?= esc($errors['gender']) ?></div>
                             <?php endif; ?>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Blood Type</label>
+                            <select name="blood_type" class="form-select">
+                                <option value="">-- Select Blood Type --</option>
+                                <option value="A+" <?= set_select('blood_type', 'A+') ?>>A+</option>
+                                <option value="A-" <?= set_select('blood_type', 'A-') ?>>A-</option>
+                                <option value="B+" <?= set_select('blood_type', 'B+') ?>>B+</option>
+                                <option value="B-" <?= set_select('blood_type', 'B-') ?>>B-</option>
+                                <option value="AB+" <?= set_select('blood_type', 'AB+') ?>>AB+</option>
+                                <option value="AB-" <?= set_select('blood_type', 'AB-') ?>>AB-</option>
+                                <option value="O+" <?= set_select('blood_type', 'O+') ?>>O+</option>
+                                <option value="O-" <?= set_select('blood_type', 'O-') ?>>O-</option>
+                            </select>
                         </div>
                     </div>
                     
@@ -666,11 +680,34 @@ $errorMessage = session()->getFlashdata('error');
                             <input type="text" name="contact" class="form-control" 
                                    value="<?= set_value('contact') ?>" required placeholder="09XX-XXX-XXXX">
                         </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Province <span class="required">*</span></label>
+                            <select name="address_province" id="address_province" class="form-select" required>
+                                <option value="">-- Select Province --</option>
+                            </select>
+                        </div>
                         
-                        <div class="form-group" style="grid-column: span 2;">
-                            <label class="form-label">Complete Address <span class="required">*</span></label>
+                        <div class="form-group">
+                            <label class="form-label">City/Municipality <span class="required">*</span></label>
+                            <input type="text" name="address_city" id="address_city" class="form-control" 
+                                   value="<?= set_value('address_city') ?>" required placeholder="Enter city or municipality">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Barangay <span class="required">*</span></label>
+                            <input type="text" name="address_barangay" id="address_barangay" class="form-control" 
+                                   value="<?= set_value('address_barangay') ?>" required placeholder="Enter barangay">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group" style="grid-column: span 3;">
+                            <label class="form-label">Complete Address (Street/House No.)</label>
                             <input type="text" name="address" class="form-control" 
-                                   value="<?= set_value('address') ?>" required placeholder="House No., Street, Barangay, City/Municipality, Province">
+                                   value="<?= set_value('address') ?>" placeholder="House No., Street, Building, etc.">
                         </div>
                     </div>
                 </div>
@@ -690,8 +727,11 @@ $errorMessage = session()->getFlashdata('error');
                                 <option value="">-- Select Doctor --</option>
                                 <?php if (!empty($doctors)): ?>
                                     <?php foreach ($doctors as $doctor): ?>
-                                        <option value="<?= esc($doctor['id']) ?>" <?= set_select('doctor_id', $doctor['id']) ?> data-specialization="<?= esc(strtolower($doctor['specialization'] ?? '')) ?>">
+                                        <option value="<?= esc($doctor['id']) ?>" <?= set_select('doctor_id', $doctor['id']) ?> data-specialization="<?= esc(strtolower($doctor['specialization'] ?? '')) ?>" <?= (!($doctor['is_available'] ?? true)) ? 'disabled style="color: #ef4444;"' : '' ?>>
                                             Dr. <?= esc($doctor['doctor_name']) ?> - <?= esc($doctor['specialization'] ?? 'General Practice') ?>
+                                            <?php if (!($doctor['is_available'] ?? true)): ?>
+                                                (Unavailable)
+                                            <?php endif; ?>
                                         </option>
                                     <?php endforeach; ?>
                                 <?php endif; ?>
@@ -1847,19 +1887,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         filteredRooms.forEach(room => {
-            // STRICT CLIENT-SIDE VALIDATION: Skip occupied rooms
-            const roomStatus = room.status ? room.status.toLowerCase().trim() : '';
-            if (roomStatus === 'occupied') {
-                return; // Skip occupied rooms
-            }
-            if (room.current_patient_id && room.current_patient_id !== '' && room.current_patient_id !== null) {
-                return; // Skip rooms with assigned patients
-            }
-            // Only show available rooms (status = 'available' or null/empty)
-            if (roomStatus && roomStatus !== 'available') {
-                return; // Skip non-available rooms
-            }
-            
             const option = document.createElement('option');
             // Use room_number as value for display, but store room_id separately
             option.value = room.room_number || 'Room ' + (room.id || '');
@@ -1883,7 +1910,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 roomText += ' - ' + price + '/day';
             }
             
-            option.textContent = roomText;
+            // Check if room is available
+            const roomStatus = room.status ? room.status.toLowerCase().trim() : '';
+            const isOccupied = (roomStatus === 'occupied') 
+                || (room.current_patient_id && room.current_patient_id !== '' && room.current_patient_id !== null)
+                || (room.is_available === false);
+            
+            if (isOccupied) {
+                // Mark as unavailable
+                option.textContent = roomText + ' (Unavailable)';
+                option.disabled = true;
+                option.style.color = '#ef4444';
+            } else {
+                option.textContent = roomText;
+            }
+            
             roomNumberSelect.appendChild(option);
         });
         
@@ -1929,26 +1970,34 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        // Add beds to dropdown (only available beds)
-        beds.forEach(bed => {
-            // STRICT CLIENT-SIDE VALIDATION: Skip occupied beds
-            const bedStatus = bed.status ? bed.status.toLowerCase().trim() : '';
-            if (bedStatus === 'occupied') {
-                return; // Skip occupied beds
-            }
-            if (bed.current_patient_id && bed.current_patient_id !== '' && bed.current_patient_id !== null) {
-                return; // Skip beds with assigned patients
-            }
-            // Only show available beds (status = 'available' or null/empty)
-            if (bedStatus && bedStatus !== 'available') {
-                return; // Skip non-available beds
-            }
-            
+        // Get unavailable beds from room data if available
+        const selectedRoom = findRoomById(roomId);
+        const unavailableBeds = selectedRoom && selectedRoom.unavailable_beds ? selectedRoom.unavailable_beds : [];
+        
+        // Add all beds (available and unavailable) to dropdown
+        const allBeds = [...beds, ...unavailableBeds];
+        
+        allBeds.forEach(bed => {
             const option = document.createElement('option');
             option.value = bed.bed_number || '';
             option.dataset.bedId = bed.id || '';
             option.dataset.bedNumber = bed.bed_number || '';
-            option.textContent = 'Bed ' + (bed.bed_number || bed.id || '');
+            
+            // Check if bed is available
+            const bedStatus = bed.status ? bed.status.toLowerCase().trim() : '';
+            const isOccupied = (bedStatus === 'occupied')
+                || (bed.current_patient_id && bed.current_patient_id !== '' && bed.current_patient_id !== null)
+                || (bed.is_available === false);
+            
+            if (isOccupied) {
+                // Mark as unavailable
+                option.textContent = 'Bed ' + (bed.bed_number || bed.id || '') + ' (Unavailable)';
+                option.disabled = true;
+                option.style.color = '#ef4444';
+            } else {
+                option.textContent = 'Bed ' + (bed.bed_number || bed.id || '');
+            }
+            
             bedNumberSelect.appendChild(option);
         });
     }
@@ -2295,5 +2344,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
-
+<script src="<?= base_url('js/philippine-address.js') ?>"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize provinces
+    if (typeof populateProvinces === 'function') {
+        populateProvinces('address_province');
+    }
+});
+</script>
 <?= $this->endSection() ?>

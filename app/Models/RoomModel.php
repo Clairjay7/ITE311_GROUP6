@@ -31,26 +31,78 @@ class RoomModel extends Model
     public function getAvailableByWard(string $ward): array
     {
         $db = \Config\Database::connect();
-        return $db->table('rooms')
+        
+        // Get all rooms for this ward
+        $allRooms = $db->table('rooms')
             ->where('ward', $ward)
-            ->where('(LOWER(status) = "available" OR status IS NULL)', null, false)
-            ->where('(LOWER(status) != "occupied" OR status IS NULL)', null, false)
-            ->where('current_patient_id IS NULL', null, false)
             ->orderBy('room_number', 'ASC')
             ->get()
             ->getResultArray();
+        
+        // Get occupied room IDs from patients table
+        $occupiedRoomIds = [];
+        if ($db->tableExists('patients')) {
+            $occupiedRooms = $db->table('patients')
+                ->select('room_id')
+                ->where('room_id IS NOT NULL', null, false)
+                ->where('room_id !=', '')
+                ->get()
+                ->getResultArray();
+            $occupiedRoomIds = array_column($occupiedRooms, 'room_id');
+        }
+        
+        // Filter available rooms
+        $availableRooms = [];
+        foreach ($allRooms as $room) {
+            $roomStatus = strtolower(trim($room['status'] ?? ''));
+            $isOccupied = ($roomStatus === 'occupied') 
+                || !empty($room['current_patient_id'])
+                || in_array($room['id'], $occupiedRoomIds);
+            
+            if (!$isOccupied) {
+                $availableRooms[] = $room;
+            }
+        }
+        
+        return $availableRooms;
     }
 
     public function getAvailableByType(string $roomType): array
     {
         $db = \Config\Database::connect();
-        return $db->table('rooms')
+        
+        // Get all rooms for this type
+        $allRooms = $db->table('rooms')
             ->where('room_type', $roomType)
-            ->where('(LOWER(status) = "available" OR status IS NULL)', null, false)
-            ->where('(LOWER(status) != "occupied" OR status IS NULL)', null, false)
-            ->where('current_patient_id IS NULL', null, false)
             ->orderBy('room_number', 'ASC')
             ->get()
             ->getResultArray();
+        
+        // Get occupied room IDs from patients table
+        $occupiedRoomIds = [];
+        if ($db->tableExists('patients')) {
+            $occupiedRooms = $db->table('patients')
+                ->select('room_id')
+                ->where('room_id IS NOT NULL', null, false)
+                ->where('room_id !=', '')
+                ->get()
+                ->getResultArray();
+            $occupiedRoomIds = array_column($occupiedRooms, 'room_id');
+        }
+        
+        // Filter available rooms
+        $availableRooms = [];
+        foreach ($allRooms as $room) {
+            $roomStatus = strtolower(trim($room['status'] ?? ''));
+            $isOccupied = ($roomStatus === 'occupied') 
+                || !empty($room['current_patient_id'])
+                || in_array($room['id'], $occupiedRoomIds);
+            
+            if (!$isOccupied) {
+                $availableRooms[] = $room;
+            }
+        }
+        
+        return $availableRooms;
     }
 }

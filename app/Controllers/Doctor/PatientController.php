@@ -21,8 +21,7 @@ class PatientController extends BaseController
         // Get patients assigned to this doctor from admin_patients table
         $adminPatientsRaw = $patientModel
             ->where('doctor_id', $doctorId)
-            ->orderBy('lastname', 'ASC')
-            ->orderBy('firstname', 'ASC')
+            ->orderBy('id', 'DESC')
             ->findAll();
         
         // Format admin patients to include visit_type and source
@@ -41,8 +40,7 @@ class PatientController extends BaseController
                 ->where('patients.doctor_id', $doctorId)
                 ->where('patients.doctor_id IS NOT NULL')
                 ->where('patients.doctor_id !=', 0)
-                ->orderBy('patients.last_name', 'ASC')
-                ->orderBy('patients.first_name', 'ASC')
+                ->orderBy('patients.patient_id', 'DESC')
                 ->get()
                 ->getResultArray();
             
@@ -112,16 +110,119 @@ class PatientController extends BaseController
         // Re-index array
         $patients = array_values($deduplicated);
         
-        // Sort by lastname, then firstname
-        usort($patients, function($a, $b) {
-            $lastA = strtolower($a['lastname'] ?? '');
-            $lastB = strtolower($b['lastname'] ?? '');
-            if ($lastA === $lastB) {
-                $firstA = strtolower($a['firstname'] ?? '');
-                $firstB = strtolower($b['firstname'] ?? '');
-                return $firstA <=> $firstB;
+        // Filter out patients with completed consultations (but keep those with pending lab tests)
+        $patientsWithoutCompleted = [];
+        foreach ($patients as $patient) {
+            $patientId = $patient['id'] ?? $patient['patient_id'] ?? null;
+            $patientSource = $patient['source'] ?? 'admin';
+            
+            // Find the correct patient ID for consultations table
+            $consultationPatientId = null;
+            if ($patientSource === 'admin' || $patientSource === 'admin_patients') {
+                $consultationPatientId = $patientId;
+            } else {
+                $consultationPatientId = $patient['patient_id'] ?? $patientId;
             }
-            return $lastA <=> $lastB;
+            
+            // Check if patient has a completed consultation
+            $hasCompleted = false;
+            $hasPendingLabTests = false;
+            
+            if ($consultationPatientId && $db->tableExists('consultations')) {
+                // Check for completed consultation
+                $completedConsultation = $db->table('consultations')
+                    ->where('patient_id', $consultationPatientId)
+                    ->where('doctor_id', $doctorId)
+                    ->where('type', 'completed')
+                    ->where('status', 'completed')
+                    ->get()
+                    ->getRowArray();
+                
+                if ($completedConsultation) {
+                    $hasCompleted = true;
+                }
+                
+                // Check for pending consultation with lab tests (waiting for lab results)
+                $pendingLabConsultation = $db->table('consultations')
+                    ->where('patient_id', $consultationPatientId)
+                    ->where('doctor_id', $doctorId)
+                    ->where('type', 'upcoming')
+                    ->where('status', 'pending')
+                    ->where('lab_tests IS NOT NULL')
+                    ->where('lab_tests !=', '')
+                    ->get()
+                    ->getRowArray();
+                
+                // If found, check if all lab results are actually ready
+                if ($pendingLabConsultation) {
+                    $labTestsJson = $pendingLabConsultation['lab_tests'] ?? '';
+                    $labTestIds = [];
+                    if (!empty($labTestsJson)) {
+                        $labTestIds = json_decode($labTestsJson, true);
+                        if (!is_array($labTestIds)) {
+                            $labTestIds = [];
+                        }
+                    }
+                    
+                    // Check if all lab requests from this consultation have results
+                    $allResultsReady = true;
+                    if (!empty($labTestIds) && $db->tableExists('lab_requests')) {
+                        $consultationId = $pendingLabConsultation['id'];
+                        $allLabRequests = $db->table('lab_requests')
+                            ->where('patient_id', $consultationPatientId)
+                            ->where('doctor_id', $doctorId)
+                            ->like('instructions', 'From Consultation #' . $consultationId, 'after')
+                            ->get()
+                            ->getResultArray();
+                        
+                        if (!empty($allLabRequests)) {
+                            $labResultModel = new \App\Models\LabResultModel();
+                            foreach ($allLabRequests as $labReq) {
+                                $hasResult = $labResultModel
+                                    ->where('lab_request_id', $labReq['id'])
+                                    ->first();
+                                
+                                if (!$hasResult) {
+                                    $allResultsReady = false;
+                                    break;
+                                }
+                            }
+                            
+                            // If all results are ready, auto-complete the consultation
+                            if ($allResultsReady) {
+                                $db->table('consultations')
+                                    ->where('id', $consultationId)
+                                    ->update([
+                                        'status' => 'completed',
+                                        'type' => 'completed',
+                                        'updated_at' => date('Y-m-d H:i:s')
+                                    ]);
+                                
+                                // Don't show as waiting for lab results
+                                $pendingLabConsultation = null;
+                            }
+                        }
+                    }
+                }
+                
+                if ($pendingLabConsultation) {
+                    $hasPendingLabTests = true;
+                }
+            }
+            
+            // Include patients without completed consultations OR with pending lab tests
+            if (!$hasCompleted || $hasPendingLabTests) {
+                $patientsWithoutCompleted[] = $patient;
+            }
+        }
+        
+        $patients = $patientsWithoutCompleted;
+        
+        // Sort by ID (descending - newest first)
+        usort($patients, function($a, $b) {
+            $idA = (int)($a['id'] ?? $a['patient_id'] ?? 0);
+            $idB = (int)($b['id'] ?? $b['patient_id'] ?? 0);
+            return $idB <=> $idA; // DESC order (newest first)
         });
 
         // Fetch upcoming consultations and assigned nurse for each patient
@@ -144,9 +245,79 @@ class PatientController extends BaseController
                 // Get upcoming consultation for this patient
                 // Only show consultations where date and time have arrived
                 $upcomingConsultation = null;
+                $pendingLabConsultation = null;
+                
                 if ($consultationPatientId && $db->tableExists('consultations')) {
                     $today = date('Y-m-d');
                     $currentTime = date('H:i:s');
+                    
+                    // Check for pending consultation with lab tests (waiting for lab results)
+                    $pendingLabConsultation = $db->table('consultations')
+                        ->where('patient_id', $consultationPatientId)
+                        ->where('doctor_id', $doctorId)
+                        ->where('type', 'upcoming')
+                        ->where('status', 'pending')
+                        ->where('lab_tests IS NOT NULL')
+                        ->where('lab_tests !=', '')
+                        ->orderBy('consultation_date', 'DESC')
+                        ->orderBy('consultation_time', 'DESC')
+                        ->get()
+                        ->getRowArray();
+                    
+                    // If found, check if all lab results are actually ready
+                    if ($pendingLabConsultation) {
+                        $labTestsJson = $pendingLabConsultation['lab_tests'] ?? '';
+                        $labTestIds = [];
+                        if (!empty($labTestsJson)) {
+                            $labTestIds = json_decode($labTestsJson, true);
+                            if (!is_array($labTestIds)) {
+                                $labTestIds = [];
+                            }
+                        }
+                        
+                        // Check if all lab requests from this consultation have results
+                        $allResultsReady = true;
+                        if (!empty($labTestIds) && $db->tableExists('lab_requests')) {
+                            $consultationId = $pendingLabConsultation['id'];
+                            $allLabRequests = $db->table('lab_requests')
+                                ->where('patient_id', $consultationPatientId)
+                                ->where('doctor_id', $doctorId)
+                                ->like('instructions', 'From Consultation #' . $consultationId, 'after')
+                                ->get()
+                                ->getResultArray();
+                            
+                            if (!empty($allLabRequests)) {
+                                $labResultModel = new \App\Models\LabResultModel();
+                                foreach ($allLabRequests as $labReq) {
+                                    $hasResult = $labResultModel
+                                        ->where('lab_request_id', $labReq['id'])
+                                        ->first();
+                                    
+                                    if (!$hasResult) {
+                                        $allResultsReady = false;
+                                        break;
+                                    }
+                                }
+                                
+                                // If all results are ready, auto-complete the consultation
+                                if ($allResultsReady) {
+                                    $db->table('consultations')
+                                        ->where('id', $consultationId)
+                                        ->update([
+                                            'status' => 'completed',
+                                            'type' => 'completed',
+                                            'updated_at' => date('Y-m-d H:i:s')
+                                        ]);
+                                    
+                                    // Create consultation charge when consultation is auto-completed
+                                    $this->createConsultationCharge($consultationId, $consultationPatientId);
+                                    
+                                    // Don't show as waiting for lab results
+                                    $pendingLabConsultation = null;
+                                }
+                            }
+                        }
+                    }
                     
                     if ($patientSource === 'receptionist') {
                         // For receptionist patients, consultations table uses patients.patient_id
@@ -155,6 +326,10 @@ class PatientController extends BaseController
                             ->where('doctor_id', $doctorId)
                             ->where('type', 'upcoming')
                             ->whereIn('status', ['approved', 'pending'])
+                            ->groupStart()
+                                ->where('lab_tests IS NULL', null, false)
+                                ->orWhere('lab_tests', '')
+                            ->groupEnd()
                             ->groupStart()
                                 ->where('consultation_date >', $today) // Future dates
                                 ->orGroupStart()
@@ -174,6 +349,10 @@ class PatientController extends BaseController
                             ->where('type', 'upcoming')
                             ->whereIn('status', ['approved', 'pending'])
                             ->groupStart()
+                                ->where('lab_tests IS NULL', null, false)
+                                ->orWhere('lab_tests', '')
+                            ->groupEnd()
+                            ->groupStart()
                                 ->where('consultation_date >', $today) // Future dates
                                 ->orGroupStart()
                                     ->where('consultation_date', $today) // Today's date
@@ -185,6 +364,14 @@ class PatientController extends BaseController
                             ->get()
                             ->getRowArray();
                     }
+                }
+                
+                // Attach pending lab consultation info
+                if ($pendingLabConsultation) {
+                    $patient['pending_lab_consultation'] = $pendingLabConsultation;
+                    $patient['waiting_for_lab_results'] = true;
+                } else {
+                    $patient['waiting_for_lab_results'] = false;
                 }
                 
                 // Attach appointment info to patient
@@ -2174,5 +2361,86 @@ class PatientController extends BaseController
         }
 
         return $status;
+    }
+    
+    /**
+     * Create consultation charge when consultation is completed
+     * @param int $consultationId
+     * @param int $patientId (admin_patients.id)
+     * @return bool
+     */
+    private function createConsultationCharge($consultationId, $patientId)
+    {
+        $db = \Config\Database::connect();
+        
+        // Check if charge already exists for this consultation to avoid duplicates
+        $existingCharge = $db->table('charges')
+            ->where('consultation_id', $consultationId)
+            ->where('patient_id', $patientId)
+            ->get()
+            ->getRowArray();
+        
+        if ($existingCharge) {
+            log_message('info', "Consultation charge already exists for Consultation #{$consultationId} - Charge ID: {$existingCharge['id']}");
+            return true; // Charge already exists
+        }
+        
+        if (!$db->tableExists('charges') || !$db->tableExists('billing_items')) {
+            log_message('error', "Cannot create consultation charge - charges or billing_items table does not exist");
+            return false;
+        }
+        
+        try {
+            $chargeModel = new \App\Models\ChargeModel();
+            $billingItemModel = new \App\Models\BillingItemModel();
+            
+            // Consultation fee (default: 500 PHP, can be configured)
+            $consultationFee = 500.00; // Default consultation fee
+            
+            // Generate charge number
+            $chargeNumber = $chargeModel->generateChargeNumber();
+            
+            // Create charge record
+            $chargeData = [
+                'consultation_id' => $consultationId,
+                'patient_id' => $patientId, // Use admin_patients.id
+                'charge_number' => $chargeNumber,
+                'total_amount' => $consultationFee,
+                'status' => 'pending',
+                'notes' => 'Consultation Fee - Consultation #' . $consultationId,
+            ];
+            
+            if ($chargeModel->insert($chargeData)) {
+                $chargeId = $chargeModel->getInsertID();
+                
+                // Create billing item for consultation fee
+                $billingItemData = [
+                    'charge_id' => $chargeId,
+                    'item_type' => 'consultation',
+                    'item_name' => 'Consultation Fee',
+                    'description' => 'Doctor Consultation - Consultation #' . $consultationId,
+                    'quantity' => 1.00,
+                    'unit_price' => $consultationFee,
+                    'total_price' => $consultationFee,
+                    'related_id' => $consultationId,
+                    'related_type' => 'consultation',
+                ];
+                
+                if ($billingItemModel->insert($billingItemData)) {
+                    log_message('info', "✅✅✅ Consultation charge created successfully - Charge ID: {$chargeId}, Consultation ID: {$consultationId}, Patient ID: {$patientId}, Amount: {$consultationFee}");
+                    return true;
+                } else {
+                    log_message('error', "❌ Failed to create billing item for consultation charge - Charge ID: {$chargeId}");
+                    return false;
+                }
+            } else {
+                log_message('error', "❌ Failed to create consultation charge - Consultation ID: {$consultationId}, Patient ID: {$patientId}");
+                return false;
+            }
+        } catch (\Exception $e) {
+            log_message('error', "❌ Exception creating consultation charge: " . $e->getMessage());
+            log_message('error', "Stack trace: " . $e->getTraceAsString());
+            return false;
+        }
     }
 }

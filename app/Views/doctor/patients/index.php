@@ -284,7 +284,9 @@
                                 <th>Name</th>
                                 <th>Birthdate</th>
                                 <th>Gender</th>
+                                <th>Blood Type</th>
                                 <th>Visit Type</th>
+                                <th>Purpose</th>
                                 <th>Status</th>
                                 <th>Contact</th>
                                 <th>Address</th>
@@ -310,6 +312,15 @@
                                         </span>
                                     </td>
                                     <td>
+                                        <?php if (!empty($patient['blood_type'])): ?>
+                                            <span class="badge-modern" style="background: #fee2e2; color: #991b1b; font-weight: 600;">
+                                                <?= esc($patient['blood_type']) ?>
+                                            </span>
+                                        <?php else: ?>
+                                            <span class="text-muted">-</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td>
                                         <?php if (!empty($patient['visit_type'])): ?>
                                             <span class="badge-modern" style="background: <?= 
                                                 $patient['visit_type'] === 'Emergency' ? '#fee2e2' : 
@@ -326,8 +337,13 @@
                                             <span class="badge-modern" style="background: #f1f5f9; color: #64748b;">N/A</span>
                                         <?php endif; ?>
                                     </td>
+                                    <td><?= esc($patient['purpose'] ?? '-') ?></td>
                                     <td>
-                                        <?php if (!empty($patient['is_monitoring']) && $patient['is_monitoring']): ?>
+                                        <?php if (!empty($patient['waiting_for_lab_results']) && $patient['waiting_for_lab_results']): ?>
+                                            <span class="badge-modern" style="background: #fef3c7; color: #92400e; font-weight: 600;">
+                                                <i class="fas fa-vial"></i> Waiting for Lab Results
+                                            </span>
+                                        <?php elseif (!empty($patient['is_monitoring']) && $patient['is_monitoring']): ?>
                                             <span class="badge-modern" style="background: #dbeafe; color: #1e40af; font-weight: 600;">
                                                 <i class="fas fa-heartbeat"></i> Starting Monitoring
                                             </span>
@@ -880,38 +896,83 @@
                                                     </div>
                                                 <?php endif; ?>
                                             <?php endif; ?>
-                                            <!-- Check button - disabled when status is 'pending_nurse' or 'pending_order' -->
+                                            <!-- Check button - only show for In-Patient/Admission, not for Consultation/Out-Patient -->
                                             <?php 
-                                            $doctorCheckStatus = $patient['doctor_check_status'] ?? 'available';
-                                            $isCheckDisabled = ($doctorCheckStatus === 'pending_nurse' || $doctorCheckStatus === 'pending_order');
-                                            ?>
-                                            <?php if ($doctorCheckStatus === 'pending_nurse'): ?>
-                                                <!-- Button disabled - waiting for nurse to complete vitals -->
-                                                <span class="btn-modern btn-modern-secondary btn-sm-modern" 
-                                                      style="opacity: 0.6; cursor: not-allowed; background: #94a3b8;"
-                                                      title="Waiting for nurse to complete vital signs check">
-                                                    <i class="fas fa-clock"></i> Waiting for Nurse...
-                                                </span>
-                                            <?php elseif ($doctorCheckStatus === 'pending_order'): ?>
-                                                <!-- Button disabled - waiting for doctor to create and complete order -->
-                                                <span class="btn-modern btn-modern-secondary btn-sm-modern" 
-                                                      style="opacity: 0.6; cursor: not-allowed; background: #f59e0b;"
-                                                      title="Please create and complete a medical order from Vital Signs History">
-                                                    <i class="fas fa-file-medical"></i> Create Order Required
-                                                </span>
-                                            <?php else: ?>
-                                                <!-- Button enabled - doctor can click Check -->
-                                                <a href="<?= site_url('doctor/patients/request-vitals-check/' . $viewId) ?>" 
-                                                   class="btn-modern btn-modern-primary btn-sm-modern" 
-                                                   title="Check Patient - Enable Nurse to Check Vitals"
-                                                   onclick="return confirm('Check this patient? This will enable the nurse to check and record vital signs.')">
-                                                    <i class="fas fa-check-circle"></i> Check
+                                            // Only show Check button for In-Patient/Admission patients, not for Consultation/Out-Patient
+                                            $patientTypeForCheck = trim($patient['type'] ?? '');
+                                            $visitTypeForCheck = trim($patient['visit_type'] ?? '');
+                                            $isConsultationOnly = ($patientTypeForCheck === 'Out-Patient' || 
+                                                                  $visitTypeForCheck === 'Consultation' || 
+                                                                  $visitTypeForCheck === 'Check-up' || 
+                                                                  $visitTypeForCheck === 'Follow-up');
+                                            
+                                            if (!$isConsultationOnly): ?>
+                                                <?php 
+                                                $doctorCheckStatus = $patient['doctor_check_status'] ?? 'available';
+                                                $isCheckDisabled = ($doctorCheckStatus === 'pending_nurse' || $doctorCheckStatus === 'pending_order');
+                                                ?>
+                                                <?php if ($doctorCheckStatus === 'pending_nurse'): ?>
+                                                    <!-- Button disabled - waiting for nurse to complete vitals -->
+                                                    <span class="btn-modern btn-modern-secondary btn-sm-modern" 
+                                                          style="opacity: 0.6; cursor: not-allowed; background: #94a3b8;"
+                                                          title="Waiting for nurse to complete vital signs check">
+                                                        <i class="fas fa-clock"></i> Waiting for Nurse...
+                                                    </span>
+                                                <?php elseif ($doctorCheckStatus === 'pending_order'): ?>
+                                                    <!-- Button disabled - waiting for doctor to create and complete order -->
+                                                    <span class="btn-modern btn-modern-secondary btn-sm-modern" 
+                                                          style="opacity: 0.6; cursor: not-allowed; background: #f59e0b;"
+                                                          title="Please create and complete a medical order from Vital Signs History">
+                                                        <i class="fas fa-file-medical"></i> Create Order Required
+                                                    </span>
+                                                <?php else: ?>
+                                                    <!-- Button enabled - doctor can click Check -->
+                                                    <a href="<?= site_url('doctor/patients/request-vitals-check/' . $viewId) ?>" 
+                                                       class="btn-modern btn-modern-primary btn-sm-modern" 
+                                                       title="Check Patient - Enable Nurse to Check Vitals"
+                                                       onclick="return confirm('Check this patient? This will enable the nurse to check and record vital signs.')">
+                                                        <i class="fas fa-check-circle"></i> Check
+                                                    </a>
+                                                <?php endif; ?>
+                                            <?php endif; ?>
+                                            
+                                            <?php 
+                                            // Check if patient is waiting for lab results
+                                            $waitingForLabResults = !empty($patient['waiting_for_lab_results']) && $patient['waiting_for_lab_results'];
+                                            $pendingLabConsultationId = null;
+                                            if ($waitingForLabResults && !empty($patient['pending_lab_consultation'])) {
+                                                $pendingLabConsultationId = $patient['pending_lab_consultation']['id'] ?? null;
+                                            }
+                                            
+                                            // Show "Start Consultation" button for Out-Patient/Consultation patients
+                                            $patientType = trim($patient['type'] ?? '');
+                                            $visitType = trim($patient['visit_type'] ?? '');
+                                            $isOutPatient = ($patientType === 'Out-Patient' || $visitType === 'Consultation' || $visitType === 'Check-up' || $visitType === 'Follow-up');
+                                            
+                                            // Determine the source and patient ID for consultation
+                                            $patientSource = $patient['source'] ?? 'admin';
+                                            $consultationPatientId = ($patientSource === 'receptionist') 
+                                                ? ($patient['patient_id'] ?? $patient['id']) 
+                                                : ($patient['id'] ?? $patient['patient_id']);
+                                            $consultationSource = ($patientSource === 'receptionist') ? 'patients' : 'admin_patients';
+                                            
+                                            if ($isOutPatient && !$isInpatientRegistration && $canStartConsultation && !$waitingForLabResults): ?>
+                                                <a href="<?= site_url('doctor/consultations/start/' . $consultationPatientId . '/' . $consultationSource) ?>" 
+                                                   class="btn-modern btn-sm-modern" 
+                                                   style="background: #0288d1; color: white; box-shadow: 0 4px 12px rgba(2, 136, 209, 0.3);"
+                                                   title="Start Consultation">
+                                                    <i class="fas fa-stethoscope"></i> Start Consultation
                                                 </a>
                                             <?php endif; ?>
+                                            
+                                            <?php 
+                                            // Note: "Complete Consultation" button removed - consultation is now auto-completed when all lab results are ready
+                                            ?>
+                                            
                                             <?php if (!$isInpatientRegistration): ?>
                                             <a href="<?= site_url('doctor/patients/view/' . $viewId) ?>" 
                                                class="btn-modern btn-modern-info btn-sm-modern" title="View Details">
-                                                <i class="fas fa-eye"></i>
+                                                <i class="fas fa-eye"></i> View
                                             </a>
                                             <?php endif; ?>
                                             
